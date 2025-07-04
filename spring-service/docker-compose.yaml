@@ -1,0 +1,21 @@
+services:
+  springboot-war:
+    build: .
+    container_name: ${JAVA_DOCKER_CONTAINER}
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - "8086:8086"
+  postgres:
+    image: postgres:14
+    restart: on-failure
+    container_name: ${DOCKER_CONTAINER}
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_SCHEMA}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${HOST_PORT}:5432"
