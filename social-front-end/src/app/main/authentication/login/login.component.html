@@ -1,6 +1,29 @@
-<main class="bg-cardbg w-[100vw] h-[100vh]">
-  <div class="flex justify-center items-center gap-3 flex-col  w-full h-full ">
-    <h1>Sign in to salesai</h1>
+<main class="h-[100vh] w-[100vw] bg-cardbg flex flex-col ">
+    <div class="bg-orange w-full h-full hidden xl:block">
 
-  </div>
+    </div>
+    <div class=" xl:w-1/2 w-full h-full flex justify-center items-center flex-col gap-3">
+      <div class="title w-[80%] flex justify-center flex-col items-center gap-2">
+        <h1 class="font-mono text-3xl font-semibold">Sign in!</h1>
+        <p class="text-xl text-center text-gray font-mono">Welcome to our e-commerce platform</p>
+      </div>
+      <div class="forms w-[80%] flex flex-col gap-4 font-mono">
+        <app-login-input placeholder="Email"></app-login-input>
+        <app-login-input placeholder="Password" type="password"></app-login-input>
+        <div class="text-right px-1 py-3 text-gray">
+          <a href="#">Recover password</a>
+        </div>
+      </div>
+      <div class="w-[80%] font-mono">
+        <input type="submit" class="w-full p-4 bg-orange rounded-xl text-white font-bold text-md" style="letter-spacing: 0px">
+      </div>
+      <div class="py-10 px-2 flex justify-center items-center gap-8">
+        <app-platform-button logoName="google_logo"></app-platform-button>
+        <app-platform-button logoName="facebook_logo"></app-platform-button>
+        <app-platform-button logoName="github_logo"></app-platform-button>
+      </div>
+      <div class="py-2 px-2 flex justify-center items-center gap-8 font-thin font-mono" style="letter-spacing: 0px">
+        <p>Not a member? <a href="" class="text-orange">Sign up</a></p>
+      </div>
+    </div>
 </main>

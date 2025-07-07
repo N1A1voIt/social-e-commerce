@@ -1,0 +1,19 @@
+<div>
+  <label [for]="id" class="block mb-2 text-lg text-black dark:text-white">{{ label }}</label>
+  <input
+    [id]="id"
+    [type]="type"
+    [value]="value"
+    [placeholder]="placeholder"
+    class= "
+    text-black
+    rounded-xl
+    focus:border-blue-500 block
+    w-full p-4 dark:bg-gray-700
+    outline-none
+    font-thin
+"
+    style="letter-spacing: 1px"
+    (input)="onInputChange($event)"
+  />
+</div>
