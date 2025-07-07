@@ -3,7 +3,11 @@ module.exports = {
     "./src/**/*.{html,ts}"  // scans components and templates
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'custom-font': ['MonaSans', 'sans-serif'], // 'custom-font' is your Tailwind utility, 'MyCustomFont' matches your @font-face name
+      }
+    },
     colors: {
       blackt: '#252C35',
       gray: '#666667',
