@@ -1,7 +1,8 @@
-<div class="absolute top-0 right-0 bg-opacity-30 backdrop-blur bg-principal w-full h-full">
-  <div class=" h-[100vh] xl:w-[40vw] shadow-xl absolute bg-principal top-0 right-0 rounded-l-3xl">
+<div class="absolute top-0 right-0 bg-opacity-30 backdrop-blur bg-principal w-full h-full overflow-hidden">
+  <div class=" h-[100vh] xl:w-[40vw] shadow-xl absolute bg-principal top-0 right-0 rounded-l-3xl z-20">
+
     <div class="flex justify-begin p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
-      <h1 class="text-gray">X</h1>
+      <h1 class="text-gray flex justify-center items-center"><ng-icon name="heroXMark" size="20"></ng-icon></h1>
       <h1>Account details</h1>
     </div>
     <div class="flex gap-2 justify-center items-center p-4 px-6 w-full  border-b border-gray">
@@ -22,5 +23,19 @@
     </div>
     <app-contacts class="w-full"></app-contacts>
     <app-managed-account></app-managed-account>
+  </div>
+  <div class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
+    <div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative">
+      <div class="flex justify-between w-full p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
+        <div>
+          <h1 class="text-gray"></h1>
+          <h1>Edit your contacts</h1>
+        </div>
+        <div class="text-xl  flex justify-center items-center">
+          <ng-icon name="heroPlusCircle" size="30" class="cursor-pointer"></ng-icon>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>

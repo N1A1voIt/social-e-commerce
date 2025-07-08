@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import {AccountDetailsComponent} from "./main/settings/account-details/account-details.component";
 import {provideIcons} from "@ng-icons/core";
-import {heroPencilSquare} from "@ng-icons/heroicons/outline";
+import {heroPencilSquare, heroPlusCircle, heroXMark} from "@ng-icons/heroicons/outline";
 
 @Component({
   selector: 'app-root',
@@ -11,7 +11,7 @@ import {heroPencilSquare} from "@ng-icons/heroicons/outline";
   imports: [CommonModule, RouterOutlet, AccountDetailsComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [provideIcons({heroPencilSquare})]
+  providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark})]
 })
 export class AppComponent {
   title = 'social-front-end';
