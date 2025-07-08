@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col">
+
+  <div class="flex overflow-hidden h-full">
+    <div class="">
+      <app-sidebar class="h-full"></app-sidebar>
+    </div>
+    <main class="flex-1  overflow-auto bg-gray-100 ">
+      <header class="py-2 text-white flex justify-end items-center px-6  w-full">
+        <div class="flex gap-3 items-center">
+          <div class="rounded-full border w-[35px] h-[35px] bg-white "></div>
+          <div class="rounded-full border w-[35px] h-[35px] bg-white "></div>
+        </div>
+      </header>
+      <ng-content>
+
+      </ng-content>
+    </main>
+  </div>
+</div>

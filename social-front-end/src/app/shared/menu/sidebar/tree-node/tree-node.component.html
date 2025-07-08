@@ -1,0 +1,39 @@
+
+<div class="flex font-semibold text-sm" style="letter-spacing:1px">
+  <div class="flex flex-col" [class.mr-1]="depth > 0">
+    <ng-container *ngFor="let _ of [].constructor(depth); let i = index">
+      <div class="w-4 flex-shrink-0">
+        <div *ngIf="i < depth - 1" class="w-px h-full bg-gray-300 ml-2"></div>
+        <div *ngIf="i === depth - 1" class="relative w-4 h-4">
+          <div class="absolute top-1/2 left-2 w-2 h-px bg-gray-300"></div>
+          <div *ngIf="!isLast" class="absolute top-1/2 bottom-0 left-2 w-px bg-gray-300"></div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="flex-1">
+    <div class="flex items-center py-1 cursor-pointer hover:bg-gray-50 rounded"
+         (click)="node.children && (isExpanded = !isExpanded)">
+      <div class="w-6 flex justify-center mr-1">
+        <i *ngIf="node.children"
+           class="pi text-gray-500 text-xs"
+           [class.pi-chevron-right]="!isExpanded"
+           [class.pi-chevron-down]="isExpanded"></i>
+      </div>
+      <i [class]="node.icon" class="text-gray-500 mr-2"></i>
+      <a href="{{ node.link }}" class="text-gray-800" *ngIf="!node.children">{{ node.label }}</a>
+      <span class="text-gray-800" *ngIf="node.children">{{ node.label }}</span>
+    </div>
+
+    <div *ngIf="node.children && isExpanded" class="">
+      <ng-container *ngFor="let child of node.children; let last = last">
+        <app-tree-node
+          [node]="child"
+          [depth]="depth + 1"
+          [isLast]="last">
+        </app-tree-node>
+      </ng-container>
+    </div>
+  </div>
+</div>

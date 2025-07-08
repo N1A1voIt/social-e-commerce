@@ -1,0 +1,10 @@
+<div class="card flex justify-center w-full text-blackt">
+  <!-- tree-view.component.html -->
+  <div class="w-full rounded-lg ">
+    <div class="space-y-1">
+      <ng-container *ngFor="let node of treeData; let last = last">
+        <app-tree-node [node]="node" [isLast]="last"></app-tree-node>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -20,6 +20,9 @@
     "@angular/router": "^17.0.0",
     "@ng-icons/core": "^28.1.0",
     "@ng-icons/heroicons": "^28.1.0",
+    "@smart-webcomponents-angular/tree": "^22.0.6",
+    "primeicons": "^7.0.0",
+    "primeng": "^17.18.15",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
