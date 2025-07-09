@@ -21,7 +21,7 @@ module.exports = {
         brown:'#D4C4B8',
         yellow:'#E8BC34',
         orange:'#FC6657',
-        cardbg:'#EBDDDB'
+        cardbg:'#d7c9c7'
       }
 
     },
