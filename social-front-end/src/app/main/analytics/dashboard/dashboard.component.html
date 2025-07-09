@@ -17,14 +17,23 @@
   <div class="flex justify-between items-center w-full py-6">
     <h1 class="text-3xl text-zinc-500" style="letter-spacing: 1px">New Report</h1>
   </div>
-  <div class="flex justify-between items-center w-full py-6">
+  <div class="flex justify-between items-end w-full py-2 ">
     <div class="flex flex-col gap-2 rounded-3xl font-mono" style="letter-spacing: 1px">
       <h1>Revenue</h1>
-      <div class="flex gap-3 items-center justify-center w-full">
+      <div class="flex gap-3 items-center justify-center w-full ">
         <span class="text-3xl font-bold">$<span>523,000.82</span></span>
         <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>
-        <app-revenue-badge [showIcon]="false" text="$ 27,335"></app-revenue-badge>
+        <app-revenue-badge [showIcon]="true" text="$ 27,335"></app-revenue-badge>
       </div>
+      <div>
+        <span>From Sep 1 to Aug 31 2025</span>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <app-top-sales-card></app-top-sales-card>
+      <app-best-deals-card></app-best-deals-card>
+      <app-descriptive-card [isActive]="true"></app-descriptive-card>
+      <app-descriptive-card></app-descriptive-card>
     </div>
   </div>
 </div>
