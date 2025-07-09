@@ -7,6 +7,7 @@ import {RevenueBadgeComponent} from "./revenue-badge/revenue-badge.component";
 import {TopSalesCardComponent} from "./top-sales-card/top-sales-card.component";
 import {BestDealsCardComponent} from "./best-deals-card/best-deals-card.component";
 import {DescriptiveCardComponent} from "./descriptive-card/descriptive-card.component";
+import {AccountPerformancesComponent} from "./account-performances/account-performances.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -19,7 +20,8 @@ import {DescriptiveCardComponent} from "./descriptive-card/descriptive-card.comp
     RevenueBadgeComponent,
     TopSalesCardComponent,
     BestDealsCardComponent,
-    DescriptiveCardComponent
+    DescriptiveCardComponent,
+    AccountPerformancesComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
