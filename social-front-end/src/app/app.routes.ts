@@ -15,9 +15,7 @@ const homeRoutes: Routes = [
     ]
   },
 ]
-const appRoutes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-]
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/auth/login', pathMatch: 'full' },

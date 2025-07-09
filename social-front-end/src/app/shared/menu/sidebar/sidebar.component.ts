@@ -17,7 +17,7 @@ import {LinkComponent} from "./link/link.component";
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('tree', { read: TreeComponent, static: false }) tree!: TreeComponent;
+  // @ViewChild('tree', { read: TreeComponent, static: false }) tree!: TreeComponent;
   treeData = [
     {
       label: 'CEO',
@@ -49,8 +49,8 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
     }
 
   ngAfterViewInit(): void {
-    this.tree.showLines = true;
-    this.tree.showRootLines = true;
+    // this.tree.showLines = true;
+    // this.tree.showRootLines = true;
   }
 
 }

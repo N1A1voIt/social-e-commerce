@@ -14,6 +14,7 @@ module.exports = {
         '3xl': ['4vh', { lineHeight: '2.25rem' }] // 30px
       },colors: {
         blackt: '#252C35',
+        fotsy: '#ffffff',
         gray: '#666667',
         principal : '#F1EAEA',
         white :'#E9E8E9',
