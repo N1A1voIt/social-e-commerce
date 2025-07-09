@@ -2,6 +2,7 @@ import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {TreeComponent, TreeModule} from "@smart-webcomponents-angular/tree";
 import {TreeExampleComponent} from "./tree-example/tree-example.component";
 import {NgIcon} from "@ng-icons/core";
+import {LinkComponent} from "./link/link.component";
 
 @Component({
   selector: 'app-sidebar',
@@ -9,7 +10,8 @@ import {NgIcon} from "@ng-icons/core";
   imports: [
     TreeModule,
     TreeExampleComponent,
-    NgIcon
+    NgIcon,
+    LinkComponent
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'

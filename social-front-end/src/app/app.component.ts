@@ -3,7 +3,14 @@ import { CommonModule } from '@angular/common';
 import {Router, RouterOutlet} from '@angular/router';
 import {AccountDetailsComponent} from "./main/settings/account-details/account-details.component";
 import {provideIcons} from "@ng-icons/core";
-import {heroDocument, heroPencilSquare, heroPlusCircle, heroXMark} from "@ng-icons/heroicons/outline";
+import {
+  heroArrowUturnRight,
+  heroChartBarSquare, heroChatBubbleOvalLeftEllipsis,
+  heroDocument,
+  heroPencilSquare,
+  heroPlusCircle,
+  heroXMark
+} from "@ng-icons/heroicons/outline";
 import {MenuComponent} from "./shared/menu/menu.component";
 import {heroDocumentSolid} from "@ng-icons/heroicons/solid";
 
@@ -13,7 +20,7 @@ import {heroDocumentSolid} from "@ng-icons/heroicons/solid";
   imports: [CommonModule, RouterOutlet, AccountDetailsComponent, MenuComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark,heroDocumentSolid})]
+  providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark,heroDocumentSolid,heroChartBarSquare,heroChatBubbleOvalLeftEllipsis,heroArrowUturnRight})]
 })
 export class AppComponent implements OnInit {
   title = 'social-front-end';
