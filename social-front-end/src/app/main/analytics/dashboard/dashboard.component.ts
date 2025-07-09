@@ -1,11 +1,19 @@
 import { Component } from '@angular/core';
 import {PlatformBadgeComponent} from "./platform-badge/platform-badge.component";
+import {LinkComponent} from "../../../shared/menu/sidebar/link/link.component";
+import {ActionBadgeComponent} from "./action-badge/action-badge.component";
+import {NgIcon} from "@ng-icons/core";
+import {RevenueBadgeComponent} from "./revenue-badge/revenue-badge.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    PlatformBadgeComponent
+    PlatformBadgeComponent,
+    LinkComponent,
+    ActionBadgeComponent,
+    NgIcon,
+    RevenueBadgeComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

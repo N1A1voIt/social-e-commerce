@@ -4,7 +4,27 @@
       <app-platform-badge></app-platform-badge>
       <app-platform-badge></app-platform-badge>
       <app-platform-badge></app-platform-badge>
+      <div class="w-[35px] h-[35px] overflow-hidden rounded-full border-2">
+        <img src="assets/imgs/gustavo.jpeg" class="New Reportobject-cover" width="35" alt="">
+      </div>
     </div>
-
+    <div class="flex gap-2 justify-center items-center flex-row">
+      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
+      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
+      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
+    </div>
+  </div>
+  <div class="flex justify-between items-center w-full py-6">
+    <h1 class="text-3xl text-zinc-500" style="letter-spacing: 1px">New Report</h1>
+  </div>
+  <div class="flex justify-between items-center w-full py-6">
+    <div class="flex flex-col gap-2 rounded-3xl font-mono" style="letter-spacing: 1px">
+      <h1>Revenue</h1>
+      <div class="flex gap-3 items-center justify-center w-full">
+        <span class="text-3xl font-bold">$<span>523,000.82</span></span>
+        <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>
+        <app-revenue-badge [showIcon]="false" text="$ 27,335"></app-revenue-badge>
+      </div>
+    </div>
   </div>
 </div>
