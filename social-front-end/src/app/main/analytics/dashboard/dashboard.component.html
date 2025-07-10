@@ -1,4 +1,4 @@
-<div class="w-full h-full bg-white rounded-3xl p-4">
+<div class="w-full h-full bg-white rounded-3xl p-4 overflow-y-scroll">
   <div class="flex justify-between items-center w-full">
     <div class="flex gap-2 justify-center items-center flex-row">
       <app-platform-badge></app-platform-badge>
@@ -41,6 +41,19 @@
       <app-account-performances class="w-[19.20%]" [percentage]="19.20" [amount]="12000"></app-account-performances>
       <app-account-performances class="w-[30.80%]" [percentage]="30.80" [amount]="30000"></app-account-performances>
       <app-account-performances class="w-[50%]" [percentage]="50" [amount]="40000"></app-account-performances>
+    </div>
+  </div>
+  <div class="w-full flex items-center h-1/2 py-1 gap-2">
+    <div class="w-1/2 h-full  flex items-center gap-2">
+      <div class="h-full">
+        <app-bar-chart></app-bar-chart>
+      </div>
+      <div class="h-full">
+        <app-bar-chart></app-bar-chart>
+      </div>
+    </div>
+    <div class="h-full w-1/2">
+      <app-bar-chart></app-bar-chart>
 
     </div>
   </div>

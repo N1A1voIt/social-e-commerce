@@ -8,6 +8,7 @@ import {TopSalesCardComponent} from "./top-sales-card/top-sales-card.component";
 import {BestDealsCardComponent} from "./best-deals-card/best-deals-card.component";
 import {DescriptiveCardComponent} from "./descriptive-card/descriptive-card.component";
 import {AccountPerformancesComponent} from "./account-performances/account-performances.component";
+import {BarChartComponent} from "./bar-chart/bar-chart.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +22,8 @@ import {AccountPerformancesComponent} from "./account-performances/account-perfo
     TopSalesCardComponent,
     BestDealsCardComponent,
     DescriptiveCardComponent,
-    AccountPerformancesComponent
+    AccountPerformancesComponent,
+    BarChartComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
