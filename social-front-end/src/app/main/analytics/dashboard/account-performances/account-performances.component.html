@@ -1,0 +1,17 @@
+<div class="w-full bg-white h-full rounded-full flex justify-between items-center p-2 px-3 font-light" style="letter-spacing: 1px">
+
+  <div class="w-auto rounded-full  border-blackt   px-1  cursor-pointer max-w-[150px] font-sans flex flex-row gap-2 items-center text-md "
+       style="letter-spacing: 0px">
+    <div class="w-[25px] h-[25px] overflow-hidden rounded-full ">
+      <img src="assets/logos/facebook_logo.png" class="object-cover" width="25" alt="">
+    </div>
+
+    <h1 class="truncate whitespace-nowrap overflow-hidden min-w-0 text-center">
+      ${{amount | number: '1.2-2'}}
+    </h1>
+  </div>
+
+  <div>
+    <h1 class="text-md font-light">{{percentage | number: '1.2-2'}}%</h1>
+  </div>
+</div>
