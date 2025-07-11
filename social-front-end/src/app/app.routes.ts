@@ -4,6 +4,7 @@ import {SignupComponent} from "./main/authentication/signup/signup.component";
 import {DashboardComponent} from "./main/analytics/dashboard/dashboard.component";
 import {MenuComponent} from "./shared/menu/menu.component";
 import {FeedComponent} from "./main/feed/feed.component";
+import {InboxComponent} from "./main/inbox/inbox.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent },
@@ -14,6 +15,7 @@ const homeRoutes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'feed', component: FeedComponent },
+      { path: 'inbox', component: InboxComponent },
     ]
   },
 ]
