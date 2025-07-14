@@ -1,0 +1,5 @@
+    - Identity provider autheentication
+        - Check if name is inserted (Ok)
+        - Check if the inserted row is linked to the identity provider (Ok)
+        - Check if you can authentify via email/password (OK)
+        - Exception manager

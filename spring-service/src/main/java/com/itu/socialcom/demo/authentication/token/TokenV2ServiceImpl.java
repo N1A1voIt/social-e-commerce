@@ -30,37 +30,18 @@ public class TokenV2ServiceImpl implements TokenV2Service {
     @Override
     public boolean isTokenValid(String token) {
         return tokenV2Repository.findValidToken(token)
-                .map(t -> !t.isExpired() && !t.isRevoked() && t.getExpiryDate().isAfter(LocalDateTime.now()))
+                .map(t ->  t.getExpiryDate().isAfter(LocalDateTime.now()))
                 .orElse(false);
     }
 
-    @Override
-    @Transactional
-    public void revokeToken(String token) {
-        tokenV2Repository.findByToken(token)
-                .ifPresent(t -> {
-                    t.setRevoked(true);
-                    tokenV2Repository.save(t);
-                });
-    }
-
-    @Override
-    @Transactional
-    public void revokeAllUserTokens(Long userId) {
-        tokenV2Repository.revokeAllUserTokens(userId);
-    }
 
     @Override
     @Transactional
     public TokenV2 createToken(Long userId, String token, long expirationInMinutes) {
-        revokeAllUserTokens(userId);
-
         TokenV2 tokenV2 = new TokenV2();
         tokenV2.setToken(token);
         tokenV2.setUserId(userId);
         tokenV2.setExpiryDate(LocalDateTime.now().plusMinutes(expirationInMinutes));
-        tokenV2.setExpired(false);
-        tokenV2.setRevoked(false);
         
         return saveToken(tokenV2);
     }

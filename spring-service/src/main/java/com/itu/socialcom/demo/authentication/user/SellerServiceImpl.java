@@ -2,6 +2,7 @@ package com.itu.socialcom.demo.authentication.user;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserRecord;
 import com.itu.socialcom.demo.authentication.token.TokenV2;
 import com.itu.socialcom.demo.authentication.token.TokenV2ServiceImpl;
@@ -27,22 +28,60 @@ public class SellerServiceImpl implements SellerService {
     }
     @Override
     @Transactional
-    public String saveSeller(Map<String, Object> body, FirebaseToken decodedToken) throws Exception{
+    public String saveSeller(Map<String, Object> body, FirebaseToken decodedToken) throws Exception {
         String idToken = body.get("idToken").toString();
-        String name = body.get("name") != null ? body.get("name").toString() : null;
         String uid = decodedToken.getUid();
         String email = decodedToken.getEmail();
+
+        // Get UserRecord from Firebase to access provider details
+        UserRecord userRecord = firebaseAuth.getUser(uid);
+
+        // Determine provider type
+        String providerId = extractProviderId(userRecord);
+        Seller.ProviderType providerType = Seller.ProviderType.valueOf(providerId);
+
+        // Get name: use body name if present, else fallback to Firebase's displayName
+        String name = (body.get("name") != null && !body.get("name").toString().isBlank())
+                ? body.get("name").toString()
+                : userRecord.getDisplayName(); // fallback to Firebase provider name
+
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+
+        // Build and save Seller
         Seller seller = new Seller();
         seller.setFirebaseUid(uid);
         seller.setEmail(email);
         seller.setUsername(name);
-        UserRecord userRecord = firebaseAuth.getUser(uid);
-        System.out.println(decodedToken.getTenantId());
-        //seller.setProvider(userRecord.getProviderId());
+        seller.setProvider(providerType);
 
         sellerRepository.save(seller);
+
+        // Generate and return access token
         TokenV2 tokenV2 = tokenV2Service.createToken(seller.getId(), idToken, 30);
         return tokenV2.getToken();
+    }
+
+
+    private static String extractProviderId(UserRecord userRecord) throws Exception {
+        String providerId = "firebase"; // fallback
+        for (UserInfo userInfo : userRecord.getProviderData()) {
+            if (!userInfo.getProviderId().equals("firebase")) {
+                providerId = userInfo.getProviderId(); // e.g., "google.com", "password"
+                break;
+            }
+        }
+        String enumName = switch (providerId) {
+            case "google.com" -> "google";
+            case "facebook.com" -> "facebook";
+            case "x.com" -> "X";
+            case "password" -> "basic";
+            case "github.com" -> "github";
+            default -> throw new Exception("Unsupported provider: " + providerId);
+        };
+
+        return enumName;
     }
 
     @Override

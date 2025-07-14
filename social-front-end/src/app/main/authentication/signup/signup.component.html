@@ -3,21 +3,22 @@
     <div class="bg-orange w-[60%] h-[80vh] hidden xl:block rounded-3xl">
 
     </div>
-    <div class=" xl:w-[40%] w-full h-full lg:h-[80vh] flex justify-center items-center flex-col gap-3">
+    <form [formGroup]="signupForm" (ngSubmit)="signup()"  class=" xl:w-[40%] w-full h-full lg:h-[80vh] flex justify-center items-center flex-col gap-3">
       <div class="title w-[80%] flex justify-center flex-col items-center gap-2">
         <h1 class="font-mono text-3xl font-semibold">Sign up!</h1>
         <p class="text-xl text-center text-gray font-mono">Welcome to our e-commerce platform</p>
       </div>
       <div class="forms w-[80%] flex flex-col gap-4 font-mono">
-        <app-login-input placeholder="Username"></app-login-input>
-        <app-login-input placeholder="Email"></app-login-input>
-        <app-login-input placeholder="Password" type="password"></app-login-input>
+        <app-login-input formControlName="name" placeholder="Username"></app-login-input>
+        <app-login-input formControlName="email" placeholder="Email"></app-login-input>
+        <app-login-input formControlName="password" placeholder="Password" type="password"></app-login-input>
+
         <div class="text-right px-1 py-1 text-gray">
 
         </div>
       </div>
       <div class="w-[80%] font-mono">
-        <input type="submit" class="w-full p-4 bg-orange rounded-xl text-white font-bold text-md" style="letter-spacing: 0px">
+        <input type="submit"  class="w-full p-4 bg-orange rounded-xl text-white font-bold text-md" style="letter-spacing: 0px">
       </div>
       <div class="py-10 px-2 flex justify-center items-center gap-8">
         <app-platform-button logoName="google_logo" (click)="signupWithGoogle()"></app-platform-button>
@@ -27,6 +28,6 @@
       <div class="py-2 px-2 flex justify-center items-center gap-8 font-thin font-mono" style="letter-spacing: 0px">
         <p>Already have an account? <a href="/" class="text-orange">Sign in</a></p>
       </div>
-    </div>
+    </form>
   </div>
 </main>

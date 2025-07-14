@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Data
 @Entity
@@ -23,7 +25,8 @@ public class Seller {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "id_provider")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM) // Add this line
+    @Column(name = "id_provider", columnDefinition = "platforms_pro")
     private ProviderType provider;
 
     @Column(name = "phone_number")
@@ -33,10 +36,10 @@ public class Seller {
     private String firebaseUid;
 
     public enum ProviderType {
-        GOOGLE,
-        FACEBOOK,
-        BASIC,
+        google,
+        facebook,
+        basic,
         X,
-        GITHUB
+        github
     }
 }

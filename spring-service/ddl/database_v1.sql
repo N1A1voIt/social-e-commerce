@@ -1,5 +1,7 @@
 CREATE TYPE platforms_pro as ENUM ('google', 'facebook','basic','X','github');
 
+
+
 CREATE TABLE seller_v2(
                           id_seller SERIAL,
                           email TEXT NOT NULL,

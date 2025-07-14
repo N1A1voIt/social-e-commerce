@@ -10,27 +10,17 @@ import java.time.LocalDateTime;
 public class TokenV2 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_token")
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 2000)
+    @Column(nullable = false, unique = true, length = 2000,name = "token")
     private String token;
 
     @Column(name = "id_seller", nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "expired_at")
     private LocalDateTime expiryDate;
 
-    @Column(nullable = false)
-    private boolean revoked = false;
 
-    @Column(nullable = false)
-    private boolean expired = false;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    public boolean isTokenValid() {
-        return !revoked && !expired && expiryDate.isAfter(LocalDateTime.now());
-    }
 }
