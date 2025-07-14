@@ -2,10 +2,15 @@ package com.itu.socialcom.demo.authentication;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.authentication.user.SellerServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -14,32 +19,37 @@ import java.util.HashMap;
 public class AuthController {
 
     private final FirebaseAuth firebaseAuth;
+    @Autowired
+    private SellerServiceImpl sellerService;
+    @Autowired
+    private SellerServiceImpl sellerServiceImpl;
 
-    public AuthController() {
-        this.firebaseAuth = FirebaseAuth.getInstance();
+    public AuthController(FirebaseAuth firebaseAuth) {
+        this.firebaseAuth = firebaseAuth;
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody Map<String, String> body) {
-        String idToken = body.get("idToken");
+    @Transactional
+    public ResponseEntity<?> signup(@RequestBody Map<String, Object> body) {
+        if (body == null || !body.containsKey("idToken")) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "idToken is required"));
+        }
+        System.out.println("Body: " + body);
         try {
+            String idToken = body.get("idToken").toString();
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
-            String uid = decodedToken.getUid();
-            String email = decodedToken.getEmail();
-            
-            // Create or update user in your DB as needed
-            Map<String, String> response = new HashMap<>();
-            response.put("uid", uid);
-            response.put("email", email);
-            response.put("status", "success");
-            
-            return ResponseEntity.ok(response);
+            System.out.println("You are here!");
+            String token = sellerServiceImpl.saveSeller(body,decodedToken);
+            return ResponseEntity.ok(token);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new HashMap<String, String>() {{
                         put("error", "Invalid token");
                         put("message", e.getMessage());
-                    }});
+                    }}
+                    );
         }
+
     }
 }

@@ -44,12 +44,19 @@ export class SignupComponent {
         alert(error.message);
       });
   }
-  
+
   signupWithGoogle() {
     signInWithPopup(this.auth, new GoogleAuthProvider())
       .then(userCredential => userCredential.user.getIdToken())
       .then(idToken => {
-        return this.http.post('/api/auth/signup', { idToken }).subscribe();
+        return this.http.post('http://localhost:8080/api/auth/signup', {
+          idToken,
+          name: this.name,
+          username: this.username
+        }).subscribe(
+          res => {  },
+          err => {  }
+        );
       });
   }
 }

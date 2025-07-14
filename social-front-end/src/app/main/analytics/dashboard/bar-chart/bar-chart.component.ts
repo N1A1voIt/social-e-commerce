@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { BaseChartDirective } from 'ng2-charts';
+import {BaseChartDirective, NgChartsModule} from 'ng2-charts';
 import { ChartConfiguration, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
   imports: [
-    BaseChartDirective
+    NgChartsModule
   ],
   templateUrl: './bar-chart.component.html',
   styleUrl: './bar-chart.component.css'

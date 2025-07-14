@@ -19,6 +19,9 @@ public class Seller {
     @Column(name = "username", nullable = false)
     private String username;
 
+    @Column(name = "email", nullable = false)
+    private String email;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "id_provider")
     private ProviderType provider;
