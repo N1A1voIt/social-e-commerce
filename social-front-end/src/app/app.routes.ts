@@ -7,6 +7,7 @@ import {FeedComponent} from "./main/feed/feed.component";
 import {InboxComponent} from "./main/inbox/inbox.component";
 import {ProductsComponent} from "./main/products/products.component";
 import {ContentManagementComponent} from "./main/content-management/content-management.component";
+import {DeliveryManagementComponent} from "./main/delivery-management/delivery-management.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent },
@@ -20,10 +21,10 @@ const homeRoutes: Routes = [
       { path: 'inbox', component: InboxComponent },
       { path: 'products', component: ProductsComponent },
       { path: 'content', component: ContentManagementComponent },
+      { path: 'delivery', component: DeliveryManagementComponent },
     ]
   },
 ]
-
 
 export const routes: Routes = [
   { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
