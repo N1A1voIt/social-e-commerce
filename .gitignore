@@ -28,3 +28,4 @@ yarn-debug.log*
 yarn-error.log*
 /spring-service/.env
 /data-analytics-service/cache
+/social-front-end/src/app/environments/environment.ts
