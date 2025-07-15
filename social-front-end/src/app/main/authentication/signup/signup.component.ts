@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {javaHost} from "../../../../environments/environment";
 import {Router} from "@angular/router";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-signup',
@@ -13,13 +14,15 @@ import {Router} from "@angular/router";
   imports: [
     LoginInputComponent,
     PlatformButtonComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgIf
   ],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css'
 })
 export class SignupComponent implements OnInit{
   signupForm!: FormGroup;
+  errorMessage: string = '';
 
   constructor(private fb: FormBuilder, private auth: Auth, private http: HttpClient, private router: Router) {}
 
@@ -44,12 +47,40 @@ export class SignupComponent implements OnInit{
       .then((response: any) => {
         // Store token in localStorage
         localStorage.setItem('token', response.token);
-        alert('Signup successful!');
+        this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
-        const message = error.error?.error || error.message || 'Signup failed';
-        alert(`Error: ${message}`);
+        if (error.error) {
+          // Handle backend error response
+          if (error.error.error === 'Invalid token' && error.error.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.error.error) {
+            this.errorMessage = error.error.error;
+          } else {
+            this.errorMessage = 'Signup failed';
+          }
+        } else if (error.code) {
+          // Handle Firebase authentication errors
+          switch (error.code) {
+            case 'auth/email-already-in-use':
+              this.errorMessage = 'Email is already in use. Please use a different email or try logging in.';
+              break;
+            case 'auth/invalid-email':
+              this.errorMessage = 'Invalid email format. Please enter a valid email address.';
+              break;
+            case 'auth/weak-password':
+              this.errorMessage = 'Password is too weak. Please use a stronger password.';
+              break;
+            case 'auth/operation-not-allowed':
+              this.errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+              break;
+            default:
+              this.errorMessage = error.message || 'Signup failed';
+          }
+        } else {
+          this.errorMessage = error.message || 'Signup failed';
+        }
       });
   }
 
@@ -63,12 +94,40 @@ export class SignupComponent implements OnInit{
       .then((response: any) => {
         // Store token in localStorage
         localStorage.setItem('token', response.token);
-        alert('Google signup successful!');
+        this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
-        const message = error.error?.error || error.message || 'Google signup failed';
-        alert(`Error: ${message}`);
+        if (error.error) {
+          // Handle backend error response
+          if (error.error.error === 'Invalid token' && error.error.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.error.error) {
+            this.errorMessage = error.error.error;
+          } else {
+            this.errorMessage = 'Google signup failed';
+          }
+        } else if (error.code) {
+          // Handle Firebase authentication errors
+          switch (error.code) {
+            case 'auth/popup-closed-by-user':
+              this.errorMessage = 'Signup popup was closed. Please try again.';
+              break;
+            case 'auth/cancelled-popup-request':
+              this.errorMessage = 'Signup request was cancelled. Please try again.';
+              break;
+            case 'auth/popup-blocked':
+              this.errorMessage = 'Signup popup was blocked by your browser. Please allow popups for this site.';
+              break;
+            case 'auth/account-exists-with-different-credential':
+              this.errorMessage = 'An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.';
+              break;
+            default:
+              this.errorMessage = error.message || 'Google signup failed';
+          }
+        } else {
+          this.errorMessage = error.message || 'Google signup failed';
+        }
       });
   }
 

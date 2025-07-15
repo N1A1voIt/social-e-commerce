@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {javaHost} from "../../../../environments/environment";
 import { Router } from '@angular/router';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -13,13 +14,15 @@ import { Router } from '@angular/router';
   imports: [
     LoginInputComponent,
     PlatformButtonComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgIf
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  errorMessage: string = '';
 
   constructor(private fb: FormBuilder, private auth: Auth, private http: HttpClient, private router: Router) {}
 
@@ -39,12 +42,40 @@ export class LoginComponent implements OnInit {
       .then((response: any) => {
         // Store token in localStorage
         localStorage.setItem('token', response.token);
-        alert('Login successful!');
+        this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
-        const message = error.error?.error || error.message || 'Login failed';
-        alert(`Error: ${message}`);
+        if (error.error) {
+          // Handle backend error response
+          if (error.error.error === 'Invalid token' && error.error.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.error.error) {
+            this.errorMessage = error.error.error;
+          } else {
+            this.errorMessage = 'Login failed';
+          }
+        } else if (error.code) {
+          // Handle Firebase authentication errors
+          switch (error.code) {
+            case 'auth/user-not-found':
+              this.errorMessage = 'User not found. Please sign up first.';
+              break;
+            case 'auth/wrong-password':
+              this.errorMessage = 'Incorrect password. Please try again.';
+              break;
+            case 'auth/invalid-credential':
+              this.errorMessage = 'Invalid credentials. Please check your email and password.';
+              break;
+            case 'auth/too-many-requests':
+              this.errorMessage = 'Too many failed login attempts. Please try again later.';
+              break;
+            default:
+              this.errorMessage = error.message || 'Login failed';
+          }
+        } else {
+          this.errorMessage = error.message || 'Login failed';
+        }
       });
   }
 
@@ -55,12 +86,39 @@ export class LoginComponent implements OnInit {
       .then((response: any) => {
         // Store token in localStorage
         localStorage.setItem('token', response.token);
-        alert('Google login successful!');
+        this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
-        const message = error.error?.error || error.message || 'Google login failed';
-        alert(`Error: ${message}`);
+        if (error.error) {
+          // Handle backend error response
+          if (error.error.error === 'Invalid token' && error.error.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.error.error === 'User not found. Please sign up first.') {
+            this.errorMessage = error.error.error;
+          } else if (error.error.error) {
+            this.errorMessage = error.error.error;
+          } else {
+            this.errorMessage = 'Google login failed';
+          }
+        } else if (error.code) {
+          // Handle Firebase authentication errors
+          switch (error.code) {
+            case 'auth/popup-closed-by-user':
+              this.errorMessage = 'Login popup was closed. Please try again.';
+              break;
+            case 'auth/cancelled-popup-request':
+              this.errorMessage = 'Login request was cancelled. Please try again.';
+              break;
+            case 'auth/popup-blocked':
+              this.errorMessage = 'Login popup was blocked by your browser. Please allow popups for this site.';
+              break;
+            default:
+              this.errorMessage = error.message || 'Google login failed';
+          }
+        } else {
+          this.errorMessage = error.message || 'Google login failed';
+        }
       });
   }
 }

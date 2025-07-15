@@ -11,6 +11,9 @@
       <div class="forms w-[80%] flex flex-col gap-4 font-mono">
         <app-login-input formControlName="email" placeholder="Email"></app-login-input>
         <app-login-input formControlName="password" placeholder="Password" type="password"></app-login-input>
+        <div *ngIf="errorMessage" class="px-1 py-1 text-red-500 text-sm">
+          {{ errorMessage }}
+        </div>
         <div class="text-right px-1 py-3 text-gray">
           <a href="#">Recover password</a>
         </div>

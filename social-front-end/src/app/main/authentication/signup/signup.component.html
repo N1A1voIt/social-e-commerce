@@ -13,8 +13,8 @@
         <app-login-input formControlName="email" placeholder="Email"></app-login-input>
         <app-login-input formControlName="password" placeholder="Password" type="password"></app-login-input>
 
-        <div class="text-right px-1 py-1 text-gray">
-
+        <div *ngIf="errorMessage" class="px-1 py-1 text-red-500 text-sm">
+          {{ errorMessage }}
         </div>
       </div>
       <div class="w-[80%] font-mono">
