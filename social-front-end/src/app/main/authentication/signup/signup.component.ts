@@ -5,6 +5,7 @@ import { Auth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvid
 import { HttpClient } from '@angular/common/http';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {javaHost} from "../../../../environments/environment";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-signup',
@@ -20,7 +21,7 @@ import {javaHost} from "../../../../environments/environment";
 export class SignupComponent implements OnInit{
   signupForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: Auth, private http: HttpClient) {}
+  constructor(private fb: FormBuilder, private auth: Auth, private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     this.signupForm = this.fb.group({
@@ -44,6 +45,7 @@ export class SignupComponent implements OnInit{
         // Store token in localStorage
         localStorage.setItem('token', response.token);
         alert('Signup successful!');
+        this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
         const message = error.error?.error || error.message || 'Signup failed';
@@ -62,6 +64,7 @@ export class SignupComponent implements OnInit{
         // Store token in localStorage
         localStorage.setItem('token', response.token);
         alert('Google signup successful!');
+        this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
         const message = error.error?.error || error.message || 'Google signup failed';
