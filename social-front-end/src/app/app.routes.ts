@@ -7,13 +7,19 @@ import {FeedComponent} from "./main/feed/feed.component";
 import {InboxComponent} from "./main/inbox/inbox.component";
 import {ProductsComponent} from "./main/products/products.component";
 import {ContentManagementComponent} from "./main/content-management/content-management.component";
+import {AuthGuard} from "./shared/guards/auth.guard";
+import {NoAuthGuard} from "./shared/guards/no-auth.guard";
 
 const authRoutes: Routes = [
-  { path: 'auth/login', component: LoginComponent },
-  { path: 'auth/signup', component: SignupComponent },
+  { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
+  { path: 'auth/signup', component: SignupComponent, canActivate: [NoAuthGuard] },
 ]
 const homeRoutes: Routes = [
-  { path: 'basic', component: MenuComponent ,
+  {
+    path: 'basic',
+    component: MenuComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'feed', component: FeedComponent },
@@ -26,8 +32,11 @@ const homeRoutes: Routes = [
 
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: '/auth/login',
+    pathMatch: 'full'
+  },
   ...authRoutes,
   ...homeRoutes,
-
 ];

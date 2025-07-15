@@ -5,6 +5,7 @@ import { Auth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider }
 import { HttpClient } from '@angular/common/http';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {javaHost} from "../../../../environments/environment";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,7 @@ import {javaHost} from "../../../../environments/environment";
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: Auth, private http: HttpClient) {}
+  constructor(private fb: FormBuilder, private auth: Auth, private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -39,6 +40,7 @@ export class LoginComponent implements OnInit {
         // Store token in localStorage
         localStorage.setItem('token', response.token);
         alert('Login successful!');
+        this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
         const message = error.error?.error || error.message || 'Login failed';
@@ -54,6 +56,7 @@ export class LoginComponent implements OnInit {
         // Store token in localStorage
         localStorage.setItem('token', response.token);
         alert('Google login successful!');
+        this.router.navigate(['/basic/dashboard']);
       })
       .catch(error => {
         const message = error.error?.error || error.message || 'Google login failed';
