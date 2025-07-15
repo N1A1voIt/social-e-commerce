@@ -84,6 +84,8 @@ public class SellerServiceImpl implements SellerService {
         return enumName;
     }
 
+
+
     @Override
     public Optional<Seller> getSellerById(Long id) {
         return sellerRepository.findById(id);

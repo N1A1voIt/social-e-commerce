@@ -41,7 +41,9 @@ export class SignupComponent implements OnInit{
       .then(userCredential => userCredential.user.getIdToken())
       .then(idToken => this.http.post(`${javaHost}/api/auth/signup`, { idToken, name, username }).toPromise())
       .then((response: any) => {
-        alert('Signup successful! Token: ' + response);
+        // Store token in localStorage
+        localStorage.setItem('token', response.token);
+        alert('Signup successful!');
       })
       .catch(error => {
         const message = error.error?.error || error.message || 'Signup failed';
@@ -57,7 +59,9 @@ export class SignupComponent implements OnInit{
         return this.http.post(`${javaHost}/api/auth/signup`, { idToken, name, username }).toPromise();
       })
       .then((response: any) => {
-        alert('Google signup successful! Token: ' + response);
+        // Store token in localStorage
+        localStorage.setItem('token', response.token);
+        alert('Google signup successful!');
       })
       .catch(error => {
         const message = error.error?.error || error.message || 'Google signup failed';
