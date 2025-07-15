@@ -6,6 +6,7 @@ import com.itu.socialcom.demo.authentication.token.TokenV2;
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.authentication.user.SellerServiceImpl;
+import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +91,33 @@ public class AuthController {
                               put("message", e.getMessage());
                           }}
                     );
+        }
+    }
+
+    @PostMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestBody TokenDTO tokenDTO) {
+        if (tokenDTO == null || tokenDTO.getToken() == null || tokenDTO.getToken().isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Token is required"));
+        }
+
+        try {
+            boolean isValid = tokenV2Service.isTokenValid(tokenDTO.getToken());
+
+            ApiResponse response = new ApiResponse();
+            response.setStatus(isValid ? HttpStatus.OK.value() : HttpStatus.UNAUTHORIZED.value());
+
+            Map<String, Boolean> data = new HashMap<>();
+            data.put("valid", isValid);
+            response.setData(data);
+
+            return ResponseEntity.status(isValid ? HttpStatus.OK : HttpStatus.UNAUTHORIZED).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new HashMap<String, String>() {{
+                        put("error", "Error validating token");
+                        put("message", e.getMessage());
+                    }});
         }
     }
 }
