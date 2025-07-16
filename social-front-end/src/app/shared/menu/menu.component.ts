@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SidebarComponent } from "./sidebar/sidebar.component";
 import { LinkComponent } from "./sidebar/link/link.component";
+import { TreeExampleComponent } from "./sidebar/tree-example/tree-example.component";
 import { RouterOutlet } from "@angular/router";
-import { NgIf } from "@angular/common";
+import { NgIf, NgClass } from "@angular/common";
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,14 +14,17 @@ import { takeUntil } from 'rxjs/operators';
   imports: [
     SidebarComponent,
     LinkComponent,
+    TreeExampleComponent,
     RouterOutlet,
-    NgIf
+    NgIf,
+    NgClass
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })
 export class MenuComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
+  isSidebarOpen: boolean = false;
   private destroy$ = new Subject<void>();
 
   constructor(private breakpointObserver: BreakpointObserver) {}
@@ -41,5 +45,9 @@ export class MenuComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         this.isMobile = result.matches;
       });
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
   }
 }
