@@ -1,6 +1,6 @@
 <div class="w-full h-full bg-white rounded-3xl p-4 overflow-y-scroll">
-  <div class="flex justify-between items-center w-full">
-    <div class="flex gap-2 justify-center items-center flex-row">
+  <div class="flex sm:flex-row flex-col justify-start sm:justify-between sm:items-center items-start w-full">
+    <div class="flex gap-2 justify-start sm:justify-center items-center flex-row w-full sm:w-auto sm:overflow-hidden overflow-y-scroll">
       <app-platform-badge></app-platform-badge>
       <app-platform-badge></app-platform-badge>
       <app-platform-badge></app-platform-badge>
@@ -8,53 +8,56 @@
         <img src="assets/imgs/gustavo.jpeg" class="New Reportobject-cover" width="35" alt="">
       </div>
     </div>
-    <div class="flex gap-2 justify-center items-center flex-row">
+    <div class=" gap-2 justify-center items-center flex-row hidden md:flex">
       <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
       <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
       <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
     </div>
   </div>
-  <div class="flex justify-between items-center w-full py-6">
-    <h1 class="text-3xl text-zinc-500" style="letter-spacing: 1px">New Report</h1>
-  </div>
-  <div class="flex justify-between items-end w-full py-2 ">
+<!--  <div class="flex justify-between items-center w-full py-6">-->
+<!--&lt;!&ndash;    <h1 class="text-3xl text-zinc-500" style="letter-spacing: 1px">New Report</h1>&ndash;&gt;-->
+<!--  </div>-->
+  <div class="flex flex-col gap-4 mt-4 md:flex-row  justify-between md:items-end md:overflow-x-scroll items-center   w-full py-2 hide-scrollbar">
     <div class="flex flex-col gap-2 rounded-3xl font-mono" style="letter-spacing: 1px">
       <h1>Revenue</h1>
-      <div class="flex gap-3 items-center justify-center w-full ">
+      <div class="flex flex-col sm:flex-row gap-3 items-center justify-center w-full ">
         <span class="text-3xl font-bold">$<span>523,000.82</span></span>
-        <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>
-        <app-revenue-badge [showIcon]="true" text="$ 27,335"></app-revenue-badge>
+        <div class="flex gap-2 items-center justify-center">
+          <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>
+          <app-revenue-badge class="w-auto" [showIcon]="false" text="27,335"></app-revenue-badge>
+        </div>
       </div>
       <div>
         <span>From Sep 1 to Aug 31 2025</span>
       </div>
     </div>
-    <div class="flex gap-2">
-      <app-top-sales-card></app-top-sales-card>
+    <div class="flex flex-col sm:flex-row justify-end gap-2 w-full">
+      <app-top-sales-card ></app-top-sales-card>
       <app-best-deals-card></app-best-deals-card>
-      <app-descriptive-card [isActive]="true"></app-descriptive-card>
-      <app-descriptive-card></app-descriptive-card>
+      <div class="flex gap-2 md:w-auto w-full ">
+        <app-descriptive-card class="flex-1" [isActive]="true"></app-descriptive-card>
+        <app-descriptive-card class="flex-1"></app-descriptive-card>
+      </div>
     </div>
   </div>
   <div class="w-full py-6 ">
-    <div class="w-full h-[50px] rounded-full bg-fotsy flex flex-row items-center justify-center p-1 gap-1">
+    <div class="w-full h-[50px] rounded-full bg-fotsy sm:flex hidden flex-row items-center justify-center p-1 gap-1 ">
       <app-account-performances class="w-[19.20%]" [percentage]="19.20" [amount]="12000"></app-account-performances>
       <app-account-performances class="w-[30.80%]" [percentage]="30.80" [amount]="30000"></app-account-performances>
       <app-account-performances class="w-[50%]" [percentage]="50" [amount]="40000"></app-account-performances>
     </div>
   </div>
-  <div class="w-full flex items-center h-1/2 py-1 gap-2">
-    <div class="w-1/2 h-full  flex items-center gap-2">
-      <div class="h-full">
+  <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">
+    <div class="w-full 2xl:w-1/2 flex flex-col sm:flex-row items-center gap-4">
+      <div class="w-full sm:w-1/2 h-[350px] 2xl:h-[400px]">
         <app-bar-chart></app-bar-chart>
       </div>
-      <div class="h-full">
+      <div class="w-full sm:w-1/2 h-[350px] 2xl:h-[400px]">
         <app-bar-chart></app-bar-chart>
       </div>
     </div>
-    <div class="h-full w-1/2">
+    <div class="w-full 2xl:w-1/2 h-[350px] 2xl:h-[400px]">
       <app-bar-chart></app-bar-chart>
-
     </div>
   </div>
 </div>
