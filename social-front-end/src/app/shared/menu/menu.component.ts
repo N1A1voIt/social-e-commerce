@@ -7,6 +7,7 @@ import { NgIf, NgClass } from "@angular/common";
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { AccountDetailsComponent } from "../../main/settings/account-details/account-details.component";
 
 @Component({
   selector: 'app-menu',
@@ -17,7 +18,8 @@ import { takeUntil } from 'rxjs/operators';
     TreeExampleComponent,
     RouterOutlet,
     NgIf,
-    NgClass
+    NgClass,
+    AccountDetailsComponent
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
@@ -25,6 +27,7 @@ import { takeUntil } from 'rxjs/operators';
 export class MenuComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   isSidebarOpen: boolean = false;
+  isAccountDetailsVisible: boolean = false;
   private destroy$ = new Subject<void>();
 
   constructor(private breakpointObserver: BreakpointObserver) {}
@@ -49,5 +52,9 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  toggleAccountDetails(): void {
+    this.isAccountDetailsVisible = !this.isAccountDetailsVisible;
   }
 }
