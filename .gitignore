@@ -30,3 +30,4 @@ yarn-error.log*
 /data-analytics-service/cache
 social-front-end/src/environments/environment.ts
 spring-service/src/main/resources/firebase-account-service.json
+/.kiro

@@ -1,18 +1,43 @@
 <div class="h-full w-full flex flex-col">
-
   <div class="flex overflow-hidden h-full">
-    <div class="">
+    <!-- Sidebar for non-mobile view -->
+    <div *ngIf="!isMobile">
       <app-sidebar class="h-full"></app-sidebar>
     </div>
-    <main class="flex-1 flex flex-col overflow-auto bg-gray-100 ">
-      <header class="py-2 text-white flex  justify-end items-center px-6  w-full">
-        <div class="flex gap-3 items-center">
-          <app-link icon="heroArrowUturnRight" href="logout" ></app-link>
-          <div class="rounded-full  w-[35px] h-[35px] bg-white overflow-hidden">
-            <img src="assets/imgs/gustavo.jpeg" class="object-cover" width="35" alt="">
+
+    <!-- Main content area -->
+    <main class="flex-1 flex flex-col overflow-auto bg-gray-100">
+      <!-- Header section -->
+      <header class="py-2 px-6 w-full flex flex-col sm:flex-row">
+        <div class="flex gap-3 items-end w-full justify-between">
+          <!-- Mobile logo -->
+          <div class="flex flex-col items-start h-[40px] justify-center font-mono">
+            <span class="text-black text-xl font-semibold sm:hidden" style="letter-spacing: 1px">
+              Codename.com
+            </span>
+          </div>
+
+          <!-- User profile and logout -->
+          <div class="flex justify-center items-center gap-3">
+            <app-link icon="heroArrowUturnRight" href="logout"></app-link>
+            <div class="rounded-full w-[35px] h-[35px] bg-white overflow-hidden">
+              <img src="assets/imgs/gustavo.jpeg" class="object-cover" width="35" alt="User profile">
+            </div>
           </div>
         </div>
+
+        <!-- Mobile navigation links -->
+        <div class="flex flex-row items-center justify-around sm:hidden border-b border-zinc-200">
+          <app-link icon="heroChartBarSquare" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll" [isActive]="true"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+        </div>
       </header>
+
+      <!-- Main content -->
       <div class="flex-1 p-4 overflow-auto">
         <router-outlet></router-outlet>
       </div>
