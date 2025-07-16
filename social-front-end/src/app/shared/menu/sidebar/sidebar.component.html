@@ -1,32 +1,42 @@
-<aside class="w-[20vw] h-full text-white flex flex-row items-center">
-  <nav class="w-[5vw] h-full  flex flex-col justify-between py-5 ">
-    <div class="flex flex-col items-center space-y-5 ">
-      <div class="rounded-full  w-[40px] h-[40px] bg-black font-mono text-white justify-center flex items-center font-bold text-xl">
+<aside class="w-64 md:w-72 lg:w-80 h-full text-white flex flex-row items-center">
+  <!-- Icon navigation sidebar -->
+  <nav class="w-16 h-full flex flex-col justify-between py-5">
+    <!-- Logo section -->
+    <div class="flex flex-col items-center space-y-5">
+      <div class="rounded-full w-[40px] h-[40px] bg-black font-mono text-white justify-center flex items-center font-bold text-xl">
         <span>C</span>
       </div>
     </div>
-    <div class="flex flex-col items-center space-y-5 ">
-      <app-link icon="heroChartBarSquare" href="/alll" ></app-link>
+
+    <!-- Main navigation links -->
+    <div class="flex flex-col items-center space-y-5">
+      <app-link icon="heroChartBarSquare" href="/alll"></app-link>
       <app-link icon="heroDocumentSolid" href="/alll" [isActive]="true"></app-link>
       <app-link icon="heroDocumentSolid" href="/alll"></app-link>
       <app-link icon="heroDocumentSolid" href="/alll"></app-link>
     </div>
-    <div class="flex flex-col items-center space-y-5 ">
+
+    <!-- Secondary navigation links -->
+    <div class="flex flex-col items-center space-y-5">
       <app-link icon="heroChatBubbleOvalLeftEllipsis" href="/alll"></app-link>
       <app-link icon="heroDocumentSolid" href="/alll"></app-link>
     </div>
   </nav>
-  <nav class="w-[15vw] h-full top-0  flex justify-start flex-col py-5 ">
-    <div class="w-full h-full ">
-      <div class="flex flex-col  items-start space-y-5  h-[40px] justify-center font-mono">
+
+  <!-- Content navigation sidebar -->
+  <nav class="flex-1 h-full flex justify-start flex-col py-5">
+    <div class="w-full h-full">
+      <!-- Logo text -->
+      <div class="flex flex-col items-start h-[40px] justify-center font-mono">
         <span class="text-black text-xl font-semibold" style="letter-spacing: 1px">
           Codename.com
         </span>
       </div>
+
+      <!-- Tree navigation -->
       <div class="flex flex-col items-center space-y-5 mt-2">
         <app-tree-example class="w-full"></app-tree-example>
       </div>
     </div>
-
   </nav>
 </aside>

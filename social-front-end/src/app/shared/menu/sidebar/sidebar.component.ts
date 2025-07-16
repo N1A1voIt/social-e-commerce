@@ -1,8 +1,9 @@
-import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
-import {TreeComponent, TreeModule} from "@smart-webcomponents-angular/tree";
-import {TreeExampleComponent} from "./tree-example/tree-example.component";
-import {NgIcon} from "@ng-icons/core";
-import {LinkComponent} from "./link/link.component";
+import { Component, OnDestroy } from '@angular/core';
+import { TreeModule } from "@smart-webcomponents-angular/tree";
+import { TreeExampleComponent } from "./tree-example/tree-example.component";
+import { NgIcon } from "@ng-icons/core";
+import { LinkComponent } from "./link/link.component";
+import { NgIf } from "@angular/common";
 
 @Component({
   selector: 'app-sidebar',
@@ -11,13 +12,13 @@ import {LinkComponent} from "./link/link.component";
     TreeModule,
     TreeExampleComponent,
     NgIcon,
-    LinkComponent
+    LinkComponent,
+    NgIf
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent implements AfterViewInit, OnDestroy {
-  // @ViewChild('tree', { read: TreeComponent, static: false }) tree!: TreeComponent;
+export class SidebarComponent implements OnDestroy {
   treeData = [
     {
       label: 'CEO',
@@ -41,16 +42,10 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
       ]
     }
   ];
-  constructor() {
-  }
+
+  constructor() {}
 
   ngOnDestroy(): void {
-        throw new Error('Method not implemented.');
-    }
-
-  ngAfterViewInit(): void {
-    // this.tree.showLines = true;
-    // this.tree.showRootLines = true;
+    // Clean up resources if needed
   }
-
 }

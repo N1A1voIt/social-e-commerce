@@ -1,21 +1,73 @@
 <div class="h-full w-full flex flex-col">
-
   <div class="flex overflow-hidden h-full">
-    <div class="">
+    <!-- Sidebar for non-mobile view -->
+    <div *ngIf="!isMobile">
       <app-sidebar class="h-full"></app-sidebar>
     </div>
-    <main class="flex-1 flex flex-col overflow-auto bg-gray-100 ">
-      <header class="py-2 text-white flex  justify-end items-center px-6  w-full">
-        <div class="flex gap-3 items-center">
-          <app-link icon="heroArrowUturnRight" href="logout" ></app-link>
-          <div class="rounded-full  w-[35px] h-[35px] bg-white overflow-hidden">
-            <img src="assets/imgs/gustavo.jpeg" class="object-cover" width="35" alt="">
+
+    <!-- Main content area -->
+    <main class="flex-1 flex flex-col overflow-auto bg-gray-100 relative">
+      <!-- Header section -->
+      <header class="py-2 px-6 w-full flex flex-col sm:flex-row">
+        <div class="flex gap-3 items-end w-full justify-between">
+          <!-- Mobile logo -->
+          <div class="flex flex-col items-start h-[40px] justify-center font-mono">
+            <span class="text-black text-xl font-semibold sm:hidden" style="letter-spacing: 1px">
+              Codename.com
+            </span>
+          </div>
+
+          <!-- User profile and logout -->
+          <div class="flex justify-center items-center gap-3">
+            <app-link icon="heroArrowUturnRight" href="logout"></app-link>
+            <div class="rounded-full w-[35px] h-[35px] bg-white overflow-hidden cursor-pointer" (click)="toggleAccountDetails()">
+              <img src="assets/imgs/gustavo.jpeg" class="object-cover" width="35" alt="User profile">
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile navigation links -->
+        <div class="flex flex-row items-center justify-around sm:hidden border-b border-zinc-200">
+          <app-link icon="heroChartBarSquare" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll" [isActive]="true"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <!-- Last app-link with click event to toggle sidebar -->
+          <div (click)="toggleSidebar(); $event.preventDefault()">
+            <app-link icon="heroDocumentSolid" href="javascript:void(0)"></app-link>
           </div>
         </div>
       </header>
+
+      <!-- Main content -->
       <div class="flex-1 p-4 overflow-auto">
         <router-outlet></router-outlet>
       </div>
+
+      <!-- Mobile sliding sidebar -->
+      <div *ngIf="isMobile"
+           class="fixed top-0 right-0 h-full w-3/4 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50"
+           [ngClass]="{'translate-x-0': isSidebarOpen, 'translate-x-full': !isSidebarOpen}">
+        <div class="flex justify-between items-center p-4 border-b">
+          <h2 class="text-lg font-semibold">Navigation</h2>
+          <button (click)="toggleSidebar()" class="text-gray-500 hover:text-gray-700">
+            <span class="text-2xl">&times;</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <app-tree-example></app-tree-example>
+        </div>
+      </div>
+
+      <!-- Overlay when sidebar is open -->
+<!--      <div *ngIf="isMobile && isSidebarOpen"-->
+<!--           class="fixed inset-0 bg-black bg-opacity-50 z-40"-->
+<!--           (click)="toggleSidebar()">-->
+<!--      </div>-->
+
+      <!-- Account details component -->
     </main>
+      <app-account-details class="fixed z-100 h-full w-full" *ngIf="isAccountDetailsVisible" (close)="toggleAccountDetails()"></app-account-details>
   </div>
 </div>
