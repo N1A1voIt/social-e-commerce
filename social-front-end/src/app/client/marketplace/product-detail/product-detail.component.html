@@ -1,36 +1,30 @@
-<div class="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-8 bg-white rounded-2xl shadow-lg p-6 mt-4">
+<div class="w-full max-w-5xl md:h-[60vh] h-screen mx-auto  flex flex-col md:flex-row gap-4 rounded-2xl shadow-lg p-4 ">
   <!-- Images Section -->
-  <div class="flex flex-col gap-4 md:w-1/2">
-    <div class="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
-      <img [src]="selectedImage" alt="Product image" class="object-contain w-full h-full" />
+  <div class="md:hidden w-full flex justify-start items-center">
+    <div class="bg-white rounded-xl flex items-center justify-center gap-1 px-2 h-[40px] w-[40px] text-blackt">
+      <i class="pi pi-arrow-left"></i>
     </div>
-    <div class="flex gap-2 mt-2">
-      <img *ngFor="let img of product.images" [src]="img" alt="thumb" (click)="selectImage(img)"
-        [class]="'w-16 h-16 rounded-lg border cursor-pointer object-cover ' + (selectedImage === img ? 'border-yellow-400 ring-2 ring-yellow-300' : 'border-gray-200')" />
+  </div>
+  <div class="flex flex-col gap-4 md:w-1/2 bg-red-50">
+    <div class="w-full h-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
+      <img [src]="selectedImage" alt="Product image" class="object-cover w-full h-full" />
     </div>
   </div>
 
   <!-- Product Info Section -->
-  <div class="flex-1 flex flex-col gap-4">
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{product.name}}</h1>
-    <div class="text-2xl text-yellow-500 font-bold">${{product.price}}</div>
-    <div class="text-gray-700">{{product.description}}</div>
-    <div class="flex items-center gap-4 mt-2">
-      <div class="flex items-center gap-2">
-        <span class="font-semibold">Quantity:</span>
-        <input type="number" min="1" [max]="product.stock" [(ngModel)]="quantity" class="w-16 border rounded px-2 py-1" />
-        <span class="text-xs text-gray-400">(In stock: {{product.stock}})</span>
-      </div>
-      <button (click)="addToCart()" class="ml-4 px-6 py-2 bg-yellow-400 text-white font-bold rounded-lg shadow hover:bg-yellow-500 transition">Add to Cart</button>
-    </div>
-    <div class="mt-8 border-t pt-4 flex items-center gap-6">
-      <div>
+  <div class="flex-1 flex flex-col gap-1 font-mono">
+    <h1 class="text-xl md:text-3xl font-bold text-gray-900">{{product.name}}</h1>
+    <div class="text-xl text-yellow-500 font-bold">${{product.price}}</div>
+    <div class="text-gray-700 text-sm">{{product.description}}</div>
+    <div class="mt-2 flex flex-col items-start gap-2">
         <div class="font-semibold text-gray-800">Seller: {{product.seller.name}}</div>
         <div class="flex items-center gap-2 text-sm text-gray-500">
           <span>Rating: {{product.seller.rating}} ★</span>
-          <span>Sales: {{product.seller.sales}}</span>
         </div>
-      </div>
+        <div class="grid grid-cols-2 gap-2 w-full">
+          <button class="rounded-full col-span-1 border border-yellow text-yellow px-4 py-2"> Add to Cart </button>
+          <button class="rounded-full col-span-1 border bg-yellow text-fotsy px-4 py-2"> Contact seller</button>
+        </div>
     </div>
   </div>
 </div>
