@@ -1,7 +1,76 @@
-<div class="w-full p-2 bg-fotsy fixed bottom-0 flex flex-row gap-2 items-center justify-between">
-  <app-link icon="heroHome" [isActive]="true" href="/alll"></app-link>
-  <app-link icon="heroHeart" href="/alll"></app-link>
-  <app-link icon="heroBellAlert" href="/alll"></app-link>
-  <app-link icon="heroUserCircle" href="/alll"></app-link>
+<div class="lg:hidden w-screen h-screen">
+  <div class="w-full p-2  bg-fotsy fixed bottom-0 flex flex-row gap-2 items-center justify-between">
+    <app-link icon="heroHome" [isActive]="true" href="/alll"></app-link>
+    <app-link icon="heroHeart" href="/alll"></app-link>
+    <app-link icon="heroBellAlert" href="/alll"></app-link>
+    <app-link icon="heroUserCircle" href="/alll"> </app-link>
+  </div>
+  <router-outlet></router-outlet>
 </div>
-<router-outlet></router-outlet>
+<div class="lg:flex flex-row h-screen w-screen hidden">
+  <aside
+    class="hidden w-[70px] lg:flex flex-col items-center bg-white text-gray-700 shadow h-full">
+    <!-- Side Nav Bar-->
+
+    <div class="h-16 flex items-center w-full">
+      <!-- Logo Section -->
+      <a class="h-6 w-6 mx-auto" href="http://svelte.dev/">
+        <img
+          class="h-6 w-6 mx-auto"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Svelte_Logo.svg/512px-Svelte_Logo.svg.png"
+          alt="svelte logo" />
+      </a>
+    </div>
+
+    <ul>
+      <!-- Items Section -->
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroHome"></ng-icon>
+        </a>
+      </li>
+
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroHeart"></ng-icon>
+        </a>
+      </li>
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroBellAlert"></ng-icon>
+        </a>
+      </li>
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroUserCircle"></ng-icon>
+        </a>
+      </li>
+    </ul>
+
+    <div class="mt-auto h-16 flex items-center w-full">
+      <!-- Action Section -->
+      <button
+        class="h-16 w-10 mx-auto flex flex justify-center items-center
+				w-full focus:text-orange-500 hover:bg-red-200 focus:outline-none">
+        <ng-icon name="heroUserCircle"></ng-icon>
+      </button>
+    </div>
+
+  </aside>
+  <div class="flex-1">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
