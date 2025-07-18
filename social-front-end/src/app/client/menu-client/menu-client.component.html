@@ -1,0 +1,78 @@
+<div class="lg:hidden w-screen h-screen">
+  <div class="w-full p-2  bg-transparent  fixed bottom-1 ">
+    <div class="w-full bg-black flex rounded-2xl px-5 flex-row gap-2 items-center justify-between">
+      <app-nav-button icon="heroHome" [isActive]="true" href="/alll"></app-nav-button>
+      <app-nav-button icon="heroHeart" href="/alll"></app-nav-button>
+      <app-nav-button icon="heroBellAlert" href="/alll"></app-nav-button>
+      <app-nav-button icon="heroUserCircle" href="/alll"> </app-nav-button>
+      <app-nav-button icon="heroShoppingCart" href="/alll"> </app-nav-button>
+    </div>
+  </div>
+  <router-outlet></router-outlet>
+</div>
+<div class="lg:flex flex-row h-screen w-screen hidden p-3">
+  <aside
+    class="hidden w-[70px] lg:flex flex-col items-center bg-black text-fotsy rounded-xl shadow h-full">
+    <!-- Side Nav Bar-->
+
+    <div class="h-16 flex items-center w-full">
+      <!-- Logo Section -->
+      <a class="h-6 w-6 mx-auto" href="">
+        <div class="rounded-full bg-black font-mono text-white justify-center flex items-center font-bold text-xl">
+          <span>C</span>
+        </div>
+      </a>
+    </div>
+
+    <ul>
+      <!-- Items Section -->
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroHome"></ng-icon>
+        </a>
+      </li>
+
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroHeart"></ng-icon>
+        </a>
+      </li>
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroBellAlert"></ng-icon>
+        </a>
+      </li>
+      <li class="hover:bg-gray-100">
+        <a
+          href="."
+          class="h-16 px-6 flex flex justify-center items-center w-full
+					focus:text-orange-500">
+          <ng-icon name="heroUserCircle"></ng-icon>
+        </a>
+      </li>
+    </ul>
+
+    <div class="mt-auto h-16 flex items-center w-full">
+      <!-- Action Section -->
+      <button
+        class="h-16 w-10 mx-auto flex flex justify-center items-center
+				w-full focus:text-orange-500 hover:bg-red-200 focus:outline-none">
+        <ng-icon name="heroUserCircle"></ng-icon>
+      </button>
+    </div>
+
+  </aside>
+  <div class="flex-1 p-2 rounded-xl bg-fotsy">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
