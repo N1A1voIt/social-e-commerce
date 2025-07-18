@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import {NgIcon} from "@ng-icons/core";
 import {PostCardComponent} from "../../main/content-management/post-card/post-card.component";
+import {ShopCardComponent} from "./shop-card/shop-card.component";
+import {NgForOf} from "@angular/common";
 
 interface Product {
   name: string;
@@ -14,7 +16,9 @@ interface Product {
   standalone: true,
   imports: [
     NgIcon,
-    PostCardComponent
+    PostCardComponent,
+    ShopCardComponent,
+    NgForOf
   ],
   templateUrl: './marketplace.component.html',
   styleUrls: ['./marketplace.component.css']

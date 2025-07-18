@@ -1,15 +1,18 @@
 <div class="lg:hidden w-screen h-screen">
-  <div class="w-full p-2  bg-fotsy fixed bottom-0 flex flex-row gap-2 items-center justify-between">
-    <app-link icon="heroHome" [isActive]="true" href="/alll"></app-link>
-    <app-link icon="heroHeart" href="/alll"></app-link>
-    <app-link icon="heroBellAlert" href="/alll"></app-link>
-    <app-link icon="heroUserCircle" href="/alll"> </app-link>
+  <div class="w-full p-2  bg-transparent  fixed bottom-1 ">
+    <div class="w-full bg-black flex rounded-2xl px-5 flex-row gap-2 items-center justify-between">
+      <app-nav-button icon="heroHome" [isActive]="true" href="/alll"></app-nav-button>
+      <app-nav-button icon="heroHeart" href="/alll"></app-nav-button>
+      <app-nav-button icon="heroBellAlert" href="/alll"></app-nav-button>
+      <app-nav-button icon="heroUserCircle" href="/alll"> </app-nav-button>
+      <app-nav-button icon="heroShoppingCart" href="/alll"> </app-nav-button>
+    </div>
   </div>
   <router-outlet></router-outlet>
 </div>
-<div class="lg:flex flex-row h-screen w-screen hidden">
+<div class="lg:flex flex-row h-screen w-screen hidden p-3">
   <aside
-    class="hidden w-[70px] lg:flex flex-col items-center bg-white text-gray-700 shadow h-full">
+    class="hidden w-[70px] lg:flex flex-col items-center bg-black text-fotsy rounded-xl shadow h-full">
     <!-- Side Nav Bar-->
 
     <div class="h-16 flex items-center w-full">
@@ -69,7 +72,7 @@
     </div>
 
   </aside>
-  <div class="flex-1">
+  <div class="flex-1 p-2 rounded-xl bg-fotsy">
     <router-outlet></router-outlet>
   </div>
 </div>

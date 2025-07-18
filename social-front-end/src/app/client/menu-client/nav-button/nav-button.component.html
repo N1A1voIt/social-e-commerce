@@ -1,0 +1,9 @@
+<a  href="{{href}}">
+  <div *ngIf="isActive" class="sm:rounded-full sm:border sm:w-[40px] sm:h-[40px] w-[60px] h-[60px] sm:bg-fotsy border-b-2 border-yellow justify-center flex items-center ">
+    <ng-icon name="{{icon}}"  class="text-yellow text-2xl sm:text-lg" ></ng-icon>
+<!--    <span>Home</span>-->
+  </div>
+  <div *ngIf="!isActive" class="rounded-full  w-[40px] h-[40px] sm:bg-white justify-center flex items-center text-fotsy hover:bg-fotsy hover:text-yellow transition-all">
+    <ng-icon name="{{icon}}"  class="sm:text-lg text-2xl " ></ng-icon>
+  </div>
+</a>

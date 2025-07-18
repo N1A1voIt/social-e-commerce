@@ -1,20 +1,23 @@
-<div class="w-full h-full flex flex-col  bg-yellow">
-  <div class="w-full  flex gap-1 items-center py-2 justify-around ">
-    <div class="flex items-center w-3/4  px-4 gap-2 py-3 rounded-xl border border-black
+<div class="w-full h-full flex flex-col  bg-fotsy p-2 ">
+  <div class="">
+
+  </div>
+  <div class="w-full  flex gap-3 items-center py-2 justify-between ">
+    <div class="flex items-center w-5/6  bg-white px-4 gap-2 py-3 rounded-xl border border-white
     text-black shadow-sm overflow-hidden  ">
-      <i class="pi pi-search"></i>
+      <i class="pi pi-search text-blackt"></i>
       <input type="email" placeholder="Search Something..." class="w-full outline-none bg-transparent text-black text-sm" />
     </div>
-    <div class="rounded-full border w-[50px] h-[50px] flex justify-center items-center">
-      <ng-icon name="heroShoppingCart"  size="25"></ng-icon>
+    <div class="rounded-xl  w-[50px] h-[50px]  text-blackt bg-white flex justify-center items-center">
+      <ng-icon name="heroAdjustmentsHorizontal"  size="25"></ng-icon>
     </div>
   </div>
-  <div class="flex-1 flex flex-col gap-4 bg-white rounded-2xl p-4 overflow-y-scroll">
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
+  <div class="flex-1 flex flex-col gap-4 mt-2 px-2 bg-fotsy rounded-2xl overflow-y-scroll">
+    <h1 class="text-xl font-bold font-mono" style="letter-spacing: 1px ">Our products</h1>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <app-shop-card class="col-span-1" *ngFor="let product of products; let i = index" [product]="product" [productId]="i"></app-shop-card>
+<!--      <app-shop-card class="col-span-1" [productId]="1"></app-shop-card>-->
+    </div>
     <div class="h-[200px]">
 
     </div>

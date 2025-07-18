@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {RouterOutlet} from "@angular/router";
 import {LinkComponent} from "../../shared/menu/sidebar/link/link.component";
 import {NgIcon} from "@ng-icons/core";
+import {NavButtonComponent} from "./nav-button/nav-button.component";
 
 @Component({
   selector: 'app-menu-client',
@@ -9,7 +10,8 @@ import {NgIcon} from "@ng-icons/core";
   imports: [
     RouterOutlet,
     LinkComponent,
-    NgIcon
+    NgIcon,
+    NavButtonComponent
   ],
   templateUrl: './menu-client.component.html',
   styleUrls: ['./menu-client.component.css']

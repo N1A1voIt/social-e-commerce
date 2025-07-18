@@ -4,6 +4,7 @@ import {Router, RouterOutlet} from '@angular/router';
 import {AccountDetailsComponent} from "./main/settings/account-details/account-details.component";
 import {provideIcons} from "@ng-icons/core";
 import {
+  heroAdjustmentsHorizontal,
   heroArrowUturnRight, heroBellAlert,
   heroChartBarSquare, heroChatBubbleOvalLeftEllipsis,
   heroDocument, heroHeart, heroHome,
@@ -21,7 +22,7 @@ import {heroDocumentSolid} from "@ng-icons/heroicons/solid";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark,heroDocumentSolid,heroChartBarSquare,heroChatBubbleOvalLeftEllipsis,heroArrowUturnRight,
-  heroHome,heroHeart,heroBellAlert,heroUserCircle,heroShoppingCart})]
+  heroHome,heroHeart,heroBellAlert,heroUserCircle,heroShoppingCart,heroAdjustmentsHorizontal})]
 })
 export class AppComponent implements OnInit {
   title = 'social-front-end';
