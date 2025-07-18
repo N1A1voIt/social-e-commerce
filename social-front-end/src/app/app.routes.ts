@@ -9,6 +9,8 @@ import {ProductsComponent} from "./main/products/products.component";
 import {ContentManagementComponent} from "./main/content-management/content-management.component";
 import {AuthGuard} from "./shared/guards/auth.guard";
 import {NoAuthGuard} from "./shared/guards/no-auth.guard";
+import {MenuClientComponent} from "./client/menu-client/menu-client.component";
+import {MarketplaceComponent} from "./client/marketplace/marketplace.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -28,6 +30,13 @@ const homeRoutes: Routes = [
       { path: 'content', component: ContentManagementComponent },
     ]
   },
+  {
+    path: 'client',
+    component: MenuClientComponent,
+    children: [
+      {path: 'marketplace',component: MarketplaceComponent}
+    ]
+  }
 ]
 
 
