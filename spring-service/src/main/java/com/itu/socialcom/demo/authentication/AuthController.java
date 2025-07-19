@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,6 +33,40 @@ public class AuthController {
 
     public AuthController(FirebaseAuth firebaseAuth) {
         this.firebaseAuth = firebaseAuth;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse> getAccountInfo(@RequestHeader("Authorization") String authHeader) {
+        ApiResponse response = new ApiResponse();
+        
+        try {
+            // Extract token from header (format: "Bearer <token>")
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setErrors(Collections.singletonList(new Exception("Invalid or missing Authorization header")));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+            
+            // Find seller by token
+            Optional<Seller> sellerOpt = tokenV2Service.findSellerByToken(token);
+            
+            if (sellerOpt.isPresent()) {
+                response.setStatus(HttpStatus.OK.value());
+                response.setData(sellerOpt.get());
+                return ResponseEntity.ok(response);
+            } else {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setErrors(Collections.singletonList(new Exception("Invalid or expired token")));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+        } catch (Exception e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setErrors(Collections.singletonList(e));
+            return ResponseEntity.internalServerError().body(response);
+        }
     }
 
     @PostMapping("/signup")
@@ -101,7 +136,7 @@ public class AuthController {
         }
 
         try {
-            boolean isValid = tokenV2Service.isTokenValid(tokenDTO.getToken());
+            boolean isValid = tokenV2Service.isTokenValid(tokenDTO.getToken().replace("Bearer ", ""));
 
             ApiResponse response = new ApiResponse();
             response.setStatus(isValid ? HttpStatus.OK.value() : HttpStatus.UNAUTHORIZED.value());
