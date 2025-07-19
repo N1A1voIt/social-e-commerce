@@ -5,6 +5,7 @@ import { NgIcon } from "@ng-icons/core";
 import { NgIf } from "@angular/common";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {environment, javaHost} from "../../../../environments/environment";
+import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.component";
 
 
 interface Seller {
@@ -20,7 +21,8 @@ interface Seller {
     ContactsComponent,
     ManagedAccountComponent,
     NgIcon,
-    NgIf
+    NgIf,
+    ProfileEditFormComponent
   ],
   templateUrl: './account-details.component.html',
   styleUrl: './account-details.component.css'

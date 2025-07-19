@@ -15,8 +15,9 @@
         </div>
       </div>
       <div class="flex-1 h-full flex justify-end">
-        <div class="h-[30px] w-[30px] rounded-full border border-gray p-3">
+        <div class="h-[30px] w-[30px] flex justify-center items-center rounded-full border border-gray p-3" (click)="formApply = 'profile'">
           <!-- Empty div for layout purposes -->
+          <i class="pi pi-pencil"></i>
         </div>
       </div>
     </div>
@@ -36,6 +37,7 @@
     <app-managed-account></app-managed-account>
     </div>
   </div>
+  <app-profile-edit-form *ngIf="formApply === 'profile'"></app-profile-edit-form>
   <div *ngIf="formApply === 'contacts'" class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
     <div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative">
       <div class="flex justify-between w-full p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
