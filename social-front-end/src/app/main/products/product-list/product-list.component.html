@@ -10,91 +10,322 @@
   </div>
 </div>
 
-<div class="flex flex-col w-full  overflow-hidden text-gray-700 bg-fotsy shadow-md rounded-3xl bg-clip-border font-mono">
-  <table class="w-full text-left  min-w-max">
+<!-- Desktop Table View (hidden on mobile) -->
+<div class="hidden lg:flex flex-col w-full overflow-hidden text-gray-700 bg-fotsy shadow-md rounded-3xl bg-clip-border font-mono">
+  <table class="w-full text-left min-w-max">
     <thead>
     <tr class="border-b border-slate-300 bg-slate-50">
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Product</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Name</th>
+      <th class="p-4 text-sm font-normal leading-none text-slate-500">Category</th>
+      <th class="p-4 text-sm font-normal leading-none text-slate-500">SKU</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Quantity</th>
-      <th class="p-4 text-sm font-normal leading-none text-slate-500">Price per Item</th>
-      <th class="p-4 text-sm font-normal leading-none text-slate-500">Total Price</th>
-      <th class="p-4 text-sm font-normal leading-none text-slate-500"></th>
+      <th class="p-4 text-sm font-normal leading-none text-slate-500">Price</th>
+      <th class="p-4 text-sm font-normal leading-none text-slate-500">Status</th>
+      <th class="p-4 text-sm font-normal leading-none text-slate-500">Actions</th>
     </tr>
     </thead>
-    <tbody >
-    <tr class="hover:bg-slate-50">
+    <tbody>
+    <tr class="hover:bg-slate-50 cursor-pointer group" onclick="window.location.href='/products/1'">
       <td class="p-4 border-b border-slate-200 py-5">
         <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/kam-idris-_HqHX3LBN18-unsplash.jpg" alt="Product 1" class="w-16 h-16 object-cover rounded" />
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="block font-semibold text-sm text-slate-800">Beautiful Chair</p>
+        <div>
+          <p class="block font-semibold text-sm text-slate-800 group-hover:text-blue-600">Beautiful Chair</p>
+          <p class="text-xs text-slate-500">Ergonomic office chair</p>
+        </div>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <p class="text-sm text-slate-500 font-mono">CHR-001</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <p class="text-sm text-slate-500">2</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">$500</p>
+        <div>
+          <p class="text-sm font-semibold text-slate-800">$500</p>
+          <p class="text-xs text-slate-500">Total: $1,000</p>
+        </div>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">$1,000</p>
+        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">In Stock</span>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <button type="button" class="text-slate-500 hover:text-slate-700">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div class="flex space-x-2">
+          <button type="button" class="text-blue-500 hover:text-blue-700" onclick="event.stopPropagation(); window.location.href='/products/1'" title="View Details">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          <button type="button" class="text-slate-500 hover:text-slate-700" onclick="event.stopPropagation();" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </td>
     </tr>
-    <tr class="hover:bg-slate-50">
+    <tr class="hover:bg-slate-50 cursor-pointer group" onclick="window.location.href='/products/2'">
       <td class="p-4 border-b border-slate-200 py-5">
         <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/spacejoy-NpF_OYE301E-unsplash.jpg" alt="Product 2" class="w-16 h-16 object-cover rounded" />
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="block font-semibold text-sm text-slate-800">Little Sofa</p>
+        <div>
+          <p class="block font-semibold text-sm text-slate-800 group-hover:text-blue-600">Little Sofa</p>
+          <p class="text-xs text-slate-500">Compact living room sofa</p>
+        </div>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <p class="text-sm text-slate-500 font-mono">SFA-002</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <p class="text-sm text-slate-500">1</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">$750</p>
+        <div>
+          <p class="text-sm font-semibold text-slate-800">$750</p>
+          <p class="text-xs text-slate-500">Total: $750</p>
+        </div>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">$750</p>
+        <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Low Stock</span>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <button type="button" class="text-slate-500 hover:text-slate-700">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div class="flex space-x-2">
+          <button type="button" class="text-blue-500 hover:text-blue-700" onclick="event.stopPropagation(); window.location.href='/products/2'" title="View Details">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          <button type="button" class="text-slate-500 hover:text-slate-700" onclick="event.stopPropagation();" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </td>
     </tr>
-    <tr class="hover:bg-slate-50">
+    <tr class="hover:bg-slate-50 cursor-pointer group" onclick="window.location.href='/products/3'">
       <td class="p-4 border-b border-slate-200 py-5">
         <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/michael-oxendine-GHCVUtBECuY-unsplash.jpg" alt="Product 3" class="w-16 h-16 object-cover rounded" />
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="block font-semibold text-sm text-slate-800">Brown Coach</p>
+        <div>
+          <p class="block font-semibold text-sm text-slate-800 group-hover:text-blue-600">Brown Coach</p>
+          <p class="text-xs text-slate-500">Premium leather couch</p>
+        </div>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <p class="text-sm text-slate-500 font-mono">CCH-003</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <p class="text-sm text-slate-500">3</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">$3,000</p>
+        <div>
+          <p class="text-sm font-semibold text-slate-800">$3,000</p>
+          <p class="text-xs text-slate-500">Total: $9,000</p>
+        </div>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">$9,000</p>
+        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">In Stock</span>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <button type="button" class="text-slate-500 hover:text-slate-700">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div class="flex space-x-2">
+          <button type="button" class="text-blue-500 hover:text-blue-700" onclick="event.stopPropagation(); window.location.href='/products/3'" title="View Details">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          <button type="button" class="text-slate-500 hover:text-slate-700" onclick="event.stopPropagation();" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </td>
     </tr>
     </tbody>
   </table>
+</div>
+
+<!-- Mobile Card View (visible only on mobile) -->
+<div class="lg:hidden space-y-4 font-mono">
+  <!-- Product Card 1 -->
+  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location.href='/products/1'">
+    <div class="flex items-start space-x-4">
+      <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/kam-idris-_HqHX3LBN18-unsplash.jpg" alt="Product 1" class="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex-1">
+            <h3 class="font-semibold text-slate-800 text-base truncate">Beautiful Chair</h3>
+            <p class="text-xs text-slate-500 mb-1">Ergonomic office chair</p>
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">In Stock</span>
+            </div>
+          </div>
+          <div class="flex space-x-1 ml-2">
+            <button type="button" class="text-blue-500 hover:text-blue-700 p-1" onclick="event.stopPropagation(); window.location.href='/products/1'" title="View Details">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <button type="button" class="text-slate-500 hover:text-slate-700 p-1" onclick="event.stopPropagation();" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span class="text-slate-500">SKU:</span>
+            <span class="text-slate-800 ml-1 font-mono text-xs">CHR-001</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Qty:</span>
+            <span class="text-slate-800 ml-1">2</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Price:</span>
+            <span class="text-slate-800 ml-1 font-semibold">$500</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Total:</span>
+            <span class="text-slate-800 ml-1 font-semibold">$1,000</span>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-slate-200">
+          <button class="text-blue-600 text-sm font-medium hover:text-blue-800" onclick="event.stopPropagation(); window.location.href='/products/1'">
+            View Details →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Card 2 -->
+  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location.href='/products/2'">
+    <div class="flex items-start space-x-4">
+      <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/spacejoy-NpF_OYE301E-unsplash.jpg" alt="Product 2" class="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex-1">
+            <h3 class="font-semibold text-slate-800 text-base truncate">Little Sofa</h3>
+            <p class="text-xs text-slate-500 mb-1">Compact living room sofa</p>
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Low Stock</span>
+            </div>
+          </div>
+          <div class="flex space-x-1 ml-2">
+            <button type="button" class="text-blue-500 hover:text-blue-700 p-1" onclick="event.stopPropagation(); window.location.href='/products/2'" title="View Details">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <button type="button" class="text-slate-500 hover:text-slate-700 p-1" onclick="event.stopPropagation();" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span class="text-slate-500">SKU:</span>
+            <span class="text-slate-800 ml-1 font-mono text-xs">SFA-002</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Qty:</span>
+            <span class="text-slate-800 ml-1">1</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Price:</span>
+            <span class="text-slate-800 ml-1 font-semibold">$750</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Total:</span>
+            <span class="text-slate-800 ml-1 font-semibold">$750</span>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-slate-200">
+          <button class="text-blue-600 text-sm font-medium hover:text-blue-800" onclick="event.stopPropagation(); window.location.href='/products/2'">
+            View Details →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Card 3 -->
+  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location.href='/products/3'">
+    <div class="flex items-start space-x-4">
+      <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/michael-oxendine-GHCVUtBECuY-unsplash.jpg" alt="Product 3" class="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex-1">
+            <h3 class="font-semibold text-slate-800 text-base truncate">Brown Coach</h3>
+            <p class="text-xs text-slate-500 mb-1">Premium leather couch</p>
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">In Stock</span>
+            </div>
+          </div>
+          <div class="flex space-x-1 ml-2">
+            <button type="button" class="text-blue-500 hover:text-blue-700 p-1" onclick="event.stopPropagation(); window.location.href='/products/3'" title="View Details">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <button type="button" class="text-slate-500 hover:text-slate-700 p-1" onclick="event.stopPropagation();" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span class="text-slate-500">SKU:</span>
+            <span class="text-slate-800 ml-1 font-mono text-xs">CCH-003</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Qty:</span>
+            <span class="text-slate-800 ml-1">3</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Price:</span>
+            <span class="text-slate-800 ml-1 font-semibold">$3,000</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Total:</span>
+            <span class="text-slate-800 ml-1 font-semibold">$9,000</span>
+          </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-slate-200">
+          <button class="text-blue-600 text-sm font-medium hover:text-blue-800" onclick="event.stopPropagation(); window.location.href='/products/3'">
+            View Details →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

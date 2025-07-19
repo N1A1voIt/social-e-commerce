@@ -1,29 +1,43 @@
 <div class="absolute top-0 right-0 bg-opacity-30 backdrop-blur bg-principal w-full h-full overflow-hidden">
   <div class=" h-[100vh] xl:w-[40vw] shadow-xl absolute bg-principal top-0 right-0 rounded-l-3xl z-20">
-
     <div class="flex justify-begin p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
       <h1 class="text-gray flex justify-center items-center cursor-pointer" (click)="closeDetails()"><ng-icon name="heroXMark" size="20"></ng-icon></h1>
       <h1>Account details</h1>
     </div>
-    <div class="flex gap-2 justify-center items-center p-4 px-6 w-full  border-b border-gray">
-      <div class="flex gap-3 justify-center items-center ">
-        <div class=" w-[50px] h-[50px] rounded-full overflow-hidden">
-          <img width="50" src="assets/imgs/gustavo.jpeg" class="object-cover" alt="">
+    <div *ngIf="!isLoading; else loading" class="flex gap-2 justify-center items-center p-4 px-6 w-full border-b border-gray">
+      <div class="flex gap-3 justify-center items-center">
+        <div class="w-[50px] h-[50px] rounded-full overflow-hidden">
+          <img [src]="seller.profileImage" width="50" height="50" class="object-cover w-full h-full" [alt]="seller.username + ' profile image'">
         </div>
         <div class="flex flex-col">
-          <h1 class="text-2xl">David Halloway</h1>
-          <p class="text-gray text-md">david&#64;gmail.com</p>
+          <h1 class="text-2xl">{{ seller.username }}</h1>
+          <p class="text-gray text-md">{{ seller.email }}</p>
         </div>
       </div>
       <div class="flex-1 h-full flex justify-end">
-        <div class="h-[30px] w-[30px] rounded-full border border-gray p-3">
-
+        <div class="h-[30px] w-[30px] flex justify-center items-center rounded-full border border-gray p-3" (click)="formApply = 'profile'">
+          <!-- Empty div for layout purposes -->
+          <i class="pi pi-pencil"></i>
         </div>
       </div>
     </div>
+
+    <ng-template #loading>
+      <div class="flex gap-2 justify-center items-center p-4 px-6 w-full border-b border-gray">
+        <div class="flex gap-3 justify-center items-center">
+          <div class="w-[50px] h-[50px] rounded-full bg-gray-200 animate-pulse"></div>
+          <div class="flex flex-col gap-2">
+            <div class="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
     <app-contacts class="w-full"></app-contacts>
     <app-managed-account></app-managed-account>
+    </div>
   </div>
+  <app-profile-edit-form *ngIf="formApply === 'profile'"></app-profile-edit-form>
   <div *ngIf="formApply === 'contacts'" class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
     <div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative">
       <div class="flex justify-between w-full p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
@@ -50,4 +64,4 @@
       </div>
     </div>
   </div>
-</div>
+

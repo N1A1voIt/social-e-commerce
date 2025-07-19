@@ -1,0 +1,52 @@
+/* Custom styles for stock list component */
+.stock-progress {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  transition: width 0.3s ease;
+}
+
+/* Ensure the table rows have proper hover and click states */
+tr {
+  transition: background-color 0.2s ease;
+}
+
+tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Style for stock status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Stock level indicators */
+.stock-level-high {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.stock-level-medium {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.stock-level-low {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Responsive adjustments */@media (max-width: 1024px) {
+  .stock-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .stock-card:active {
+    transform: scale(0.99);
+  }
+}

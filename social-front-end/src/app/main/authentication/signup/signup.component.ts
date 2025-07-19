@@ -46,7 +46,7 @@ export class SignupComponent implements OnInit{
       .then(idToken => this.http.post(`${javaHost}/api/auth/signup`, { idToken, name, username }).toPromise())
       .then((response: any) => {
         // Store token in localStorage
-        localStorage.setItem('token', response.token);
+        localStorage.setItem('token',"Bearer " + response.token);
         this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);
       })
@@ -93,7 +93,7 @@ export class SignupComponent implements OnInit{
       })
       .then((response: any) => {
         // Store token in localStorage
-        localStorage.setItem('token', response.token);
+        localStorage.setItem('token',"Bearer " +  response.token);
         this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);
       })
