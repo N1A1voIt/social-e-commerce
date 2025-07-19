@@ -1,8 +1,6 @@
 package com.itu.socialcom.demo.socialmedia.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itu.socialcom.demo.socialmedia.config.OAuthConfig;
-import com.itu.socialcom.demo.socialmedia.dto.OAuthTokenResponse;
 import com.itu.socialcom.demo.socialmedia.dto.SocialMediaPage;
 import com.itu.socialcom.demo.socialmedia.exception.InvalidAuthorizationCodeException;
 import com.itu.socialcom.demo.socialmedia.exception.OAuthException;
@@ -258,5 +256,150 @@ class FacebookOAuthStrategyTest {
         assertThrows(OAuthException.class, () -> {
             facebookStrategy.getAuthorizationUrl("test-state");
         });
+    }
+
+    @Test
+    void testExchangeCodeForTokens_NetworkError() {
+        String code = "test-auth-code";
+        String state = "test-state";
+        
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+            .thenThrow(new RuntimeException("Network connection failed"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            facebookStrategy.exchangeCodeForTokens(code, state);
+        });
+        
+        assertEquals("facebook", exception.getPlatform());
+        assertEquals("UNEXPECTED_ERROR", exception.getErrorCode());
+        assertTrue(exception.getMessage().contains("Network connection failed"));
+    }
+
+    @Test
+    void testExchangeCodeForTokens_InvalidJsonResponse() throws Exception {
+        String code = "test-auth-code";
+        String state = "test-state";
+        String invalidJson = "invalid-json-response";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(invalidJson, HttpStatus.OK);
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(mockResponse);
+        when(objectMapper.readTree(invalidJson)).thenThrow(new RuntimeException("Invalid JSON"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            facebookStrategy.exchangeCodeForTokens(code, state);
+        });
+        
+        assertEquals("facebook", exception.getPlatform());
+        assertEquals("PARSE_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testRefreshTokens_NetworkError() {
+        String refreshToken = "test-refresh-token";
+        
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+            .thenThrow(new RuntimeException("Connection timeout"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            facebookStrategy.refreshTokens(refreshToken);
+        });
+        
+        assertEquals("facebook", exception.getPlatform());
+        assertEquals("UNEXPECTED_ERROR", exception.getErrorCode());
+        assertTrue(exception.getMessage().contains("Connection timeout"));
+    }
+
+    @Test
+    void testGetUserPages_InvalidJsonResponse() throws Exception {
+        String accessToken = "test-access-token";
+        String invalidJson = "invalid-json-response";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(invalidJson, HttpStatus.OK);
+        when(restTemplate.getForEntity(anyString(), eq(String.class))).thenReturn(mockResponse);
+        when(objectMapper.readTree(invalidJson)).thenThrow(new RuntimeException("Invalid JSON"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            facebookStrategy.getUserPages(accessToken);
+        });
+        
+        assertEquals("facebook", exception.getPlatform());
+        assertEquals("PARSE_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testGetUserPages_EmptyDataResponse() throws Exception {
+        String accessToken = "test-access-token";
+        String emptyResponseJson = "{\"data\":[]}";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(emptyResponseJson, HttpStatus.OK);
+        when(restTemplate.getForEntity(anyString(), eq(String.class))).thenReturn(mockResponse);
+        
+        // Mock ObjectMapper parsing
+        com.fasterxml.jackson.databind.JsonNode mockJsonNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockDataNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        
+        when(objectMapper.readTree(emptyResponseJson)).thenReturn(mockJsonNode);
+        when(mockJsonNode.has("data")).thenReturn(true);
+        when(mockJsonNode.get("data")).thenReturn(mockDataNode);
+        when(mockDataNode.iterator()).thenReturn(java.util.Collections.emptyIterator());
+        
+        List<SocialMediaPage> result = facebookStrategy.getUserPages(accessToken);
+        
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testGetUserPages_RateLimitError() {
+        String accessToken = "test-access-token";
+        
+        when(restTemplate.getForEntity(anyString(), eq(String.class)))
+            .thenThrow(new HttpClientErrorException(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            facebookStrategy.getUserPages(accessToken);
+        });
+        
+        assertEquals("facebook", exception.getPlatform());
+        assertEquals("PAGES_FETCH_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testTokenResponseWithRefreshToken() throws Exception {
+        String code = "test-auth-code";
+        String state = "test-state";
+        String tokenResponseJson = "{\"access_token\":\"test-access-token\",\"token_type\":\"Bearer\",\"expires_in\":3600,\"refresh_token\":\"test-refresh-token\"}";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(tokenResponseJson, HttpStatus.OK);
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(mockResponse);
+        
+        // Mock ObjectMapper parsing
+        com.fasterxml.jackson.databind.JsonNode mockJsonNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockAccessTokenNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockTokenTypeNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockExpiresInNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockRefreshTokenNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        
+        when(objectMapper.readTree(tokenResponseJson)).thenReturn(mockJsonNode);
+        when(mockJsonNode.get("access_token")).thenReturn(mockAccessTokenNode);
+        when(mockAccessTokenNode.asText()).thenReturn("test-access-token");
+        when(mockJsonNode.has("token_type")).thenReturn(true);
+        when(mockJsonNode.get("token_type")).thenReturn(mockTokenTypeNode);
+        when(mockTokenTypeNode.asText()).thenReturn("Bearer");
+        when(mockJsonNode.has("expires_in")).thenReturn(true);
+        when(mockJsonNode.get("expires_in")).thenReturn(mockExpiresInNode);
+        when(mockExpiresInNode.asLong()).thenReturn(3600L);
+        when(mockJsonNode.has("refresh_token")).thenReturn(true);
+        when(mockJsonNode.get("refresh_token")).thenReturn(mockRefreshTokenNode);
+        when(mockRefreshTokenNode.asText()).thenReturn("test-refresh-token");
+        
+        OAuthTokenResponse result = facebookStrategy.exchangeCodeForTokens(code, state);
+        
+        assertNotNull(result);
+        assertEquals("test-access-token", result.getAccessToken());
+        assertEquals("Bearer", result.getTokenType());
+        assertEquals(3600L, result.getExpiresIn());
+        assertEquals("test-refresh-token", result.getRefreshToken());
+        assertEquals(platformConfig.getScopes(), result.getScopes());
     }
 }

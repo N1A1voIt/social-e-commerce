@@ -1,13 +1,11 @@
 package com.itu.socialcom.demo.socialmedia.service;
 
-import com.itu.socialcom.demo.socialmedia.dto.OAuthTokenResponse;
 import com.itu.socialcom.demo.socialmedia.entity.AccessToken;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPage;
 import com.itu.socialcom.demo.socialmedia.entity.RefreshToken;
 import com.itu.socialcom.demo.socialmedia.entity.SupportedPlatform;
 import com.itu.socialcom.demo.socialmedia.exception.TokenExpiredException;
 import com.itu.socialcom.demo.socialmedia.oauth.OAuthStrategy;
-import com.itu.socialcom.demo.socialmedia.oauth.OAuthStrategyFactory;
 import com.itu.socialcom.demo.socialmedia.repository.AccessTokenRepository;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPageRepository;
 import com.itu.socialcom.demo.socialmedia.repository.RefreshTokenRepository;

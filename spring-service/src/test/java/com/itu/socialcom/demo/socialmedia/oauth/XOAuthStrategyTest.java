@@ -1,8 +1,6 @@
 package com.itu.socialcom.demo.socialmedia.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itu.socialcom.demo.socialmedia.config.OAuthConfig;
-import com.itu.socialcom.demo.socialmedia.dto.OAuthTokenResponse;
 import com.itu.socialcom.demo.socialmedia.dto.SocialMediaPage;
 import com.itu.socialcom.demo.socialmedia.exception.InvalidAuthorizationCodeException;
 import com.itu.socialcom.demo.socialmedia.exception.OAuthException;
@@ -293,5 +291,216 @@ class XOAuthStrategyTest {
         assertThrows(OAuthException.class, () -> {
             xStrategy.getAuthorizationUrl("test-state");
         });
+    }
+
+    @Test
+    void testExchangeCodeForTokens_NetworkError() {
+        String code = "test-auth-code";
+        String state = "test-state";
+        
+        // First generate authorization URL to store code verifier
+        xStrategy.getAuthorizationUrl(state);
+        
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+            .thenThrow(new RuntimeException("Network connection failed"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            xStrategy.exchangeCodeForTokens(code, state);
+        });
+        
+        assertEquals("x", exception.getPlatform());
+        assertEquals("UNEXPECTED_ERROR", exception.getErrorCode());
+        assertTrue(exception.getMessage().contains("Network connection failed"));
+    }
+
+    @Test
+    void testExchangeCodeForTokens_InvalidJsonResponse() throws Exception {
+        String code = "test-auth-code";
+        String state = "test-state";
+        String invalidJson = "invalid-json-response";
+        
+        // First generate authorization URL to store code verifier
+        xStrategy.getAuthorizationUrl(state);
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(invalidJson, HttpStatus.OK);
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(mockResponse);
+        when(objectMapper.readTree(invalidJson)).thenThrow(new RuntimeException("Invalid JSON"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            xStrategy.exchangeCodeForTokens(code, state);
+        });
+        
+        assertEquals("x", exception.getPlatform());
+        assertEquals("PARSE_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testRefreshTokens_NetworkError() {
+        String refreshToken = "test-refresh-token";
+        
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+            .thenThrow(new RuntimeException("Connection timeout"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            xStrategy.refreshTokens(refreshToken);
+        });
+        
+        assertEquals("x", exception.getPlatform());
+        assertEquals("UNEXPECTED_ERROR", exception.getErrorCode());
+        assertTrue(exception.getMessage().contains("Connection timeout"));
+    }
+
+    @Test
+    void testGetUserPages_InvalidJsonResponse() throws Exception {
+        String accessToken = "test-access-token";
+        String invalidJson = "invalid-json-response";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(invalidJson, HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class))).thenReturn(mockResponse);
+        when(objectMapper.readTree(invalidJson)).thenThrow(new RuntimeException("Invalid JSON"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            xStrategy.getUserPages(accessToken);
+        });
+        
+        assertEquals("x", exception.getPlatform());
+        assertEquals("PARSE_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testGetUserPages_RateLimitError() {
+        String accessToken = "test-access-token";
+        
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class)))
+            .thenThrow(new HttpClientErrorException(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            xStrategy.getUserPages(accessToken);
+        });
+        
+        assertEquals("x", exception.getPlatform());
+        assertEquals("USER_INFO_FETCH_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testGetUserPages_MinimalUserResponse() throws Exception {
+        String accessToken = "test-access-token";
+        String minimalResponseJson = "{\"data\":{\"id\":\"123456789\"}}";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(minimalResponseJson, HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class))).thenReturn(mockResponse);
+        
+        // Mock ObjectMapper parsing
+        com.fasterxml.jackson.databind.JsonNode mockJsonNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockDataNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockIdNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        
+        when(objectMapper.readTree(minimalResponseJson)).thenReturn(mockJsonNode);
+        when(mockJsonNode.has("data")).thenReturn(true);
+        when(mockJsonNode.get("data")).thenReturn(mockDataNode);
+        when(mockDataNode.get("id")).thenReturn(mockIdNode);
+        when(mockIdNode.asText()).thenReturn("123456789");
+        when(mockDataNode.has("name")).thenReturn(false);
+        when(mockDataNode.has("username")).thenReturn(false);
+        when(mockDataNode.has("profile_image_url")).thenReturn(false);
+        
+        List<SocialMediaPage> result = xStrategy.getUserPages(accessToken);
+        
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        SocialMediaPage page = result.get(0);
+        assertEquals("123456789", page.getId());
+        assertNull(page.getName());
+        assertNull(page.getCategory());
+        assertNull(page.getProfilePictureUrl());
+        assertEquals("test-access-token", page.getAccessToken());
+        assertEquals("x", page.getPlatform());
+        assertEquals(platformConfig.getScopes(), page.getPermissions());
+    }
+
+    @Test
+    void testGetUserPages_EmptyDataResponse() throws Exception {
+        String accessToken = "test-access-token";
+        String emptyResponseJson = "{\"data\":{}}";
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(emptyResponseJson, HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class))).thenReturn(mockResponse);
+        
+        // Mock ObjectMapper parsing
+        com.fasterxml.jackson.databind.JsonNode mockJsonNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockDataNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        
+        when(objectMapper.readTree(emptyResponseJson)).thenReturn(mockJsonNode);
+        when(mockJsonNode.has("data")).thenReturn(true);
+        when(mockJsonNode.get("data")).thenReturn(mockDataNode);
+        when(mockDataNode.get("id")).thenThrow(new RuntimeException("Missing id field"));
+        
+        OAuthException exception = assertThrows(OAuthException.class, () -> {
+            xStrategy.getUserPages(accessToken);
+        });
+        
+        assertEquals("x", exception.getPlatform());
+        assertEquals("PARSE_ERROR", exception.getErrorCode());
+    }
+
+    @Test
+    void testTokenResponseWithoutScope() throws Exception {
+        String code = "test-auth-code";
+        String state = "test-state";
+        String tokenResponseJson = "{\"access_token\":\"test-access-token\",\"token_type\":\"Bearer\",\"expires_in\":7200,\"refresh_token\":\"test-refresh-token\"}";
+        
+        // First generate authorization URL to store code verifier
+        xStrategy.getAuthorizationUrl(state);
+        
+        ResponseEntity<String> mockResponse = new ResponseEntity<>(tokenResponseJson, HttpStatus.OK);
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(mockResponse);
+        
+        // Mock ObjectMapper parsing
+        com.fasterxml.jackson.databind.JsonNode mockJsonNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockAccessTokenNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockTokenTypeNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockExpiresInNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        com.fasterxml.jackson.databind.JsonNode mockRefreshTokenNode = mock(com.fasterxml.jackson.databind.JsonNode.class);
+        
+        when(objectMapper.readTree(tokenResponseJson)).thenReturn(mockJsonNode);
+        when(mockJsonNode.get("access_token")).thenReturn(mockAccessTokenNode);
+        when(mockAccessTokenNode.asText()).thenReturn("test-access-token");
+        when(mockJsonNode.has("token_type")).thenReturn(true);
+        when(mockJsonNode.get("token_type")).thenReturn(mockTokenTypeNode);
+        when(mockTokenTypeNode.asText()).thenReturn("Bearer");
+        when(mockJsonNode.has("expires_in")).thenReturn(true);
+        when(mockJsonNode.get("expires_in")).thenReturn(mockExpiresInNode);
+        when(mockExpiresInNode.asLong()).thenReturn(7200L);
+        when(mockJsonNode.has("refresh_token")).thenReturn(true);
+        when(mockJsonNode.get("refresh_token")).thenReturn(mockRefreshTokenNode);
+        when(mockRefreshTokenNode.asText()).thenReturn("test-refresh-token");
+        when(mockJsonNode.has("scope")).thenReturn(false);
+        
+        OAuthTokenResponse result = xStrategy.exchangeCodeForTokens(code, state);
+        
+        assertNotNull(result);
+        assertEquals("test-access-token", result.getAccessToken());
+        assertEquals("Bearer", result.getTokenType());
+        assertEquals(7200L, result.getExpiresIn());
+        assertEquals("test-refresh-token", result.getRefreshToken());
+        assertEquals(platformConfig.getScopes(), result.getScopes());
+    }
+
+    @Test
+    void testPKCECodeGeneration() {
+        String state1 = "test-state-1";
+        String state2 = "test-state-2";
+        
+        String authUrl1 = xStrategy.getAuthorizationUrl(state1);
+        String authUrl2 = xStrategy.getAuthorizationUrl(state2);
+        
+        // URLs should be different due to different code challenges
+        assertNotEquals(authUrl1, authUrl2);
+        
+        // Both should contain PKCE parameters
+        assertTrue(authUrl1.contains("code_challenge="));
+        assertTrue(authUrl1.contains("code_challenge_method=S256"));
+        assertTrue(authUrl2.contains("code_challenge="));
+        assertTrue(authUrl2.contains("code_challenge_method=S256"));
     }
 }
