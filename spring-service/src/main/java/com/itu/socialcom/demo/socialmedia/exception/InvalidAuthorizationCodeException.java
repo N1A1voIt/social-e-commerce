@@ -9,7 +9,15 @@ public class InvalidAuthorizationCodeException extends OAuthException {
         super(platform, "INVALID_AUTH_CODE", message);
     }
     
+    public InvalidAuthorizationCodeException(String platform, String errorCode, String message) {
+        super(platform, errorCode, message);
+    }
+    
     public InvalidAuthorizationCodeException(String platform, String message, Throwable cause) {
         super(platform, "INVALID_AUTH_CODE", message, cause);
+    }
+    
+    public InvalidAuthorizationCodeException(String platform, String errorCode, String message, Throwable cause) {
+        super(platform, errorCode, message, cause);
     }
 }

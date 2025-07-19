@@ -9,7 +9,15 @@ public class TokenExpiredException extends OAuthException {
         super(platform, "TOKEN_EXPIRED", message);
     }
     
+    public TokenExpiredException(String platform, String errorCode, String message) {
+        super(platform, errorCode, message);
+    }
+    
     public TokenExpiredException(String platform, String message, Throwable cause) {
         super(platform, "TOKEN_EXPIRED", message, cause);
+    }
+    
+    public TokenExpiredException(String platform, String errorCode, String message, Throwable cause) {
+        super(platform, errorCode, message, cause);
     }
 }

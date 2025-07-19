@@ -1,7 +1,10 @@
 package com.itu.socialcom.demo.socialmedia.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Configuration class to enable OAuth configuration properties
@@ -11,6 +14,19 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(OAuthConfig.class)
 public class SocialMediaConfig {
     
-    // This class enables the OAuthConfig configuration properties
-    // Additional beans and configuration can be added here as needed
+    /**
+     * RestTemplate bean for making HTTP requests to OAuth providers
+     */
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    
+    /**
+     * ObjectMapper bean for JSON parsing
+     */
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 }
