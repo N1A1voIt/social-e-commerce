@@ -1,8 +1,10 @@
 package com.itu.socialcom.demo.socialmedia.controller;
 
+import com.itu.socialcom.demo.socialmedia.dto.ManagedPageWithToken;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPage;
 import com.itu.socialcom.demo.socialmedia.factory.PlatformFactory;
 import com.itu.socialcom.demo.socialmedia.service.AuthService;
+import com.itu.socialcom.demo.socialmedia.service.CacheV1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import java.util.Map;
 public class PageManagementController {
     @Autowired
     PlatformFactory platformFactory;
+    @Autowired
+    private CacheV1 cacheV1;
 
     @GetMapping("/{platform}/login")
     public RedirectView login(@PathVariable String platform) {
@@ -26,7 +30,7 @@ public class PageManagementController {
     }
 
     @GetMapping("/{platform}/callback")
-    public ResponseEntity<List<ManagedPage>> callback(@PathVariable String platform, @RequestParam Map<String, String> params) {
+    public ResponseEntity<String> callback(@PathVariable String platform, @RequestParam Map<String, String> params) {
         try {
             AuthService service = platformFactory.getAuthService(platform);
             String codeOrToken = params.get("code");
@@ -34,8 +38,10 @@ public class PageManagementController {
                 codeOrToken = params.get("oauth_token");
             }
             String accessToken = service.exchangeForAccessToken(codeOrToken);
-            List<ManagedPage> managedPages = service.getManagedPages();
-            return ResponseEntity.ok(managedPages);
+            List<ManagedPageWithToken> managedPages = service.getManagedPages();
+            String uuid = cacheV1.cacheManagedPlatforms(managedPages);
+            System.out.println(uuid);
+            return ResponseEntity.ok(uuid);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (IllegalStateException e) {

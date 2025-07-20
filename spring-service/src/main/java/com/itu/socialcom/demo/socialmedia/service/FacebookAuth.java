@@ -32,6 +32,7 @@ public class FacebookAuth implements AuthService {
     @Autowired
     ManagedPageRepository managedPageRepository;
 
+
     private final okhttp3.OkHttpClient httpClient = new okhttp3.OkHttpClient();
     private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
     private String currentUserAccessToken;
@@ -79,12 +80,12 @@ public class FacebookAuth implements AuthService {
 
     @Override
     @Transactional
-    public List<ManagedPage> getManagedPages() throws Exception {
+    public List<ManagedPageWithToken> getManagedPages() throws Exception {
         if (this.currentUserAccessToken == null || this.currentUserAccessToken.isEmpty()) {
             throw new IllegalStateException("User Access Token is not available. Please call exchangeForAccessToken first.");
         }
 
-        List<ManagedPage> managedPages = new ArrayList<>();
+        List<ManagedPageWithToken> managedPages = new ArrayList<>();
         String accountsUrl = String.format(
                 "https://graph.facebook.com/v20.0/me/accounts?fields=id,name,picture.type(large),link,access_token&access_token=%s",
                 this.currentUserAccessToken
@@ -110,19 +111,16 @@ public class FacebookAuth implements AuthService {
                     if (pageNode.has("picture") && pageNode.get("picture").has("data") && pageNode.get("picture").get("data").has("url")) {
                         profilePictureUrl = pageNode.get("picture").get("data").get("url").asText();
                     }
+                    ManagedPageWithToken managedPageWithToken = new ManagedPageWithToken();
                     ManagedPage managedPage = new ManagedPage();
                     managedPage.setPlatformIdentifier(pageId);
                     managedPage.setPageTitle(pageName);
                     managedPage.setAssociatedMedia(profilePictureUrl);
                     managedPage.setLinkToPlatform(pageLink);
                     managedPage.setPlatformId(1L);
-                    managedPages.add(managedPage);
-                    managedPageRepository.save(managedPage);
-                    RefreshToken refreshToken = new RefreshToken();
-                    refreshToken.setManagedPageId(managedPage.getId());
-                    refreshToken.setRefreshToken(pageAccessToken);
-                    refreshToken.setExpirationDate(LocalDateTime.now().plusDays(30));
-                    refreshTokenRepository.save(refreshToken);
+                    managedPageWithToken.setManagedPage(managedPage);
+                    managedPageWithToken.setPageRefreshToken(pageAccessToken);
+                    managedPages.add(managedPageWithToken);
                 }
             }
         }

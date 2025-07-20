@@ -8,4 +8,5 @@ import lombok.*;
 public class ManagedPageWithToken {
     private ManagedPage managedPage;
     private String pageAccessToken;
+    private String pageRefreshToken;
 }
