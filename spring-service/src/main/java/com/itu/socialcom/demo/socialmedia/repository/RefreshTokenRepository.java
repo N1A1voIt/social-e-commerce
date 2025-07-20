@@ -21,9 +21,9 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     List<RefreshToken> findByManagedPageIdOrderByExpirationDesc(@Param("pageId") Long pageId);
     
     /**
-     * Find valid (non-expired) refresh token for a managed page
+     * Find valid (non-expired and non-revoked) refresh token for a managed page
      */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime ORDER BY rt.expirationDate DESC")
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime AND rt.revoked = false ORDER BY rt.expirationDate DESC")
     Optional<RefreshToken> findValidRefreshTokenByPageId(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
@@ -35,7 +35,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     /**
      * Find refresh tokens expiring within a specified time threshold
      */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.expirationDate BETWEEN :now AND :threshold ORDER BY rt.expirationDate ASC")
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.expirationDate BETWEEN :now AND :threshold AND rt.revoked = false ORDER BY rt.expirationDate ASC")
     List<RefreshToken> findTokensExpiringBefore(@Param("threshold") LocalDateTime threshold, @Param("now") LocalDateTime now);
     
     /**
@@ -45,16 +45,10 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     List<RefreshToken> findExpiredTokens(@Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Find refresh tokens by platform
+     * Find refresh tokens that can be used for token rotation
      */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.platform = :platform")
-    List<RefreshToken> findByPlatform(@Param("platform") String platform);
-    
-    /**
-     * Find valid refresh tokens by platform
-     */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.platform = :platform AND rt.expirationDate > :currentTime")
-    List<RefreshToken> findValidTokensByPlatform(@Param("platform") String platform, @Param("currentTime") LocalDateTime currentTime);
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime AND rt.revoked = false ORDER BY rt.expirationDate DESC LIMIT 1")
+    Optional<RefreshToken> findUsableRefreshTokenByPageId(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
      * Delete all refresh tokens for a managed page
@@ -71,40 +65,41 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     void deleteExpiredTokens(@Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Mark tokens as expired by updating their expiration date (for audit trail)
+     * Mark tokens as revoked (for audit trail)
      */
     @Modifying
-    @Query("UPDATE RefreshToken rt SET rt.expirationDate = :expiredTime, rt.updatedAt = :updatedAt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :expiredTime")
-    void markTokensAsExpired(@Param("pageId") Long pageId, @Param("expiredTime") LocalDateTime expiredTime, @Param("updatedAt") LocalDateTime updatedAt);
+    @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.managedPageId = :pageId AND rt.revoked = false")
+    void revokeTokensByPageId(@Param("pageId") Long pageId);
     
     /**
-     * Count valid refresh tokens for a managed page
+     * Mark specific token as revoked
      */
-    @Query("SELECT COUNT(rt) FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime")
+    @Modifying
+    @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.id = :tokenId")
+    void revokeToken(@Param("tokenId") Long tokenId);
+    
+    /**
+     * Count valid tokens for a managed page
+     */
+    @Query("SELECT COUNT(rt) FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime AND rt.revoked = false")
     long countValidTokensByPageId(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
      * Check if a managed page has valid refresh tokens
      */
-    @Query("SELECT COUNT(rt) > 0 FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime")
-    boolean hasValidRefreshTokens(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
+    @Query("SELECT COUNT(rt) > 0 FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime AND rt.revoked = false")
+    boolean hasValidTokens(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Find refresh tokens that need attention (expiring within specified days)
+     * Find refresh tokens that need rotation (expiring within specified hours)
      */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.expirationDate BETWEEN :now AND :warningThreshold")
-    List<RefreshToken> findTokensNeedingAttention(@Param("now") LocalDateTime now, @Param("warningThreshold") LocalDateTime warningThreshold);
-    
-    /**
-     * Find refresh tokens by managed page and platform
-     */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.platformId = :platformId ORDER BY rt.expirationDate DESC")
-    List<RefreshToken> findByPageIdAndPlatformId(@Param("pageId") Long pageId, @Param("platformId") Long platformId);
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.expirationDate BETWEEN :now AND :rotationThreshold AND rt.revoked = false")
+    List<RefreshToken> findTokensNeedingRotation(@Param("now") LocalDateTime now, @Param("rotationThreshold") LocalDateTime rotationThreshold);
     
     /**
      * Find pages with expiring refresh tokens (for proactive re-authentication)
      */
-    @Query("SELECT DISTINCT rt.managedPageId FROM RefreshToken rt WHERE rt.expirationDate BETWEEN :now AND :threshold")
+    @Query("SELECT DISTINCT rt.managedPageId FROM RefreshToken rt WHERE rt.expirationDate BETWEEN :now AND :threshold AND rt.revoked = false")
     List<Long> findPageIdsWithExpiringRefreshTokens(@Param("now") LocalDateTime now, @Param("threshold") LocalDateTime threshold);
     
     /**
@@ -125,26 +120,8 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     void cleanupOldExpiredTokens(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Find refresh tokens that can be used for token rotation
+     * Find non-revoked refresh tokens by token string (for validation)
      */
-    @Query("SELECT rt FROM RefreshToken rt WHERE rt.managedPageId = :pageId AND rt.expirationDate > :currentTime ORDER BY rt.expirationDate DESC LIMIT 1")
-    Optional<RefreshToken> findUsableRefreshTokenByPageId(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
-    
-    /**
-     * Count total refresh tokens by platform (for monitoring)
-     */
-    @Query("SELECT COUNT(rt) FROM RefreshToken rt WHERE rt.platform = :platform")
-    long countByPlatform(@Param("platform") String platform);
-    
-    /**
-     * Find refresh tokens that will expire soon and need user notification
-     */
-    @Query("""
-        SELECT rt FROM RefreshToken rt 
-        WHERE rt.expirationDate BETWEEN :now AND :notificationThreshold 
-        AND rt.managedPageId IN (
-            SELECT mp.id FROM ManagedPage mp WHERE mp.status = 'active'
-        )
-    """)
-    List<RefreshToken> findTokensNeedingUserNotification(@Param("now") LocalDateTime now, @Param("notificationThreshold") LocalDateTime notificationThreshold);
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.refreshToken = :token AND rt.revoked = false")
+    Optional<RefreshToken> findByTokenAndNotRevoked(@Param("token") String token);
 }

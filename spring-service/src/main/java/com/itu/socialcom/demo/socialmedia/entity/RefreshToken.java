@@ -20,33 +20,21 @@ public class RefreshToken {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pat")
+    @Column(name = "id_prt")
     private Long id;
     
     /**
      * The actual refresh token string (should be encrypted in production)
      */
-    @Column(name = "refresh_token", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "token", nullable = false, columnDefinition = "TEXT")
     private String refreshToken;
     
     /**
      * When this refresh token expires
      */
-    @Column(name = "expiration_date", nullable = false)
+    @Column(name = "expired_at", nullable = false)
     private LocalDateTime expirationDate;
-    
-    /**
-     * Platform identifier (e.g., "facebook", "instagram", "x")
-     */
-    @Column(name = "platform", length = 250)
-    private String platform;
-    
-    /**
-     * Foreign key reference to supported_platforms_v2 table
-     * Note: No JPA relationship annotation to maintain manual control
-     */
-    @Column(name = "id_sp", nullable = false)
-    private Long platformId;
+
     
     /**
      * Foreign key reference to managed_pages table
@@ -58,19 +46,20 @@ public class RefreshToken {
     // Audit fields for tracking creation and updates
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+
+    @Column(name = "revoked")
+    private boolean revoked;
+
     
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        revoked = false;
     }
     
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+
     }
     
     /**

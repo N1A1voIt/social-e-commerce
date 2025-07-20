@@ -26,51 +26,32 @@ public class AccessToken {
     /**
      * The actual access token string (should be encrypted in production)
      */
-    @Column(name = "access_tokens", unique = true, columnDefinition = "TEXT")
+    @Column(name = "access_token", unique = true, columnDefinition = "TEXT")
     private String accessToken;
     
     /**
      * When this access token expires
      */
-    @Column(name = "expiration_date", nullable = false)
+    @Column(name = "expired_at", nullable = false)
     private LocalDateTime expirationDate;
-    
-    /**
-     * Platform identifier (e.g., "facebook", "instagram", "x")
-     */
-    @Column(name = "platform", nullable = false, length = 250)
-    private String platform;
-    
-    /**
-     * Foreign key reference to supported_platforms_v2 table
-     * Note: No JPA relationship annotation to maintain manual control
-     */
-    @Column(name = "id_sp", nullable = false)
-    private Long platformId;
-    
-    /**
-     * Foreign key reference to managed_pages table
-     * Note: No JPA relationship annotation to maintain manual control
-     */
-    @Column(name = "id_mp", nullable = false)
-    private Long managedPageId;
+
     
     // Audit fields for tracking creation and updates
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+
+    @Column(name = "id_prt")
+    private LocalDateTime idRefreshToken;
+
     
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
     }
     
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+
     }
     
     /**

@@ -15,22 +15,22 @@ import java.util.Optional;
 public interface AccessTokenRepository extends JpaRepository<AccessToken, Long> {
     
     /**
-     * Find all access tokens for a managed page ordered by expiration date (newest first)
+     * Find all access tokens for a refresh token ordered by expiration date (newest first)
      */
-    @Query("SELECT at FROM AccessToken at WHERE at.managedPageId = :pageId ORDER BY at.expirationDate DESC")
-    List<AccessToken> findByManagedPageIdOrderByExpirationDesc(@Param("pageId") Long pageId);
+    @Query("SELECT at FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId ORDER BY at.expirationDate DESC")
+    List<AccessToken> findByRefreshTokenIdOrderByExpirationDesc(@Param("refreshTokenId") Long refreshTokenId);
     
     /**
-     * Find valid (non-expired) access token for a managed page
+     * Find valid (non-expired) access token for a refresh token
      */
-    @Query("SELECT at FROM AccessToken at WHERE at.managedPageId = :pageId AND at.expirationDate > :currentTime ORDER BY at.expirationDate DESC")
-    Optional<AccessToken> findValidTokenByPageId(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
+    @Query("SELECT at FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId AND at.expirationDate > :currentTime ORDER BY at.expirationDate DESC")
+    Optional<AccessToken> findValidTokenByRefreshTokenId(@Param("refreshTokenId") Long refreshTokenId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Find the most recent access token for a managed page (regardless of expiration)
+     * Find the most recent access token for a refresh token (regardless of expiration)
      */
-    @Query("SELECT at FROM AccessToken at WHERE at.managedPageId = :pageId ORDER BY at.createdAt DESC LIMIT 1")
-    Optional<AccessToken> findLatestTokenByPageId(@Param("pageId") Long pageId);
+    @Query("SELECT at FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId ORDER BY at.createdAt DESC LIMIT 1")
+    Optional<AccessToken> findLatestTokenByRefreshTokenId(@Param("refreshTokenId") Long refreshTokenId);
     
     /**
      * Find access tokens expiring within a specified time threshold
@@ -45,23 +45,11 @@ public interface AccessTokenRepository extends JpaRepository<AccessToken, Long> 
     List<AccessToken> findExpiredTokens(@Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Find access tokens by platform
-     */
-    @Query("SELECT at FROM AccessToken at WHERE at.platform = :platform")
-    List<AccessToken> findByPlatform(@Param("platform") String platform);
-    
-    /**
-     * Find access tokens by platform and expiration status
-     */
-    @Query("SELECT at FROM AccessToken at WHERE at.platform = :platform AND at.expirationDate > :currentTime")
-    List<AccessToken> findValidTokensByPlatform(@Param("platform") String platform, @Param("currentTime") LocalDateTime currentTime);
-    
-    /**
-     * Delete all access tokens for a managed page
+     * Delete all access tokens for a refresh token
      */
     @Modifying
-    @Query("DELETE FROM AccessToken at WHERE at.managedPageId = :pageId")
-    void deleteByManagedPageId(@Param("pageId") Long pageId);
+    @Query("DELETE FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId")
+    void deleteByRefreshTokenId(@Param("refreshTokenId") Long refreshTokenId);
     
     /**
      * Delete expired access tokens
@@ -74,20 +62,20 @@ public interface AccessTokenRepository extends JpaRepository<AccessToken, Long> 
      * Mark tokens as expired by updating their expiration date (for audit trail)
      */
     @Modifying
-    @Query("UPDATE AccessToken at SET at.expirationDate = :expiredTime, at.updatedAt = :updatedAt WHERE at.managedPageId = :pageId AND at.expirationDate > :expiredTime")
-    void markTokensAsExpired(@Param("pageId") Long pageId, @Param("expiredTime") LocalDateTime expiredTime, @Param("updatedAt") LocalDateTime updatedAt);
+    @Query("UPDATE AccessToken at SET at.expirationDate = :expiredTime WHERE at.idRefreshToken = :refreshTokenId AND at.expirationDate > :expiredTime")
+    void markTokensAsExpired(@Param("refreshTokenId") Long refreshTokenId, @Param("expiredTime") LocalDateTime expiredTime);
     
     /**
-     * Count valid tokens for a managed page
+     * Count valid tokens for a refresh token
      */
-    @Query("SELECT COUNT(at) FROM AccessToken at WHERE at.managedPageId = :pageId AND at.expirationDate > :currentTime")
-    long countValidTokensByPageId(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
+    @Query("SELECT COUNT(at) FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId AND at.expirationDate > :currentTime")
+    long countValidTokensByRefreshTokenId(@Param("refreshTokenId") Long refreshTokenId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
-     * Check if a managed page has valid access tokens
+     * Check if a refresh token has valid access tokens
      */
-    @Query("SELECT COUNT(at) > 0 FROM AccessToken at WHERE at.managedPageId = :pageId AND at.expirationDate > :currentTime")
-    boolean hasValidTokens(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
+    @Query("SELECT COUNT(at) > 0 FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId AND at.expirationDate > :currentTime")
+    boolean hasValidTokens(@Param("refreshTokenId") Long refreshTokenId, @Param("currentTime") LocalDateTime currentTime);
     
     /**
      * Find access tokens that need rotation (expiring within specified hours)
@@ -96,25 +84,19 @@ public interface AccessTokenRepository extends JpaRepository<AccessToken, Long> 
     List<AccessToken> findTokensNeedingRotation(@Param("now") LocalDateTime now, @Param("rotationThreshold") LocalDateTime rotationThreshold);
     
     /**
-     * Find access tokens by managed page and platform
-     */
-    @Query("SELECT at FROM AccessToken at WHERE at.managedPageId = :pageId AND at.platformId = :platformId ORDER BY at.expirationDate DESC")
-    List<AccessToken> findByPageIdAndPlatformId(@Param("pageId") Long pageId, @Param("platformId") Long platformId);
-    
-    /**
      * Cleanup old expired tokens (keep only the most recent expired token for audit)
      */
     @Modifying
     @Query("""
-        DELETE FROM AccessToken at WHERE at.managedPageId = :pageId 
+        DELETE FROM AccessToken at WHERE at.idRefreshToken = :refreshTokenId 
         AND at.expirationDate < :currentTime 
         AND at.id NOT IN (
             SELECT at2.id FROM AccessToken at2 
-            WHERE at2.managedPageId = :pageId 
+            WHERE at2.idRefreshToken = :refreshTokenId 
             AND at2.expirationDate < :currentTime 
             ORDER BY at2.expirationDate DESC 
             LIMIT 1
         )
     """)
-    void cleanupOldExpiredTokens(@Param("pageId") Long pageId, @Param("currentTime") LocalDateTime currentTime);
+    void cleanupOldExpiredTokens(@Param("refreshTokenId") Long refreshTokenId, @Param("currentTime") LocalDateTime currentTime);
 }

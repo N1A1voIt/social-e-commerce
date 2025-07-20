@@ -267,29 +267,27 @@ CREATE TABLE transport_type_v2(
 );
 
 CREATE TABLE pat_refresh_tokens(
-                                   id_pat SERIAL,
-                                   expiration_date TIMESTAMP NOT NULL,
-                                   platform VARCHAR(250) ,
-                                   refresh_token TEXT NOT NULL,
-                                   id_sp INTEGER NOT NULL,
-                                   id_mp INTEGER NOT NULL,
-                                   PRIMARY KEY(id_pat),
-                                   FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
-                                   FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+       id_prt SERIAL,
+       token TEXT NOT NULL,
+       expired_at TIMESTAMP NOT NULL,
+       created_at TIMESTAMP NOT NULL,
+       revoked BOOLEAN,
+       id_mp INTEGER NOT NULL,
+       PRIMARY KEY(id_prt),
+       UNIQUE(token),
+       FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
 CREATE TABLE pat_access_tokens(
-                                  id SERIAL,
-                                  access_tokens TEXT,
-                                  expiration_date TIMESTAMP NOT NULL,
-                                  platform VARCHAR(250)  NOT NULL,
-                                  id_sp INTEGER NOT NULL,
-                                  id_mp INTEGER NOT NULL,
-                                  PRIMARY KEY(id),
-                                  UNIQUE(access_tokens),
-                                  FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
-                                  FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+   id_pat SERIAL,
+   access_token TEXT NOT NULL,
+   expired_at TIMESTAMP NOT NULL,
+   created_at TIMESTAMP NOT NULL,
+   id_prt INTEGER NOT NULL,
+   PRIMARY KEY(id_pat),
+   FOREIGN KEY(id_prt) REFERENCES pat_refresh_tokens(id_prt)
 );
+
 
 CREATE TABLE likes_history(
                               id_lh SERIAL,
