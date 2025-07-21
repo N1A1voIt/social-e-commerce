@@ -12,6 +12,7 @@ import com.itu.socialcom.demo.socialmedia.repository.ManagedPageRepository;
 import com.itu.socialcom.demo.socialmedia.service.AuthService;
 import com.itu.socialcom.demo.socialmedia.service.CacheV1;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,8 @@ public class PageManagementController {
     private ManagedPageCPLRepository managedPageRepository;
     @Autowired
     private TokenV2ServiceImpl tokenV2Repository;
-
+    @Value("${front-end.prefix}")
+    String prefix;
     @GetMapping("/{platform}/login")
     public RedirectView login(@PathVariable String platform) {
         AuthService service = platformFactory.getAuthService(platform);
@@ -40,7 +42,7 @@ public class PageManagementController {
     }
 
     @GetMapping("/{platform}/callback")
-    public ResponseEntity<String> callback(@PathVariable String platform, @RequestParam Map<String, String> params) {
+    public RedirectView callback(@PathVariable String platform, @RequestParam Map<String, String> params) {
         try {
             AuthService service = platformFactory.getAuthService(platform);
             String codeOrToken = params.get("code");
@@ -50,15 +52,11 @@ public class PageManagementController {
             String accessToken = service.exchangeForAccessToken(codeOrToken);
             List<ManagedPageWithToken> managedPages = service.getManagedPages();
             String uuid = cacheV1.cacheManagedPlatforms(managedPages);
-            System.out.println(uuid);
-            return ResponseEntity.ok(uuid);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            String url = prefix+"/auth/"+platform+"?uuid="+uuid;
+            return new RedirectView(url);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return new RedirectView(prefix+"/error");
         }
     }
     @GetMapping("/{platform}/managed-pages")

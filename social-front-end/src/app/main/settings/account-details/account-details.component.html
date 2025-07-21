@@ -34,7 +34,7 @@
       </div>
     </ng-template>
     <app-contacts class="w-full"></app-contacts>
-    <app-managed-account [managedPages]="managedPages"></app-managed-account>
+    <app-managed-account [managedPages]="managedPages" (editClicked)="onEditClicked()"></app-managed-account>
     </div>
   </div>
   <app-profile-edit-form *ngIf="formApply === 'profile'"></app-profile-edit-form>
@@ -49,6 +49,7 @@
           <ng-icon name="heroPlusCircle" size="30" class="cursor-pointer"></ng-icon>
         </div>
       </div>
+
     </div>
   </div>
   <div *ngIf="formApply === 'accounts'" class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
@@ -61,6 +62,9 @@
         <div class="text-xl  flex justify-center items-center">
           <ng-icon name="heroPlusCircle" size="30" class="cursor-pointer"></ng-icon>
         </div>
+      </div>
+      <div class="w-full h-full flex  p-4 font-mono">
+        <a href="{{facebookUrl}}" class="w-full h-fit flex justify-center items-center rounded-full bg-blue-600 text-fotsy p-3" >Attach facebook pages</a>
       </div>
     </div>
   </div>

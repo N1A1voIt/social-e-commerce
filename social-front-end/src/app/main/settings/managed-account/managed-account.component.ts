@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { NgIcon } from "@ng-icons/core";
 import { PlatformRowComponent } from "./platform-row/platform-row.component";
 import {ManagedPageCPL} from "../account-details/account-details.component";
@@ -17,5 +17,9 @@ import {NgForOf} from "@angular/common";
 })
 export class ManagedAccountComponent {
    @Input() managedPages:ManagedPageCPL[] = [];
-   
+   @Output() editClicked = new EventEmitter<void>();
+
+  triggerEdit(): void {
+    this.editClicked.emit();
+  }
 }

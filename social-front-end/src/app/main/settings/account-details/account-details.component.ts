@@ -46,6 +46,10 @@ export class AccountDetailsComponent implements OnInit {
     email: 'david@gmail.com',
     profileImage: 'assets/imgs/gustavo.jpeg'
   };
+  facebookUrl = javaHost + '/api/auth/facebook/login';
+  onEditClicked() {
+    this.formApply = 'accounts';
+  }
   isLoading: boolean = false;
   managedPages: ManagedPageCPL[] = [];
   @Output() close = new EventEmitter<void>();
