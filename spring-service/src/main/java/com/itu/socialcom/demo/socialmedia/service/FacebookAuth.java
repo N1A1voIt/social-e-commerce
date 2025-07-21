@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -46,7 +47,7 @@ public class FacebookAuth implements AuthService {
     private String currentUserAccessToken;
 
     @Override
-    public String exchangeForAccessToken(String code) {
+    public String exchangeForAccessToken(String code)  throws IOException {
         try {
             String tokenUrl = String.format(
                     "https://graph.facebook.com/v20.0/oauth/access_token?" +

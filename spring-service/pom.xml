@@ -85,6 +85,12 @@
 			<artifactId>jedis</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.facebook.business.sdk</groupId>
+			<artifactId>facebook-java-business-sdk</artifactId>
+			<version>23.0.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>4.11.0</version>
