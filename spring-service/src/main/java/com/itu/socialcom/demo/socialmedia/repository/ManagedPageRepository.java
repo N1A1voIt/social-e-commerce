@@ -81,4 +81,6 @@ public interface ManagedPageRepository extends JpaRepository<ManagedPage, Long> 
      */
     @Query("SELECT mp FROM ManagedPage mp WHERE mp.status = 'active' AND mp.updatedAt < :threshold")
     List<ManagedPage> findPagesNeedingTokenRefresh(@Param("threshold") LocalDateTime threshold);
+
+    Optional<ManagedPage> findBySellerIdAndPlatformIdentifier(Long id, String pageId);
 }

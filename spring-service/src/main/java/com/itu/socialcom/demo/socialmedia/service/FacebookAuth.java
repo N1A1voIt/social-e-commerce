@@ -142,10 +142,10 @@ public class FacebookAuth implements AuthService {
         if (seller == null) {
             throw new IllegalArgumentException("User not found");
         }
-        List<ManagedPageWithToken> managedPageWithTokens = cacheV1.getManagedPages(tempUUID);
-        System.out.println("managedPageWithTokens: " + managedPageWithTokens.get(0).getPageRefreshToken());
-        List<ManagedPage> managedPages = new ArrayList<>();
+        // List<ManagedPage> actualPages = managedPageRepository.findBySellerAndPlatform(seller.getId(),1L);
 
+        List<ManagedPageWithToken> managedPageWithTokens = cacheV1.getManagedPages(tempUUID);
+        List<ManagedPage> managedPages = new ArrayList<>();
         for (ManagedPageWithToken managedPageWithToken : managedPageWithTokens) {
             ManagedPage managedPage = managedPageWithToken.getManagedPage();
             managedPage.setSellerId(seller.getId());
