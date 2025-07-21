@@ -1,14 +1,15 @@
-<div class="cont-box w-full flex  gap-5  justify-start mt-2">
-  <div class="rounded-full w-[30px] h-[30px]  bg-opacity-40 overflow-hidden">
-    <img width="30" src="assets/logos/google_logo.png" alt="">
+<div class="cont-box w-full flex gap-5 justify-start mt-2">
+  <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden">
+    <img width="30" [src]="associatedMedia" alt="{{ platform }}">
   </div>
-  <div class="flex flex-col " style="letter-spacing: 1px">
-    <h1 class="text-md font-semibold"> Facebook</h1>
-    <p class="text-sm text-gray">&#64;La page de Tefi </p>
+  <div class="flex flex-col" style="letter-spacing: 1px">
+    <a href="{{linkToPlatform}}" class="text-md font-semibold">&#64;{{ pageTitle }}</a>
+    <p  class="text-sm text-gray">{{ platform }}</p>
     <span class="items-center flex gap-2">
-        <app-checkbox></app-checkbox>
-        <span class="font-medium"> Connected</span>
+      <app-checkbox [checked]="status"></app-checkbox>
+      <span class="font-medium">Connected</span>
     </span>
   </div>
 </div>
+
 

@@ -1,8 +1,14 @@
 package com.itu.socialcom.demo.socialmedia.controller;
 
+import com.itu.socialcom.demo.authentication.token.TokenV2Repository;
+import com.itu.socialcom.demo.authentication.token.TokenV2ServiceImpl;
+import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.socialmedia.dto.ManagedPageWithToken;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPage;
+import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
 import com.itu.socialcom.demo.socialmedia.factory.PlatformFactory;
+import com.itu.socialcom.demo.socialmedia.repository.ManagedPageCPLRepository;
+import com.itu.socialcom.demo.socialmedia.repository.ManagedPageRepository;
 import com.itu.socialcom.demo.socialmedia.service.AuthService;
 import com.itu.socialcom.demo.socialmedia.service.CacheV1;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +27,10 @@ public class PageManagementController {
     PlatformFactory platformFactory;
     @Autowired
     private CacheV1 cacheV1;
+    @Autowired
+    private ManagedPageCPLRepository managedPageRepository;
+    @Autowired
+    private TokenV2ServiceImpl tokenV2Repository;
 
     @GetMapping("/{platform}/login")
     public RedirectView login(@PathVariable String platform) {
@@ -66,4 +76,23 @@ public class PageManagementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    @GetMapping("/managed-pages-all")
+    public ResponseEntity<List<ManagedPageCPL>> getAllManagedPages(@RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Repository.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+            List<ManagedPageCPL> managedPages = managedPageRepository.findByIdSeller(seller.getId());
+            return ResponseEntity.ok(managedPages);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }

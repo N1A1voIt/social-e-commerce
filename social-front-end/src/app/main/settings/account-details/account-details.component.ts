@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import {Component, Output, EventEmitter, OnInit, ChangeDetectorRef} from '@angular/core';
 import { ContactsComponent } from "../contacts/contacts.component";
 import { ManagedAccountComponent } from "../managed-account/managed-account.component";
 import { NgIcon } from "@ng-icons/core";
@@ -7,6 +7,18 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {environment, javaHost} from "../../../../environments/environment";
 import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.component";
 
+export interface ManagedPageCPL {
+  idMp: number;
+  status: string;
+  platformIdentifier: string;
+  pageTitle: string;
+  associatedMedia: string;
+  linkToPlatform: string;
+  platform: string;
+  email: string;
+  idSeller: number;
+  username: string;
+}
 
 interface Seller {
   username: string;
@@ -35,13 +47,14 @@ export class AccountDetailsComponent implements OnInit {
     profileImage: 'assets/imgs/gustavo.jpeg'
   };
   isLoading: boolean = false;
-
+  managedPages: ManagedPageCPL[] = [];
   @Output() close = new EventEmitter<void>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private cdr:ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadSellerInfo();
+    this.loadManagedPages();
   }
 
   private loadSellerInfo(): void {
@@ -73,6 +86,20 @@ export class AccountDetailsComponent implements OnInit {
           this.isLoading = false;
         }
       });
+  }
+  private loadManagedPages(): void {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    this.http.get<ManagedPageCPL[]>(javaHost + '/api/auth/managed-pages-all', { headers }).subscribe({
+      next: (data) => {
+        this.managedPages = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.log(err.message);
+        console.error('Failed to load managed pages', err);
+      },
+    });
   }
 
   closeDetails(): void {

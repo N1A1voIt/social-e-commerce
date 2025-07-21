@@ -34,7 +34,7 @@
       </div>
     </ng-template>
     <app-contacts class="w-full"></app-contacts>
-    <app-managed-account></app-managed-account>
+    <app-managed-account [managedPages]="managedPages"></app-managed-account>
     </div>
   </div>
   <app-profile-edit-form *ngIf="formApply === 'profile'"></app-profile-edit-form>

@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @Setter
 @Table(name = "managed_pages")
 public class ManagedPage {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_mp")
@@ -65,6 +64,7 @@ public class ManagedPage {
      * Foreign key reference to seller_v2 table
      * Note: No JPA relationship annotation to maintain manual control
      */
+
     @Column(name = "id_seller", nullable = false)
     private Long sellerId;
     
