@@ -10,5 +10,5 @@ public interface AuthService {
     String exchangeForAccessToken(String code);
     String getLoginUrl();
     List<ManagedPageWithToken> getManagedPages() throws Exception;
-    String getEntityAccessToken(String entityId) throws Exception;
+    List<ManagedPage> savePages(String entityId,String userToken) throws Exception;
 }

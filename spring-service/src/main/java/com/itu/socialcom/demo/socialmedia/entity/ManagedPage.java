@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.socialmedia.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -92,6 +93,7 @@ public class ManagedPage {
      * Check if the managed page is currently active
      * @return true if status is "active", false otherwise
      */
+    @JsonIgnore
     public boolean isActive() {
         return "active".equalsIgnoreCase(status);
     }

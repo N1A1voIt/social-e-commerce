@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ManagedPageCachingSignature {
     String cacheManagedPlatforms(List<ManagedPageWithToken> managedPages) throws Exception;
+    List<ManagedPageWithToken> getManagedPages(String key) throws Exception;
 }

@@ -20,7 +20,7 @@ public class AccessToken {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id_pat")
     private Long id;
     
     /**
@@ -41,7 +41,7 @@ public class AccessToken {
     private LocalDateTime createdAt;
 
     @Column(name = "id_prt")
-    private LocalDateTime idRefreshToken;
+    private Long idRefreshToken;
 
     
     @PrePersist

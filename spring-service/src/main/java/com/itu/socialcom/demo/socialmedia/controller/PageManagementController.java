@@ -51,4 +51,19 @@ public class PageManagementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    @GetMapping("/{platform}/managed-pages")
+    public ResponseEntity<List<ManagedPage>> getManagedPages(@PathVariable String platform,@RequestParam Map<String, String> params,@RequestHeader("Authorization") String token) {
+        try {
+            AuthService service = platformFactory.getAuthService(platform);
+            List<ManagedPage> managedPages = service.savePages(params.get("uuid"),token);
+            return ResponseEntity.ok(managedPages);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

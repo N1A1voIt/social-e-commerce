@@ -1,8 +1,11 @@
 package com.itu.socialcom.demo.socialmedia.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.itu.socialcom.demo.authentication.token.TokenV2ServiceImpl;
+import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.socialmedia.dto.ManagedEntity;
 import com.itu.socialcom.demo.socialmedia.dto.ManagedPageWithToken;
+import com.itu.socialcom.demo.socialmedia.entity.AccessToken;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPage;
 import com.itu.socialcom.demo.socialmedia.entity.RefreshToken;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPageRepository;
@@ -31,7 +34,12 @@ public class FacebookAuth implements AuthService {
     RefreshTokenRepository refreshTokenRepository;
     @Autowired
     ManagedPageRepository managedPageRepository;
-
+    @Autowired
+    CacheV1 cacheV1;
+    @Value("${facebook.token.expiration}")
+    int expiration;
+    @Autowired
+    TokenV2ServiceImpl tokenService;
 
     private final okhttp3.OkHttpClient httpClient = new okhttp3.OkHttpClient();
     private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -128,7 +136,28 @@ public class FacebookAuth implements AuthService {
     }
 
     @Override
-    public String getEntityAccessToken(String entityId) throws Exception {
-        return "";
+    @Transactional
+    public List<ManagedPage> savePages(String tempUUID,String userToken) throws Exception {
+        Seller seller = tokenService.findSellerByToken(userToken).orElse(null);
+        if (seller == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        List<ManagedPageWithToken> managedPageWithTokens = cacheV1.getManagedPages(tempUUID);
+        System.out.println("managedPageWithTokens: " + managedPageWithTokens.get(0).getPageRefreshToken());
+        List<ManagedPage> managedPages = new ArrayList<>();
+
+        for (ManagedPageWithToken managedPageWithToken : managedPageWithTokens) {
+            ManagedPage managedPage = managedPageWithToken.getManagedPage();
+            managedPage.setSellerId(seller.getId());
+            managedPages.add(managedPage);
+            managedPageRepository.save(managedPage);
+            RefreshToken refreshToken = new RefreshToken();
+            refreshToken.setRefreshToken(managedPageWithToken.getPageRefreshToken());
+            refreshToken.setManagedPageId(managedPage.getId());
+            refreshToken.setCreatedAt(managedPage.getCreatedAt());
+            refreshToken.setExpirationDate(refreshToken.getCreatedAt().plusDays(expiration));
+            refreshTokenRepository.save(refreshToken);
+        }
+        return managedPages;
     }
 }

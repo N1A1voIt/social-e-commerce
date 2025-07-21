@@ -3,6 +3,7 @@ package com.itu.socialcom.demo.socialmedia.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itu.socialcom.demo.socialmedia.dto.ManagedPageWithToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 @Service
 public class CacheV1 implements ManagedPageCachingSignature {
     @Autowired
-    private StringRedisTemplate redisTemplate; // Auto-configured by Spring Boot
+    private RedisTemplate<String, Object> redisTemplate; // Auto-configured by Spring Boot
     @Autowired
     private ObjectMapper objectMapper; // For JSON serialization/deserialization
     private final Duration EXPIRATION_DURATION = Duration.ofMinutes(10); // Data expires after 10 minutes
@@ -24,8 +25,14 @@ public class CacheV1 implements ManagedPageCachingSignature {
                           System.currentTimeMillis() + "-" + 
                           System.nanoTime() + "-" + 
                           Thread.currentThread().getId();
-        String pagesJson = objectMapper.writeValueAsString(managedPages);
-        redisTemplate.opsForValue().set(cacheKey, pagesJson, EXPIRATION_DURATION);
+        redisTemplate.opsForValue().set(cacheKey, managedPages, EXPIRATION_DURATION);
         return cacheKey;
     }
+
+    @Override
+    public List<ManagedPageWithToken> getManagedPages(String key) throws Exception {
+        List<ManagedPageWithToken> managedPages = (List<ManagedPageWithToken>) redisTemplate.opsForValue().get(key);
+        return managedPages;
+    }
+
 }
