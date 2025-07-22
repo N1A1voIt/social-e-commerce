@@ -368,7 +368,7 @@ CREATE TABLE deliveries_state(
      FOREIGN KEY(id_status) REFERENCES delivery_status_v2(id_status)
 );
 
-
+SELECT * FROM pat_refresh_tokens;
 
 CREATE VIEW v_managed_accounts AS
 SELECT id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username FROM managed_pages

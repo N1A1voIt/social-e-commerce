@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 @Service
 public class FacebookAuth implements AuthService {
@@ -143,19 +144,26 @@ public class FacebookAuth implements AuthService {
         if (seller == null) {
             throw new IllegalArgumentException("User not found");
         }
-        // List<ManagedPage> actualPages = managedPageRepository.findBySellerAndPlatform(seller.getId(),1L);
-
+        List<ManagedPage> actualPages = managedPageRepository.findBySellerAndPlatform(seller.getId(),1L);
         List<ManagedPageWithToken> managedPageWithTokens = cacheV1.getManagedPages(tempUUID);
+        HashMap<String,ManagedPage> hashMap = new HashMap<>();
+        for (int i = 0; i < actualPages.size(); i++) {
+            hashMap.put(actualPages.get(i).getPlatformIdentifier()+"-"+actualPages.get(i).getSellerId(),actualPages.get(i));
+        }
         List<ManagedPage> managedPages = new ArrayList<>();
         for (ManagedPageWithToken managedPageWithToken : managedPageWithTokens) {
             ManagedPage managedPage = managedPageWithToken.getManagedPage();
-            managedPage.setSellerId(seller.getId());
-            managedPages.add(managedPage);
-            managedPageRepository.save(managedPage);
+            Long managedPageId;
+            if (!hashMap.containsKey(managedPage.getPlatformIdentifier()+"-"+seller.getId())) {
+                managedPage.setSellerId(seller.getId());
+                managedPages.add(managedPage);
+                managedPageRepository.save(managedPage);
+                managedPageId = managedPage.getId();
+            } else managedPageId = hashMap.get(managedPage.getPlatformIdentifier()+"-"+seller.getId()).getId();
             RefreshToken refreshToken = new RefreshToken();
             refreshToken.setRefreshToken(managedPageWithToken.getPageRefreshToken());
-            refreshToken.setManagedPageId(managedPage.getId());
-            refreshToken.setCreatedAt(managedPage.getCreatedAt());
+            refreshToken.setManagedPageId(managedPageId);
+            refreshToken.setCreatedAt(LocalDateTime.now());
             refreshToken.setExpirationDate(refreshToken.getCreatedAt().plusDays(expiration));
             refreshTokenRepository.save(refreshToken);
         }

@@ -53,6 +53,7 @@ public class PageManagementController {
             List<ManagedPageWithToken> managedPages = service.getManagedPages();
             String uuid = cacheV1.cacheManagedPlatforms(managedPages);
             String url = prefix+"/auth/"+platform+"?uuid="+uuid;
+            System.out.println(url);
             return new RedirectView(url);
         } catch (Exception e) {
             e.printStackTrace();

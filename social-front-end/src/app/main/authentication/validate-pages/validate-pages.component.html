@@ -1,0 +1,11 @@
+<div class="flex flex-col justify-center items-center gap-4">
+  <button class="h-fit flex justify-center items-center rounded-full bg-blue-600 text-fotsy p-3 w-[200px]" (click)="validate()" *ngIf="!valid">Validate authentication</button>
+  <h1 *ngIf="valid">Go to the home page!</h1>
+</div>
+<div
+  *ngIf="errorMessage"
+  class="text-red-600 bg-red-100 p-2 px-4 rounded-lg border border-red-300"
+>
+  {{ errorMessage }}
+</div>
+

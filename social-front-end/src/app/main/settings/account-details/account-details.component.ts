@@ -47,6 +47,7 @@ export class AccountDetailsComponent implements OnInit {
     profileImage: 'assets/imgs/gustavo.jpeg'
   };
   facebookUrl = javaHost + '/api/auth/facebook/login';
+  instagramUrl = javaHost + '/api/auth/instagram/login';
   onEditClicked() {
     this.formApply = 'accounts';
   }
