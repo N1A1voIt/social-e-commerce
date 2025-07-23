@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class FacebookAuth implements AuthService {
     @Value("${facebook.appId}")
@@ -48,7 +50,8 @@ public class FacebookAuth implements AuthService {
     private String currentUserAccessToken;
 
     @Override
-    public String exchangeForAccessToken(String code)  throws IOException {
+    public String exchangeForAccessToken(Map<String,String> params)  throws IOException {
+        String codeOrToken = params.get("code");
         try {
             String tokenUrl = String.format(
                     "https://graph.facebook.com/v20.0/oauth/access_token?" +
@@ -56,7 +59,7 @@ public class FacebookAuth implements AuthService {
                     APP_ID,
                     URLEncoder.encode(redirect_uri, StandardCharsets.UTF_8),
                     APP_SECRET,
-                    code,
+                    codeOrToken,
                     APP_SECRET
             );
             Request request = new Request.Builder().url(tokenUrl).build();

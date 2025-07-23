@@ -288,7 +288,6 @@ CREATE TABLE pat_access_tokens(
    FOREIGN KEY(id_prt) REFERENCES pat_refresh_tokens(id_prt)
 );
 
-
 CREATE TABLE likes_history(
                               id_lh SERIAL,
                               created_at TIMESTAMP NOT NULL,

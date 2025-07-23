@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,8 +44,8 @@ public class InstagramAuth implements AuthService{
     TokenV2ServiceImpl tokenService;
 
     @Override
-    public String exchangeForAccessToken(String code) throws IOException {
-
+    public String exchangeForAccessToken(Map<String,String> params) throws IOException {
+        String code = params.get("code");
         // 1️⃣ Échange du code pour un token court
         URL tokenUrl = new URL("https://api.instagram.com/oauth/access_token");
         HttpURLConnection conn = (HttpURLConnection) tokenUrl.openConnection();

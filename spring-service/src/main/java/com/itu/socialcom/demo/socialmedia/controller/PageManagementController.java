@@ -45,11 +45,8 @@ public class PageManagementController {
     public RedirectView callback(@PathVariable String platform, @RequestParam Map<String, String> params) {
         try {
             AuthService service = platformFactory.getAuthService(platform);
-            String codeOrToken = params.get("code");
-            if (codeOrToken == null) {
-                codeOrToken = params.get("oauth_token");
-            }
-            String accessToken = service.exchangeForAccessToken(codeOrToken);
+
+            String accessToken = service.exchangeForAccessToken(params);
             List<ManagedPageWithToken> managedPages = service.getManagedPages();
             String uuid = cacheV1.cacheManagedPlatforms(managedPages);
             String url = prefix+"/auth/"+platform+"?uuid="+uuid;
