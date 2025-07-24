@@ -53,7 +53,7 @@ public class Product {
      * Note: No JPA relationship annotation to maintain manual control
      */
     @Column(name = "id_seller", nullable = false)
-    private Integer idSeller;
+    private Long idSeller;
     
     // Audit fields for tracking creation and updates
     @Column(name = "created_at")
@@ -61,7 +61,9 @@ public class Product {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+    @Column(name = "id_category", nullable = false)
+    private Integer idCategory;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

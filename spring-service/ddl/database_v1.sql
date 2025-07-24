@@ -111,6 +111,35 @@ CREATE TABLE inbox_child(
                             FOREIGN KEY(id_im) REFERENCES inbox_mother(id_im)
 );
 
+CREATE TABLE category(
+                         id_category SERIAL,
+                         val TEXT NOT NULL,
+                         desc_ TEXT,
+                         PRIMARY KEY(id_category)
+);
+
+CREATE TABLE temporary_product(
+    id_temp_product SERIAL,
+    description TEXT,
+    name TEXT NOT NULL,
+    price NUMERIC(18,2)   NOT NULL,
+    media TEXT,
+    id_category INTEGER NOT NULL,
+    id_seller INTEGER NOT NULL,
+    state BOOLEAN,
+    PRIMARY KEY(id_temp_product),
+    FOREIGN KEY(id_category) REFERENCES category(id_category),
+    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+/*
+CREATE TABLE temp_product_state(
+    id_temp_product INTEGER NOT NULL,
+    state VARCHAR(50) ,
+    created_at TIMESTAMP NOT NULL,
+    PRIMARY KEY(id_temp_product, state),
+    FOREIGN KEY(id_temp_product) REFERENCES temporary_product(id_temp_product)
+);*/
+
 CREATE TABLE products_v2(
                             id_product SERIAL,
                             description TEXT,
@@ -119,8 +148,10 @@ CREATE TABLE products_v2(
                             created_at TIMESTAMP,
                             updated_at TIMESTAMP,
                             media TEXT,
+                            id_category INTEGER NOT NULL,
                             id_seller INTEGER NOT NULL,
                             PRIMARY KEY(id_product),
+                            FOREIGN KEY(id_category) REFERENCES category(id_category),
                             FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
 
@@ -179,6 +210,24 @@ CREATE TABLE order_status_v2(
                                 label TEXT,
                                 PRIMARY KEY(id_status)
 );
+
+/*
+CREATE TABLE product_creation_sessions (
+   id SERIAL,
+   user_id INTEGER NOT NULL,
+   session_id VARCHAR(100) NOT NULL UNIQUE,
+   redis_key VARCHAR(200) NOT NULL,
+   current_step INTEGER DEFAULT 1,
+   completed_steps JSON, -- [1, 2, 3]
+   form_data JSON, -- Complete form data as backup
+   created_at TIMESTAMP DEFAULT NOW(),
+   updated_at TIMESTAMP DEFAULT NOW() ON UPDATE NOW(),
+   status ENUM('active', 'completed', 'abandoned') DEFAULT 'active',
+   PRIMARY KEY(id),
+   INDEX idx_user_status (user_id, status),
+   INDEX idx_updated (updated_at)
+);*/
+
 
 CREATE TABLE order_details_v2(
                                  id_order_details SERIAL,
