@@ -138,7 +138,9 @@ CREATE TABLE variants_v2(
 CREATE TABLE options_v2(
                            id_option SERIAL,
                            label TEXT NOT NULL,
-                           PRIMARY KEY(id_option)
+                           id_product INTEGER NOT NULL,
+                           PRIMARY KEY(id_option),
+                           FOREIGN KEY(id_product) REFERENCES products_v2(id_product)
 );
 
 CREATE TABLE options_values_v2(
