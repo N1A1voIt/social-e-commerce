@@ -1,6 +1,5 @@
+CREATE DATABASE postgres;
 CREATE TYPE platforms_pro as ENUM ('google', 'facebook','basic','X','github');
-
-
 
 CREATE TABLE seller_v2(
                           id_seller SERIAL,
@@ -23,23 +22,27 @@ CREATE TABLE tokens_v2(
 );
 
 CREATE TABLE supported_platforms_v2(
-                                       id_sp SERIAL,
-                                       label VARCHAR(250) ,
-                                       PRIMARY KEY(id_sp)
+   id_sp SERIAL,
+   label VARCHAR(250) ,
+   PRIMARY KEY(id_sp)
 );
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'facebook');
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'instagram');
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'x');
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'thread');
 
 CREATE TABLE managed_pages(
-                              id_mp SERIAL,
-                              d_status VARCHAR(50) ,
-                              platform_identifier TEXT NOT NULL,
-                              page_title TEXT NOT NULL,
-                              associated_media TEXT,
-                              link_to_platform TEXT NOT NULL,
-                              id_sp INTEGER NOT NULL,
-                              id_seller INTEGER NOT NULL,
-                              PRIMARY KEY(id_mp),
-                              FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
-                              FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+      id_mp SERIAL,
+      d_status VARCHAR(50) ,
+      platform_identifier TEXT NOT NULL,
+      page_title TEXT NOT NULL,
+      associated_media TEXT,
+      link_to_platform TEXT NOT NULL,
+      id_sp INTEGER NOT NULL,
+      id_seller INTEGER NOT NULL,
+      PRIMARY KEY(id_mp),
+      FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
+      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
 
 CREATE TABLE platform_status(
@@ -47,7 +50,8 @@ CREATE TABLE platform_status(
                                 status_labem VARCHAR(50)  NOT NULL,
                                 PRIMARY KEY(id_status)
 );
-
+INSERT INTO platform_status (status_labem) VALUES ('active');
+INSERT INTO platform_status (status_labem) VALUES ('inactive');
 CREATE TABLE posts(
                       id_post SERIAL,
                       type VARCHAR(50) ,
@@ -222,16 +226,6 @@ CREATE TABLE payment_method_v2(
                                   UNIQUE(payment_name)
 );
 
-CREATE TABLE pages_access_tokens_1(
-                                      id_pat SERIAL,
-                                      access_token TEXT NOT NULL,
-                                      expired_at TIMESTAMP NOT NULL,
-                                      expired_at_key DOUBLE PRECISION,
-                                      id_mp INTEGER NOT NULL,
-                                      PRIMARY KEY(id_pat),
-                                      FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
-);
-
 CREATE TABLE sellers_phone_number_e(
                                        id_spn SERIAL,
                                        phone_number VARCHAR(50)  NOT NULL,
@@ -270,6 +264,28 @@ CREATE TABLE transport_type_v2(
                                   id_seller INTEGER NOT NULL,
                                   PRIMARY KEY(id_tt),
                                   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE pat_refresh_tokens(
+       id_prt SERIAL,
+       token TEXT NOT NULL,
+       expired_at TIMESTAMP NOT NULL,
+       created_at TIMESTAMP NOT NULL,
+       revoked BOOLEAN,
+       id_mp INTEGER NOT NULL,
+       PRIMARY KEY(id_prt),
+       UNIQUE(token),
+       FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
+CREATE TABLE pat_access_tokens(
+   id_pat SERIAL,
+   access_token TEXT NOT NULL,
+   expired_at TIMESTAMP NOT NULL,
+   created_at TIMESTAMP NOT NULL,
+   id_prt INTEGER NOT NULL,
+   PRIMARY KEY(id_pat),
+   FOREIGN KEY(id_prt) REFERENCES pat_refresh_tokens(id_prt)
 );
 
 CREATE TABLE likes_history(
@@ -334,19 +350,26 @@ CREATE TABLE pages_state(
 );
 
 CREATE TABLE orders_state(
-                             id_order_m INTEGER,
-                             id_status INTEGER,
-                             state_at TIMESTAMP NOT NULL,
-                             PRIMARY KEY(id_order_m, id_status),
-                             FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
-                             FOREIGN KEY(id_status) REFERENCES order_status_v2(id_status)
+     id_order_m INTEGER,
+     id_status INTEGER,
+     state_at TIMESTAMP NOT NULL,
+     PRIMARY KEY(id_order_m, id_status),
+     FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+     FOREIGN KEY(id_status) REFERENCES order_status_v2(id_status)
 );
 
 CREATE TABLE deliveries_state(
-                                 id_delivery INTEGER,
-                                 id_status INTEGER,
-                                 state_at TIMESTAMP,
-                                 PRIMARY KEY(id_delivery, id_status),
-                                 FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery),
-                                 FOREIGN KEY(id_status) REFERENCES delivery_status_v2(id_status)
+     id_delivery INTEGER,
+     id_status INTEGER,
+     state_at TIMESTAMP,
+     PRIMARY KEY(id_delivery, id_status),
+     FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery),
+     FOREIGN KEY(id_status) REFERENCES delivery_status_v2(id_status)
 );
+
+SELECT * FROM pat_refresh_tokens;
+
+CREATE VIEW v_managed_accounts AS
+SELECT id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username FROM managed_pages
+                  JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
+                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller;

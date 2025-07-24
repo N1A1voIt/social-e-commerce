@@ -1,11 +1,36 @@
-<div class="flex gap-2 justify-center items-center flex-col p-4 px-6 w-full  border-b border-gray">
+<!--<div class="cont-box w-full flex  gap-5  justify-start mt-2">-->
+<!--  <div class="rounded-full w-[30px] h-[30px]  bg-opacity-40 overflow-hidden">-->
+<!--    <img width="30" src="assets/logos/google_logo.png" alt="">-->
+<!--  </div>-->
+<!--  <div class="flex flex-col " style="letter-spacing: 1px">-->
+<!--    <h1 class="text-md font-semibold"> Facebook</h1>-->
+<!--    <p class="text-sm text-gray">&#64;La page de Tefi </p>-->
+<!--    <span class="items-center flex gap-2">-->
+<!--        <app-checkbox></app-checkbox>-->
+<!--        <span class="font-medium"> Connected</span>-->
+<!--    </span>-->
+<!--  </div>-->
+<!--</div>-->
+
+<div class="flex gap-2 justify-center items-center flex-col p-4 px-6 w-full border-b border-gray">
   <div class="flex justify-between items-center w-full" style="letter-spacing: 1px">
     <h1 class="font-medium text-xl">Managed accounts</h1>
-    <p class="font-light text-sm flex justify-center items-center gap-2"> <ng-icon name="heroPencilSquare"></ng-icon> Edit</p>
+    <p class="font-light text-sm flex justify-center items-center gap-2" (click)="triggerEdit()">
+      <ng-icon name="heroPencilSquare"></ng-icon> Add
+    </p>
   </div>
+
   <div class="w-full">
-    <app-platform-row></app-platform-row>
-    <app-platform-row></app-platform-row>
-    <app-platform-row></app-platform-row>
+    <app-platform-row
+      *ngFor="let page of managedPages"
+      [platform]="page.platform"
+      [pageTitle]="page.pageTitle"
+      [username]="page.username"
+      [logo]="page.platformIdentifier"
+      [status]="page.status"
+      [associatedMedia]="page.associatedMedia"
+      [linkToPlatform]="page.linkToPlatform"
+    ></app-platform-row>
   </div>
 </div>
+
