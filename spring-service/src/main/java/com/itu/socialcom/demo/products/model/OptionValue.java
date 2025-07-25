@@ -21,7 +21,7 @@ public class OptionValue {
      */
     @Id
     @Column(name = "id_ov", length = 50)
-    private String idOv;
+    private Long idOv;
     
     /**
      * Option value - required field (e.g., "Red", "Large", "Cotton")
@@ -44,7 +44,7 @@ public class OptionValue {
     /**
      * Constructor with required fields
      */
-    public OptionValue(String idOv, String value, Long idOption) {
+    public OptionValue(Long idOv, String value, Long idOption) {
         this.idOv = idOv;
         this.value = value;
         this.idOption = idOption;
@@ -84,25 +84,5 @@ public class OptionValue {
         if (value == null || otherValue == null) return false;
         return value.trim().equalsIgnoreCase(otherValue.trim());
     }
-    
-    /**
-     * Generate a unique ID for this option value based on option ID and value
-     * This can be used when creating new option values
-     * @return generated unique ID
-     */
-    public String generateId() {
-        if (idOption == null || value == null) {
-            throw new IllegalStateException("Cannot generate ID without option ID and value");
-        }
-        // Create a simple ID format: optionId_normalizedValue
-        String normalizedValue = value.trim().toLowerCase().replaceAll("[^a-z0-9]", "_");
-        return idOption + "_" + normalizedValue;
-    }
-    
-    /**
-     * Set the ID using the auto-generation logic
-     */
-    public void setGeneratedId() {
-        this.idOv = generateId();
-    }
+
 }

@@ -17,6 +17,7 @@ public class StepsRecoveryImpl implements StepsRecovery{
     TempProductRepository tempProductRepository;
     @Override
     public CreationStepsDTO recoverStep1(String token) throws Exception {
+        token = token.replace("Bearer ","");
         Seller seller = tokenService.findSellerByToken(token).orElse(null);
         CreationStepsDTO creationStepsDTO = new CreationStepsDTO();
         if (seller == null) throw new Exception("Seller not found for the provided token");

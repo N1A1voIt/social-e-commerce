@@ -30,7 +30,7 @@ public class VariantOptionValue {
      * Note: No JPA relationship annotation to maintain manual control
      */
     @Column(name = "id_ov", length = 50, nullable = false)
-    private String idOv;
+    private Long idOv;
     
     /**
      * Foreign key reference to variants_v2 table
@@ -47,7 +47,7 @@ public class VariantOptionValue {
     /**
      * Constructor with required fields
      */
-    public VariantOptionValue(String idOv, Long idVariant) {
+    public VariantOptionValue(Long idOv, Long idVariant) {
         this.idOv = idOv;
         this.idVariant = idVariant;
     }
@@ -56,10 +56,7 @@ public class VariantOptionValue {
      * Check if this variant option value has valid references
      * @return true if both idOv and idVariant are not null, false otherwise
      */
-    public boolean hasValidReferences() {
-        return idOv != null && !idOv.trim().isEmpty() && idVariant != null;
-    }
-    
+
     /**
      * Create a composite key string for uniqueness checking
      * @return composite key in format "variantId_optionValueId"

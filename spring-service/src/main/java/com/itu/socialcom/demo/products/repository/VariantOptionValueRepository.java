@@ -42,7 +42,7 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
      * 
      * Requirement: Support for finding which variants use a specific option value
      */
-    List<VariantOptionValue> findByIdOv(String idOv);
+    List<VariantOptionValue> findByIdOv(Long idOv);
     
     /**
      * Delete all variant option values for a specific variant.
@@ -68,7 +68,7 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
     @Modifying
     @Transactional
     @Query("DELETE FROM VariantOptionValue vov WHERE vov.idOv = :idOv")
-    void deleteByIdOv(@Param("idOv") String idOv);
+    void deleteByIdOv(@Param("idOv") Long idOv);
     
     /**
      * Find a specific variant option value by variant ID and option value ID.
@@ -80,7 +80,7 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
      * 
      * Requirement: Support for checking specific variant-option value associations
      */
-    Optional<VariantOptionValue> findByIdVariantAndIdOv(Long idVariant, String idOv);
+    Optional<VariantOptionValue> findByIdVariantAndIdOv(Long idVariant, Long idOv);
     
     /**
      * Check if a variant option value association exists.
@@ -92,7 +92,7 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
      * 
      * Requirement: Validation for variant-option value associations
      */
-    boolean existsByIdVariantAndIdOv(Long idVariant, String idOv);
+    boolean existsByIdVariantAndIdOv(Long idVariant, Long idOv);
     
     /**
      * Count total option values associated with a specific variant.
@@ -114,7 +114,7 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
      * 
      * Requirement: Support for option value usage statistics
      */
-    long countByIdOv(String idOv);
+    long countByIdOv(Long idOv);
     
     /**
      * Find variant option values for multiple variants in a single query.
@@ -136,7 +136,7 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
      * 
      * Requirement: Support for batch option value queries for performance optimization
      */
-    List<VariantOptionValue> findByIdOvIn(List<String> optionValueIds);
+    List<VariantOptionValue> findByIdOvIn(List<Long> optionValueIds);
     
     /**
      * Delete all variant option values for variants belonging to a specific product.

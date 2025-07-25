@@ -175,7 +175,7 @@ CREATE TABLE options_v2(
 );
 
 CREATE TABLE options_values_v2(
-                                  id_ov VARCHAR(50) ,
+                                  id_ov SERIAL ,
                                   value_ TEXT NOT NULL,
                                   id_option INTEGER NOT NULL,
                                   PRIMARY KEY(id_ov),
@@ -184,7 +184,7 @@ CREATE TABLE options_values_v2(
 
 CREATE TABLE variant_option_values_v2(
                                          id SERIAL,
-                                         id_ov VARCHAR(50)  NOT NULL,
+                                         id_ov INTEGER  NOT NULL,
                                          id_variant INTEGER NOT NULL,
                                          PRIMARY KEY(id),
                                          FOREIGN KEY(id_ov) REFERENCES options_values_v2(id_ov),
@@ -424,3 +424,90 @@ CREATE VIEW v_managed_accounts AS
 SELECT id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username FROM managed_pages
                   JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
                   JOIN seller_v2 v on managed_pages.id_seller = v.id_seller;
+
+
+-- Electronics & Technology
+INSERT INTO category (val, desc_) VALUES ('Electronics', 'Consumer electronics, gadgets, and electronic devices');
+INSERT INTO category (val, desc_) VALUES ('Computers & Laptops', 'Desktop computers, laptops, tablets, and computer accessories');
+INSERT INTO category (val, desc_) VALUES ('Mobile Phones', 'Smartphones, basic phones, and mobile accessories');
+INSERT INTO category (val, desc_) VALUES ('Audio & Video', 'Headphones, speakers, cameras, TVs, and audio/video equipment');
+INSERT INTO category (val, desc_) VALUES ('Gaming', 'Video games, gaming consoles, and gaming accessories');
+INSERT INTO category (val, desc_) VALUES ('Smart Home', 'Home automation devices, smart speakers, and IoT products');
+
+-- Fashion & Clothing
+INSERT INTO category (val, desc_) VALUES ('Men''s Clothing', 'Clothing and apparel for men');
+INSERT INTO category (val, desc_) VALUES ('Women''s Clothing', 'Clothing and apparel for women');
+INSERT INTO category (val, desc_) VALUES ('Kids & Baby Clothing', 'Clothing for children and babies');
+INSERT INTO category (val, desc_) VALUES ('Shoes & Footwear', 'All types of footwear for men, women, and children');
+INSERT INTO category (val, desc_) VALUES ('Accessories & Jewelry', 'Fashion accessories, jewelry, watches, and bags');
+INSERT INTO category (val, desc_) VALUES ('Activewear & Sportswear', 'Sports clothing, gym wear, and athletic apparel');
+
+-- Home & Garden
+INSERT INTO category (val, desc_) VALUES ('Home Decor', 'Decorative items, artwork, and home styling products');
+INSERT INTO category (val, desc_) VALUES ('Furniture', 'Indoor and outdoor furniture for all rooms');
+INSERT INTO category (val, desc_) VALUES ('Kitchen & Dining', 'Cookware, dinnerware, kitchen appliances, and utensils');
+INSERT INTO category (val, desc_) VALUES ('Bedding & Bath', 'Bed linens, towels, bathroom accessories, and sleep products');
+INSERT INTO category (val, desc_) VALUES ('Garden & Outdoor', 'Gardening supplies, outdoor furniture, and lawn care equipment');
+INSERT INTO category (val, desc_) VALUES ('Home Improvement', 'Tools, hardware, paint, and home renovation supplies');
+
+-- Health & Beauty
+INSERT INTO category (val, desc_) VALUES ('Beauty & Personal Care', 'Cosmetics, skincare, haircare, and personal hygiene products');
+INSERT INTO category (val, desc_) VALUES ('Health & Wellness', 'Vitamins, supplements, medical supplies, and health products');
+INSERT INTO category (val, desc_) VALUES ('Fitness Equipment', 'Exercise machines, weights, and fitness accessories');
+INSERT INTO category (val, desc_) VALUES ('Pharmacy', 'Over-the-counter medications and pharmaceutical products');
+
+-- Automotive
+INSERT INTO category (val, desc_) VALUES ('Car Parts & Accessories', 'Vehicle parts, accessories, and automotive supplies');
+INSERT INTO category (val, desc_) VALUES ('Motorcycles & ATVs', 'Motorcycles, ATVs, and related parts and accessories');
+INSERT INTO category (val, desc_) VALUES ('Car Electronics', 'GPS systems, dash cams, car audio, and automotive electronics');
+
+-- Sports & Recreation
+INSERT INTO category (val, desc_) VALUES ('Sports Equipment', 'Equipment for various sports and recreational activities');
+INSERT INTO category (val, desc_) VALUES ('Outdoor Recreation', 'Camping, hiking, fishing, and outdoor adventure gear');
+INSERT INTO category (val, desc_) VALUES ('Bicycles', 'Bikes, bike parts, and cycling accessories');
+INSERT INTO category (val, desc_) VALUES ('Water Sports', 'Swimming, surfing, boating, and water activity equipment');
+
+-- Books, Media & Entertainment
+INSERT INTO category (val, desc_) VALUES ('Books', 'Physical and digital books across all genres');
+INSERT INTO category (val, desc_) VALUES ('Movies & TV', 'DVDs, Blu-rays, digital movies, and TV show collections');
+INSERT INTO category (val, desc_) VALUES ('Music', 'CDs, vinyl records, digital music, and musical instruments');
+INSERT INTO category (val, desc_) VALUES ('Musical Instruments', 'Guitars, pianos, drums, and all musical instruments');
+
+-- Food & Beverages
+INSERT INTO category (val, desc_) VALUES ('Groceries', 'Food items, snacks, and everyday grocery products');
+INSERT INTO category (val, desc_) VALUES ('Beverages', 'Drinks, juices, coffee, tea, and alcoholic beverages');
+INSERT INTO category (val, desc_) VALUES ('Gourmet Food', 'Specialty foods, organic products, and premium food items');
+INSERT INTO category (val, desc_) VALUES ('Pet Food', 'Food and treats for dogs, cats, and other pets');
+
+-- Toys & Baby Products
+INSERT INTO category (val, desc_) VALUES ('Toys & Games', 'Toys for all ages, board games, and educational toys');
+INSERT INTO category (val, desc_) VALUES ('Baby Products', 'Baby care items, strollers, car seats, and infant supplies');
+INSERT INTO category (val, desc_) VALUES ('Kids'' Furniture', 'Furniture designed specifically for children');
+
+-- Office & Business
+INSERT INTO category (val, desc_) VALUES ('Office Supplies', 'Stationery, office equipment, and workplace essentials');
+INSERT INTO category (val, desc_) VALUES ('Business Equipment', 'Printers, scanners, office furniture, and business machines');
+INSERT INTO category (val, desc_) VALUES ('Industrial & Scientific', 'Professional tools, laboratory equipment, and industrial supplies');
+
+-- Pet Supplies
+INSERT INTO category (val, desc_) VALUES ('Pet Supplies', 'General pet care products and accessories');
+INSERT INTO category (val, desc_) VALUES ('Dog Supplies', 'Products specifically for dogs');
+INSERT INTO category (val, desc_) VALUES ('Cat Supplies', 'Products specifically for cats');
+INSERT INTO category (val, desc_) VALUES ('Fish & Aquatic Pets', 'Aquarium supplies and fish care products');
+
+-- Art & Crafts
+INSERT INTO category (val, desc_) VALUES ('Arts & Crafts', 'Art supplies, craft materials, and creative hobby items');
+INSERT INTO category (val, desc_) VALUES ('Sewing & Knitting', 'Fabric, yarn, sewing machines, and textile crafts');
+INSERT INTO category (val, desc_) VALUES ('Collectibles', 'Antiques, collectible items, and rare finds');
+
+-- Services
+INSERT INTO category (val, desc_) VALUES ('Digital Services', 'Software, apps, digital subscriptions, and online services');
+INSERT INTO category (val, desc_) VALUES ('Gift Cards', 'Gift certificates and prepaid cards');
+INSERT INTO category (val, desc_) VALUES ('Professional Services', 'Consulting, repairs, installations, and professional assistance');
+
+-- Miscellaneous
+INSERT INTO category (val, desc_) VALUES ('Travel & Luggage', 'Suitcases, travel accessories, and travel-related products');
+INSERT INTO category (val, desc_) VALUES ('Religious & Spiritual', 'Religious books, spiritual items, and ceremonial products');
+INSERT INTO category (val, desc_) VALUES ('Party Supplies', 'Decorations, party favors, and event planning items');
+INSERT INTO category (val, desc_) VALUES ('Seasonal Items', 'Holiday decorations, seasonal products, and special occasion items');
+INSERT INTO category (val, desc_) VALUES ('Other', 'Miscellaneous items that don''t fit other categories');

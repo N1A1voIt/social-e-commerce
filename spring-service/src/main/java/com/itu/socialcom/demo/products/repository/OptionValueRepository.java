@@ -20,7 +20,7 @@ import java.util.Optional;
  * - 3.7: Cascade deletion of option values when options are deleted
  */
 @Repository
-public interface OptionValueRepository extends JpaRepository<OptionValue, String> {
+public interface OptionValueRepository extends JpaRepository<OptionValue, Long> {
     
     /**
      * Find all option values belonging to a specific option.
@@ -68,7 +68,7 @@ public interface OptionValueRepository extends JpaRepository<OptionValue, String
      * 
      * Requirement 3.2: Support for option value-specific operations with option validation
      */
-    Optional<OptionValue> findByIdOvAndIdOption(String idOv, Long idOption);
+    Optional<OptionValue> findByIdOvAndIdOption(Long idOv, Long idOption);
     
     /**
      * Check if an option value exists for a specific option.
@@ -80,7 +80,7 @@ public interface OptionValueRepository extends JpaRepository<OptionValue, String
      * 
      * Requirement 3.2: Option value validation and existence checking
      */
-    boolean existsByIdOvAndIdOption(String idOv, Long idOption);
+    boolean existsByIdOvAndIdOption(Long idOv, Long idOption);
     
     /**
      * Count total option values for a specific option.

@@ -32,6 +32,7 @@ public  class StepsCreationServiceImpl implements StepsCreationService{
     private OptionValueRepository optionValueRepository;
     @Override
     public CreationStepsDTO saveStep1(CreationStepsDTO creationStepsDTO,String token) throws Exception {
+        token = token.replace("Bearer ","");
         Seller seller = tokenService.findSellerByToken(token).orElse(null);
         if (seller == null) throw new Exception("Seller not found for the provided token");
         creationStepsDTO.getStep1().setIdSeller(seller.getId());
@@ -42,7 +43,8 @@ public  class StepsCreationServiceImpl implements StepsCreationService{
     @Override
     @Transactional
     public CreationStepsDTO saveStep2(CreationStepsDTO creationStepsDTO,String token) throws Exception {
-        Seller seller = tokenService.findSellerByToken(token).orElse(null);
+        token = token.replace("Bearer ","");
+        Seller seller = tokenService.findSellerByToken(token.replace("Bearer ","")).orElse(null);
         Product product = tempProductToProduct(creationStepsDTO.getStep1());
         productRepository.save(product);
         extractOptions(creationStepsDTO.getStep2(),product.getIdProduct());

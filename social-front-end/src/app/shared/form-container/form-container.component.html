@@ -1,6 +1,5 @@
 <div class="absolute top-0 right-0 bg-opacity-30 backdrop-blur bg-principal w-full h-full overflow-hidden">
-  <div class=" h-[100vh] xl:w-[30vw] shadow-xl absolute bg-principal top-0 right-0 rounded-l-3xl z-20">
-
+  <div class=" h-[100vh] xl:w-[30vw] shadow-xl absolute bg-principal top-0 right-0 rounded-l-3xl z-20 overflow-y-scroll hide-scrollbar">
     <div class="flex justify-begin p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
       <h1 class="text-gray flex justify-center items-center"><ng-icon name="heroXMark" size="20"></ng-icon></h1>
       <h1>New Product form</h1>
@@ -20,11 +19,14 @@
 
 <!--        </div>-->
 <!--      </div>-->
-      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>
-      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>
-      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>
-      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>
-      <app-basic-button class="w-full"></app-basic-button>
+<!--      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>-->
+<!--      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>-->
+<!--      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>-->
+<!--      <app-basic-input class="w-full" label="Product name" placeholder="Product name"></app-basic-input>-->
+<!--      <app-basic-button class="w-full"></app-basic-button>-->
+      <ng-content>
+
+      </ng-content>
     </div>
 <!--    <app-contacts class="w-full"></app-contacts>-->
 <!--    <app-managed-account></app-managed-account>-->

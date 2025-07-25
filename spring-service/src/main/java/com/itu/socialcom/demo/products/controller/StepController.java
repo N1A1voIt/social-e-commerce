@@ -18,8 +18,10 @@ public class StepController {
      @PostMapping("/step1")
      public ResponseEntity<CreationStepsDTO> saveStep1(@RequestBody CreationStepsDTO creationStepsDTO, @RequestHeader("Authorization") String token) {
          try {
+             System.out.println("Received token: " + token);
              return ResponseEntity.ok(stepsCreationService.saveStep1(creationStepsDTO, token));
          } catch (Exception e) {
+             e.printStackTrace();
              return ResponseEntity.status(400).body(null); // or a custom error response
          }
      }
@@ -29,6 +31,7 @@ public class StepController {
          try {
              return ResponseEntity.ok(stepsCreationService.saveStep2(creationStepsDTO, token));
          } catch (Exception e) {
+             e.printStackTrace();
              return ResponseEntity.status(400).body(null);
          }
      }
@@ -36,6 +39,7 @@ public class StepController {
     @GetMapping("/recovery")
     public ResponseEntity<CreationStepsDTO> recover(@RequestHeader("Authorization") String token) {
         try {
+            System.out.printf("Recovering steps for token: %s%n", token);
             CreationStepsDTO creationStepsDTO = stepsRecovery.recoverStep1(token);
             return ResponseEntity.ok(creationStepsDTO);
         } catch (Exception e) {

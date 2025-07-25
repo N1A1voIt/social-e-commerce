@@ -23,6 +23,7 @@
     "@ng-icons/core": "^28.1.0",
     "@ng-icons/heroicons": "^28.1.0",
     "@smart-webcomponents-angular/tree": "^22.0.6",
+    "@supabase/supabase-js": "^2.52.1",
     "chart.js": "^3.9.1",
     "chartjs-plugin-labels": "^1.1.0",
     "firebase": "^11.10.0",
