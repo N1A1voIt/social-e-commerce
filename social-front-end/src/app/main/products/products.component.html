@@ -1,4 +1,230 @@
 <div class="w-full h-full bg-white p-6 rounded-3xl">
-<app-product-list></app-product-list>
-<!--  <app-form-container></app-form-container>-->
+  <app-product-list (addProductClicked)="showForm = true"></app-product-list>
+  <app-form-container *ngIf="showForm" (closeForm)="showForm = false">
+    <!-- Step 1: Product Details -->
+    <form  *ngIf="currentStep === 1" [formGroup]="step1Form" (ngSubmit)="saveStep1()" class="space-y-4 w-full flex flex-col gap-1">
+      <input type="hidden" [formControl]="$any(step1Form.get('idProduct'))">
+      <app-basic-input
+        class="w-full"
+        label="Product Name"
+        placeholder="Enter product name"
+        [formControl]="$any(step1Form.get('name'))"
+        [error]="step1Form.get('name')?.invalid && step1Form.get('name')?.touched">
+      </app-basic-input>
+
+      <app-basic-input
+        class="w-full"
+        label="Description"
+        placeholder="Enter product description"
+        [formControl]="$any(step1Form.get('description'))"
+        type="textarea">
+      </app-basic-input>
+
+      <app-basic-input
+        class="w-full"
+        label="Price"
+        placeholder="0.00"
+        [formControl]="$any(step1Form.get('price'))"
+        type="number"
+        [error]="step1Form.get('price')?.invalid && step1Form.get('price')?.touched">
+      </app-basic-input>
+
+      <div class="w-full">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Product Image
+        </label>
+
+        <!-- File Input (Hidden) -->
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          class="hidden">
+
+        <!-- Custom File Picker Button -->
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+          <div *ngIf="!selectedFile && !previewUrl" class="space-y-2">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="text-gray-600">
+              <button type="button" (click)="fileInput.click()" class="text-blue-600 hover:text-blue-500 font-medium">
+                Choose an image
+              </button>
+              <span class="text-gray-500"> or drag and drop</span>
+            </div>
+            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+          </div>
+
+          <!-- File Preview -->
+          <div *ngIf="selectedFile || previewUrl" class="space-y-4">
+            <div class="relative inline-block">
+              <img
+                [src]="previewUrl || (step1Form.get('media')?.value | async)"
+                alt="Product preview"
+                class="max-w-full max-h-48 rounded-lg shadow-md">
+
+              <!-- Loading Overlay -->
+              <div *ngIf="isUploadingFile"
+                   class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                <div class="text-white text-center">
+                  <svg class="animate-spin h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <p class="text-sm">Uploading...</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-center space-x-2">
+              <button
+                type="button"
+                (click)="fileInput.click()"
+                [disabled]="isUploadingFile"
+                class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
+                Change Image
+              </button>
+              <button
+                type="button"
+                (click)="removeFile()"
+                [disabled]="isUploadingFile"
+                class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Error -->
+        <div *ngIf="uploadError" class="mt-2 text-sm text-red-600">
+          {{ uploadError }}
+        </div>
+      </div>
+
+
+      <app-basic-select
+        class="w-full"
+        label="Category"
+        placeholder="Type to search categories..."
+        id="category-select"
+        [options]="categoryOptions"
+        [formControl]="$any(step1Form.get('idCategory'))"
+        [error]="step1Form.get('idCategory')?.invalid && step1Form.get('idCategory')?.touched"
+        errorMessage="Please select a category">
+      </app-basic-select>
+
+      <div class="flex justify-between pt-4">
+        <app-basic-button
+          type="submit"
+          [disabled]="step1Form.invalid || isLoading"
+          [loading]="isLoading">
+          Next Step
+        </app-basic-button>
+      </div>
+    </form>
+
+    <!-- Step 2: Options -->
+    <form *ngIf="currentStep === 2" [formGroup]="step2Form" (ngSubmit)="saveStep2()" class="space-y-4 w-full  flex flex-col gap-1">
+      <div class="mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Product Options</h3>
+        <p class="text-sm text-gray-600">Add options and their values for your product.</p>
+      </div>
+
+      <div formArrayName="options" class="space-y-4">
+        <div *ngFor="let option of optionsArray.controls; let i = index"
+             [formGroupName]="i"
+             class="border border-gray-200 rounded-lg p-4">
+
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="font-medium text-gray-800">Option {{i + 1}}</h4>
+            <button type="button"
+                    (click)="removeOption(i)"
+                    class="text-red-500 hover:text-red-700 text-sm">
+              Remove
+            </button>
+          </div>
+
+          <app-basic-input
+            class="w-full mb-3"
+            label="Option Label"
+            placeholder="e.g., Size, Color, Material"
+            [formControl]="$any(option.get('optionLabels'))">
+          </app-basic-input>
+
+          <div formArrayName="values" class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Values</label>
+            <div *ngFor="let value of getValuesArray(i).controls; let j = index"
+                 class="flex items-center space-x-2">
+              <app-basic-input
+                class="flex-1"
+                placeholder="Enter value"
+                [formControl]="$any(value)">
+              </app-basic-input>
+              <button type="button"
+                      (click)="removeValue(i, j)"
+                      class="text-red-500 hover:text-red-700 text-sm px-2">
+                ×
+              </button>
+            </div>
+            <button type="button"
+                    (click)="addValue(i)"
+                    class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+              + Add Value
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button"
+              (click)="addOption()"
+              class="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600">
+        + Add Option
+      </button>
+
+      <div class="flex justify-between pt-4">
+        <app-basic-button
+          type="button"
+          variant="secondary"
+          (click)="previousStep()"
+          [disabled]="isLoading">
+          Previous
+        </app-basic-button>
+
+        <app-basic-button
+          type="submit"
+          [disabled]="step2Form.invalid || isLoading"
+          [loading]="isLoading">
+          Save Product
+        </app-basic-button>
+      </div>
+    </form>
+
+    <!-- Success Message -->
+    <div *ngIf="currentStep === 3" class="text-center py-8">
+      <div class="mb-4">
+        <div class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+      </div>
+      <h3 class="text-xl font-medium text-gray-900 mb-2">Product Created Successfully!</h3>
+      <p class="text-gray-600 mb-6">Your product has been saved and is ready for review.</p>
+      <app-basic-button (click)="resetForm()">Create Another Product</app-basic-button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div class="flex">
+        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div class="ml-3">
+          <p class="text-sm text-red-600">{{errorMessage}}</p>
+        </div>
+      </div>
+    </div>
+  </app-form-container>
 </div>
