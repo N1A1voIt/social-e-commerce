@@ -20,6 +20,7 @@ public class OptionValue {
      * Primary key - using VARCHAR(50) as per database schema
      */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ov", length = 50)
     private Long idOv;
     

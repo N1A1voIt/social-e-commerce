@@ -3,7 +3,7 @@ import {ProductListComponent} from "./product-list/product-list.component";
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {BasicButtonComponent} from "../../shared/basic-button/basic-button.component";
 import {BasicInputComponent} from "../../shared/basic-input/basic-input.component";
-import {NgForOf, NgIf} from "@angular/common";
+import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {javaHost} from "../../../environments/environment";
@@ -20,7 +20,8 @@ import {SupabaseService} from "../../shared/supabase.service";
     BasicInputComponent,
     NgIf,
     ReactiveFormsModule,
-    NgForOf
+    NgForOf,
+    AsyncPipe
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
@@ -191,6 +192,7 @@ export class ProductsComponent implements OnInit {
             this.isLoading = false;
             return; // Stop if upload failed
           }
+          this.step1Form.patchValue({ media: uploadedUrl });
         }
 
         const step1Data: CreationStepsDTO = {

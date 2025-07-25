@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import {firebaseAnonKey} from "../../environments/environment";
+import {supabaseAnonKey} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +10,8 @@ export class SupabaseService {
 
   constructor() {
     this.supabase = createClient(
-      'https://tqilotxiysbnucjdtxtw.supabase.co', // Replace with your Supabase URL
-      firebaseAnonKey
+      'https://tqilotxiysbnucjdtxtw.supabase.co',
+      supabaseAnonKey
     );
   }
 
@@ -23,8 +23,8 @@ export class SupabaseService {
     const { data, error } = await this.supabase.storage
       .from(bucket)
       .upload(filePath, file);
-
     if (error) {
+      console.error('Upload error:', error);
       throw error;
     }
 

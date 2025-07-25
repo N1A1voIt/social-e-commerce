@@ -72,6 +72,7 @@ public  class StepsCreationServiceImpl implements StepsCreationService{
         Product product = new Product();
         product.setName(tempProduct.getName());
         product.setDescription(tempProduct.getDescription());
+        product.setMedia(tempProduct.getMedia());
         product.setPrice(tempProduct.getPrice());
         product.setIdCategory(tempProduct.getIdCategory());
         product.setIdSeller(tempProduct.getIdSeller());
