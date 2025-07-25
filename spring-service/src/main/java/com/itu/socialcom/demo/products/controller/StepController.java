@@ -1,6 +1,7 @@
 package com.itu.socialcom.demo.products.controller;
 
 import com.itu.socialcom.demo.products.dto.CreationStepsDTO;
+import com.itu.socialcom.demo.products.dto.DisplayContainer;
 import com.itu.socialcom.demo.products.service.StepsCreationService;
 import com.itu.socialcom.demo.products.service.StepsCreationServiceImpl;
 import com.itu.socialcom.demo.products.service.StepsRecoveryImpl;
@@ -37,12 +38,13 @@ public class StepController {
      }
 
     @GetMapping("/recovery")
-    public ResponseEntity<CreationStepsDTO> recover(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<DisplayContainer> recover(@RequestHeader("Authorization") String token) {
         try {
             System.out.printf("Recovering steps for token: %s%n", token);
-            CreationStepsDTO creationStepsDTO = stepsRecovery.recoverStep1(token);
+            DisplayContainer creationStepsDTO = stepsRecovery.recoverStep1(token);
             return ResponseEntity.ok(creationStepsDTO);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(400).body(null);
         }
     }

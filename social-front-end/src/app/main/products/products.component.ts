@@ -7,8 +7,9 @@ import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {javaHost} from "../../../environments/environment";
-import { TempProduct, OptionValueDTO, CreationStepsDTO } from "./products.types"
+import {TempProduct, OptionValueDTO, CreationStepsDTO, DisplayProduct, Category} from "./products.types"
 import {SupabaseService} from "../../shared/supabase.service";
+import {BasicSelectComponent, SelectOption} from "../../shared/basic-select/basic-select.component";
 
 @Component({
   selector: 'app-products',
@@ -21,7 +22,8 @@ import {SupabaseService} from "../../shared/supabase.service";
     NgIf,
     ReactiveFormsModule,
     NgForOf,
-    AsyncPipe
+    AsyncPipe,
+    BasicSelectComponent
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
@@ -34,11 +36,15 @@ export class ProductsComponent implements OnInit {
   errorMessage = '';
   sessionId = '';
 
+  categories:Category[] = [];
+  categoryOptions:SelectOption[] = [];
 
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   isUploadingFile = false;
   uploadError = '';
+
+  showForm:boolean = false;
 
 
   private apiUrl = javaHost + '/api/steps'; // Adjust base URL as needed
@@ -261,19 +267,27 @@ export class ProductsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.http.get<CreationStepsDTO>(`${this.apiUrl}/recovery`, { headers: this.getHeaders() })
+    this.http.get<DisplayProduct>(`${this.apiUrl}/recovery`, { headers: this.getHeaders() })
       .subscribe({
         next: (response) => {
-          if (response.step1) {
-            this.step1Form.patchValue(response.step1);
-            this.sessionId = response.sessionId;
-
-            if (response.step2 && response.step2.length > 0) {
-              this.populateStep2Form(response.step2);
+          console.log('Recovered data:', response);
+          console.log('Recovered categories:', this.categories);
+          if (response.creationStepsDTO.step1) {
+            this.step1Form.patchValue(response.creationStepsDTO.step1);
+            this.sessionId = response.creationStepsDTO.sessionId;
+            if (response.creationStepsDTO.step2 && response.creationStepsDTO.step2.length > 0) {
+              this.populateStep2Form(response.creationStepsDTO.step2);
               this.currentStep = 2;
             }
           }
+          this.categories = response.categories;
+          this.categoryOptions = this.categories.map(cat => ({
+            value: cat.idCategory,
+            label: cat.val,
+            description: cat.description
+          }));
           this.isLoading = false;
+
         },
         error: (error) => {
           // Don't show error for recovery as it might be expected (no data to recover)

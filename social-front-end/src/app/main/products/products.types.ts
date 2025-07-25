@@ -13,9 +13,18 @@ export interface OptionValueDTO {
   optionLabels: string;
   values: string[];
 }
-
+export interface Category {
+  idCategory: number;
+  val: string;
+  description: string;
+}
 export interface CreationStepsDTO {
   sessionId: string;
   step1: TempProduct;
   step2: OptionValueDTO[];
+}
+
+export interface DisplayProduct {
+  creationStepsDTO : CreationStepsDTO,
+  categories : Category[]
 }

@@ -1,8 +1,8 @@
 <div class="w-full h-full bg-white p-6 rounded-3xl">
-<app-product-list></app-product-list>
-  <app-form-container>
+  <app-product-list (addProductClicked)="showForm = true"></app-product-list>
+  <app-form-container *ngIf="showForm" (closeForm)="showForm = false">
     <!-- Step 1: Product Details -->
-    <form  *ngIf="currentStep === 1" [formGroup]="step1Form" (ngSubmit)="saveStep1()" class="space-y-4 w-full">
+    <form  *ngIf="currentStep === 1" [formGroup]="step1Form" (ngSubmit)="saveStep1()" class="space-y-4 w-full flex flex-col gap-1">
       <input type="hidden" [formControl]="$any(step1Form.get('idProduct'))">
       <app-basic-input
         class="w-full"
@@ -28,14 +28,6 @@
         type="number"
         [error]="step1Form.get('price')?.invalid && step1Form.get('price')?.touched">
       </app-basic-input>
-
-<!--      <app-basic-input-->
-<!--        class="w-full"-->
-<!--        type="text"-->
-<!--        label="Media URL"-->
-<!--        placeholder="Enter media URL"-->
-<!--        [formControl]="$any(step1Form.get('media'))">-->
-<!--      </app-basic-input>-->
 
       <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -111,14 +103,17 @@
         </div>
       </div>
 
-      <app-basic-input
+
+      <app-basic-select
         class="w-full"
-        label="Category ID"
-        placeholder="Enter category ID"
+        label="Category"
+        placeholder="Type to search categories..."
+        id="category-select"
+        [options]="categoryOptions"
         [formControl]="$any(step1Form.get('idCategory'))"
-        type="number"
-        [error]="step1Form.get('idCategory')?.invalid && step1Form.get('idCategory')?.touched">
-      </app-basic-input>
+        [error]="step1Form.get('idCategory')?.invalid && step1Form.get('idCategory')?.touched"
+        errorMessage="Please select a category">
+      </app-basic-select>
 
       <div class="flex justify-between pt-4">
         <app-basic-button
@@ -131,7 +126,7 @@
     </form>
 
     <!-- Step 2: Options -->
-    <form *ngIf="currentStep === 2" [formGroup]="step2Form" (ngSubmit)="saveStep2()" class="space-y-4 w-full">
+    <form *ngIf="currentStep === 2" [formGroup]="step2Form" (ngSubmit)="saveStep2()" class="space-y-4 w-full  flex flex-col gap-1">
       <div class="mb-4">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Product Options</h3>
         <p class="text-sm text-gray-600">Add options and their values for your product.</p>

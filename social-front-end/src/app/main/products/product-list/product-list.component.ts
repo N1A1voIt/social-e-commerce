@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 
 @Component({
   selector: 'app-product-list',
@@ -8,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrl: './product-list.component.css'
 })
 export class ProductListComponent {
+  @Output() addProductClicked = new EventEmitter<void>();
 
+  onAddProduct() {
+    this.addProductClicked.emit();
+  }
 }
