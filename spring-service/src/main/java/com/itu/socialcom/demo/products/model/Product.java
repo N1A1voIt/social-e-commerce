@@ -83,7 +83,7 @@ public class Product {
     /**
      * Constructor with required fields
      */
-    public Product(String name, BigDecimal price, Integer idSeller) {
+    public Product(String name, BigDecimal price, Long idSeller) {
         this.name = name;
         this.price = price;
         this.idSeller = idSeller;
@@ -92,7 +92,7 @@ public class Product {
     /**
      * Constructor with all fields except audit fields
      */
-    public Product(String name, String description, BigDecimal price, String media, Integer idSeller) {
+    public Product(String name, String description, BigDecimal price, String media, Long idSeller) {
         this.name = name;
         this.description = description;
         this.price = price;

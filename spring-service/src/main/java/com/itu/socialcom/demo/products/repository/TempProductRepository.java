@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TempProductRepository extends JpaRepository<TempProduct, Long> {
+    TempProduct findByIdSellerAndState(Long idSeller, Boolean state);
 }
