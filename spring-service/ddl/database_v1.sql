@@ -52,22 +52,33 @@ CREATE TABLE platform_status(
 );
 INSERT INTO platform_status (status_labem) VALUES ('active');
 INSERT INTO platform_status (status_labem) VALUES ('inactive');
+
 CREATE TABLE posts(
                       id_post SERIAL,
                       type VARCHAR(50) ,
-                      platform_post_identifier TEXT NOT NULL,
-                      associated_media TEXT,
-                      message TEXT,
-                      d_platform VARCHAR(50) ,
-                      id_post_1 INTEGER NOT NULL,
+                      create_at TIMESTAMP NOT NULL,
                       id_seller INTEGER NOT NULL,
-                      id_sp INTEGER NOT NULL,
                       PRIMARY KEY(id_post),
-                      UNIQUE(platform_post_identifier),
-                      FOREIGN KEY(id_post_1) REFERENCES posts(id_post),
-                      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                      FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp)
+                      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
+
+CREATE TABLE post_childs(
+                            id_child SERIAL,
+                            post_url TEXT NOT NULL,
+                            media_url TEXT,
+                            description TEXT,
+                            platform_identifier TEXT NOT NULL,
+                            type TEXT,
+                            id_sp INTEGER NOT NULL,
+                            id_child_1 INTEGER,
+                            id_post INTEGER NOT NULL,
+                            PRIMARY KEY(id_child),
+                            UNIQUE(platform_identifier),
+                            FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
+                            FOREIGN KEY(id_child_1) REFERENCES post_childs(id_child),
+                            FOREIGN KEY(id_post) REFERENCES posts(id_post)
+);
+
 
 CREATE TABLE potential_customers_v2(
                                        id_pc TEXT,
@@ -78,15 +89,25 @@ CREATE TABLE potential_customers_v2(
                                        PRIMARY KEY(id_pc),
                                        FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp)
 );
+CREATE TABLE likes_history(
+                              id_lh SERIAL,
+                              created_at TIMESTAMP NOT NULL,
+                              deleted BOOLEAN,
+                              id_child INTEGER,
+                              id_pc TEXT NOT NULL,
+                              PRIMARY KEY(id_lh),
+                              FOREIGN KEY(id_child) REFERENCES post_childs(id_child),
+                              FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+);
 
 CREATE TABLE comments_v2(
                             id_comment TEXT,
                             message TEXT NOT NULL,
                             created_at TIMESTAMP NOT NULL,
                             deleted BOOLEAN,
-                            id_post INTEGER NOT NULL,
+                            id_child INTEGER NOT NULL,
                             PRIMARY KEY(id_comment),
-                            FOREIGN KEY(id_post) REFERENCES posts(id_post)
+                            FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
 );
 
 CREATE TABLE inbox_mother(
@@ -424,6 +445,14 @@ CREATE VIEW v_managed_accounts AS
 SELECT id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username FROM managed_pages
                   JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
                   JOIN seller_v2 v on managed_pages.id_seller = v.id_seller;
+
+CREATE VIEW v_refresh_token_holder AS
+    SELECT row_number() over (order by 1) as id, managed_pages.*,s.email,pat_refresh_tokens.token FROM seller_v2 as s
+        JOIN pat_refresh_tokens
+        JOIN managed_pages
+            ON pat_refresh_tokens.id_mp = managed_pages.id_mp
+            ON s.id_seller = managed_pages.id_seller
+        WHERE pat_refresh_tokens.revoked = false;
 
 
 -- Electronics & Technology
