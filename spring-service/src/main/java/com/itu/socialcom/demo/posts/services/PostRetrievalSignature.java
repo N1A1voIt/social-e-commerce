@@ -1,15 +1,14 @@
 package com.itu.socialcom.demo.posts.services;
 
+import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import com.itu.socialcom.demo.posts.repository.PostChildRepository;
 import com.itu.socialcom.demo.posts.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public abstract class PostRetrievalSignature {
@@ -25,4 +24,7 @@ public abstract class PostRetrievalSignature {
         }
         return postIdentifiers;
     }
+    public abstract Map<String, Object> extractPostData(Seller seller);
+    public abstract List<Post> transformPost(Seller seller);
+    public abstract List<Post> loadPost(Seller seller);
 }

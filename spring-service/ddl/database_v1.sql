@@ -350,6 +350,7 @@ CREATE TABLE pat_refresh_tokens(
        FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
+
 CREATE TABLE pat_access_tokens(
    id_pat SERIAL,
    access_token TEXT NOT NULL,
@@ -358,6 +359,14 @@ CREATE TABLE pat_access_tokens(
    id_prt INTEGER NOT NULL,
    PRIMARY KEY(id_pat),
    FOREIGN KEY(id_prt) REFERENCES pat_refresh_tokens(id_prt)
+);
+
+CREATE TABLE medias(
+                       id SERIAL,
+                       media_url TEXT NOT NULL,
+                       id_child INTEGER NOT NULL,
+                       PRIMARY KEY(id),
+                       FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
 );
 
 CREATE TABLE likes_history(

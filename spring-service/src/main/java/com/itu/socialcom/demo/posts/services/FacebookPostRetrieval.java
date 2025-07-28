@@ -9,6 +9,7 @@ import com.itu.socialcom.demo.posts.entity.VRefreshTokenHolder;
 import com.itu.socialcom.demo.posts.repository.VRefreshTokenHolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -34,6 +35,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
     private static final String POSTS_ENDPOINT = "/posts";
     private static final String FIELDS = "id,message,permalink_url,attachments{media_type,url,media,subattachments},created_time";
 
+    @Override
     public Map<String, Object> extractPostData(Seller seller) {
         Map<String, Object> extractedData = new HashMap<>();
         List<Map<String, Object>> allPostsData = new ArrayList<>();
@@ -81,7 +83,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         extractedData.put("postsData", allPostsData);
         return extractedData;
     }
-
+    @Override
     public List<Post> transformPost(Seller seller) {
         Map<String,Object> extractedData = this.extractPostData(seller);
         if (extractedData == null || extractedData.isEmpty()) {
@@ -113,7 +115,27 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 System.err.println("Error transforming post: " + e.getMessage());
             }
         }
+        return posts;
+    }
 
+    @Override
+    @Transactional
+    public List<Post> loadPost(Seller seller) {
+        List<Post> posts = this.transformPost(seller);
+        for (Post post : posts) {
+            postRepository.save(post);
+            int postMereId = -1;
+            for (PostChild postChild : post.getPostChildren()) {
+                if (postMereId != -1) {
+                    postChild.setIdChild1(postMereId);
+                }
+                postChild.setIdPost(post.getId());
+                postChildRepository.save(postChild);
+                if (postChild.getType().equals("main_post")) {
+                    postMereId = postChild.getId();
+                }
+            }
+        }
         return posts;
     }
 
@@ -154,7 +176,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         mainChild.setDescription(message);
         mainChild.setPlatformIdentifier(postId);
         mainChild.setType("main_post");
-        mainChild.setIdSp(Long.parseLong(pageId));
+        mainChild.setIdSp(1L);
 
         postChildren.add(mainChild);
 
@@ -238,7 +260,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
 
         photoChild.setPlatformIdentifier(photoId.isEmpty() ? "" : photoId);
         photoChild.setType("photo");
-        photoChild.setIdSp(Long.parseLong(pageId));
+        photoChild.setIdSp(1L);
 
         return photoChild;
     }
@@ -260,7 +282,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
 
         photoChild.setPlatformIdentifier(postId);
         photoChild.setType("photo");
-        photoChild.setIdSp(Long.parseLong(pageId));
+        photoChild.setIdSp(1L);
 
         return photoChild;
     }

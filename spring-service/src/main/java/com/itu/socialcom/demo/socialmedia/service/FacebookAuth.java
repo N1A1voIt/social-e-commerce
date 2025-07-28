@@ -81,7 +81,7 @@ public class FacebookAuth implements AuthService {
     }
     @Override
     public String getLoginUrl() {
-        String scopes = "pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_metadata";
+        String scopes = "pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_metadata,instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,business_management";
         String url = String.format(
                 "https://www.facebook.com/v20.0/dialog/oauth?client_id=%s&redirect_uri=%s&scope=%s&response_type=code",
                 APP_ID,
@@ -100,7 +100,7 @@ public class FacebookAuth implements AuthService {
 
         List<ManagedPageWithToken> managedPages = new ArrayList<>();
         String accountsUrl = String.format(
-                "https://graph.facebook.com/v20.0/me/accounts?fields=id,name,picture.type(large),link,access_token&access_token=%s",
+                "https://graph.facebook.com/v20.0/me/accounts?fields=id,name,picture.type(large),link,access_token,instagram_business_account{id,username,biography,followers_count,media_count}&access_token=%s",
                 this.currentUserAccessToken
         );
 
@@ -124,17 +124,39 @@ public class FacebookAuth implements AuthService {
                     if (pageNode.has("picture") && pageNode.get("picture").has("data") && pageNode.get("picture").get("data").has("url")) {
                         profilePictureUrl = pageNode.get("picture").get("data").get("url").asText();
                     }
-                    ManagedPageWithToken managedPageWithToken = new ManagedPageWithToken();
-                    ManagedPage managedPage = new ManagedPage();
-                    managedPage.setPlatformIdentifier(pageId);
-                    managedPage.setPageTitle(pageName);
-                    managedPage.setAssociatedMedia(profilePictureUrl);
-                    managedPage.setLinkToPlatform(pageLink);
-                    managedPage.setPlatformId(1L);
-                    managedPageWithToken.setManagedPage(managedPage);
-                    managedPageWithToken.setPageRefreshToken(pageAccessToken);
-                    managedPages.add(managedPageWithToken);
+
+                    // Save Facebook Page
+                    ManagedPageWithToken fbPageToken = new ManagedPageWithToken();
+                    ManagedPage fbPage = new ManagedPage();
+                    fbPage.setPlatformIdentifier(pageId);
+                    fbPage.setPageTitle(pageName);
+                    fbPage.setAssociatedMedia(profilePictureUrl);
+                    fbPage.setLinkToPlatform(pageLink);
+                    fbPage.setPlatformId(1L); // Facebook
+                    fbPageToken.setManagedPage(fbPage);
+                    fbPageToken.setPageRefreshToken(pageAccessToken);
+                    managedPages.add(fbPageToken);
+
+                    // Save Instagram Business Account if exists
+                    if (pageNode.has("instagram_business_account")) {
+                        JsonNode igNode = pageNode.get("instagram_business_account");
+                        String igId = igNode.get("id").asText();
+
+                        // You can optionally fetch more IG info via a separate request if needed
+
+                        ManagedPageWithToken igPageToken = new ManagedPageWithToken();
+                        ManagedPage igPage = new ManagedPage();
+                        igPage.setPlatformIdentifier(igId);
+                        igPage.setPageTitle(igNode.get("username").asText()); // You can customize this if needed
+                        igPage.setAssociatedMedia(""); // You can fetch IG profile picture in another call if needed
+                        igPage.setLinkToPlatform(""); // Instagram account link isn't included by default
+                        igPage.setPlatformId(2L); // Instagram platformId (set this according to your DB)
+                        igPageToken.setManagedPage(igPage);
+                        igPageToken.setPageRefreshToken(pageAccessToken); // Same token used for IG access
+                        managedPages.add(igPageToken);
+                    }
                 }
+
             }
         }
         return managedPages;

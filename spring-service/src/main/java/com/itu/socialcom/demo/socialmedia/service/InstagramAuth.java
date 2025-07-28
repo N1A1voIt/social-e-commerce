@@ -71,26 +71,26 @@ public class InstagramAuth implements AuthService{
 //
         System.out.println(shortToken);
 //
-//        String query = String.format(
-//                "grant_type=ig_exchange_token&client_secret=%s&access_token=%s",
-//                URLEncoder.encode(APP_SECRET, "UTF-8"),
-//                URLEncoder.encode(shortToken, "UTF-8")
-//        );
-//        URL llUrl = new URL("https://graph.instagram.com/access_token?" + query);
-//        HttpURLConnection conn2 = (HttpURLConnection) llUrl.openConnection();
-//        conn2.setRequestMethod("GET");  // Correct method for this endpoint
-//
-//
-//        if (conn2.getResponseCode() >= 300) {
-//            String err = new BufferedReader(new InputStreamReader(conn2.getErrorStream()))
-//                    .lines().collect(Collectors.joining("\n"));
-//            throw new IOException("Error exchanging long-lived token: " + err);
-//        }
-//
-//        String longResponse = new BufferedReader(new InputStreamReader(conn2.getInputStream()))
-//                .lines().collect(Collectors.joining("\n"));
-//        JsonObject jsonLong = JsonParser.parseString(longResponse).getAsJsonObject();
-        return shortToken;
+        String query = String.format(
+                "grant_type=ig_exchange_token&client_secret=%s&access_token=%s",
+                URLEncoder.encode(APP_SECRET, "UTF-8"),
+                URLEncoder.encode(shortToken, "UTF-8")
+        );
+        URL llUrl = new URL("https://graph.instagram.com/access_token?" + query);
+        HttpURLConnection conn2 = (HttpURLConnection) llUrl.openConnection();
+        conn2.setRequestMethod("GET");  // Correct method for this endpoint
+
+
+        if (conn2.getResponseCode() >= 300) {
+            String err = new BufferedReader(new InputStreamReader(conn2.getErrorStream()))
+                    .lines().collect(Collectors.joining("\n"));
+            throw new IOException("Error exchanging long-lived token: " + err);
+        }
+
+        String longResponse = new BufferedReader(new InputStreamReader(conn2.getInputStream()))
+                .lines().collect(Collectors.joining("\n"));
+        JsonObject jsonLong = JsonParser.parseString(longResponse).getAsJsonObject();
+        return jsonLong.get("access_token").getAsString();
     }
 /*
     @Override

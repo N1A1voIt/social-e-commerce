@@ -23,7 +23,7 @@ public class PostController {
         try{
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {throw new SellerNotLogged("Seller not found");}
-            return ResponseEntity.ok(facebookPostRetrieval.transformPost(seller));
+            return ResponseEntity.ok(facebookPostRetrieval.loadPost(seller));
         } catch (SellerNotLogged e){
             return ResponseEntity.status(400).body(null);
         }
