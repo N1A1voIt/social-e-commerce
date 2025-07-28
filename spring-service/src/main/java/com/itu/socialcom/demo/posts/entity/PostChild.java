@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -42,5 +44,8 @@ public class PostChild {
     @NotNull
     @Column(name = "id_post", nullable = false)
     private Integer idPost;
+
+    @Transient
+    List<Media> mediaList;
 
 }
