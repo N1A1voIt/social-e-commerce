@@ -464,6 +464,18 @@ CREATE VIEW v_refresh_token_holder AS
         WHERE pat_refresh_tokens.revoked = false;
 
 
+CREATE VIEW v_post_child_media AS
+    SELECT row_number() over (partition by 1) as id,post_childs.id_child,
+           post_childs.media_url as main_media_url,description,mp.platform_identifier,post_childs.type,s.id_sp,s.label as supported_platform,
+           id_child_1,p.id_post,p.id_seller,m.media_url as additional_media,mp.page_title,mp.associated_media
+    FROM post_childs
+        LEFT JOIN medias m on post_childs.id_child = m.id_child
+        JOIN posts p on post_childs.id_post = p.id_post
+        JOIN supported_platforms_v2 s on post_childs.id_sp = s.id_sp
+        JOIN managed_pages mp on s.id_sp = mp.id_sp
+    ORDER BY id_child,id_child_1;
+
+
 -- Electronics & Technology
 INSERT INTO category (val, desc_) VALUES ('Electronics', 'Consumer electronics, gadgets, and electronic devices');
 INSERT INTO category (val, desc_) VALUES ('Computers & Laptops', 'Desktop computers, laptops, tablets, and computer accessories');

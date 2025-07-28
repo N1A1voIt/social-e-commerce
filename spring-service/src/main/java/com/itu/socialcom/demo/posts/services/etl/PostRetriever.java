@@ -1,13 +1,11 @@
-package com.itu.socialcom.demo.posts.services;
+package com.itu.socialcom.demo.posts.services.etl;
 
-import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

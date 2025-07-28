@@ -1,4 +1,4 @@
-package com.itu.socialcom.demo.posts.services;
+package com.itu.socialcom.demo.posts.services.etl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +18,6 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -40,6 +39,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
     public Map<String, Object> extractPostData(ExtractorArgs args) {
         Seller seller = args.getSeller();
         Map<String, Object> extractedData = new HashMap<>();
+        Set<String> postIdentifiers = postChildRepository.findDistinctPlatformIdentifierByIdSp(1L);
         List<Map<String, Object>> allPostsData = new ArrayList<>();
 
         List<VRefreshTokenHolder> vRefreshTokenHolders = vRefreshTokenHolderRepository
@@ -68,6 +68,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                     JsonNode dataNode = jsonResponse.get("data");
                     if (dataNode != null && dataNode.isArray()) {
                         for (JsonNode postNode : dataNode) {
+                            if (postIdentifiers.contains(postNode.get("id").asText())) continue;
                             Map<String, Object> postData = new HashMap<>();
                             postData.put("pageId", pageId);
                             postData.put("postNode", postNode);

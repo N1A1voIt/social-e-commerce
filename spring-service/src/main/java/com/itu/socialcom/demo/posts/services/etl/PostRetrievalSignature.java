@@ -1,6 +1,5 @@
-package com.itu.socialcom.demo.posts.services;
+package com.itu.socialcom.demo.posts.services.etl;
 
-import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;

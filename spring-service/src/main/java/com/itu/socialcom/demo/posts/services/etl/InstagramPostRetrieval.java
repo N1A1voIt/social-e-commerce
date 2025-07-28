@@ -1,4 +1,4 @@
-package com.itu.socialcom.demo.posts.services;
+package com.itu.socialcom.demo.posts.services.etl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import com.itu.socialcom.demo.posts.entity.VRefreshTokenHolder;
 import com.itu.socialcom.demo.posts.repository.MediaRepository;
+import com.itu.socialcom.demo.posts.repository.PostChildRepository;
 import com.itu.socialcom.demo.posts.repository.VRefreshTokenHolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -36,12 +35,14 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
     private ObjectMapper objectMapper;
     @Autowired
     private MediaRepository mediaRepository;
+    @Autowired
+    PostChildRepository postChildRepository;
 
 
     @Override
     public Map<String, Object> extractPostData(ExtractorArgs args) {
         Seller seller = args.getSeller();
-        Set<String> postIdentifiers = this.retrievePostIdentifiers(2L);
+        Set<String> postIdentifiers = postChildRepository.findDistinctPlatformIdentifierByIdSp(2L);
         Map<String, Object> extractedData = new HashMap<>();
         List<Map<String, Object>> allPostsData = new ArrayList<>();
 
