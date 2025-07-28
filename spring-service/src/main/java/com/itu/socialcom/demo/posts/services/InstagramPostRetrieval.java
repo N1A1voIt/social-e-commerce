@@ -3,6 +3,7 @@ package com.itu.socialcom.demo.posts.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Media;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
@@ -11,16 +12,17 @@ import com.itu.socialcom.demo.posts.repository.MediaRepository;
 import com.itu.socialcom.demo.posts.repository.VRefreshTokenHolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class InstagramPostRetrieval extends PostRetrievalSignature{
@@ -37,7 +39,9 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
 
     @Override
-    public Map<String, Object> extractPostData(Seller seller) {
+    public Map<String, Object> extractPostData(ExtractorArgs args) {
+        Seller seller = args.getSeller();
+        Set<String> postIdentifiers = this.retrievePostIdentifiers(2L);
         Map<String, Object> extractedData = new HashMap<>();
         List<Map<String, Object>> allPostsData = new ArrayList<>();
 
@@ -65,6 +69,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
                     if (dataNode != null && dataNode.isArray()) {
                         for (JsonNode postNode : dataNode) {
+                            if (postIdentifiers.contains(postNode.get("id").asText())) continue;
                             Map<String, Object> postData = new HashMap<>();
 
                             postData.put("sellerId", seller.getId());
@@ -111,17 +116,24 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
 
     @Override
-    public List<Post> transformPost(Seller seller) {
+    public List<Post> transformPost(ExtractorArgs args) {
         List<Post> posts = new ArrayList<>();
 
-        Map<String, Object> rawData = extractPostData(seller);
+        Map<String, Object> rawData = extractPostData(args);
         List<Map<String, Object>> instagramPosts = (List<Map<String, Object>>) rawData.get("instagramPosts");
 
         for (Map<String, Object> rawPost : instagramPosts) {
             Post post = new Post();
-            post.setIdSeller(seller.getId());
-            post.setCreateAt(LocalDateTime.parse((String) rawPost.get("timestamp"), DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-            post.setType((String) rawPost.get("mediaType"));
+            post.setIdSeller(args.getSeller().getId());
+
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
+
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse((String) rawPost.get("timestamp"), formatter);
+            LocalDateTime createdDateTime = zonedDateTime.toLocalDateTime();
+
+            post.setCreateAt(createdDateTime);
+            post.setType("instagram_post");
 
             PostChild postChild = new PostChild();
             postChild.setIdSp(2L);
@@ -156,8 +168,9 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
 
     @Override
-    public List<Post> loadPost(Seller seller) {
-        List<Post> posts = this.transformPost(seller);
+    @Transactional
+    public List<Post> loadPost(ExtractorArgs args) {
+        List<Post> posts = this.transformPost(args);
         if (posts != null && !posts.isEmpty()) {
             for (Post post : posts) {
                 postRepository.save(post);

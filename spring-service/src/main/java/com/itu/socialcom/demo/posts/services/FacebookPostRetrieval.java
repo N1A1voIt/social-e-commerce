@@ -3,6 +3,7 @@ package com.itu.socialcom.demo.posts.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import com.itu.socialcom.demo.posts.entity.VRefreshTokenHolder;
@@ -36,7 +37,8 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
     private static final String FIELDS = "id,message,permalink_url,attachments{media_type,url,media,subattachments},created_time";
 
     @Override
-    public Map<String, Object> extractPostData(Seller seller) {
+    public Map<String, Object> extractPostData(ExtractorArgs args) {
+        Seller seller = args.getSeller();
         Map<String, Object> extractedData = new HashMap<>();
         List<Map<String, Object>> allPostsData = new ArrayList<>();
 
@@ -84,8 +86,8 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         return extractedData;
     }
     @Override
-    public List<Post> transformPost(Seller seller) {
-        Map<String,Object> extractedData = this.extractPostData(seller);
+    public List<Post> transformPost(ExtractorArgs args) {
+        Map<String,Object> extractedData = this.extractPostData(args);
         if (extractedData == null || extractedData.isEmpty()) {
             throw new IllegalArgumentException("extracted data is null or empty");
         }
@@ -120,8 +122,8 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
 
     @Override
     @Transactional
-    public List<Post> loadPost(Seller seller) {
-        List<Post> posts = this.transformPost(seller);
+    public List<Post> loadPost(ExtractorArgs args) {
+        List<Post> posts = this.transformPost(args);
         for (Post post : posts) {
             postRepository.save(post);
             int postMereId = -1;

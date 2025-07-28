@@ -50,9 +50,11 @@ public class FacebookAuth implements AuthService {
     private String currentUserAccessToken;
 
     @Override
-    public String exchangeForAccessToken(Map<String,String> params)  throws IOException {
+    public String exchangeForAccessToken(Map<String, String> params) throws IOException {
         String codeOrToken = params.get("code");
+
         try {
+            // Step 1: Exchange code for short-lived access token
             String tokenUrl = String.format(
                     "https://graph.facebook.com/v20.0/oauth/access_token?" +
                             "client_id=%s&redirect_uri=%s&client_secret=%s&code=%s&state=%s",
@@ -62,23 +64,52 @@ public class FacebookAuth implements AuthService {
                     codeOrToken,
                     APP_SECRET
             );
+
             Request request = new Request.Builder().url(tokenUrl).build();
+            String shortLivedToken;
+
             try (Response response = httpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     String errorBody = response.body() != null ? response.body().string() : "No error body";
                     throw new RuntimeException("Failed to exchange code: " + response.message() + " - " + errorBody);
                 }
+
                 String responseBody = response.body().string();
                 JsonNode node = mapper.readTree(responseBody);
-                String accessToken = node.get("access_token").asText();
-                // Store the user access token for subsequent calls to getManagedPages
-                this.currentUserAccessToken = accessToken;
-                return accessToken;
+                shortLivedToken = node.get("access_token").asText();
             }
+
+            // Step 2: Exchange short-lived token for long-lived token
+            String longLivedUrl = String.format(
+                    "https://graph.facebook.com/v20.0/oauth/access_token?" +
+                            "grant_type=fb_exchange_token&" +
+                            "client_id=%s&client_secret=%s&fb_exchange_token=%s",
+                    APP_ID,
+                    APP_SECRET,
+                    shortLivedToken
+            );
+
+            Request longLivedRequest = new Request.Builder().url(longLivedUrl).build();
+            try (Response longResponse = httpClient.newCall(longLivedRequest).execute()) {
+                if (!longResponse.isSuccessful()) {
+                    String errorBody = longResponse.body() != null ? longResponse.body().string() : "No error body";
+                    throw new RuntimeException("Failed to get long-lived token: " + longResponse.message() + " - " + errorBody);
+                }
+
+                String longLivedResponse = longResponse.body().string();
+                JsonNode longNode = mapper.readTree(longLivedResponse);
+                String longLivedToken = longNode.get("access_token").asText();
+
+                // Store the long-lived user token
+                this.currentUserAccessToken = longLivedToken;
+                return longLivedToken;
+            }
+
         } catch (Exception e) {
             throw new RuntimeException("Exception while exchanging code for access token", e);
         }
     }
+
     @Override
     public String getLoginUrl() {
         String scopes = "pages_show_list,pages_manage_posts,pages_read_engagement,pages_manage_metadata,instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,business_management";
