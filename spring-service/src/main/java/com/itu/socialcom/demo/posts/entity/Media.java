@@ -3,12 +3,14 @@ package com.itu.socialcom.demo.posts.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "medias")
+@NoArgsConstructor
 public class Media {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,4 +25,7 @@ public class Media {
     @Column(name = "id_child", nullable = false)
     private Integer idChild;
 
+    public Media(String mainMediaUrl, String type) {
+        this.setMediaUrl(mainMediaUrl);
+    }
 }
