@@ -48,4 +48,7 @@ public class PostChild {
     @Transient
     List<Media> mediaList;
 
+    @Transient
+    List<PostChild> postChilds;
+
 }

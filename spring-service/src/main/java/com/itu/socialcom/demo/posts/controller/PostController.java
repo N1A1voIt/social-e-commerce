@@ -4,11 +4,13 @@ import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.posts.dto.DisplayPost;
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
+import com.itu.socialcom.demo.posts.dto.MediaDetails;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.exceptions.SellerNotLogged;
 import com.itu.socialcom.demo.posts.repository.PostChildMediaRepository;
 import com.itu.socialcom.demo.posts.services.etl.PostRetriever;
 import com.itu.socialcom.demo.posts.services.get.PostGetter;
+import com.itu.socialcom.demo.posts.services.save.FacebookPostSaver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,8 @@ public class PostController {
     PostGetter postGetter;
     @Autowired
     PostChildMediaRepository postChildMediaRepository;
+    @Autowired
+    FacebookPostSaver facebookPostSaver;
     @GetMapping("/loads")
     public ResponseEntity<List<Post>> extractPost(@RequestHeader(name = "Authorization") String token) {
         try{
@@ -50,6 +54,16 @@ public class PostController {
         } catch (SellerNotLogged e){
             return ResponseEntity.status(400).body(null);
         } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @PostMapping("/test-media")
+    public ResponseEntity<?> testMedia(@RequestBody MediaDetails args) {
+        try {
+            return ResponseEntity.ok(facebookPostSaver.uploadMediaUnpublished(args));
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
         }
