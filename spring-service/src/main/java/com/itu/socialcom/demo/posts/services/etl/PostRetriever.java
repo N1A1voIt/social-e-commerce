@@ -1,11 +1,13 @@
 package com.itu.socialcom.demo.posts.services.etl;
 
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
+import com.itu.socialcom.demo.posts.dto.MotherPostDisplay;
 import com.itu.socialcom.demo.posts.entity.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,5 +29,17 @@ public class PostRetriever {
             throw new RuntimeException(e);
         }
         return posts;
+    }
+    public List<MotherPostDisplay> motherPostDisplays(List<Post> posts) {
+        List<MotherPostDisplay> motherPostDisplays = new ArrayList<>();
+        for (Post post : posts) {
+            MotherPostDisplay motherPostDisplay = new MotherPostDisplay();
+            motherPostDisplay.setIdPost(post.getId().longValue());
+            motherPostDisplay.setScheduled(post.getCreateAt().isAfter(LocalDateTime.now()));
+            motherPostDisplay.setCreationDate(post.getCreateAt());
+            motherPostDisplay.setTitle(post.getType());
+            motherPostDisplays.add(motherPostDisplay);
+        }
+        return motherPostDisplays;
     }
 }

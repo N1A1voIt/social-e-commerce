@@ -12,6 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,9 +42,10 @@ public class FacebookPostSaver implements SavePostService{
             String json = EntityUtils.toString(response.getEntity());
             System.out.println(json);
             JSONObject obj = new JSONObject(json);
-            return obj.getString("id");
+            return obj.getString("id")+"__SEP__"+message;
         }
     }
+    @Override
     public PostChild createPostWithMedia(PostDetails postDetails) throws IOException {
         String pageId = postDetails.getPageId();
         String pageAccessToken = postDetails.getPageAccessToken();
@@ -58,7 +60,7 @@ public class FacebookPostSaver implements SavePostService{
 
         for (int i = 0; i < mediaFbids.size(); i++) {
             JSONObject media = new JSONObject();
-            media.put("media_fbid", mediaFbids.get(i));
+            media.put("media_fbid", mediaFbids.get(i).split("__SEP__")[0]);
             builder.addTextBody(String.format("attached_media[%d]", i), media.toString());
         }
 
@@ -85,18 +87,16 @@ public class FacebookPostSaver implements SavePostService{
             for (String mediaFbid : mediaFbids) {
                 PostChild child = new PostChild();
                 child.setPostUrl(postUrl);
-                child.setMediaUrl("https://www.facebook.com/" + mediaFbid);
+                child.setMediaUrl("https://www.facebook.com/" + mediaFbid.split("__SEP__")[0]);
                 child.setPlatformIdentifier("facebook");
-                child.setDescription(null);
+                child.setDescription(mediaFbid.split("__SEP__")[1]);
                 child.setType("photo");
                 child.setIdSp(1L);
                 child.setIdPost(null);
                 child.setIdChild1(null);
                 children.add(child);
             }
-
             mother.setPostChilds(children);
-
             return mother;
         }
     }

@@ -2,15 +2,15 @@ package com.itu.socialcom.demo.posts.controller;
 
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
-import com.itu.socialcom.demo.posts.dto.DisplayPost;
-import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
-import com.itu.socialcom.demo.posts.dto.MediaDetails;
+import com.itu.socialcom.demo.posts.dto.*;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.exceptions.SellerNotLogged;
 import com.itu.socialcom.demo.posts.repository.PostChildMediaRepository;
+import com.itu.socialcom.demo.posts.repository.PostRepository;
 import com.itu.socialcom.demo.posts.services.etl.PostRetriever;
 import com.itu.socialcom.demo.posts.services.get.PostGetter;
 import com.itu.socialcom.demo.posts.services.save.FacebookPostSaver;
+import com.itu.socialcom.demo.posts.services.save.GeneralPostSaver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +30,10 @@ public class PostController {
     PostChildMediaRepository postChildMediaRepository;
     @Autowired
     FacebookPostSaver facebookPostSaver;
+    @Autowired
+    GeneralPostSaver generalPostSaver;
+    @Autowired
+    PostRepository postRepository;
     @GetMapping("/loads")
     public ResponseEntity<List<Post>> extractPost(@RequestHeader(name = "Authorization") String token) {
         try{
@@ -59,10 +63,24 @@ public class PostController {
         }
     }
 
-    @PostMapping("/test-media")
-    public ResponseEntity<?> testMedia(@RequestBody MediaDetails args) {
+    @PostMapping("/make-post")
+    public ResponseEntity<?> testMedia(@RequestBody SavePostArgs args,@RequestHeader("Authorization") String token) {
         try {
-            return ResponseEntity.ok(facebookPostSaver.uploadMediaUnpublished(args));
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {throw new SellerNotLogged("Seller not found");}
+            return ResponseEntity.ok(generalPostSaver.func(args,seller));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/fetch-mother")
+    public ResponseEntity<List<MotherPostDisplay>> fetchMother(@RequestHeader("Authorization") String token) {
+        try {
+          Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {throw new SellerNotLogged("Seller not found");}
+            return ResponseEntity.ok(postRetriever.motherPostDisplays(postRepository.findAll()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);

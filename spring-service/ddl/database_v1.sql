@@ -451,9 +451,21 @@ CREATE TABLE deliveries_state(
 SELECT * FROM pat_refresh_tokens;
 
 CREATE VIEW v_managed_accounts AS
-SELECT id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username FROM managed_pages
+WITH max_accesstoken AS (
+    SELECT id_pat, access_token, expired_at, MAX(created_at), id_prt FROM pat_access_tokens group by id_pat
+), max_refreshtoken AS (
+    SELECT id_prt, token, expired_at, MAX(created_at),revoked,id_mp FROM pat_refresh_tokens group by id_prt
+) , max_tokens AS (
+    SELECT id_pat, access_token, max_accesstoken.expired_at as acctoken_expiration,max_refreshtoken.expired_at as reftoken_expiration, max_refreshtoken.id_prt, token, revoked, id_mp FROM max_accesstoken
+    RIGHT JOIN max_refreshtoken ON max_accesstoken.id_prt = max_refreshtoken.id_prt
+)
+SELECT max_tokens.id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username
+,access_token,acctoken_expiration,reftoken_expiration,token, revoked
+FROM managed_pages
                   JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
-                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller;
+                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller
+                  JOIN max_tokens ON managed_pages.id_mp = max_tokens.id_mp
+;
 
 CREATE VIEW v_refresh_token_holder AS
     SELECT row_number() over (order by 1) as id, managed_pages.*,s.email,pat_refresh_tokens.token FROM seller_v2 as s
@@ -472,8 +484,7 @@ CREATE VIEW v_post_child_media AS
         LEFT JOIN medias m on post_childs.id_child = m.id_child
         JOIN posts p on post_childs.id_post = p.id_post
         JOIN supported_platforms_v2 s on post_childs.id_sp = s.id_sp
-        JOIN managed_pages mp on s.id_sp = mp.id_sp
-    ORDER BY id_child,id_child_1;
+        JOIN managed_pages mp on s.id_sp = mp.id_sp;
 
 
 -- Electronics & Technology

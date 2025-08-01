@@ -17,12 +17,7 @@
     </div>
   </div>
   <div class="w-full mt-3 grid grid-cols-5 gap-3">
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
-    <app-post-card></app-post-card>
+    <app-post-card *ngFor="let post of posts" [post]="post"></app-post-card>
   </div>
 </div>
 <!--<app-form-container></app-form-container>-->

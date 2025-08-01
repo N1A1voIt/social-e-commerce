@@ -1,6 +1,9 @@
 package com.itu.socialcom.demo.posts.dto;
 
+import lombok.Data;
+
+@Data
 public class PageDetails {
-    Long pageId;
+    String pageId;
     String platform;
 }
