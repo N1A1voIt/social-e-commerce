@@ -14,8 +14,8 @@
       ></app-platform-post-check>
     </div>
     <div class="post-form flex flex-col gap-2 w-full p-4">
-      <span class="text-xl font-bold font-mono">If you want to attach some files, you can do it here</span>
-      
+      <span class="text-xl font-bold font-mono">If you want to attach some products, you can do it here</span>
+      <app-product-row *ngFor="let product of products" [product]="product"></app-product-row>
     </div>
   </div>
 </div>

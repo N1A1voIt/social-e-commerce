@@ -11,7 +11,13 @@ import com.itu.socialcom.demo.posts.services.etl.PostRetriever;
 import com.itu.socialcom.demo.posts.services.get.PostGetter;
 import com.itu.socialcom.demo.posts.services.save.FacebookPostSaver;
 import com.itu.socialcom.demo.posts.services.save.GeneralPostSaver;
+import com.itu.socialcom.demo.products.model.Product;
+import com.itu.socialcom.demo.products.repository.ProductRepository;
+import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
+import com.itu.socialcom.demo.socialmedia.repository.ManagedPageCPLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +40,10 @@ public class PostController {
     GeneralPostSaver generalPostSaver;
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    ManagedPageCPLRepository managedPageCPLRepository;
     @GetMapping("/loads")
     public ResponseEntity<List<Post>> extractPost(@RequestHeader(name = "Authorization") String token) {
         try{
@@ -86,4 +96,21 @@ public class PostController {
             return ResponseEntity.status(500).body(null);
         }
     }
+    @GetMapping("/fetch-utilities")
+    public ResponseEntity<PostSaverUtilities> fetchUtilities(@RequestHeader("Authorization") String token, Pageable pageable) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) throw new SellerNotLogged("Seller not found");
+            List<ManagedPageCPL> managedPageCPLS = managedPageCPLRepository.findByIdSeller(seller.getId());
+            Page<Product> products = productRepository.findByIdSeller(seller.getId().intValue(), pageable);
+            PostSaverUtilities postSaverUtilities = new PostSaverUtilities();
+            postSaverUtilities.setManagedPages(managedPageCPLS);
+            postSaverUtilities.setProducts(products.getContent());
+            return ResponseEntity.ok(postSaverUtilities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
 }

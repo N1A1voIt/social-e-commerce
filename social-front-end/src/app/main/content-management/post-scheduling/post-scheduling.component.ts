@@ -4,6 +4,8 @@ import {ManagedPageCPL} from "../../settings/account-details/account-details.com
 import {NgForOf} from "@angular/common";
 import {PlatformRowComponent} from "../../settings/managed-account/platform-row/platform-row.component";
 import {PlatformPostCheckComponent} from "../platform-post-check/platform-post-check.component";
+import {Product} from "../../products/products.types";
+import {ProductRowComponent} from "../product-row/product-row.component";
 
 @Component({
   selector: 'app-post-scheduling',
@@ -11,20 +13,23 @@ import {PlatformPostCheckComponent} from "../platform-post-check/platform-post-c
   imports: [
     NgForOf,
     PlatformRowComponent,
-    PlatformPostCheckComponent
+    PlatformPostCheckComponent,
+    ProductRowComponent
   ],
   templateUrl: './post-scheduling.component.html',
   styleUrl: './post-scheduling.component.css'
 })
 export class PostSchedulingComponent implements OnInit{
   pages:ManagedPageCPL[] = [];
+  products:Product[] = [];
   constructor(private postService: ContentService) {
   }
 
   ngOnInit(): void {
-      this.postService.fetchManagedPages().subscribe({
+      this.postService.fetchUtilities().subscribe({
         next: (data) => {
-          this.pages = data;
+          this.pages = data.managedPages;
+          this.products = data.products;
         },
         error: (err) => {
           console.log(err.message);
