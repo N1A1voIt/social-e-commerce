@@ -6,7 +6,7 @@ import {PlatformRowComponent} from "../../settings/managed-account/platform-row/
 import {PlatformPostCheckComponent} from "../platform-post-check/platform-post-check.component";
 import {Product} from "../../products/products.types";
 import {ProductRowComponent} from "../product-row/product-row.component";
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 import {MainMessageComponent} from "./main-message/main-message.component";
 import {MediaDetailsContainerComponent} from "./media-details-container/media-details-container.component";
@@ -61,6 +61,9 @@ export class PostSchedulingComponent implements OnInit{
       mediaDetails: this.fb.array([], Validators.required)
     });
   }
+  get mainMessageControl(): FormControl {
+    return this.postForm.get('mainMessage') as FormControl;
+  }
 
   get mediaDetailsArray(): FormArray {
     return this.postForm.get('mediaDetails') as FormArray;
@@ -68,8 +71,8 @@ export class PostSchedulingComponent implements OnInit{
 
   addMediaDetail(): void {
     const mediaGroup = this.fb.group({
-      imageUrl: ['', Validators.required],
-      message: ['', [Validators.required, Validators.maxLength(200)]],
+      imageUrl: [''],
+      message: ['', [Validators.maxLength(200)]],
       previewUrl: [''],
       selectedFile: [null],
       isUploading: [false]
@@ -141,6 +144,7 @@ export class PostSchedulingComponent implements OnInit{
   }
     ngOnInit(): void {
         this.addMediaDetail();
+
         this.postService.fetchUtilities().subscribe({
           next: (data) => {
             this.pages = data.managedPages;
@@ -152,4 +156,6 @@ export class PostSchedulingComponent implements OnInit{
           },
         });
     }
+
+  protected readonly JSON = JSON;
 }

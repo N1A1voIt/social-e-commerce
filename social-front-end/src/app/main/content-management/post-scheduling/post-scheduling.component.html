@@ -27,21 +27,21 @@
         </div>
       </div>
     </div>
-    <div class="col-span-1 overflow-y-scroll hide-scrollbar font-mono">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Social Media Post</h1>
+    <div class="col-span-1 overflow-y-scroll hide-scrollbar font-mono p-4">
+        <div class="mb-1">
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Create Social Media Post</h1>
           <p class="text-gray-600">Create your social media post with images and messages.</p>
         </div>
 
-        <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="space-y-8">
+        <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="">
 
           <!-- Main Message Section -->
           <app-main-message
-            [control]="postForm.get('mainMessage')">
+            [control]="mainMessageControl">
           </app-main-message>
-
           <!-- Media Details Section -->
           <app-media-details-container
+            [formGroup]="postForm"
             [mediaDetailsArray]="mediaDetailsArray"
             (addMedia)="addMediaDetail()"
             (removeMedia)="removeMediaDetail($event)">
@@ -56,9 +56,9 @@
         </form>
 
         <!-- Form Validation Summary -->
-        <app-form-validation-summary
-          [form]="postForm">
-        </app-form-validation-summary>
+<!--        <app-form-validation-summary-->
+<!--          [form]="postForm">-->
+<!--        </app-form-validation-summary>-->
     </div>
   </div>
 </div>

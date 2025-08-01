@@ -1,4 +1,4 @@
-<div class="bg-gray-50 rounded-lg p-6">
+<div [formGroup]="formGroup" class="bg-gray-50 rounded-lg p-6">
   <div class="flex justify-between items-center mb-6">
     <div>
       <h2 class="text-xl font-semibold text-gray-900">Media & Messages</h2>
@@ -18,7 +18,7 @@
   <div formArrayName="mediaDetails" class="space-y-6">
     <app-media-item
       *ngFor="let mediaControl of mediaDetailsArray.controls; let i = index"
-      [formGroupName]="i"
+      [formGroup]="mediaControl"
       [index]="i"
       [canRemove]="mediaDetailsArray.length > 1"
       (remove)="onRemoveMedia($event)">

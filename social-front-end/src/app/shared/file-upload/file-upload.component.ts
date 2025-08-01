@@ -1,10 +1,13 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {FormGroup} from "@angular/forms";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-file-upload',
   standalone: true,
-  imports: [],
+  imports: [
+    NgIf
+  ],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css'
 })
