@@ -12,6 +12,7 @@ import {MainMessageComponent} from "./main-message/main-message.component";
 import {MediaDetailsContainerComponent} from "./media-details-container/media-details-container.component";
 import {SubmitButtonComponent} from "./submit-button/submit-button.component";
 import {FormValidationSummaryComponent} from "./form-validation-summary/form-validation-summary.component";
+import {SupabaseService} from "../../../shared/supabase.service";
 interface MediaDetail {
   imageUrl: string;
   message: string;
@@ -48,9 +49,10 @@ export class PostSchedulingComponent implements OnInit{
   step:string = 'platforms';
   postForm: FormGroup;
   isSubmitting = false;
+
   uploadError = '';
   constructor(private postService: ContentService ,private fb: FormBuilder,
-              private http: HttpClient
+              private http: HttpClient,private supabaseService:SupabaseService
   ) {
     this.postForm = this.createForm();
   }
@@ -86,30 +88,70 @@ export class PostSchedulingComponent implements OnInit{
     }
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.postForm.valid) {
       this.isSubmitting = true;
-      const postData = this.buildPostData();
 
-      console.log('Post Data:', postData);
+      try {
+        // Upload all media files first
+        await this.uploadAllMedia();
 
-      // Replace with your actual API endpoint
-      this.http.post('/api/social-posts', postData).subscribe({
-        next: (response) => {
-          console.log('Post created successfully:', response);
-          this.isSubmitting = false;
-          // Handle success (redirect, show message, etc.)
-        },
-        error: (error) => {
-          console.error('Failed to create post:', error);
-          this.isSubmitting = false;
-          // Handle error
-        }
-      });
+        // Build and submit post data with the uploaded URLs
+        const postData = this.buildPostData();
+        console.log('Post Data:', postData);
+
+        // Replace with your actual API endpoint
+        this.http.post('/api/social-posts', postData).subscribe({
+          next: (response) => {
+            console.log('Post created successfully:', response);
+            this.isSubmitting = false;
+            // Handle success (redirect, show message, etc.)
+          },
+          error: (error) => {
+            console.error('Failed to create post:', error);
+            this.isSubmitting = false;
+            // Handle error
+          }
+        });
+      } catch (error) {
+        console.error('Error uploading media:', error);
+        this.isSubmitting = false;
+        // Handle upload error
+      }
     } else {
       // Mark all fields as touched to show validation errors
       this.markFormGroupTouched(this.postForm);
     }
+  }
+
+  private async uploadAllMedia(): Promise<void> {
+    const mediaItems = this.mediaDetailsArray.controls;
+
+    for (let i = 0; i < mediaItems.length; i++) {
+      const mediaGroup = mediaItems[i];
+      const file = mediaGroup.get('selectedFile')?.value;
+
+      if (file) {
+        try {
+          const imageUrl = await this.uploadFile(file);
+          mediaGroup.patchValue({
+            imageUrl: imageUrl,
+            isUploading: false
+          });
+        } catch (error) {
+          console.error(`Failed to upload media item ${i + 1}:`, error);
+          throw new Error(`Failed to upload media item ${i + 1}`);
+        }
+      } else if (!mediaGroup.get('imageUrl')?.value) {
+        throw new Error(`Media item ${i + 1} has no file selected`);
+      }
+    }
+  }
+
+  private uploadFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.supabaseService.uploadFile(file);
   }
 
   markFormGroupTouched(formGroup: FormGroup): void {

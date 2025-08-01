@@ -30,10 +30,10 @@ export class MediaItemComponent {
   }
 
   onFileSelected(file: File): void {
-    // Set loading state
+    // Set the selected file
     this.formGroup.patchValue({
       selectedFile: file,
-      isUploading: true
+      isUploading: false
     });
 
     // Create preview
@@ -44,9 +44,6 @@ export class MediaItemComponent {
       });
     };
     reader.readAsDataURL(file);
-
-    // Upload file
-    this.uploadFile(file);
   }
 
   onFileRemoved(): void {
@@ -57,24 +54,5 @@ export class MediaItemComponent {
     });
   }
 
-  private uploadFile(file: File): void {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Replace with your actual upload endpoint
-    this.http.post<{url: string}>('/api/upload', formData).subscribe({
-      next: (response) => {
-        this.formGroup.patchValue({
-          imageUrl: response.url,
-          isUploading: false
-        });
-      },
-      error: (error) => {
-        console.error('Upload failed:', error);
-        this.formGroup.patchValue({
-          isUploading: false
-        });
-      }
-    });
-  }
+  // File upload is now handled by the parent component during form submission
 }
