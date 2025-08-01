@@ -9,6 +9,6 @@
     </div>
   </div>
   <span class="items-center flex gap-2">
-      <app-checkbox [checked]="status"></app-checkbox>
+      <app-checkbox [checked]="state" (click)="updateStatus()"></app-checkbox>
   </span>
 </div>

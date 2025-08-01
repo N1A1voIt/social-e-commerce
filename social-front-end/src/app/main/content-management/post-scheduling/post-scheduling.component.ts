@@ -49,6 +49,7 @@ export class PostSchedulingComponent implements OnInit{
   step:string = 'platforms';
   postForm: FormGroup;
   isSubmitting = false;
+  pagesIn : Map<string,ManagedPageCPL> = new Map();
 
   uploadError = '';
   constructor(private postService: ContentService ,private fb: FormBuilder,
@@ -184,20 +185,32 @@ export class PostSchedulingComponent implements OnInit{
       idProducts: [101, 102, 103] // Static for now
     };
   }
-    ngOnInit(): void {
-        this.addMediaDetail();
+  ngOnInit(): void {
+      this.addMediaDetail();
 
-        this.postService.fetchUtilities().subscribe({
-          next: (data) => {
-            this.pages = data.managedPages;
-            this.products = data.products;
-          },
-          error: (err) => {
-            console.log(err.message);
-            console.error('Failed to load managed pages', err);
-          },
-        });
+      this.postService.fetchUtilities().subscribe({
+        next: (data) => {
+          this.pages = data.managedPages;
+          this.products = data.products;
+        },
+        error: (err) => {
+          console.log(err.message);
+          console.error('Failed to load managed pages', err);
+        },
+      });
+  }
+  updateStatus(page: ManagedPageCPL) {
+    const key = page.platformIdentifier;
+    if (this.pagesIn.has(key)) {
+      this.pagesIn.delete(key);
+      console.log(`Removed: ${key}`);
+    } else {
+      this.pagesIn.set(key, page);
+      console.log(`Added: ${key}`);
     }
+    console.log('Current pagesIn:', Array.from(this.pagesIn.entries()));
+  }
+
 
   protected readonly JSON = JSON;
 }

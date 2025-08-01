@@ -10,9 +10,9 @@
             [pageTitle]="page.pageTitle"
             [username]="page.username"
             [logo]="page.platformIdentifier"
-            [status]="page.status"
             [associatedMedia]="page.associatedMedia"
             [linkToPlatform]="page.linkToPlatform"
+            (statusChange)="updateStatus(page)"
           ></app-platform-post-check>
         </div>
         <div class="post-form flex flex-col gap-2 w-full p-4" *ngIf="step==='products'">
