@@ -14,4 +14,5 @@ import {DatePipe, NgIf} from "@angular/common";
 })
 export class PostCardComponent {
   @Input() post!: MotherPostDisplay;
+
 }

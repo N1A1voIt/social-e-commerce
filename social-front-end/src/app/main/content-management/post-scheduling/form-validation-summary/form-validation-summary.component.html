@@ -1,0 +1,16 @@
+<div *ngIf="form.invalid && form.touched"
+     class="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+  <h3 class="text-sm font-medium text-red-800 mb-2">Please fix the following errors:</h3>
+  <ul class="text-sm text-red-700 space-y-1">
+    <li *ngIf="form.get('mainMessage')?.invalid">• Main message is required</li>
+    <li *ngIf="mediaDetailsArray.length === 0">• At least one media item is required</li>
+    <li *ngFor="let control of mediaDetailsArray.controls; let i = index">
+          <span *ngIf="control.get('imageUrl')?.invalid || control.get('message')?.invalid">
+            • Media item {{ i + 1 }}:
+            <span *ngIf="control.get('imageUrl')?.invalid">Image required</span>
+            <span *ngIf="control.get('imageUrl')?.invalid && control.get('message')?.invalid">, </span>
+            <span *ngIf="control.get('message')?.invalid">Message required</span>
+          </span>
+    </li>
+  </ul>
+</div>

@@ -1,21 +1,64 @@
 <div class="absolute top-0 right-0 bg-opacity-30 flex justify-center items-center backdrop-blur bg-principal w-full h-full overflow-hidden">
   <div class=" h-[90%] xl:w-[90%] shadow-xl bg-principal top-0 right-0 rounded-3xl z-20 grid grid-cols-2 gap-2">
-    <div class="prodile-and-products  flex flex-col gap-2 w-full p-4">
-      <span class="text-xl font-bold font-mono">Choose on which platform you want to post</span>
-      <app-platform-post-check
-        *ngFor="let page of pages"
-        [platform]="page.platform"
-        [pageTitle]="page.pageTitle"
-        [username]="page.username"
-        [logo]="page.platformIdentifier"
-        [status]="page.status"
-        [associatedMedia]="page.associatedMedia"
-        [linkToPlatform]="page.linkToPlatform"
-      ></app-platform-post-check>
+    <div class="col-span-1">
+      <div class="h-[90%] overflow-y-scroll hide-scrollbar">
+        <div class="prodile-and-products  flex flex-col gap-2 w-full p-4" *ngIf="step==='platforms'">
+          <span class="text-xl font-bold font-mono">Choose on which platform you want to post</span>
+          <app-platform-post-check
+            *ngFor="let page of pages"
+            [platform]="page.platform"
+            [pageTitle]="page.pageTitle"
+            [username]="page.username"
+            [logo]="page.platformIdentifier"
+            [status]="page.status"
+            [associatedMedia]="page.associatedMedia"
+            [linkToPlatform]="page.linkToPlatform"
+          ></app-platform-post-check>
+        </div>
+        <div class="post-form flex flex-col gap-2 w-full p-4" *ngIf="step==='products'">
+          <span class="text-xl font-bold font-mono">If you want to attach some products, you can do it here</span>
+          <app-product-row *ngFor="let product of products" [product]="product"></app-product-row>
+        </div>
+      </div>
+      <div class="h-[10%]">
+        <div class="flex justify-around items-end w-full p-4 font-mono">
+          <button class="p-2 px-4 bg-green-400 text-white rounded-full" (click)="step='platforms'">Platforms</button>
+          <button class="p-2 px-4 bg-green-400 text-white rounded-full" (click)="step='products'">Products</button>
+        </div>
+      </div>
     </div>
-    <div class="post-form flex flex-col gap-2 w-full p-4">
-      <span class="text-xl font-bold font-mono">If you want to attach some products, you can do it here</span>
-      <app-product-row *ngFor="let product of products" [product]="product"></app-product-row>
+    <div class="col-span-1 overflow-y-scroll hide-scrollbar font-mono">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Social Media Post</h1>
+          <p class="text-gray-600">Create your social media post with images and messages.</p>
+        </div>
+
+        <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="space-y-8">
+
+          <!-- Main Message Section -->
+          <app-main-message
+            [control]="postForm.get('mainMessage')">
+          </app-main-message>
+
+          <!-- Media Details Section -->
+          <app-media-details-container
+            [mediaDetailsArray]="mediaDetailsArray"
+            (addMedia)="addMediaDetail()"
+            (removeMedia)="removeMediaDetail($event)">
+          </app-media-details-container>
+
+          <!-- Submit Button -->
+          <app-submit-button
+            [disabled]="!postForm.valid"
+            [isSubmitting]="isSubmitting"
+            (submit)="onSubmit()">
+          </app-submit-button>
+        </form>
+
+        <!-- Form Validation Summary -->
+        <app-form-validation-summary
+          [form]="postForm">
+        </app-form-validation-summary>
     </div>
   </div>
 </div>
