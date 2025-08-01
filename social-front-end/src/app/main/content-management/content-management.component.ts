@@ -5,6 +5,7 @@ import {FormContainerComponent} from "../../shared/form-container/form-container
 import {ContentService, MotherPostDisplay} from "./content.service";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {NgForOf} from "@angular/common";
+import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.component";
 
 @Component({
   selector: 'app-content-management',
@@ -13,7 +14,8 @@ import {NgForOf} from "@angular/common";
     SelectResearchComponent,
     PostCardComponent,
     FormContainerComponent,
-    NgForOf
+    NgForOf,
+    PostSchedulingComponent
   ],
   templateUrl: './content-management.component.html',
   styleUrl: './content-management.component.css'

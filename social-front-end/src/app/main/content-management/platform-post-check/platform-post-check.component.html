@@ -1,0 +1,14 @@
+<div class="border border-zinc-500 rounded-3xl p-4 flex justify-between">
+  <div class="cont-box w-full flex gap-5 justify-start mt-2">
+    <div class="rounded-full w-[40px] h-[40px] bg-opacity-40 overflow-hidden">
+      <img width="40" [src]="associatedMedia" alt="{{ platform }}">
+    </div>
+    <div class="flex flex-col" style="letter-spacing: 1px">
+      <a href="{{linkToPlatform}}" class="text-md font-semibold">&#64;{{ pageTitle }}</a>
+      <p class="text-sm text-gray">{{ platform }}</p>
+    </div>
+  </div>
+  <span class="items-center flex gap-2">
+      <app-checkbox [checked]="status"></app-checkbox>
+  </span>
+</div>
