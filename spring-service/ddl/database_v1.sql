@@ -132,11 +132,12 @@ CREATE TABLE inbox_child(
                             FOREIGN KEY(id_im) REFERENCES inbox_mother(id_im)
 );
 
-CREATE TABLE category(
-                         id_category SERIAL,
-                         val TEXT NOT NULL,
-                         desc_ TEXT,
-                         PRIMARY KEY(id_category)
+CREATE TABLE category (
+    id_category SERIAL,
+    val TEXT NOT NULL,
+    desc_ TEXT,
+    embedding VECTOR(384),
+    PRIMARY KEY(id_category)
 );
 
 CREATE TABLE temporary_product(

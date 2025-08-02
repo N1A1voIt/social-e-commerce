@@ -32,3 +32,12 @@ social-front-end/src/environments/environment.ts
 spring-service/src/main/resources/firebase-account-service.json
 /.kiro
 spring-service/src/main/resources/application.properties
+data-analytics-service/.env
+/data-analytics-service/post_generator/__pycache__
+/data-analytics-service/post_generator/agent_core/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/category_extractor/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/category_extractor/tools/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/db_category_extractor/__pycache__
+/data-analytics-service/__pycache__
+/data-analytics-service/tokens/__pycache__
