@@ -88,7 +88,7 @@ public class FacebookPostSaver implements SavePostService{
                 PostChild child = new PostChild();
                 child.setPostUrl(postUrl);
                 child.setMediaUrl("https://www.facebook.com/" + mediaFbid.split("__SEP__")[0]);
-                child.setPlatformIdentifier("facebook");
+                child.setPlatformIdentifier(mediaFbid.split("__SEP__")[0]);
                 child.setDescription(mediaFbid.split("__SEP__")[1]);
                 child.setType("photo");
                 child.setIdSp(1L);

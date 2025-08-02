@@ -22,13 +22,14 @@ import {SubmitButtonComponent} from "./submit-button/submit-button.component";
 import {FormValidationSummaryComponent} from "./form-validation-summary/form-validation-summary.component";
 import {SupabaseService} from "../../../shared/supabase.service";
 import {PromptFormComponent} from "./prompt-form/prompt-form.component";
+import {javaHost} from "../../../../environments/environment";
 interface MediaDetail {
   imageUrl: string;
   message: string;
 }
 
 interface PostData {
-  pagesIds: { id: string; platform: string }[];
+  pagesIds: { pageId: string; platform: string }[];
   mediaDetails: MediaDetail[];
   mainMessage: string;
   idProducts: number[];
@@ -103,7 +104,9 @@ export class PostSchedulingComponent implements OnInit{
   async onSubmit(): Promise<void> {
     if (this.postForm.valid) {
       this.isSubmitting = true;
-
+      const header = {
+        'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+      };
       try {
         // Upload all media files first
         await this.uploadAllMedia();
@@ -112,13 +115,13 @@ export class PostSchedulingComponent implements OnInit{
         const postData = this.buildPostData();
         // If you need just id and platform from each page
         postData.pagesIds = Array.from(this.pagesIn.values()).map(page => ({
-          id: page.platformIdentifier, // or page.platformIdentifier
+          pageId: page.platformIdentifier, // or page.platformIdentifier
           platform: page.platform
         }));
         console.log('Post Data:', postData);
 
         // Replace with your actual API endpoint
-        this.http.post('/api/social-posts', postData).subscribe({
+        this.http.post(javaHost + '/api/posts/make-post', postData,{headers:header}).subscribe({
           next: (response) => {
             console.log('Post created successfully:', response);
             this.isSubmitting = false;
@@ -191,7 +194,7 @@ export class PostSchedulingComponent implements OnInit{
 
     return {
       pagesIds: [
-        { id: "757064984155341", platform: "facebook" }
+        { pageId: "757064984155341", platform: "facebook" }
       ],
       mediaDetails: formValue.mediaDetails.map((media: any) => ({
         imageUrl: media.imageUrl,

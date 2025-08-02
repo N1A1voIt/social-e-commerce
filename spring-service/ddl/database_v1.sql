@@ -494,7 +494,7 @@ CREATE VIEW v_post_child_media AS
         LEFT JOIN medias m on post_childs.id_child = m.id_child
         JOIN posts p on post_childs.id_post = p.id_post
         JOIN supported_platforms_v2 s on post_childs.id_sp = s.id_sp
-        JOIN managed_pages mp on s.id_sp = mp.id_sp;
+        JOIN managed_pages mp on s.id_sp = mp.id_sp ORDER BY post_childs.id_child, type;
 
 
 -- Electronics & Technology
