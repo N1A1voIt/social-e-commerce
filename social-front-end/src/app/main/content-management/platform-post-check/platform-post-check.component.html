@@ -1,4 +1,4 @@
-<div class="border border-zinc-500 rounded-3xl p-4 flex justify-between">
+<div class="border border-zinc-500 rounded-3xl p-4 flex justify-between" (click)="updateStatus()"  >
   <div class="cont-box w-full flex gap-5 justify-start mt-2">
     <div class="rounded-full w-[40px] h-[40px] bg-opacity-40 overflow-hidden">
       <img width="40" [src]="associatedMedia" alt="{{ platform }}">
@@ -8,7 +8,7 @@
       <p class="text-sm text-gray">{{ platform }}</p>
     </div>
   </div>
-  <span class="items-center flex gap-2">
-      <app-checkbox [checked]="state" (click)="updateStatus()"></app-checkbox>
+  <span class="items-center flex gap-2" >
+      <app-checkbox [checked]="state"></app-checkbox>
   </span>
 </div>
