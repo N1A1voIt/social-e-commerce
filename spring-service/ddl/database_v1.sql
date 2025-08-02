@@ -448,6 +448,16 @@ CREATE TABLE deliveries_state(
      FOREIGN KEY(id_status) REFERENCES delivery_status_v2(id_status)
 );
 
+CREATE TABLE linked_products(
+    id_lp SERIAL,
+    id_product INTEGER NOT NULL,
+    id_post INTEGER NOT NULL,
+    PRIMARY KEY(id_lp),
+    FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+    FOREIGN KEY(id_post) REFERENCES posts(id_post)
+);
+
+
 SELECT * FROM pat_refresh_tokens;
 
 CREATE VIEW v_managed_accounts AS

@@ -6,13 +6,22 @@ import {PlatformRowComponent} from "../../settings/managed-account/platform-row/
 import {PlatformPostCheckComponent} from "../platform-post-check/platform-post-check.component";
 import {Product} from "../../products/products.types";
 import {ProductRowComponent} from "../product-row/product-row.component";
-import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 import {MainMessageComponent} from "./main-message/main-message.component";
 import {MediaDetailsContainerComponent} from "./media-details-container/media-details-container.component";
 import {SubmitButtonComponent} from "./submit-button/submit-button.component";
 import {FormValidationSummaryComponent} from "./form-validation-summary/form-validation-summary.component";
 import {SupabaseService} from "../../../shared/supabase.service";
+import {PromptFormComponent} from "./prompt-form/prompt-form.component";
 interface MediaDetail {
   imageUrl: string;
   message: string;
@@ -38,7 +47,9 @@ interface PostData {
     MainMessageComponent,
     MediaDetailsContainerComponent,
     SubmitButtonComponent,
-    FormValidationSummaryComponent
+    FormValidationSummaryComponent,
+    FormsModule,
+    PromptFormComponent
   ],
   templateUrl: './post-scheduling.component.html',
   styleUrl: './post-scheduling.component.css'
@@ -99,6 +110,11 @@ export class PostSchedulingComponent implements OnInit{
 
         // Build and submit post data with the uploaded URLs
         const postData = this.buildPostData();
+        // If you need just id and platform from each page
+        postData.pagesIds = Array.from(this.pagesIn.values()).map(page => ({
+          id: page.platformIdentifier, // or page.platformIdentifier
+          platform: page.platform
+        }));
         console.log('Post Data:', postData);
 
         // Replace with your actual API endpoint

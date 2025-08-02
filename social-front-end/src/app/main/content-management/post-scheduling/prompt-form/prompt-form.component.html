@@ -1,0 +1,108 @@
+<div class="w-full max-w-4xl relative bottom-0" [@containerAnimation]="showForm ? 'expanded' : 'collapsed'">
+  <!-- Original Button Bar -->
+  <div class="flex gap-3 items-end w-full p-4 font-mono px-8"
+       *ngIf="!showForm">
+    <div class="flex gap-3 items-center w-full">
+      <button class="p-2 px-4 border border-black text-black rounded-full hover:bg-gray-100 transition-colors"
+              (click)="updateStep('platforms')">
+        Platforms
+      </button>
+      <button class="p-2 px-4 border border-black text-black rounded-full hover:bg-gray-100 transition-colors"
+              (click)="updateStep('products')">
+        Products
+      </button>
+    </div>
+    <button class="p-2 w-[40px] h-[40px] bg-amber-600 text-fotsy font-bold text-xl rounded-full flex justify-center items-center hover:bg-amber-700 transition-colors transform hover:scale-105"
+            (click)="toggleForm()">
+      <i class="pi pi-sparkles"></i>
+    </button>
+  </div>
+
+  <!-- Animated Form (Claude-like) -->
+  <div *ngIf="showForm"
+       class=" h-[425px] bg-transparent border border-gray-200 rounded-2xl shadow-lg"
+       [@formAnimation]="'visible'">
+
+    <!-- Form Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-100"
+         [@slideDown]="'visible'">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+          <i class="pi pi-sparkles text-white text-sm"></i>
+        </div>
+        <h3 class="font-semibold text-gray-800">Describe your post</h3>
+      </div>
+      <button (click)="toggleForm()"
+              class="text-gray-400 hover:text-gray-600 transition-colors">
+        <i class="pi pi-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Form Content -->
+    <div class="p-6 space-y-4" [@staggeredItems]="'visible'">
+
+      <!-- Platform Selection (transformed from original buttons) -->
+      <div class="space-y-3">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Select Platform
+        </label>
+        <div class="flex gap-2 flex-wrap">
+          <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:border-amber-500 hover:bg-amber-50 transition-all duration-200"
+                  [class.border-amber-500]="step === 'platforms'"
+                  [class.bg-amber-50]="step === 'platforms'"
+                  (click)="updateStep('platforms')">
+            <i class="pi pi-desktop text-xs mr-2"></i>
+            Platforms
+          </button>
+          <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:border-amber-500 hover:bg-amber-50 transition-all duration-200"
+                  [class.border-amber-500]="step === 'products'"
+                  [class.bg-amber-50]="step === 'products'"
+                  (click)="updateStep('products')">
+            <i class="pi pi-box text-xs mr-2"></i>
+            Products
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Prompt Area -->
+      <div class="space-y-3">
+        <label class="block text-sm font-medium text-gray-700">
+          What would you like to post?
+        </label>
+        <div class="relative">
+              <textarea
+                [(ngModel)]="promptText"
+                class="w-full min-h-[120px] p-4 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                placeholder="Describe how do you want your post to be"
+              >
+              </textarea>
+
+          <!-- Character count -->
+          <div class="absolute bottom-3 right-3 text-xs text-gray-400">
+            {{promptText.length}}/2000
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Options -->
+      <div class="flex items-center justify-between pt-2">
+        <div class="flex items-center gap-4 text-sm text-gray-600">
+
+        </div>
+
+        <div class="flex gap-2">
+          <button (click)="clearForm()"
+                  class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors">
+            Clear
+          </button>
+          <button (click)="submitPrompt()"
+                  [disabled]="!promptText.trim()"
+                  class="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium flex items-center gap-2">
+            <i class="pi pi-send text-xs"></i>
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

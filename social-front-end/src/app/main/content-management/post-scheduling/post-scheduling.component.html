@@ -1,8 +1,10 @@
 <div class="absolute top-0 right-0 bg-opacity-30 flex justify-center items-center backdrop-blur bg-principal w-full h-full overflow-hidden">
   <div class=" h-[90%] xl:w-[90%] shadow-xl bg-principal top-0 right-0 rounded-3xl z-20 grid grid-cols-2 gap-2">
-    <div class="col-span-1">
-      <div class="h-[90%] overflow-y-scroll hide-scrollbar">
-        <div class="prodile-and-products  flex flex-col gap-2 w-full p-4" *ngIf="step==='platforms'">
+    <!-- Parent column: full height + vertical flex layout -->
+    <div class="col-span-1 h-full flex flex-col">
+      <!-- Scrollable area that adapts to prompt height -->
+      <div class="overflow-y-auto hide-scrollbar" style="flex: 1 1 auto;">
+        <div *ngIf="step === 'platforms'" class="prodile-and-products flex flex-col gap-2 w-full p-4">
           <span class="text-xl font-bold font-mono">Choose on which platform you want to post</span>
           <app-platform-post-check
             *ngFor="let page of pages"
@@ -10,23 +12,26 @@
             [pageTitle]="page.pageTitle"
             [username]="page.username"
             [logo]="page.platform"
+            [status]="pagesIn.has(page.platformIdentifier)"
             [associatedMedia]="page.associatedMedia"
             [linkToPlatform]="page.linkToPlatform"
             (statusChange)="updateStatus(page)"
           ></app-platform-post-check>
         </div>
-        <div class="post-form flex flex-col gap-2 w-full p-4" *ngIf="step==='products'">
+
+        <div *ngIf="step === 'products'" class="post-form flex flex-col gap-2 w-full p-4">
           <span class="text-xl font-bold font-mono">If you want to attach some products, you can do it here</span>
           <app-product-row *ngFor="let product of products" [product]="product"></app-product-row>
         </div>
       </div>
-      <div class="h-[10%]">
-        <div class="flex justify-around items-end w-full p-4 font-mono">
-          <button class="p-2 px-4 bg-green-400 text-white rounded-full" (click)="step='platforms'">Platforms</button>
-          <button class="p-2 px-4 bg-green-400 text-white rounded-full" (click)="step='products'">Products</button>
-        </div>
+
+      <!-- Prompt bar stays at bottom and resizes -->
+      <div class="shrink-0 border-gray-200 font-mono">
+        <app-prompt-form [(step)]="step" [products]="products"></app-prompt-form>
       </div>
     </div>
+
+
     <div class="col-span-1 overflow-y-scroll hide-scrollbar font-mono p-4">
         <div class="mb-1">
           <h1 class="text-2xl font-bold text-gray-900 mb-2">Create Social Media Post</h1>

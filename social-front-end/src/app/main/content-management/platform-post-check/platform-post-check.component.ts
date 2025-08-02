@@ -15,7 +15,7 @@ export class PlatformPostCheckComponent {
   @Input() pageTitle!: string;
   @Input() username!: string;
   @Input() logo!: string;
-  status: boolean = false;
+  @Input() status: boolean = false;
   @Input() associatedMedia!: string;
   @Input() linkToPlatform!: string;
   @Input() id!: string;
