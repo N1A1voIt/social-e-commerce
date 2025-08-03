@@ -10,6 +10,7 @@ from sympy import content
 
 from post_generator.agent_core.agent import agent, root_agent
 from tokens.TokenV2Repository import TokenV2Repository
+from utils.query_modifier import QueryPayload
 
 app = FastAPI()
 load_dotenv()
@@ -17,9 +18,10 @@ load_dotenv()
 
 @app.post("/")
 async def create_post(
-        query: str,
+        query_payload: QueryPayload,
         authorization: Optional[str] = Header(None)  # Accepts the Authorization header
 ):
+    query = query_payload.query
     if not authorization:
         raise HTTPException(
             status_code=401,
@@ -37,7 +39,9 @@ async def create_post(
 
     SESSION_ID = str(uuid.uuid4())
     session_service = InMemorySessionService()
-    session = await session_service.create_session(app_name="SOCIALPOST", user_id=str(user_id), session_id=SESSION_ID)
+    session = await session_service.create_session(app_name="SOCIALPOST", user_id=str(user_id), session_id=SESSION_ID,state={"authorization_token": authorization})
+    # session.state['authorization_token'] = authorization
+    # await session_service.c(session)
     runner = Runner(agent=root_agent, app_name="SOCIALPOST", session_service=session_service)
 
     def call_agent(query: str):
@@ -49,7 +53,7 @@ async def create_post(
             if event.is_final_response():
                 returned = event.content.parts[0].text
         return returned
-
+#    await session_service.delete_session(session_id=SESSION_ID)
     return call_agent(query=query)
 
 @app.get("/hello/{name}")

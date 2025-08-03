@@ -9,7 +9,7 @@ class TokenV2Repository:
         self.Session = SessionLocal
 
     def find_user_id_by_token(self,token: str) -> Optional[int]:
-        found_token = self.Session.query(TokenV2).filter(TokenV2.token == token).first()
+        found_token = self.Session().query(TokenV2).filter(TokenV2.token == token).first()
         if found_token:
             return found_token.user_id
         return None

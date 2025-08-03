@@ -24,6 +24,13 @@ class PostGeneratorAgent(BaseAgent):
 
     @override
     async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        auth_token = ctx.session.state.get('authorization_token')
+
+        if not auth_token:
+            logger.error("Authorization token not found in session state!")
+            # Handle the error appropriately
+            return
+        logger.info("Authorization token found in session state!")
 
         # First call to category_extactor
         async for event in self.category_extactor.run_async(ctx):
