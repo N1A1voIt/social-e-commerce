@@ -80,7 +80,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * 
      * @param productId the ID of the product
      * @param sellerId the ID of the seller
-     * @return true if the product exists and is owned by the seller, false otherwise
+     * @return true if the product exists and is owned by the seller, false otherwisepublic
      * 
      * Requirement 6.1: WHEN any product operation is performed THEN the system SHALL validate seller ownership
      */

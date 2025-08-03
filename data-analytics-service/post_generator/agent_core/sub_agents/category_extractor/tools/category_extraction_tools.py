@@ -87,8 +87,6 @@ class VectorSearchEngine:
             categories = json_str.replace("```json", "").replace("```", "").strip()
             json_categories = json.loads(categories)
             categories_list = json_categories
-            print("TYPY:"+str(type(categories_list)))
-            print(categories_list)
             return self.search(categories_list)
         except (json.JSONDecodeError, KeyError) as e:
             raise ValueError(f"Invalid JSON format or missing 'categories' key: {e}")

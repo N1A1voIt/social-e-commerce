@@ -7,6 +7,7 @@ import logging
 from post_generator.agent_core.sub_agents.category_extractor.agent import category_extractor_agent
 
 from post_generator.agent_core.sub_agents.db_category_extractor.agent import db_extractor_agent
+from post_generator.agent_core.sub_agents.product_extractors.agent import product_extractor_agent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,12 +15,13 @@ logger = logging.getLogger(__name__)
 class PostGeneratorAgent(BaseAgent):
     category_extactor: LlmAgent
     db_extractor: LlmAgent
-
-    def __init__(self, name,category_extactor: LlmAgent,db_extractor: LlmAgent):
+    product_extractor_agent:LlmAgent
+    def __init__(self, name,category_extactor: LlmAgent,db_extractor: LlmAgent,product_extractor_agent:LlmAgent):
         super().__init__(
             name=name,
             category_extactor=category_extactor,
-            db_extractor=db_extractor
+            db_extractor=db_extractor,
+            product_extractor_agent = product_extractor_agent
         )
 
     @override
@@ -55,6 +57,16 @@ class PostGeneratorAgent(BaseAgent):
 
         if db_category_output is None:
             return
+
+        async for event in self.product_extractor_agent.run_async(ctx):
+            logger.info(f"[{self.name}] - {event.model_dump_json(indent=2, exclude_none=True)}")
+            yield event
+
+        extracted_products_v2 = ctx.session.state['extracted_products_v2']
+        logger.info(f"[{self.name}] - {extracted_products_v2}")
+
+        if extracted_products_v2 is None:
+            return
         #
         # # query review rewrite agent call
         # async for event in self.query_review_rewrite_agent.run_async(ctx):
@@ -82,5 +94,5 @@ class PostGeneratorAgent(BaseAgent):
         # if query_execution_output is None:
         #     return
 
-agent = PostGeneratorAgent(name="Agent",category_extactor=category_extractor_agent,db_extractor=db_extractor_agent)
+agent = PostGeneratorAgent(name="Agent",category_extactor=category_extractor_agent,db_extractor=db_extractor_agent,product_extractor_agent=product_extractor_agent)
 root_agent = agent

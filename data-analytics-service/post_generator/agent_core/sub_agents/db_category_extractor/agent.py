@@ -8,13 +8,15 @@ from post_generator.agent_core.sub_agents.db_category_extractor.prompt import DB
 
 def extract_from_db(json:str) :
     vse = VectorSearchEngine()
-    return vse.search_from_json(json)
+    result = vse.search_from_json(json)
+    print("RESULTA:"+str(result))
+    return result
 
 db_extractor_agent = LlmAgent(
     name="db_extractor_agent",
     model="gemini-2.0-flash-001",
-    instruction="You're an agent in charge of extracting categories id from a given array from the database.",
+    instruction="You're a tool using agent in charge of extracting categories id from a given array from the database.",
+    tools=[extract_from_db],
     description=DB_EXTRACTION_PROMPT,
-    output_key="db_category_output",
-    tools=[extract_from_db]
+    output_key="db_category_output"
 )
