@@ -79,16 +79,18 @@ CREATE TABLE post_childs(
                             FOREIGN KEY(id_post) REFERENCES posts(id_post)
 );
 
-
 CREATE TABLE potential_customers_v2(
                                        id_pc TEXT,
                                        name TEXT NOT NULL,
                                        link_to_profile TEXT,
                                        d_platform VARCHAR(50) ,
+                                       identifier_on_platform VARCHAR(50)  NOT NULL,
+                                       media_url TEXT,
                                        id_sp INTEGER NOT NULL,
                                        PRIMARY KEY(id_pc),
                                        FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp)
 );
+
 CREATE TABLE likes_history(
                               id_lh SERIAL,
                               created_at TIMESTAMP NOT NULL,
@@ -110,26 +112,31 @@ CREATE TABLE comments_v2(
                             FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
 );
 
-CREATE TABLE inbox_mother(
-                             id_im SERIAL,
-                             id_seller INTEGER NOT NULL,
-                             id_pc TEXT NOT NULL,
-                             PRIMARY KEY(id_im),
-                             FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+CREATE TABLE inbox(
+                      id_im SERIAL,
+                      id_mp INTEGER NOT NULL,
+                      PRIMARY KEY(id_im),
+                      FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
-CREATE TABLE inbox_child(
-                            id_ic VARCHAR(50) ,
-                            message TEXT NOT NULL,
-                            media TEXT,
-                            id_pc TEXT NOT NULL,
-                            id_seller INTEGER NOT NULL,
-                            id_im INTEGER NOT NULL,
-                            PRIMARY KEY(id_ic),
-                            FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
-                            FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                            FOREIGN KEY(id_im) REFERENCES inbox_mother(id_im)
+CREATE TABLE message_mother(
+                               id_mm SERIAL,
+                               id_pc TEXT NOT NULL,
+                               id_mp INTEGER NOT NULL,
+                               id_im INTEGER NOT NULL,
+                               PRIMARY KEY(id_mm),
+                               FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                               FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+                               FOREIGN KEY(id_im) REFERENCES inbox(id_im)
+);
+
+CREATE TABLE message_child(
+                              id_mc SERIAL,
+                              message TEXT NOT NULL,
+                              from_platform BOOLEAN NOT NULL,
+                              id_mm INTEGER NOT NULL,
+                              PRIMARY KEY(id_mc),
+                              FOREIGN KEY(id_mm) REFERENCES message_mother(id_mm)
 );
 
 CREATE TABLE category (
