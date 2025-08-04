@@ -3,6 +3,8 @@ import {NgIf} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {animate, query, stagger, state, style, transition, trigger} from "@angular/animations";
 import {Product} from "../../../products/products.types";
+import {HttpClient} from "@angular/common/http";
+import {pythonHost} from "../../../../../environments/environment";
 @Component({
   selector: 'app-prompt-form',
   standalone: true,
@@ -67,10 +69,15 @@ export class PromptFormComponent {
   @Input() step: string = 'platforms';
   @Input() products: Product[] = [];
   @Output() stepChange = new EventEmitter<string>();
-
+  @Input() loading:boolean = false;
+  @Input() parsedJson:any;
+  @Output() loadingChange = new EventEmitter<boolean>();
+  @Output() formValueChange = new EventEmitter<any>();
   showForm: boolean = false;
   promptText: string = '';
   includeContext: boolean = false;
+
+  constructor(private http: HttpClient) {}
 
   updateStep(newStep: string) {
     this.step = newStep;
@@ -90,16 +97,34 @@ export class PromptFormComponent {
   }
 
   submitPrompt() {
-    if (this.promptText.trim()) {
-      console.log('Submitting prompt:', {
-        text: this.promptText,
-        step: this.step,
-        includeContext: this.includeContext
-      });
-      // Add your submission logic here
-      this.clearForm();
-      this.showForm = false;
-    }
+    const headers = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    this.loading = true;
+    this.loadingChange.emit(this.loading);
+    this.http.post<string>(pythonHost + '/generate-post', { query: this.promptText },{headers:headers}).subscribe({
+      next: (response) => {
+        try {
+          const jsonString = response.replace(/^```json\s*|\s*```$/g, '');
+          const parsedResponse = JSON.parse(jsonString);
+          this.loading = false;
+          this.parsedJson = parsedResponse;
+          this.loadingChange.emit(this.loading);
+          this.formValueChange.emit(parsedResponse);
+        } catch (error) {
+          console.error('Error parsing response:error'+error);
+          alert('AI is not perfect, try again!');
+          this.loading = false;
+          this.loadingChange.emit(this.loading);
+        }
+      },
+      error: (error) => {
+        console.error('Error submitting prompt:', error);
+        alert('AI is not perfect, try again!');
+        // ... existing error handling ...
+      }
+    });
+
   }
 
   onEnterKey(event: KeyboardEvent) {

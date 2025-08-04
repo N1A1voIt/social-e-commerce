@@ -4,7 +4,7 @@ import {PostCardComponent} from "./post-card/post-card.component";
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {ContentService, MotherPostDisplay} from "./content.service";
 import {error} from "@angular/compiler-cli/src/transformers/util";
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.component";
 
 @Component({
@@ -15,13 +15,15 @@ import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.compone
     PostCardComponent,
     FormContainerComponent,
     NgForOf,
-    PostSchedulingComponent
+    PostSchedulingComponent,
+    NgIf
   ],
   templateUrl: './content-management.component.html',
   styleUrl: './content-management.component.css'
 })
 export class ContentManagementComponent implements OnInit{
   posts : MotherPostDisplay[] = [];
+  showForm = false;
   constructor(private contentService: ContentService) { }
 
   ngOnInit(): void {

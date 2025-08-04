@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ContentService} from "../content.service";
 import {ManagedPageCPL} from "../../settings/account-details/account-details.component";
 import {JsonPipe, NgForOf, NgIf} from "@angular/common";
@@ -63,9 +63,21 @@ export class PostSchedulingComponent implements OnInit{
   isSubmitting = false;
   pagesIn : Map<string,ManagedPageCPL> = new Map();
 
+  @Input() showForm: boolean = false;
+  @Output() showFormChange = new EventEmitter<boolean>();
+  loading = false;
+
+  onLoadingChange(newValue: boolean) {
+    this.loading = newValue;
+  }
+  onShowFormChange(newValue: boolean) {
+    this.showForm = newValue;
+    this.showFormChange.emit(this.showForm);
+  }
+
   uploadError = '';
   constructor(private postService: ContentService ,private fb: FormBuilder,
-              private http: HttpClient,private supabaseService:SupabaseService
+              private http: HttpClient,private supabaseService:SupabaseService,private cdr: ChangeDetectorRef
   ) {
     this.postForm = this.createForm();
   }
@@ -228,6 +240,27 @@ export class PostSchedulingComponent implements OnInit{
       console.log(`Added: ${key}`);
     }
     console.log('Current pagesIn:', Array.from(this.pagesIn.entries()));
+  }
+
+
+  populateForm(parsed: any) {
+    this.mainMessageControl.setValue(parsed.mainMessage);
+
+    // Clear existing mediaDetails
+    this.mediaDetailsArray.clear();
+
+    // Add media details from response
+    parsed.mediaDetails.forEach((mediaItem: any) => {
+      const mediaGroup = this.fb.group({
+        imageUrl: [mediaItem.imageUrl],
+        message: [mediaItem.message, [Validators.maxLength(200)]],
+        previewUrl: [mediaItem.imageUrl],  // Optional: used for previews
+        selectedFile: [null],              // No file, it's already uploaded
+        isUploading: [false]
+      });
+      this.mediaDetailsArray.push(mediaGroup);
+    });
+    this.cdr.detectChanges()
   }
 
 

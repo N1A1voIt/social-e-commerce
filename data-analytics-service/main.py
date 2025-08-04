@@ -7,6 +7,7 @@ from google.adk import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from sentence_transformers import SentenceTransformer
+from starlette.middleware.cors import CORSMiddleware
 from sympy import content
 
 from post_generator.agent_core.agent import agent, root_agent
@@ -15,7 +16,15 @@ from utils.query_modifier import QueryPayload
 
 app = FastAPI()
 load_dotenv()
-@app.post("/")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],  # or ["*"] for dev
+    allow_credentials=True,
+    allow_methods=["*"],  # Or ["GET", "POST", "OPTIONS"]
+    allow_headers=["*"],  # You can restrict this if needed
+)
+@app.post("/generate-post")
 async def create_post(
         query_payload: QueryPayload,
         authorization: Optional[str] = Header(None)  # Accepts the Authorization header
