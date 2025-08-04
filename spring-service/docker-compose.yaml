@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   springboot-war:
     build: .
@@ -7,10 +9,15 @@ services:
       - .env
     ports:
       - "8086:8086"
+
   postgres:
-    image: postgres:14
+    build:
+      context: ./pgvector-db
+      dockerfile: Dockerfile.pgvector
     restart: on-failure
     container_name: ${DOCKER_CONTAINER}
+    volumes:
+      - ./init-db:/docker-entrypoint-init-db.d
     env_file:
       - .env
     environment:

@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
+import java.time.LocalDateTime;
+
 @Immutable
 @Entity
 @Getter
@@ -44,4 +46,17 @@ public class ManagedPageCPL {
 
     @Column(name = "username")
     private String username;
+
+    @Column(name = "access_token")
+    private String accessToken;
+
+    @Column(name = "token")
+    private String refreshToken;
+
+    @Column(name = "acctoken_expiration")
+    private LocalDateTime accessTokenExpiration;
+
+    @Column(name = "reftoken_expiration")
+    private LocalDateTime refreshTokenExpiration;
+
 }

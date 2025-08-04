@@ -4,16 +4,19 @@
   </div>
   <div class="p-3 flex flex-col gap-2 h-1/2">
     <div class="w-full rounded-3xl">
-      <span class="bg-orange text-orange text-sm bg-opacity-20 rounded-md  p-1 px-2" style="letter-spacing: 1px">
+      <span class="bg-orange text-orange text-sm bg-opacity-20 rounded-md  p-1 px-2" style="letter-spacing: 1px" *ngIf="post.scheduled">
         Scheduled
+      </span>
+      <span class="bg-green-500 text-green-500 text-sm bg-opacity-20 rounded-md  p-1 px-2" style="letter-spacing: 1px" *ngIf="!post.scheduled">
+        Posted
       </span>
     </div>
     <div class="flex flex-col gap-3 items-start h-1/2 ">
-      <h1 class="text-xl font-bold font-mono">Post Numero 101 : Strategies for better</h1>
+      <h1 class="text-xl font-bold font-mono">{{post.title}}</h1>
     </div>
     <div class="flex items-start w-full justify-start text-sm font-mono text-zinc-500">
-      <span>Scheduled on 12 Jun</span>
-
+      <span *ngIf="post.scheduled">Scheduled on {{ post.creationDate | date: 'dd/MM/yyyy' }}</span>
+      <span *ngIf="!post.scheduled">Posted on {{ post.creationDate | date: 'dd/MM/yyyy' }}</span>
     </div>
   </div>
 

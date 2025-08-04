@@ -52,21 +52,31 @@ CREATE TABLE platform_status(
 );
 INSERT INTO platform_status (status_labem) VALUES ('active');
 INSERT INTO platform_status (status_labem) VALUES ('inactive');
+
 CREATE TABLE posts(
                       id_post SERIAL,
                       type VARCHAR(50) ,
-                      platform_post_identifier TEXT NOT NULL,
-                      associated_media TEXT,
-                      message TEXT,
-                      d_platform VARCHAR(50) ,
-                      id_post_1 INTEGER NOT NULL,
+                      create_at TIMESTAMP NOT NULL,
                       id_seller INTEGER NOT NULL,
-                      id_sp INTEGER NOT NULL,
                       PRIMARY KEY(id_post),
-                      UNIQUE(platform_post_identifier),
-                      FOREIGN KEY(id_post_1) REFERENCES posts(id_post),
-                      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                      FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp)
+                      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE post_childs(
+                            id_child SERIAL,
+                            post_url TEXT NOT NULL,
+                            media_url TEXT,
+                            description TEXT,
+                            platform_identifier TEXT NOT NULL,
+                            type TEXT,
+                            id_sp INTEGER NOT NULL,
+                            id_child_1 INTEGER,
+                            id_post INTEGER NOT NULL,
+                            PRIMARY KEY(id_child),
+                            UNIQUE(platform_identifier),
+                            FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
+                            FOREIGN KEY(id_child_1) REFERENCES post_childs(id_child),
+                            FOREIGN KEY(id_post) REFERENCES posts(id_post)
 );
 
 CREATE TABLE potential_customers_v2(
@@ -74,9 +84,22 @@ CREATE TABLE potential_customers_v2(
                                        name TEXT NOT NULL,
                                        link_to_profile TEXT,
                                        d_platform VARCHAR(50) ,
+                                       identifier_on_platform VARCHAR(50)  NOT NULL,
+                                       media_url TEXT,
                                        id_sp INTEGER NOT NULL,
                                        PRIMARY KEY(id_pc),
                                        FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp)
+);
+
+CREATE TABLE likes_history(
+                              id_lh SERIAL,
+                              created_at TIMESTAMP NOT NULL,
+                              deleted BOOLEAN,
+                              id_child INTEGER,
+                              id_pc TEXT NOT NULL,
+                              PRIMARY KEY(id_lh),
+                              FOREIGN KEY(id_child) REFERENCES post_childs(id_child),
+                              FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
 
 CREATE TABLE comments_v2(
@@ -84,38 +107,44 @@ CREATE TABLE comments_v2(
                             message TEXT NOT NULL,
                             created_at TIMESTAMP NOT NULL,
                             deleted BOOLEAN,
-                            id_post INTEGER NOT NULL,
+                            id_child INTEGER NOT NULL,
                             PRIMARY KEY(id_comment),
-                            FOREIGN KEY(id_post) REFERENCES posts(id_post)
+                            FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
 );
 
-CREATE TABLE inbox_mother(
-                             id_im SERIAL,
-                             id_seller INTEGER NOT NULL,
-                             id_pc TEXT NOT NULL,
-                             PRIMARY KEY(id_im),
-                             FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+CREATE TABLE inbox(
+                      id_im SERIAL,
+                      id_mp INTEGER NOT NULL,
+                      PRIMARY KEY(id_im),
+                      FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
-CREATE TABLE inbox_child(
-                            id_ic VARCHAR(50) ,
-                            message TEXT NOT NULL,
-                            media TEXT,
-                            id_pc TEXT NOT NULL,
-                            id_seller INTEGER NOT NULL,
-                            id_im INTEGER NOT NULL,
-                            PRIMARY KEY(id_ic),
-                            FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
-                            FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                            FOREIGN KEY(id_im) REFERENCES inbox_mother(id_im)
+CREATE TABLE message_mother(
+                               id_mm SERIAL,
+                               id_pc TEXT NOT NULL,
+                               id_mp INTEGER NOT NULL,
+                               id_im INTEGER NOT NULL,
+                               PRIMARY KEY(id_mm),
+                               FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                               FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+                               FOREIGN KEY(id_im) REFERENCES inbox(id_im)
 );
 
-CREATE TABLE category(
-                         id_category SERIAL,
-                         val TEXT NOT NULL,
-                         desc_ TEXT,
-                         PRIMARY KEY(id_category)
+CREATE TABLE message_child(
+                              id_mc SERIAL,
+                              message TEXT NOT NULL,
+                              from_platform BOOLEAN NOT NULL,
+                              id_mm INTEGER NOT NULL,
+                              PRIMARY KEY(id_mc),
+                              FOREIGN KEY(id_mm) REFERENCES message_mother(id_mm)
+);
+
+CREATE TABLE category (
+    id_category SERIAL,
+    val TEXT NOT NULL,
+    desc_ TEXT,
+    embedding VECTOR(384),
+    PRIMARY KEY(id_category)
 );
 
 CREATE TABLE temporary_product(
@@ -329,6 +358,7 @@ CREATE TABLE pat_refresh_tokens(
        FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
+
 CREATE TABLE pat_access_tokens(
    id_pat SERIAL,
    access_token TEXT NOT NULL,
@@ -337,6 +367,14 @@ CREATE TABLE pat_access_tokens(
    id_prt INTEGER NOT NULL,
    PRIMARY KEY(id_pat),
    FOREIGN KEY(id_prt) REFERENCES pat_refresh_tokens(id_prt)
+);
+
+CREATE TABLE medias(
+                       id SERIAL,
+                       media_url TEXT NOT NULL,
+                       id_child INTEGER NOT NULL,
+                       PRIMARY KEY(id),
+                       FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
 );
 
 CREATE TABLE likes_history(
@@ -418,12 +456,53 @@ CREATE TABLE deliveries_state(
      FOREIGN KEY(id_status) REFERENCES delivery_status_v2(id_status)
 );
 
+CREATE TABLE linked_products(
+    id_lp SERIAL,
+    id_product INTEGER NOT NULL,
+    id_post INTEGER NOT NULL,
+    PRIMARY KEY(id_lp),
+    FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+    FOREIGN KEY(id_post) REFERENCES posts(id_post)
+);
+
+
 SELECT * FROM pat_refresh_tokens;
 
 CREATE VIEW v_managed_accounts AS
-SELECT id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username FROM managed_pages
+WITH max_accesstoken AS (
+    SELECT id_pat, access_token, expired_at, MAX(created_at), id_prt FROM pat_access_tokens group by id_pat
+), max_refreshtoken AS (
+    SELECT id_prt, token, expired_at, MAX(created_at),revoked,id_mp FROM pat_refresh_tokens group by id_prt
+) , max_tokens AS (
+    SELECT id_pat, access_token, max_accesstoken.expired_at as acctoken_expiration,max_refreshtoken.expired_at as reftoken_expiration, max_refreshtoken.id_prt, token, revoked, id_mp FROM max_accesstoken
+    RIGHT JOIN max_refreshtoken ON max_accesstoken.id_prt = max_refreshtoken.id_prt
+)
+SELECT max_tokens.id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username
+,access_token,acctoken_expiration,reftoken_expiration,token, revoked
+FROM managed_pages
                   JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
-                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller;
+                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller
+                  JOIN max_tokens ON managed_pages.id_mp = max_tokens.id_mp
+;
+
+CREATE VIEW v_refresh_token_holder AS
+    SELECT row_number() over (order by 1) as id, managed_pages.*,s.email,pat_refresh_tokens.token FROM seller_v2 as s
+        JOIN pat_refresh_tokens
+        JOIN managed_pages
+            ON pat_refresh_tokens.id_mp = managed_pages.id_mp
+            ON s.id_seller = managed_pages.id_seller
+        WHERE pat_refresh_tokens.revoked = false;
+
+
+CREATE VIEW v_post_child_media AS
+    SELECT row_number() over (partition by 1) as id,post_childs.id_child,
+           post_childs.media_url as main_media_url,description,mp.platform_identifier,post_childs.type,s.id_sp,s.label as supported_platform,
+           id_child_1,p.id_post,p.id_seller,m.media_url as additional_media,mp.page_title,mp.associated_media
+    FROM post_childs
+        LEFT JOIN medias m on post_childs.id_child = m.id_child
+        JOIN posts p on post_childs.id_post = p.id_post
+        JOIN supported_platforms_v2 s on post_childs.id_sp = s.id_sp
+        JOIN managed_pages mp on s.id_sp = mp.id_sp ORDER BY post_childs.id_child, type;
 
 
 -- Electronics & Technology

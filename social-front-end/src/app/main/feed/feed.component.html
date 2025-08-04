@@ -1,30 +1,83 @@
 <div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
   <div class="w-full lg:col-span-3 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
-    <div class="md:hidden w-full p-2 px-4 border rounded-xl flex gap-2 cursor-pointer bg-fotsy">
-      <div class="w-[50px] h-[50px] bg-red-100 top-[50px] left-[20px] rounded-full border-fotsy border-2 overflow-hidden">
-        <img src="assets/imgs/gustavo.jpeg" width="50" alt="">
+    <!-- posts-feed.component.html -->
+    <div class="w-full lg:col-span-3 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
+      <!-- Create Post Section -->
+      <div class="md:hidden w-full p-2 px-4 border rounded-xl flex gap-2 cursor-pointer bg-fotsy">
+        <div class="w-[50px] h-[50px] bg-red-100 top-[50px] left-[20px] rounded-full border-fotsy border-2 overflow-hidden">
+          <img src="assets/imgs/gustavo.jpeg" width="50" alt="">
+        </div>
+        <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-white">
+          <span>Create a post</span>
+        </div>
       </div>
-      <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-white">
-        <span>Create a post</span>
+
+      <!-- Posts Loop -->
+      <div *ngFor="let post of posts" class="w-full h-auto lg:rounded-xl border-b pb-2 border-zinc-400 bg-fotsy lg:p-6 p-0">
+
+        <!-- Post Header -->
+        <div class="w-full h-auto flex justify-between items-center gap-4 mb-4">
+          <div class="w-full h-auto flex items-center gap-4 font-bold" style="letter-spacing: 1px">
+            <div class="w-[50px] h-[50px] border-[2px] border-fotsy rounded-full overflow-hidden">
+              <img src="assets/imgs/gustavo.jpeg" width="50" class="object-cover" alt="">
+            </div>
+            <div class="flex flex-col">
+              <h1>{{ post.username }}</h1>
+              <h1 class="text-xs text-zinc-500">{{ post.platform | titlecase }}</h1>
+            </div>
+          </div>
+          <div>
+            <div class="w-[50px] h-[50px] border-[2px] border-fotsy rounded-full overflow-hidden">
+              <img [src]="getPlatformLogo(post.platform)" width="50" class="object-cover" alt="{{ post.platform }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Post Body -->
+        <div class="w-full h-auto flex flex-col justify-start items-center gap-4">
+          <!-- Post Message -->
+          <div *ngIf="post.message && post.message.trim()"
+               class="w-full h-auto flex items-center gap-4 font-light py-2"
+               style="letter-spacing: 0px">
+            <p>{{ post.message }}</p>
+          </div>
+
+          <!-- Instagram Post Media (when childPosts is null but medias is not null) -->
+          <div *ngIf="isInstagramPost(post)" class="rounded-3xl overflow-hidden w-full grid gap-2"
+               [class]="getGridClass(getValidMedias(post.medias).length)">
+            <div *ngFor="let media of getValidMedias(post.medias); let i = index"
+                 class="bg-gray-100 relative overflow-hidden min-h-[200px]"
+                 [class]="getImageClass(getValidMedias(post.medias).length, i)">
+              <img *ngIf="media.mediaUrl"
+                   [src]="media.mediaUrl"
+                   class="object-cover w-full h-full"
+                   alt="Instagram post image">
+              <div *ngIf="!media.mediaUrl"
+                   class="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span class="text-gray-500">No image</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Facebook Post Media (when childPosts is not null) -->
+          <div *ngIf="isFacebookPost(post)" class="rounded-3xl overflow-hidden w-full grid gap-2"
+               [class]="getGridClass(getFacebookPostMedias(post).length)">
+            <div *ngFor="let media of getFacebookPostMedias(post); let i = index"
+                 class="bg-gray-100 relative overflow-hidden min-h-[200px]"
+                 [class]="getImageClass(getFacebookPostMedias(post).length, i)">
+              <img [src]="media.mediaUrl"
+                   class="object-cover w-full h-full"
+                   alt="Facebook post image">
+            </div>
+          </div>
+        </div>
+
+        <!-- Like and Comment Section -->
+        <div class="mt-4">
+          <app-like-comment></app-like-comment>
+        </div>
       </div>
     </div>
-    <div class="w-full h-auto lg:rounded-xl border-b  pb-2 border-zinc-400 bg-fotsy lg:p-6 p-0">
-      <app-post-header></app-post-header>
-      <app-post-body></app-post-body>
-      <app-like-comment></app-like-comment>
-    </div>
-
-    <div class="w-full h-auto lg:rounded-xl border-b  pb-2 border-zinc-400 bg-fotsy lg:p-6 p-0">
-      <app-post-header></app-post-header>
-      <app-post-body></app-post-body>
-      <app-like-comment></app-like-comment>
-    </div>
-    <div class="w-full h-auto lg:rounded-xl border-b  pb-2 border-zinc-400 bg-fotsy lg:p-6 p-0">
-      <app-post-header></app-post-header>
-      <app-post-body></app-post-body>
-      <app-like-comment></app-like-comment>
-    </div>
-
 
   </div>
   <div class="w-full lg:col-span-2 hidden rounded-3xl p-4 lg:flex flex-col gap-4 items-center mt-4 lg:mt-0">

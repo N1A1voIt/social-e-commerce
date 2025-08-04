@@ -28,3 +28,16 @@ export interface DisplayProduct {
   creationStepsDTO : CreationStepsDTO,
   categories : Category[]
 }
+
+export interface Product {
+  idProduct: number,
+  name: string,
+  description: string,
+  price: number,
+  media: string,
+  idSeller: number,
+  createdAt: Date,
+  updatedAt: Date,
+  idCategory: number,
+  formattedPrice: number
+}
