@@ -40,3 +40,26 @@ class Product(Base):
 
     def get_formatted_price(self):
         return f"{self.price:.2f}" if self.price is not None else "0.00"
+
+
+from pydantic import BaseModel
+from typing import Optional
+from decimal import Decimal
+from datetime import datetime
+
+class ProductOut(BaseModel):
+    id_product: int
+    name: str
+    description: Optional[str]
+    price: Decimal
+    media: Optional[str]
+    id_seller: int
+    id_category: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+

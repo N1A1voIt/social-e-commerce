@@ -6,6 +6,7 @@ from fastapi import FastAPI, Header, HTTPException
 from google.adk import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
+from sentence_transformers import SentenceTransformer
 from sympy import content
 
 from post_generator.agent_core.agent import agent, root_agent
@@ -14,8 +15,6 @@ from utils.query_modifier import QueryPayload
 
 app = FastAPI()
 load_dotenv()
-
-
 @app.post("/")
 async def create_post(
         query_payload: QueryPayload,
@@ -39,7 +38,7 @@ async def create_post(
 
     SESSION_ID = str(uuid.uuid4())
     session_service = InMemorySessionService()
-    session = await session_service.create_session(app_name="SOCIALPOST", user_id=str(user_id), session_id=SESSION_ID,state={"authorization_token": authorization})
+    session = await session_service.create_session(app_name="SOCIALPOST", user_id=str(user_id), session_id=SESSION_ID,state={"u_output": user_id})
     # session.state['authorization_token'] = authorization
     # await session_service.c(session)
     runner = Runner(agent=root_agent, app_name="SOCIALPOST", session_service=session_service)

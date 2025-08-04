@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from pgvector.sqlalchemy import Vector
 
 from post_generator.agent_core.engine import SessionLocal, engine  # Import engine as well
+from utils.model_provider import ModelProvider
 
 Base = declarative_base()
 
@@ -20,11 +21,11 @@ class Category(Base):
 
 
 class VectorSearchEngine:
-    def __init__(self, embedding_model_name='all-MiniLM-L6-v2'):
+    def __init__(self):
         # Fix: Use the actual engine, not SessionLocal
         self.engine = engine  # This should be the SQLAlchemy engine
         self.Session = SessionLocal  # This should be the session factory
-        self.model = SentenceTransformer(embedding_model_name)
+        self.model = ModelProvider.get_model()
         self.doc_ids = []
         self.doc_texts = []
         self.doc_embeddings = None

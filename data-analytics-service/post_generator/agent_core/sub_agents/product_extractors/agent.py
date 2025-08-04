@@ -11,23 +11,24 @@ from products.ProductRepository import ProductRepository
 
 import json
 
-def extract_products(categories: str, token: str):
+def extract_products(db_category_output: str):
     def clean_and_parse_json(markdown_json_str):
         cleaned = re.sub(r"^```json\s*|\s*```$", "", markdown_json_str.strip(), flags=re.MULTILINE)
         return json.loads(cleaned)
-    categoriese = clean_and_parse_json(categories)
+    categoriese = clean_and_parse_json(db_category_output)
     print("dazfbne:"+str(categoriese))
     pr = ProductRepository()
-    return pr.find_by_token_and_categories(token, categoriese)
+    u_output = 1
+    products = pr.find_by_token_and_categories(u_output, categoriese)
+    products_dict = [p.model_dump() for p in products]
+    return json.dumps(products_dict, default=str)
 
 
-class ExtractedProducts(BaseModel):
-    products:list
 
-product_extractor_agent = LlmAgent(
-    name="category_extractor_agent",
+product_extractor_agent = LlmAgent (
+    name="product_extractor_agent",
     model="gemini-2.0-flash-001",
-    instruction="You're an agent in charge of extracting products from a list of categoriy ids.",
+    instruction="You're an agent in charge of extracting products from a list of category ids and a user_output.",
     description=PRODUCT_EXTRACTOR_PROMPT,
     output_key="extracted_products_v2",
     tools=[extract_products]

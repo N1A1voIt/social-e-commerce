@@ -26,13 +26,11 @@ class PostGeneratorAgent(BaseAgent):
 
     @override
     async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
-        auth_token = ctx.session.state.get('authorization_token')
-
-        if not auth_token:
-            logger.error("Authorization token not found in session state!")
+        u_output = ctx.session.state.get('u_output')
+        if "u_output" not in ctx.session.state:
+            logger.error("User id not found in session state!")
             # Handle the error appropriately
             return
-        logger.info("Authorization token found in session state!")
 
         # First call to category_extactor
         async for event in self.category_extactor.run_async(ctx):
@@ -52,6 +50,9 @@ class PostGeneratorAgent(BaseAgent):
             logger.info(f"[{self.name}] - {event.model_dump_json(indent=2, exclude_none=True)}")
             yield event
 
+        logger.info(f"[{self.name}] - User id: {ctx.session.state['u_output']}")
+
+
         db_category_output = ctx.session.state['db_category_output']
         logger.info(f"[{self.name}] - {db_category_output}")
 
@@ -59,7 +60,7 @@ class PostGeneratorAgent(BaseAgent):
             return
 
         async for event in self.product_extractor_agent.run_async(ctx):
-            logger.info(f"[{self.name}] - {event.model_dump_json(indent=2, exclude_none=True)}")
+            logger.info(f"[{self.name}] - {event.model_dump_json(indent=2, exclude_none=True)} - {ctx.session.state}")
             yield event
 
         extracted_products_v2 = ctx.session.state['extracted_products_v2']
