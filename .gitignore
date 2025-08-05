@@ -43,3 +43,6 @@ data-analytics-service/.env
 /data-analytics-service/tokens/__pycache__
 *.pyc
 /data-analytics-service/post_generator/agent_core/sub_agents/product_extractors/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/product_extractors/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/product_extractors/__pycache__
+/data-analytics-service/post_generator/agent_core/sub_agents/product_extractors/__pycache__
