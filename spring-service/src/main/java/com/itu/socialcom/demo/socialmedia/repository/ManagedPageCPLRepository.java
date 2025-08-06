@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface ManagedPageCPLRepository extends JpaRepository<ManagedPageCPL,Long> {
     List<ManagedPageCPL> findByIdSeller(Long idSeller);
-
+    ManagedPageCPL findByIdMp(Long idMp);
     ManagedPageCPL findByPlatformIdentifierAndPlatform(String platformIdentifier, String platform);
 }
