@@ -94,47 +94,36 @@
           <div class="px-4 py-1 bg-gray-100 rounded-full text-xs text-gray-500">Today</div>
         </div>
 
-        <!-- Received message -->
-        <div class="flex items-end gap-2 max-w-[80%]">
-          <div class="rounded-full overflow-hidden w-[30px] h-[30px] flex-shrink-0">
-            <img src="assets/imgs/gustavo.jpeg" alt="Profile" class="w-full h-full object-cover">
-          </div>
-          <div class="flex flex-col">
-            <div class="bg-fotsy py-2 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
-              <p class="text-blackt">Hi there! How are you doing today?</p>
+        <div class="w-full" *ngFor="let message of messages">
+          <div class="flex items-end gap-2 max-w-[80%]" *ngIf="message.fromPlatform">
+            <div class="rounded-full overflow-hidden w-[30px] h-[30px] flex-shrink-0">
+              <img src="{{ actualCustomer.mediaUrl }}" alt="Profile" class="w-full h-full object-cover">
             </div>
-            <span class="text-xs text-gray-500 mt-1">10:20</span>
+            <div class="flex flex-col">
+              <div class="bg-fotsy py-2 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
+                <p class="text-blackt">{{message.message}}</p>
+              </div>
+              <span class="text-xs text-gray-500 mt-1">{{ message.createdAt | date: ' h:mm a' }}</span>
+            </div>
           </div>
+
+          <div class="flex flex-col items-end ml-auto max-w-[80%]" *ngIf="!message.fromPlatform">
+            <div class="bg-orange text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
+              <p>{{ message.message }}</p>
+            </div>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="text-xs text-gray-500">{{ message.createdAt | date: ' h:mm a' }}</span>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Sent message -->
-        <div class="flex flex-col items-end ml-auto max-w-[80%]">
-          <div class="bg-orange text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
-            <p>I'm doing great, thanks for asking! How about you?</p>
-          </div>
-          <div class="flex items-center gap-1 mt-1">
-            <span class="text-xs text-gray-500">10:22</span>
-            <i class="pi pi-check-circle text-xs text-blue-500"></i>
-          </div>
-        </div>
-
         <!-- Received message -->
-        <div class="flex items-end gap-2 max-w-[80%]">
-          <div class="rounded-full overflow-hidden w-[30px] h-[30px] flex-shrink-0">
-            <img src="assets/imgs/gustavo.jpeg" alt="Profile" class="w-full h-full object-cover">
-          </div>
-          <div class="flex flex-col">
-            <div class="bg-fotsy py-2 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
-              <p class="text-blackt">I'm good too! Just working on some new projects.</p>
-            </div>
-            <span class="text-xs text-gray-500 mt-1">10:25</span>
-          </div>
-        </div>
 
         <!-- Typing indicator - only shown when isTyping is true -->
         <div *ngIf="isTyping" class="flex items-end gap-2 max-w-[80%]">
           <div class="rounded-full overflow-hidden w-[30px] h-[30px] flex-shrink-0">
-            <img src="assets/imgs/gustavo.jpeg" alt="Profile" class="w-full h-full object-cover">
+            <img src="{{ actualCustomer.mediaUrl }}" alt="Profile" class="w-full h-full object-cover">
           </div>
           <div class="flex flex-col">
             <div class="bg-fotsy py-3 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
