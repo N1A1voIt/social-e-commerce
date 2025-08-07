@@ -16,7 +16,7 @@ export class InboxService {
       const header = {
         'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
       };
-      return this.http.get<InboxDisplay>(javaHost + '/api/inbox',{headers:header});
+      return this.http.get<InboxDisplay>(javaHost + '/api/inbox?idMp='+managedPageId,{headers:header});
   }
   fetchPages():Observable<ManagedPageCPL[]> {
     const token = localStorage.getItem('token');
