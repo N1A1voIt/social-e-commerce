@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 import {InboxService} from "./inbox.service";
-import {InboxDisplay} from "./inbox-element.type";
+import {InboxDisplay, Message} from "./inbox-element.type";
 import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
 import {PageListComponent} from "./page-list/page-list.component";
 
@@ -20,6 +20,26 @@ export class InboxComponent implements OnInit {
   message: string = '';
   pages:ManagedPageCPL[] = [];
   inbox!:InboxDisplay;
+  showPageList: boolean = false;
+  messages:Message[] = [];
+
+
+
+  changePage(page:ManagedPageCPL) {
+    this.fetchInboxContent(page.idMp);
+  }
+
+
+  fetchMessages(idConversation: number) {
+    this.inboxService.fetchMessages(this.inbox.page.idMp).subscribe({
+      next: (response) => {
+        this.messages = response;
+      },error(err) {
+        alert(err.message);
+      }
+    });
+  }
+
   constructor(private inboxService: InboxService) { }
   ngOnInit(): void {
     setTimeout(() => {
@@ -42,6 +62,7 @@ export class InboxComponent implements OnInit {
   fetchInboxContent(pageId:number) {
     this.inboxService.fetchInbox(pageId).subscribe({
       next: (response) => {
+        console.log(response);
         this.inbox = response;
       },error(err) {
         alert(err.message);

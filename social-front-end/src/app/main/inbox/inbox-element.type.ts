@@ -4,10 +4,16 @@ interface MessageBox {
   id_pc: string;
   name: string;
   link_to_profile:string;
-  d_platform: string;
+  platform: string;
   id_sp:number;
-  media_url: string;
+  mediaUrl: string;
   identifier_on_platform: string;
+}
+export interface Message {
+  id:number;
+  message:string;
+  fromPlatform:boolean;
+  idMm:number;
 }
 interface Profiles {
   page: ManagedPageCPL[];
@@ -15,5 +21,5 @@ interface Profiles {
 
 export interface InboxDisplay {
   page: ManagedPageCPL;
-  messages: MessageBox[];
+  mothers: MessageBox[];
 }

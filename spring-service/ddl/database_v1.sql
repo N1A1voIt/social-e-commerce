@@ -505,6 +505,10 @@ CREATE VIEW v_post_child_media AS
         JOIN managed_pages mp on s.id_sp = mp.id_sp ORDER BY post_childs.id_child, type;
 
 
+CREATE VIEW v_message_box AS
+    SELECT id_mm, message_mother.id_pc, id_mp, id_im, name, link_to_profile, d_platform, identifier_on_platform, media_url, id_sp FROM message_mother JOIN potential_customers_v2 ON potential_customers_v2.id_pc = message_mother.id_pc;
+
+
 -- Electronics & Technology
 INSERT INTO category (val, desc_) VALUES ('Electronics', 'Consumer electronics, gadgets, and electronic devices');
 INSERT INTO category (val, desc_) VALUES ('Computers & Laptops', 'Desktop computers, laptops, tablets, and computer accessories');

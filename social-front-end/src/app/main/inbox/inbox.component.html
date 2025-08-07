@@ -3,78 +3,53 @@
 <div class="flex h-full flex-col md:grid md:grid-cols-12 gap-4">
   <!-- Conversation List - Hidden on mobile when chat is active -->
 
-  <div class="md:col-span-4 h-full bg-white rounded-3xl p-4 md:p-6 md:py-8 overflow-y-auto hide-scrollbar conversation-list"
+  <div class="md:col-span-4 h-full bg-white relative rounded-3xl p-4 md:p-6 md:py-8 overflow-y-auto hide-scrollbar conversation-list"
        [ngClass]="{'hidden': showChatOnMobile, 'block': !showChatOnMobile, 'md:block': true}">
+    <div class="w-full h-full bg-white absolute top-0 left-0 z-50 p-4" *ngIf="showPageList">
+      <div class="flex justify-between items-center relative py-4 border-b border-fotsy">
+        <h1 class="text-xl md:text-xl font-bold font-mono" style="letter-spacing: 1px">Profiles</h1>
+        <div class="">
+          <span (click)="showPageList = false">X</span>
+        </div>
+      </div>
+      <app-page-list (selectPage)="changePage($event)"  [pages]="pages" ></app-page-list>
+    </div>
     <div class="flex justify-between items-center relative">
       <h1 class="text-xl md:text-2xl font-bold font-mono" style="letter-spacing: 1px">Inbox</h1>
+      <div class="w-[50px] h-[50px] bg-black rounded-full" (click)="showPageList = true">
 
-    </div>
-
-    <div class="grid grid-cols-2 mt-4 gap-3 bg-fotsy w-full rounded-xl p-2 font-bold" style="letter-spacing: 1px">
-      <div class="col-span-1 flex justify-center items-center p-2 bg-white rounded-xl shadow-sm">
-        <span>General</span>
-      </div>
-      <div class="col-span-1 flex justify-center items-center p-2 text-zinc-500 rounded-xl">
-        <span>Total</span>
       </div>
     </div>
+
+<!--    <div class="grid grid-cols-2 mt-4 gap-3 bg-fotsy w-full rounded-xl p-2 font-bold" style="letter-spacing: 1px">-->
+<!--      <div class="col-span-1 flex justify-center items-center p-2 bg-white rounded-xl shadow-sm">-->
+<!--        <span>General</span>-->
+<!--      </div>-->
+<!--      <div class="col-span-1 flex justify-center items-center p-2 text-zinc-500 rounded-xl">-->
+<!--        <span>Total</span>-->
+<!--      </div>-->
+<!--    </div>-->
 
     <div class="w-full flex flex-col justify-center items-center mt-4 gap-3">
       <!-- Conversation items with hover effects -->
-      <div class="w-full profile flex items-center gap-4 bg-fotsy p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+      <div class="w-full profile flex items-center gap-4 bg-fotsy p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer" *ngFor="let conversation of inbox.mothers"
            (click)="toggleChatView()">
         <div class="relative">
           <div class="rounded-full overflow-hidden w-[50px] h-[50px]">
-            <img src="assets/imgs/gustavo.jpeg" alt="Profile" class="w-full h-full object-cover">
+            <img src="{{ conversation.mediaUrl }}" alt="{{conversation.mediaUrl}}" class="w-full h-full object-cover">
           </div>
           <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
         </div>
         <div class="flex flex-col gap-1 justify-start flex-grow">
           <div class="flex justify-between items-center w-full">
-            <span class="text-lg font-bold" style="letter-spacing:1px">Charlotte</span>
+            <span class="text-lg font-bold" style="letter-spacing:1px">{{ conversation.name }}</span>
             <span class="text-xs text-gray-500">2m</span>
           </div>
           <div class="flex justify-between items-center w-full">
-            <span class="text-sm font-light text-zinc-500 truncate">Instagram • Hey, how are you?</span>
-            <div class="w-5 h-5 rounded-full bg-orange flex items-center justify-center">
-              <span class="text-xs text-white">2</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="w-full profile flex items-center gap-4 bg-fotsy p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-           (click)="toggleChatView()">
-        <div class="relative">
-          <div class="rounded-full overflow-hidden w-[50px] h-[50px]">
-            <img src="assets/imgs/gustavo.jpeg" alt="Profile" class="w-full h-full object-cover">
-          </div>
-        </div>
-        <div class="flex flex-col gap-1 justify-start flex-grow">
-          <div class="flex justify-between items-center w-full">
-            <span class="text-lg font-bold" style="letter-spacing:1px">Michael</span>
-            <span class="text-xs text-gray-500">1h</span>
-          </div>
-          <div class="flex justify-between items-center w-full">
-            <span class="text-sm font-light text-zinc-500 truncate">Facebook • Thanks for your help!</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="w-full profile flex items-center gap-4 bg-fotsy p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-           (click)="toggleChatView()">
-        <div class="relative">
-          <div class="rounded-full overflow-hidden w-[50px] h-[50px]">
-            <img src="assets/imgs/gustavo.jpeg" alt="Profile" class="w-full h-full object-cover">
-          </div>
-        </div>
-        <div class="flex flex-col gap-1 justify-start flex-grow">
-          <div class="flex justify-between items-center w-full">
-            <span class="text-lg font-bold" style="letter-spacing:1px">Sarah</span>
-            <span class="text-xs text-gray-500">2d</span>
-          </div>
-          <div class="flex justify-between items-center w-full">
-            <span class="text-sm font-light text-zinc-500 truncate">Twitter • Let's meet tomorrow</span>
+            <span class="text-sm font-light text-zinc-500 truncate">{{conversation.platform}}</span>
+<!--            <div class="w-5 h-5 rounded-full bg-orange flex items-center justify-center">-->
+<!--              <span class="text-xs text-white">2</span>-->
+<!--            </div>-->
           </div>
         </div>
       </div>

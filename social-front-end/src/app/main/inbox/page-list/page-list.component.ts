@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CheckboxComponent} from "../../../shared/checkbox/checkbox.component";
 import {ManagedPageCPL} from "../../settings/account-details/account-details.component";
 import {NgForOf} from "@angular/common";
@@ -15,4 +15,9 @@ import {NgForOf} from "@angular/common";
 })
 export class PageListComponent {
   @Input() pages: ManagedPageCPL[] = [];
+  @Output() selectPage: EventEmitter<ManagedPageCPL> = new EventEmitter<ManagedPageCPL>();
+
+  pageSelection(page:ManagedPageCPL){
+    this.selectPage.emit(page);
+  }
 }
