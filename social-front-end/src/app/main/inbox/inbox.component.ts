@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
-import {InboxService} from "./inbox.service";
-import {InboxDisplay, Message, MessageBox} from "./inbox-element.type";
+import {ApiResponse, InboxService} from "./inbox.service";
+import {InboxDisplay, Message, MessageBody, MessageBox} from "./inbox-element.type";
 import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
 import {PageListComponent} from "./page-list/page-list.component";
 
@@ -106,10 +106,18 @@ export class InboxComponent implements OnInit {
   }
 
   sendMessage(): void {
-    if (this.message.trim()) {
-      // Here you would typically send the message to a service
-      console.log('Sending message:', this.message);
-      this.message = '';
-    }
+    const message:MessageBody = {
+        idMm: this.actualCustomer.idMm,
+        message: this.message,
+        platform: this.actualCustomer.platform
+    };
+    this.inboxService.sendMessage(message).subscribe({
+      next: (response:ApiResponse) => {
+        console.log(response);
+        this.messages.push(response.data);
+      }, error(err) {
+        alert(err.message);
+      }
+    });
   }
 }

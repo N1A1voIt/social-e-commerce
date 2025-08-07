@@ -17,6 +17,12 @@ export interface Message {
   idMm:number;
   createdAt:Date;
 }
+export interface MessageBody {
+  idMm: number;
+  message: string;
+  platform: string;
+}
+
 interface Profiles {
   page: ManagedPageCPL[];
 }

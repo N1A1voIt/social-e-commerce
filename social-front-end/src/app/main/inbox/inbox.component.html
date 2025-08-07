@@ -1,9 +1,7 @@
-<div class="">
-</div>
 <div class="flex h-full flex-col md:grid md:grid-cols-12 gap-4">
   <!-- Conversation List - Hidden on mobile when chat is active -->
 
-  <div class="md:col-span-4 h-full bg-white relative rounded-3xl p-4 md:p-6 md:py-8 overflow-y-auto hide-scrollbar conversation-list"
+  <div class="md:col-span-4 h-full bg-white relative rounded-3xl p-4 md:p-6 md:py-8 overflow-y-scroll hide-scrollbar conversation-list"
        [ngClass]="{'hidden': showChatOnMobile, 'block': !showChatOnMobile, 'md:block': true}">
     <div class="w-full h-full bg-white absolute top-0 left-0 z-50 p-4" *ngIf="showPageList">
       <div class="flex justify-between items-center relative py-4 border-b border-fotsy">
@@ -56,10 +54,11 @@
   </div>
 
   <!-- Chat Area -->
-  <div class="md:col-span-8 h-full bg-white rounded-3xl flex flex-col"
-       [ngClass]="{'hidden': !showChatOnMobile, 'block': showChatOnMobile, 'md:block': true, 'md:h-full': true}">
-    <!-- Chat Header with back button for mobile -->
-    <div class="w-full flex items-center gap-3 border-b border-fotsy p-4 md:py-6 md:px-6" *ngIf="actualCustomer">
+  <div
+    class="md:col-span-8 h-full bg-white rounded-3xl flex flex-col overflow-hidden relative"
+    [ngClass]="{'hidden': !showChatOnMobile, 'block': showChatOnMobile, 'md:block': true, 'md:h-full': true}"
+  >
+    <div class="w-full flex items-center gap-3 border-b border-fotsy p-4 md:py-6 md:px-6 flex-shrink-0" *ngIf="actualCustomer">
       <button class="md:hidden mr-2 text-xl" (click)="toggleChatView()">
         <i class="pi pi-arrow-left"></i>
       </button>
@@ -74,22 +73,11 @@
         <span class="text-sm font-light text-zinc-500"> {{actualCustomer.platform}}</span>
       </div>
       <div class="flex gap-3">
-<!--        <button class="text-xl p-2 rounded-full hover:bg-fotsy">-->
-<!--          <i class="pi pi-phone"></i>-->
-<!--        </button>-->
-<!--        <button class="text-xl p-2 rounded-full hover:bg-fotsy">-->
-<!--          <i class="pi pi-video"></i>-->
-<!--        </button>-->
-<!--        <button class="text-xl p-2 rounded-full hover:bg-fotsy">-->
-<!--          <i class="pi pi-ellipsis-h"></i>-->
-<!--        </button>-->
       </div>
     </div>
 
-    <div class="flex flex-col flex-grow relative h-full" *ngIf="actualCustomer">
-      <!-- Scrollable messages container -->
-      <div class="flex-grow overflow-y-auto px-4 md:px-6 space-y-3 py-4 hide-scrollbar">
-        <!-- Date separator -->
+    <div class="flex-2 overflow-y-auto" *ngIf="actualCustomer">
+      <div class="px-4 md:px-6 space-y-3 py-4 hide-scrollbar">
         <div class="flex justify-center my-4">
           <div class="px-4 py-1 bg-gray-100 rounded-full text-xs text-gray-500">Today</div>
         </div>
@@ -115,12 +103,8 @@
               <span class="text-xs text-gray-500">{{  getFormattedDate(message.createdAt)}}</span>
             </div>
           </div>
-
         </div>
 
-        <!-- Received message -->
-
-        <!-- Typing indicator - only shown when isTyping is true -->
         <div *ngIf="isTyping" class="flex items-end gap-2 max-w-[80%]">
           <div class="rounded-full overflow-hidden w-[30px] h-[30px] flex-shrink-0">
             <img src="{{ actualCustomer.mediaUrl }}" alt="Profile" class="w-full h-full object-cover">
@@ -136,34 +120,36 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Input area -->
-      <div class="h-[70px] bg-gray-50 flex w-full items-center gap-2 border-t border-fotsy px-4 md:px-6">
+    <div class="bg-gray-50 h-[70px] grid grid-cols-2 bg-green-50 w-full items-center gap-2 border-t border-fotsy px-4 md:px-6 py-2">
+      <div class="flex gap-2 col-span-1 bg-black">
         <button class="text-xl p-2 rounded-full hover:bg-fotsy text-gray-500">
           <i class="pi pi-plus"></i>
         </button>
         <button class="text-xl p-2 rounded-full hover:bg-fotsy text-gray-500">
           <i class="pi pi-image"></i>
         </button>
-        <div class="flex-grow bg-fotsy rounded-full px-4 py-2">
-          <input
-            type="text"
-            class="w-full bg-transparent text-blackt outline-none"
-            placeholder="Type a message..."
-            [(ngModel)]="message"
-            (input)="onMessageInput($event)"
-            (keyup.enter)="sendMessage()"
-          >
-        </div>
-        <button
-          class="text-xl p-3 rounded-full bg-orange text-white flex justify-center items-center"
-          [ngClass]="{'opacity-50': !message.trim(), 'cursor-not-allowed': !message.trim()}"
-          [disabled]="!message.trim()"
-          (click)="sendMessage()"
-        >
-          <i class="pi pi-send"></i>
-        </button>
       </div>
+
+      <div class=" bg-fotsy rounded-full px-4 py-2 col-span-1">
+        <input
+          type="text"
+          class="w-full bg-transparent text-blackt outline-none"
+          placeholder="Type a message..."
+          [(ngModel)]="message"
+          (input)="onMessageInput($event)"
+          (keyup.enter)="sendMessage()"
+        >
+      </div>
+      <button
+        class="text-xl p-3 rounded-full bg-orange text-white flex justify-center items-center"
+        [ngClass]="{'opacity-50': !message.trim(), 'cursor-not-allowed': !message.trim()}"
+        [disabled]="!message.trim()"
+        (click)="sendMessage()"
+      >
+        <i class="pi pi-send"></i>
+      </button>
     </div>
   </div>
 </div>

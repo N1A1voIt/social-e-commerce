@@ -3,10 +3,10 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {javaHost} from "../../../environments/environment";
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 import {Observable} from "rxjs";
-import {InboxDisplay, Message} from "./inbox-element.type";
+import {InboxDisplay, Message, MessageBody} from "./inbox-element.type";
 export interface ApiResponse {
   status: number;
-  data: any[];
+  data: any;
   errors: any[];
 }
 @Injectable({
@@ -32,6 +32,12 @@ export class InboxService {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
     return this.http.get<ApiResponse>(javaHost + '/api/messages?idMm='+conversationId,{headers:header});
+  }
+  sendMessage(message: MessageBody):Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.post<ApiResponse>(javaHost + '/api/messages',message,{headers:header});
   }
 
 }

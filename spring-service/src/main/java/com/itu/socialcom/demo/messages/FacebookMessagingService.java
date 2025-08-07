@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 
 @Service
 public class FacebookMessagingService extends MessageService{
@@ -66,6 +67,7 @@ public class FacebookMessagingService extends MessageService{
         messageChild.setIdMm( messageBody.getIdMm().intValue());
         messageChild.setFromPlatform(false);
         messageChild.setMessage(messageBody.getMessage());
+        messageChild.setCreatedAt(LocalDateTime.now());
         super.childRepo.save(messageChild);
         MessageMother messageMother = super.motherRepo.findById(messageBody.getIdMm().intValue()).orElse(null);
 //        System.out.println("MessageMother: " + messageMother.getIdMp());
