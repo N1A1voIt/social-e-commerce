@@ -70,7 +70,6 @@ public class WebhookController {
                     JsonNode messagingEvents = entry.get("messaging");
                     if (messagingEvents != null && messagingEvents.isArray()) {
                         for (JsonNode event : messagingEvents) {
-
                             webhookService.handleCustomerMessage(event);
                         }
                     }

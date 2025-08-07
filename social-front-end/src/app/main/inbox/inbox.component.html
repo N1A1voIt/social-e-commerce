@@ -103,7 +103,7 @@
               <div class="bg-fotsy py-2 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
                 <p class="text-blackt">{{message.message}}</p>
               </div>
-              <span class="text-xs text-gray-500 mt-1">{{ message.createdAt | date: ' h:mm a' }}</span>
+              <span class="text-xs text-gray-500 mt-1">{{ getFormattedDate(message.createdAt)}}</span>
             </div>
           </div>
 
@@ -112,7 +112,7 @@
               <p>{{ message.message }}</p>
             </div>
             <div class="flex items-center gap-1 mt-1">
-              <span class="text-xs text-gray-500">{{ message.createdAt | date: ' h:mm a' }}</span>
+              <span class="text-xs text-gray-500">{{  getFormattedDate(message.createdAt)}}</span>
             </div>
           </div>
 

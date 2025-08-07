@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -75,6 +76,7 @@ public class FacebookWebhookService extends WebhookService{
         MessageChild messageChild = new MessageChild();
         messageChild.setFromPlatform(true);
         messageChild.setMessage(node.get("message").get("text").asText());
+        messageChild.setCreatedAt(LocalDateTime.now());
         messageChild.setIdMm(messageMother.getId());
         messageChildRepository.save(messageChild);
         return messageChild;
