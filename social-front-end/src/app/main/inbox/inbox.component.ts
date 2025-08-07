@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 import {InboxService} from "./inbox.service";
-import {InboxDisplay, Message} from "./inbox-element.type";
+import {InboxDisplay, Message, MessageBox} from "./inbox-element.type";
 import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
 import {PageListComponent} from "./page-list/page-list.component";
 
@@ -22,18 +22,21 @@ export class InboxComponent implements OnInit {
   inbox!:InboxDisplay;
   showPageList: boolean = false;
   messages:Message[] = [];
-
-
+  actualCustomer!: MessageBox;
 
   changePage(page:ManagedPageCPL) {
+
     this.fetchInboxContent(page.idMp);
   }
 
 
-  fetchMessages(idConversation: number) {
-    this.inboxService.fetchMessages(this.inbox.page.idMp).subscribe({
+  fetchMessages(customer:MessageBox) {
+    this.actualCustomer = customer;
+    this.showChatOnMobile = !this.showChatOnMobile;
+    this.inboxService.fetchMessages(customer.idMm).subscribe({
       next: (response) => {
-        this.messages = response;
+        console.log(response);
+        this.messages = response.data;
       },error(err) {
         alert(err.message);
       }

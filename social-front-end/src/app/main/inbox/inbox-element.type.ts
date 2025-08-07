@@ -1,6 +1,7 @@
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 
-interface MessageBox {
+export interface MessageBox {
+  idMm: number;
   id_pc: string;
   name: string;
   link_to_profile:string;
@@ -14,6 +15,7 @@ export interface Message {
   message:string;
   fromPlatform:boolean;
   idMm:number;
+  createdAt:Date;
 }
 interface Profiles {
   page: ManagedPageCPL[];

@@ -4,7 +4,11 @@ import {javaHost} from "../../../environments/environment";
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 import {Observable} from "rxjs";
 import {InboxDisplay, Message} from "./inbox-element.type";
-
+export interface ApiResponse {
+  status: number;
+  data: any[];
+  errors: any[];
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -23,11 +27,11 @@ export class InboxService {
     const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
     return this.http.get<ManagedPageCPL[]>(javaHost + '/api/auth/managed-pages-all', { headers });
   }
-  fetchMessages(conversationId: number):Observable<Message[]> {
+  fetchMessages(conversationId: number):Observable<ApiResponse> {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
-    return this.http.get<Message[]>(javaHost + '/api/inbox/messages?idConversation='+conversationId,{headers:header});
+    return this.http.get<ApiResponse>(javaHost + '/api/messages?idMm='+conversationId,{headers:header});
   }
 
 }

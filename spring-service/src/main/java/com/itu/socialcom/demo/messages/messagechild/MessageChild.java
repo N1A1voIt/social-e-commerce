@@ -21,6 +21,7 @@ public class MessageChild {
     @Column(name = "id_mm", nullable = false)
     private Integer idMm;
 
-    // Getters and Setters
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
 }
 
