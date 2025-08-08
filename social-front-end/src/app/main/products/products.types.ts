@@ -41,3 +41,16 @@ export interface Product {
   idCategory: number,
   formattedPrice: number
 }
+
+export interface ProductCpl {
+  idProduct: number,
+  description: string,
+  name: string,
+  price: number,
+  media: string,
+  idSeller: number,
+  idCategory: number,
+  categoryName: string,
+  productNumber: number
+  stockStatus: string
+}

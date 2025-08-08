@@ -1,8 +1,9 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Product} from "../products.types";
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Product, ProductCpl} from "../products.types";
 import {HttpClient} from "@angular/common/http";
 import {javaHost} from "../../../../environments/environment";
 import {NgForOf} from "@angular/common";
+import {ProductServiceService} from "../product-service.service";
 
 @Component({
   selector: 'app-product-list',
@@ -15,22 +16,12 @@ import {NgForOf} from "@angular/common";
 })
 export class ProductListComponent implements OnInit {
   @Output() addProductClicked = new EventEmitter<void>();
-  products:Product[] = []
-  constructor(private http: HttpClient) {
+  @Input() productsList: ProductCpl[] = [];
+  constructor(private http: HttpClient,private productService:ProductServiceService) {
   }
   ngOnInit(): void {
-    const header = {
-      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
-    };
-    this.http.get<Product[]>(javaHost+'/api/products?size=100&page=0',{headers:header}).subscribe(
-      (data) => {
-        this.products = data;
-      },
-      (error) => {
-        console.error('Error fetching products:', error);
-      }
-    );
   }
+
   onAddProduct() {
     this.addProductClicked.emit();
   }
