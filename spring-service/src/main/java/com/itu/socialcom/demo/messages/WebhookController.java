@@ -3,6 +3,7 @@ package com.itu.socialcom.demo.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
 public class WebhookController {
 
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
+    @Autowired
+    FacebookWebhookService webhookService;
 
     @Value("${messenger.verify-token}")
     private String verifyToken;
@@ -67,7 +70,7 @@ public class WebhookController {
                     JsonNode messagingEvents = entry.get("messaging");
                     if (messagingEvents != null && messagingEvents.isArray()) {
                         for (JsonNode event : messagingEvents) {
-                            processMessageEvent(event);
+                            webhookService.handleCustomerMessage(event);
                         }
                     }
                 }
@@ -88,7 +91,7 @@ public class WebhookController {
             String recipientId = recipient.get("id").asText();
             String text = message.get("text").asText();
 
-            System.out.println("Message from {} to {}: {}"+ senderId+ recipientId+ text);
+            logger.info("Message from {} to {}: {}", senderId, recipientId, text);
 
             // TODO: Insert into your local messaging system
 //            syncToLocalMessagingSystem(senderId, recipientId, text);

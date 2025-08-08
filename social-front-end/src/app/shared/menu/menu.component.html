@@ -28,8 +28,8 @@
 
         <!-- Mobile navigation links -->
         <div class="flex flex-row items-center justify-around sm:hidden border-b border-zinc-200">
-          <app-link icon="heroChartBarSquare" href="/alll"></app-link>
-          <app-link icon="heroDocumentSolid" href="/alll" [isActive]="true"></app-link>
+          <app-link icon="heroChartBarSquare" href="/dashboard"></app-link>
+          <app-link icon="heroHome" href="/feed" [isActive]="true"></app-link>
           <app-link icon="heroDocumentSolid" href="/alll"></app-link>
           <app-link icon="heroDocumentSolid" href="/alll"></app-link>
           <app-link icon="heroDocumentSolid" href="/alll"></app-link>
@@ -41,7 +41,7 @@
       </header>
 
       <!-- Main content -->
-      <div class="flex-1 p-4 overflow-auto">
+      <div class="flex-1 p-4 overflow-auto flex-grow">
         <router-outlet></router-outlet>
       </div>
 

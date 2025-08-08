@@ -1,11 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule, DatePipe} from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {ManagedPageCPL} from "../settings/account-details/account-details.component";
+import {ApiResponse, InboxService} from "./inbox.service";
+import {InboxDisplay, Message, MessageBody, MessageBox} from "./inbox-element.type";
+import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
+import {PageListComponent} from "./page-list/page-list.component";
 
 @Component({
   selector: 'app-inbox',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ManagedAccountComponent, PageListComponent],
+  providers:[DatePipe],
   templateUrl: './inbox.component.html',
   styleUrl: './inbox.component.css'
 })
@@ -13,19 +19,84 @@ export class InboxComponent implements OnInit {
   showChatOnMobile: boolean = false;
   isTyping: boolean = false;
   message: string = '';
+  pages:ManagedPageCPL[] = [];
+  inbox!:InboxDisplay;
+  showPageList: boolean = false;
+  messages:Message[] = [];
+  actualCustomer!: MessageBox;
+
+  changePage(page:ManagedPageCPL) {
+
+    this.fetchInboxContent(page.idMp);
+  }
+
+
+  fetchMessages(customer:MessageBox) {
+    this.actualCustomer = customer;
+    this.showChatOnMobile = !this.showChatOnMobile;
+    this.inboxService.fetchMessages(customer.idMm).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.messages = response.data;
+      },error(err) {
+        alert(err.message);
+      }
+    });
+  }
+
+
+
+  getFormattedDate(dateStr: string | Date): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+
+    if (isToday) {
+      // Show time only (e.g., 3:45 PM)
+      return this.datePipe.transform(date, 'h:mm a')!;
+    } else if (date.getFullYear() === now.getFullYear()) {
+      // Show short date (e.g., Aug 7)
+      return this.datePipe.transform(date, 'MMM d')!;
+    } else {
+      // Show full date (e.g., Aug 7, 2024)
+      return this.datePipe.transform(date, 'MMM d, y')!;
+    }
+  }
+
+  constructor(private inboxService: InboxService,private datePipe: DatePipe) { }
 
   ngOnInit(): void {
-    // Simulate typing indicator after a delay
     setTimeout(() => {
       this.isTyping = true;
-
-      // Hide typing indicator after 3 seconds
       setTimeout(() => {
         this.isTyping = false;
       }, 3000);
     }, 1000);
+    this.inboxService.fetchPages().subscribe({
+      next: (response) => {
+        this.pages = response;
+        if (this.pages.length > 0) {
+          this.fetchInboxContent(this.pages[0].idMp);
+        }
+      },error(err) {
+        alert(err.message);
+      }
+    });
   }
-
+  fetchInboxContent(pageId:number) {
+    this.inboxService.fetchInbox(pageId).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.inbox = response;
+      },error(err) {
+        alert(err.message);
+      }
+    });
+  }
   toggleChatView(): void {
     this.showChatOnMobile = !this.showChatOnMobile;
   }
@@ -35,10 +106,18 @@ export class InboxComponent implements OnInit {
   }
 
   sendMessage(): void {
-    if (this.message.trim()) {
-      // Here you would typically send the message to a service
-      console.log('Sending message:', this.message);
-      this.message = '';
-    }
+    const message:MessageBody = {
+        idMm: this.actualCustomer.idMm,
+        message: this.message,
+        platform: this.actualCustomer.platform
+    };
+    this.inboxService.sendMessage(message).subscribe({
+      next: (response:ApiResponse) => {
+        console.log(response);
+        this.messages.push(response.data);
+      }, error(err) {
+        alert(err.message);
+      }
+    });
   }
 }

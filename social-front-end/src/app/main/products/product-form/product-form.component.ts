@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {Product} from "../products.types";
+import {HttpClient} from "@angular/common/http";
+import {javaHost} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-product-form',
@@ -8,5 +11,6 @@ import { Component } from '@angular/core';
   styleUrl: './product-form.component.css'
 })
 export class ProductFormComponent {
+
 
 }
