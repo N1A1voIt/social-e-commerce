@@ -293,6 +293,7 @@ CREATE TABLE stocks_child(
                              id_product INTEGER NOT NULL,
                              id_variant INTEGER NOT NULL,
                              id_mv INTEGER NOT NULL,
+                             created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
                              PRIMARY KEY(id_st_ch),
                              FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
                              FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant),
@@ -507,6 +508,23 @@ CREATE VIEW v_post_child_media AS
 
 CREATE VIEW v_message_box AS
     SELECT id_mm, message_mother.id_pc, id_mp, id_im, name, link_to_profile, d_platform, identifier_on_platform, media_url, id_sp FROM message_mother JOIN potential_customers_v2 ON potential_customers_v2.id_pc = message_mother.id_pc;
+
+CREATE VIEW v_product_stock_cpl AS
+    WITH stock_details AS (
+        SELECT max(action_at),d_product_number,id_product FROM stocks_child GROUP BY id_product, d_product_number
+    )
+    SELECT
+        p.id_product,description,name,price,media,id_seller,c.id_category,
+        c.val as category,COALESCE(d_product_number,0) as product_number,
+        CASE WHEN COALESCE(d_product_number,0) = 0 THEN 'Out of Stock'
+                WHEN COALESCE(d_product_number,0) >= 10 THEN 'In Stock'
+                WHEN COALESCE(d_product_number,0) > 0 AND COALESCE(d_product_number,0) < 10 THEN 'Low Stock' END as stock_status
+        FROM products_v2 p
+        LEFT JOIN stock_details s ON p.id_product = s.id_product
+        JOIN category c on c.id_category = p.id_category;
+
+
+
 
 
 -- Electronics & Technology
