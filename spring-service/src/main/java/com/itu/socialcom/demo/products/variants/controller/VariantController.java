@@ -96,21 +96,21 @@ public class VariantController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(400);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(400).body(apiResponse);
             
         } catch (IllegalStateException e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(422);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(422).body(apiResponse);
             
         } catch (Exception e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
@@ -133,7 +133,7 @@ public class VariantController {
             
             // Generate all variant combinations using service
             List<VariantWithOptionsDTO> createdVariants = variantService.generateAllVariantCombinations(
-                productId, request, seller.getIdSeller().longValue());
+                productId, request, seller.getId());
             
             // Return success response with all created variants
             ApiResponse apiResponse = new ApiResponse();
@@ -145,21 +145,21 @@ public class VariantController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(400);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(400).body(apiResponse);
             
         } catch (IllegalStateException e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(422);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(422).body(apiResponse);
             
         } catch (Exception e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
@@ -181,7 +181,7 @@ public class VariantController {
             
             // Get variants with options using service
             List<VariantWithOptionsDTO> variants = variantService.getProductVariantsWithOptions(
-                productId, seller.getIdSeller().longValue());
+                productId, seller.getId());
             
             // Return success response (handles empty results gracefully)
             ApiResponse apiResponse = new ApiResponse();
@@ -193,14 +193,14 @@ public class VariantController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(400);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(400).body(apiResponse);
             
         } catch (Exception e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
@@ -224,7 +224,7 @@ public class VariantController {
             
             // Update variant using service (supports partial updates for title and price only)
             VariantWithOptionsDTO updatedVariant = variantService.updateVariant(
-                productId, variantId, request, seller.getIdSeller().longValue());
+                productId, variantId, request, seller.getId());
             
             // Return updated variant data
             ApiResponse apiResponse = new ApiResponse();
@@ -236,14 +236,14 @@ public class VariantController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(400);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(400).body(apiResponse);
             
         } catch (Exception e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
@@ -265,7 +265,7 @@ public class VariantController {
             }
             
             // Delete variant using service (handles cascade deletion of option value associations)
-            variantService.deleteVariant(productId, variantId, seller.getIdSeller().longValue());
+            variantService.deleteVariant(productId, variantId, seller.getId());
             
             // Return success confirmation
             ApiResponse apiResponse = new ApiResponse();
@@ -277,14 +277,14 @@ public class VariantController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(400);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(400).body(apiResponse);
             
         } catch (Exception e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
-            apiResponse.setErrors(List.of(e.getMessage()));
+            apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
