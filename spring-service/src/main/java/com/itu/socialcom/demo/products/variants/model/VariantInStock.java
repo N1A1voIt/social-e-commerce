@@ -36,4 +36,36 @@ public class VariantInStock {
     @Column(name = "stock_status")
     private String stockStatus;
 
+    // Getters
+    public Long getIdVariant() {
+        return idVariant;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public Long getIdProduct() {
+        return idProduct;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Double getVariantNumber() {
+        return variantNumber;
+    }
+
+    public String getStockStatus() {
+        return stockStatus;
+    }
 }
