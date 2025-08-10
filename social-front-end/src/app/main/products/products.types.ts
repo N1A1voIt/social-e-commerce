@@ -63,3 +63,39 @@ export interface Variant {
   createdAt:Date;
   updatedAt:Date;
 }
+
+export interface VariantOptionDTO {
+  idOption: number;
+  optionLabel: string;
+  idOptionValue: number;
+  optionValue: string;
+}
+
+export interface VariantWithOptionsDTO {
+  idVariant: number;
+  title: string;
+  price: number;
+  idProduct: number;
+  createdAt: Date;
+  updatedAt: Date;
+  stockQuantity?: number;
+  stockStatus?: string;
+  options: VariantOptionDTO[];
+}
+
+export interface CreateVariantWithOptionsRequest {
+  title: string;
+  price: number;
+  optionValueIds: number[];
+}
+
+export interface GenerateVariantsRequest {
+  basePrice: number;
+  titlePrefix?: string;
+  overwriteExisting?: boolean;
+}
+
+export interface UpdateVariantRequest {
+  title?: string;
+  price?: number;
+}
