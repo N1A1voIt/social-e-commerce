@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * DTO for variant option information (option label and value display)
+ * DTO for variant option information
  */
 @Data
 public class VariantOptionDTO {
