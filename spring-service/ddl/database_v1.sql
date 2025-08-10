@@ -523,6 +523,17 @@ CREATE VIEW v_product_stock_cpl AS
         LEFT JOIN stock_details s ON p.id_product = s.id_product
         JOIN category c on c.id_category = p.id_category;
 
+CREATE VIEW v_variant_cpl AS
+    WITH stock_details AS (
+        SELECT max(action_at),d_variant_number,id_variant FROM stocks_child GROUP BY id_variant, d_variant_number
+    )
+    SELECT
+        v.id_variant, v.title, v.price, v.created_at, v.updated_at, v.id_product,
+        COALESCE(d_variant_number,0) as variant_number,
+        CASE WHEN COALESCE(d_variant_number,0) = 0 THEN 'Out of Stock'
+                WHEN COALESCE(d_variant_number,0) >= 10 THEN 'In Stock'
+                WHEN COALESCE(d_variant_number,0) > 0 AND COALESCE(d_variant_number,0) < 10 THEN 'Low Stock' END as stock_status
+        FROM variants_v2 v LEFT JOIN stock_details ON v.id_variant = stock_details.id_variant;
 
 
 

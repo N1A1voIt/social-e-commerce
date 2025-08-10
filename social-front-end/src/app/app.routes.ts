@@ -31,6 +31,7 @@ const homeRoutes: Routes = [
       { path: 'feed', component: FeedComponent },
       { path: 'inbox', component: InboxComponent },
       { path: 'products', component: ProductsComponent },
+      { path: 'variants/:idProduct', component: ProductsComponent },
       { path: 'stocks', component: StockListComponent },
       { path: 'content', component: ContentManagementComponent },
     ]

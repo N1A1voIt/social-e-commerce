@@ -1,4 +1,4 @@
-package com.itu.socialcom.demo.products.model;
+package com.itu.socialcom.demo.products.variants.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

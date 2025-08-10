@@ -1,6 +1,6 @@
 package com.itu.socialcom.demo.products.repository;
 
-import com.itu.socialcom.demo.products.model.VariantOptionValue;
+import com.itu.socialcom.demo.products.variants.model.VariantOptionValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

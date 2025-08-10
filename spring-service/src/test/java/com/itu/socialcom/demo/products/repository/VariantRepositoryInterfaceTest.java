@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.products.repository;
 
+import com.itu.socialcom.demo.products.variants.repository.VariantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.repository.JpaRepository;
 

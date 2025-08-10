@@ -43,7 +43,7 @@ export interface Product {
 }
 
 export interface ProductCpl {
-  idProduct: number,
+  idPc: number,
   description: string,
   name: string,
   price: number,
@@ -53,4 +53,13 @@ export interface ProductCpl {
   categoryName: string,
   productNumber: number
   stockStatus: string
+}
+
+export interface Variant {
+  idVariant:number;
+  title:string;
+  price:number;
+  idProduct:number;
+  createdAt:Date;
+  updatedAt:Date;
 }
