@@ -78,9 +78,9 @@ export class VariantsService {
   /**
    * Delete a variant
    */
-  deleteVariant(productId: number, variantId: number): Observable<{message: string}> {
+  deleteVariant(productId: number, variantId: number): Observable<ApiResponse> {
     const headers = this.getAuthHeaders();
-    return this.http.delete<{message: string}>(
+    return this.http.delete<ApiResponse>(
       `${javaHost}/api/variants/products/${productId}/variants/${variantId}`,
       { headers }
     );

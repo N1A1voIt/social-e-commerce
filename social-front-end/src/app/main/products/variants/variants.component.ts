@@ -65,6 +65,7 @@ export class VariantsComponent implements OnInit {
   onCreateVariant(): void {
     // TODO: Implement create variant modal/form
     console.log('Create variant clicked');
+    this.fetchVariants();
     this.showMessage('Create variant feature coming soon!', 'info');
   }
 
