@@ -4,6 +4,7 @@ import {VariantsService} from "./variants.service";
 import {VariantWithOptionsDTO, CreateVariantWithOptionsRequest, GenerateVariantsRequest, UpdateVariantRequest} from "../products.types";
 import {NgIf} from "@angular/common";
 import {VariantListComponent} from "./variant-list/variant-list.component";
+import {VariantFormComponent} from "./variant-form/variant-form.component";
 import {ApiResponse} from "../../inbox/inbox.service";
 
 @Component({
@@ -11,7 +12,8 @@ import {ApiResponse} from "../../inbox/inbox.service";
   standalone: true,
   imports: [
     NgIf,
-    VariantListComponent
+    VariantListComponent,
+    VariantFormComponent
   ],
   templateUrl: './variants.component.html',
   styleUrl: './variants.component.css'
@@ -22,6 +24,7 @@ export class VariantsComponent implements OnInit {
   productId: number = 0;
   errorMessage: string = '';
   successMessage: string = '';
+  showCreateForm: boolean = false;
 
   constructor(
     private route: ActivatedRoute,

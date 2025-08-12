@@ -76,17 +76,14 @@ public class VariantController {
             @RequestBody @Valid CreateVariantWithOptionsRequest request,
             @RequestHeader("Authorization") String token) {
         try {
-            // Extract seller ID from token
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
                 throw new IllegalArgumentException("Not logged in");
             }
-            
-            // Create variant with options using service
+
             VariantWithOptionsDTO createdVariant = variantService.createVariantWithOptions(
                 productId, request, seller.getId());
-            
-            // Return success response
+
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(201);
             apiResponse.setData(createdVariant);
@@ -125,17 +122,14 @@ public class VariantController {
             @RequestBody @Valid GenerateVariantsRequest request,
             @RequestHeader("Authorization") String token) {
         try {
-            // Extract seller ID from token
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
                 throw new IllegalArgumentException("Not logged in");
             }
-            
-            // Generate all variant combinations using service
+
             List<VariantWithOptionsDTO> createdVariants = variantService.generateAllVariantCombinations(
                 productId, request, seller.getId());
-            
-            // Return success response with all created variants
+
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(201);
             apiResponse.setData(createdVariants);
@@ -216,17 +210,14 @@ public class VariantController {
             @RequestBody @Valid UpdateVariantRequest request,
             @RequestHeader("Authorization") String token) {
         try {
-            // Extract seller ID from token
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
                 throw new IllegalArgumentException("Not logged in");
             }
-            
-            // Update variant using service (supports partial updates for title and price only)
+
             VariantWithOptionsDTO updatedVariant = variantService.updateVariant(
                 productId, variantId, request, seller.getId());
-            
-            // Return updated variant data
+
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(updatedVariant);
@@ -248,10 +239,6 @@ public class VariantController {
         }
     }
 
-    /**
-     * Deletes a variant and all its option value associations
-     * DELETE /api/variants/products/{productId}/variants/{variantId}
-     */
     @DeleteMapping("/products/{productId}/variants/{variantId}")
     public ResponseEntity<ApiResponse> deleteVariant(
             @PathVariable Long productId,

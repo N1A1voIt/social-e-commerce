@@ -5,7 +5,9 @@ import {
   VariantWithOptionsDTO,
   CreateVariantWithOptionsRequest,
   GenerateVariantsRequest,
-  UpdateVariantRequest
+  UpdateVariantRequest,
+  ProductOption,
+  ProductOptionValue
 } from "../products.types";
 import {javaHost} from "../../../../environments/environment";
 import {Observable} from "rxjs";
@@ -40,9 +42,9 @@ export class VariantsService {
   /**
    * Create a single variant with specific option values
    */
-  createVariantWithOptions(productId: number, request: CreateVariantWithOptionsRequest): Observable<VariantWithOptionsDTO> {
+  createVariantWithOptions(productId: number, request: CreateVariantWithOptionsRequest): Observable<ApiResponse> {
     const headers = this.getAuthHeaders();
-    return this.http.post<VariantWithOptionsDTO>(
+    return this.http.post<ApiResponse>(
       `${javaHost}/api/variants/products/${productId}/with-options`,
       request,
       { headers }
@@ -80,6 +82,28 @@ export class VariantsService {
     const headers = this.getAuthHeaders();
     return this.http.delete<{message: string}>(
       `${javaHost}/api/variants/products/${productId}/variants/${variantId}`,
+      { headers }
+    );
+  }
+
+  /**
+   * Fetch product options for variant creation
+   */
+  fetchProductOptions(productId: number): Observable<ProductOption[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<ProductOption[]>(
+      `${javaHost}/api/products/${productId}/options`,
+      { headers }
+    );
+  }
+
+  /**
+   * Fetch option values for a specific option
+   */
+  fetchOptionValues(optionId: number): Observable<ProductOptionValue[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<ProductOptionValue[]>(
+      `${javaHost}/api/options/${optionId}/values`,
       { headers }
     );
   }

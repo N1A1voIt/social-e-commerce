@@ -99,3 +99,16 @@ export interface UpdateVariantRequest {
   title?: string;
   price?: number;
 }
+
+export interface ProductOption {
+  idOption: number;
+  label: string;
+  idProduct: number;
+  optionValues: ProductOptionValue[];
+}
+
+export interface ProductOptionValue {
+  idOv: number;
+  value: string;
+  idOption: number;
+}

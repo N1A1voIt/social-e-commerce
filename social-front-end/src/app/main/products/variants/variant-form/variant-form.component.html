@@ -1,0 +1,127 @@
+<!-- Modal Overlay -->
+<div *ngIf="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-end z-50">
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 h-full overflow-y-auto">
+
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Create New Variant</h2>
+      <button
+        (click)="onClose()"
+        class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="p-8 text-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p class="text-gray-600">Loading product options...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-sm text-red-600">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Form Content -->
+    <form *ngIf="!loading" [formGroup]="variantForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+
+      <!-- Variant Title -->
+      <div>
+        <app-basic-input
+          label="Variant Title"
+          placeholder="Enter variant title"
+          [formControl]="$any(variantForm.get('title'))"
+          [error]="!!getFieldError('title')"
+          [errorMessage]="getFieldError('title')">
+        </app-basic-input>
+        <p class="mt-1 text-xs text-gray-500">
+          Tip: Click "Generate Title" after selecting options to auto-generate a descriptive title
+        </p>
+      </div>
+
+      <!-- Variant Price -->
+      <div>
+        <app-basic-input
+          label="Price"
+          placeholder="0.00"
+          type="number"
+          step="0.01"
+          min="0"
+          [formControl]="$any(variantForm.get('price'))"
+          [error]="!!getFieldError('price')"
+          [errorMessage]="getFieldError('price')">
+        </app-basic-input>
+      </div>
+
+      <!-- Option Selections -->
+      <div *ngIf="productOptions.length > 0" formGroupName="selectedOptions">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Select Option Values</h3>
+        <div class="space-y-4">
+          <div *ngFor="let option of productOptions" class="space-y-2">
+            <app-basic-select
+              [label]="option.label"
+              [placeholder]="'Select ' + option.label.toLowerCase()"
+              [options]="getOptionSelectOptions(option)"
+              [formControl]="$any(variantForm.get('selectedOptions')?.get(option.idOption.toString()))"
+              [error]="!!getOptionError(option.idOption)"
+              [errorMessage]="getOptionError(option.idOption)">
+            </app-basic-select>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Options Message -->
+      <div *ngIf="!loading && productOptions.length === 0" class="text-center py-8">
+        <div class="w-16 h-16 mx-auto mb-4 bg-yellow-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No Options Available</h3>
+        <p class="text-gray-500 mb-4">This product doesn't have any options defined. You need to add product options before creating variants.</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-between pt-6 border-t border-gray-200">
+<!--        <div class="flex space-x-3">-->
+<!--          <button-->
+<!--            type="button"-->
+<!--            (click)="generateTitle()"-->
+<!--            [disabled]="submitting"-->
+<!--            class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">-->
+<!--            Generate Title-->
+<!--          </button>-->
+<!--        </div>-->
+
+        <div class="flex space-x-3">
+          <button
+            type="button"
+            (click)="onClose()"
+            [disabled]="submitting"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            [disabled]="variantForm.invalid || submitting || productOptions.length === 0"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center">
+            <svg *ngIf="submitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ submitting ? 'Creating...' : 'Create Variant' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -20,6 +20,7 @@ export class BasicInputComponent {
   @Input() type!: string;
   @Input() id!: string;
   @Input() placeholder!: string;
+  @Input() errorMessage: string = '';
   @Input({transform: (value: false | undefined | boolean): boolean => false}) error: boolean = false;
 
   private _value: any = '';
