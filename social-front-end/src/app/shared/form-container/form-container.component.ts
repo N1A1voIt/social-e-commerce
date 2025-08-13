@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {ContactsComponent} from "../../main/settings/contacts/contacts.component";
 import {ManagedAccountComponent} from "../../main/settings/managed-account/managed-account.component";
 import {NgIcon} from "@ng-icons/core";
@@ -21,6 +21,7 @@ import {BasicButtonComponent} from "../basic-button/basic-button.component";
   styleUrl: './form-container.component.css'
 })
 export class FormContainerComponent {
+  @Input() label:string = 'New Product form';
   @Output() closeForm = new EventEmitter<void>();
   closeFormHandler() {
     this.closeForm.emit();

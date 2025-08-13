@@ -66,9 +66,9 @@ export class VariantsService {
   /**
    * Update an existing variant
    */
-  updateVariant(productId: number, variantId: number, request: UpdateVariantRequest): Observable<VariantWithOptionsDTO> {
+  updateVariant(productId: number, variantId: number, request: UpdateVariantRequest): Observable<ApiResponse> {
     const headers = this.getAuthHeaders();
-    return this.http.put<VariantWithOptionsDTO>(
+    return this.http.put<ApiResponse>(
       `${javaHost}/api/variants/products/${productId}/variants/${variantId}`,
       request,
       { headers }

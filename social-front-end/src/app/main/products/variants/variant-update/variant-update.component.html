@@ -1,0 +1,36 @@
+<app-form-container (closeForm)="close.emit()" [title]="label">
+    <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="p-6 space-y-6 w-full">
+
+      <!-- Variant Title -->
+      <div>
+        <app-basic-input
+          label="Variant Title"
+          placeholder="Enter variant title"
+          [formControl]="$any(formGroup.get('title'))"
+          [error]="!!getFieldError('title')"
+          [errorMessage]="getFieldError('title')">
+        </app-basic-input>
+      </div>
+
+      <!-- Variant Price -->
+      <div>
+        <app-basic-input
+          label="Price"
+          placeholder="0.00"
+          type="number"
+          step="0.01"
+          min="0"
+          [formControl]="$any(formGroup.get('price'))"
+          [error]="!!getFieldError('price')"
+          [errorMessage]="getFieldError('price')">
+        </app-basic-input>
+      </div>
+      <div class="flex justify-between pt-4">
+        <app-basic-button
+          type="submit"
+          [disabled]="formGroup.invalid">
+          Validate
+        </app-basic-button>
+      </div>
+    </form>
+</app-form-container>

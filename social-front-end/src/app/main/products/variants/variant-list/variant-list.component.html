@@ -16,6 +16,7 @@
   </div>
 </div>
 <app-variant-form [productId]="productId" [isVisible]="isFormVisible" (close)="isFormVisible = false" (variantCreated)="createVariant.emit()" ></app-variant-form>
+<app-variant-update [label]="'Update Variant'" [variantDetails]="actualVariant" [productId]="productId" *ngIf="isUpdateFormVisible" [variantId]="variantId" (close)="isUpdateFormVisible = false" (variantUpdated)="createVariant.emit()"></app-variant-update>
 <!-- Loading State -->
 <div *ngIf="loading" class="flex justify-center items-center py-12">
   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

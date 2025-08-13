@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {NgForOf, NgIf, CurrencyPipe, DatePipe} from "@angular/common";
 import {VariantWithOptionsDTO} from "../../products.types";
 import {VariantFormComponent} from "../variant-form/variant-form.component";
+import {VariantUpdateComponent} from "../variant-update/variant-update.component";
 
 @Component({
   selector: 'app-variant-list',
@@ -11,7 +12,8 @@ import {VariantFormComponent} from "../variant-form/variant-form.component";
     NgIf,
     CurrencyPipe,
     DatePipe,
-    VariantFormComponent
+    VariantFormComponent,
+    VariantUpdateComponent
   ],
   templateUrl: './variant-list.component.html',
   styleUrl: './variant-list.component.css'
@@ -25,7 +27,13 @@ export class VariantListComponent {
   @Output() generateAllVariants = new EventEmitter<void>();
   @Input() productId: number = -1;
   isFormVisible: boolean = false;
+  isUpdateFormVisible:boolean = false;
+  variantId: number = -1;
+  actualVariant !: VariantWithOptionsDTO;
   onEditVariant(variant: VariantWithOptionsDTO) {
+    this.variantId = variant.idVariant;
+    this.actualVariant = variant;
+    this.isUpdateFormVisible = true;
     this.editVariant.emit(variant);
   }
 

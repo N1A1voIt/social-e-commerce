@@ -216,7 +216,8 @@ public class VariantController {
             }
 
             VariantWithOptionsDTO updatedVariant = variantService.updateVariant(
-                productId, variantId, request, seller.getId());
+                productId, variantId, request, seller.getId()
+            );
 
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
