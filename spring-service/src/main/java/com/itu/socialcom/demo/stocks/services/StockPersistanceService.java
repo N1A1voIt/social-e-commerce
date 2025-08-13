@@ -3,12 +3,14 @@ package com.itu.socialcom.demo.stocks.services;
 import com.itu.socialcom.demo.stocks.StockChild;
 import com.itu.socialcom.demo.stocks.StockParent;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
 public class StockPersistanceService extends StockSavingService {
     @Override
+    @Transactional
     public StockParent saveStock(StockParent stockParent) {
         super.stockParentRepository.save(stockParent);
         List<Long> variantsIds = new ArrayList<>();

@@ -4,7 +4,9 @@ import com.itu.socialcom.demo.stocks.StockChild;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface StockChildRepository extends JpaRepository<StockChild,Long> {
     @Query(value = """
@@ -33,5 +35,22 @@ public interface StockChildRepository extends JpaRepository<StockChild,Long> {
         JOIN recent_products_retriever AS sub ON sc.id_product = sub.id_product AND sc.created_at = sub.max_created_at ORDER BY sc.created_at
     """,nativeQuery = true)
     List<StockChild> findByLastProductRecords(List<Long> idProducts);
+    // Method to get the single most recent record before a given date for a variant.
+    @Query(value = """
+    SELECT sc.* FROM stocks_child sc 
+    WHERE sc.id_variant = ?1 AND sc.created_at < ?2 
+    ORDER BY sc.created_at DESC 
+    LIMIT 1
+""", nativeQuery = true)
+    Optional<StockChild> findLastRecordForVariantBeforeDate(Long variantId, LocalDateTime date);
+
+    // Method to get all records for a variant after a given date.
+    @Query(value = """
+        SELECT *
+        FROM stocks_child
+        WHERE id_variant = ?1 AND created_at >= ?2
+        ORDER BY created_at
+    """, nativeQuery = true)
+    List<StockChild> findRecordsForVariantFromDate(Long variantId, LocalDateTime date);
 
 }
