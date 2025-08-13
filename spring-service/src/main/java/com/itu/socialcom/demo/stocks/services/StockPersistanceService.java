@@ -1,0 +1,54 @@
+package com.itu.socialcom.demo.stocks.services;
+
+import com.itu.socialcom.demo.stocks.StockChild;
+import com.itu.socialcom.demo.stocks.StockParent;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class StockPersistanceService extends StockSavingService {
+    @Override
+    public StockParent saveStock(StockParent stockParent) {
+        super.stockParentRepository.save(stockParent);
+        List<Long> variantsIds = new ArrayList<>();
+        Set<Long> productRecords = new HashSet<>();
+        for (StockChild stockChild : stockParent.getStockChildren()) {
+            variantsIds.add(stockChild.getIdVariant());
+            productRecords.add(stockChild.getIdProduct());
+        }
+        List<StockChild> stockChildren = super.stockChildRepository.findMostRecentVariantsByVariantIds(variantsIds);
+        List<StockChild> productChildRecords = super.stockChildRepository.findByLastProductRecords(productRecords.stream().toList());
+
+        HashMap<Long, StockChild> stockChildMap = new HashMap<>();
+        HashMap<Long, StockChild> productChildMap = new HashMap<>();
+        for (StockChild sc : stockChildren) {
+            stockChildMap.put(sc.getIdVariant(), sc);
+        }
+        for (StockChild sc : productChildRecords) {
+            productChildMap.put(sc.getIdProduct(), sc);
+        }
+        for (StockChild currentChild : stockParent.getStockChildren()) {
+            StockChild correspondingVariantChild = stockChildMap.get(currentChild.getIdVariant());
+            StockChild productStockRecord = productChildMap.get(currentChild.getIdProduct());
+            if (correspondingVariantChild != null && productStockRecord != null) {
+                double newProductNumber = (currentChild.getInput() > 0) ?
+                        (productStockRecord.getDProductNumber() + currentChild.getInput()) :
+                        (productStockRecord.getDProductNumber() - currentChild.getOutput());
+                productStockRecord.setDProductNumber(newProductNumber);
+                double newVariantNumber = (currentChild.getInput() > 0) ?
+                        (correspondingVariantChild.getDVariantNumber() + currentChild.getInput()) :
+                        (correspondingVariantChild.getDVariantNumber() - currentChild.getOutput());
+                correspondingVariantChild.setDVariantNumber(newVariantNumber);
+                currentChild.setDProductNumber(newProductNumber);
+                currentChild.setDVariantNumber(newVariantNumber);
+            } else {
+                currentChild.setDVariantNumber(currentChild.getInput() - currentChild.getOutput());
+                currentChild.setDProductNumber(currentChild.getInput() - currentChild.getOutput());
+            }
+            currentChild.setIdMv(stockParent.getId());
+            super.stockChildRepository.save(currentChild);
+        }
+        return stockParent;
+    }
+}

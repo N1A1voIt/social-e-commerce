@@ -536,6 +536,19 @@ CREATE VIEW v_variant_cpl AS
         FROM variants_v2 v LEFT JOIN stock_details ON v.id_variant = stock_details.id_variant;
 
 
+WITH recent_variants_retriever AS
+(
+    SELECT id_variant, MAX(created_at) AS max_created_at
+    FROM stocks_child
+    WHERE id_variant IN (?)
+    GROUP BY id_variant
+)
+SELECT sc.*
+FROM stocks_child sc
+JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.created_at = sub.max_created_at;
+
+
+
 
 
 -- Electronics & Technology
