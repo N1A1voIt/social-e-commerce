@@ -25,6 +25,7 @@ export class VariantListComponent {
   @Output() deleteVariant = new EventEmitter<VariantWithOptionsDTO>();
   @Output() createVariant = new EventEmitter<void>();
   @Output() generateAllVariants = new EventEmitter<void>();
+  @Output() navigateToVariants = new EventEmitter<number>();
   @Input() productId: number = -1;
   isFormVisible: boolean = false;
   isUpdateFormVisible:boolean = false;

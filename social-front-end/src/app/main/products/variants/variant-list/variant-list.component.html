@@ -63,7 +63,7 @@
       </thead>
       <tbody>
         <tr class="hover:bg-slate-50 group transition-colors"
-          *ngFor="let variant of variantsList; trackBy: trackByVariantId">
+          *ngFor="let variant of variantsList; trackBy: trackByVariantId" (click)="navigateToVariants.emit(variant.idVariant)" >
 
           <!-- Variant Title -->
           <td class="p-4 border-b border-slate-200 py-5">
@@ -158,9 +158,9 @@
 </div>
 
 <!-- Mobile Card View (visible on mobile) -->
-<div *ngIf="!loading && variantsList.length > 0" class="lg:hidden space-y-4">
+<div *ngIf="!loading && variantsList.length > 0" class="lg:hidden space-y-4" >
   <div *ngFor="let variant of variantsList; trackBy: trackByVariantId"
-    class="bg-white rounded-lg shadow-md p-4 border border-gray-200">
+    class="bg-white rounded-lg shadow-md p-4 border border-gray-200" (click)="navigateToVariants.emit(variant.idVariant)">
 
     <div class="flex justify-between items-start mb-3">
       <div class="flex-1">

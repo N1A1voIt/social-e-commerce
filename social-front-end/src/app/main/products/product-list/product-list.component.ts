@@ -21,7 +21,7 @@ export class ProductListComponent implements OnInit {
   }
   ngOnInit(): void {
   }
-
+  @Output() navigateToVariants:EventEmitter<number> = new EventEmitter<number>();
   onAddProduct() {
     this.addProductClicked.emit();
   }

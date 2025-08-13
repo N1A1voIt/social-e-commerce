@@ -11,6 +11,7 @@ import {TempProduct, OptionValueDTO, CreationStepsDTO, DisplayProduct, Category,
 import {SupabaseService} from "../../shared/supabase.service";
 import {BasicSelectComponent, SelectOption} from "../../shared/basic-select/basic-select.component";
 import {ProductServiceService} from "./product-service.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-products',
@@ -54,6 +55,7 @@ export class ProductsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
+    private router: Router,
     private productService:ProductServiceService,
     private supabaseService: SupabaseService
   ) {
@@ -126,7 +128,9 @@ export class ProductsComponent implements OnInit {
       reader.readAsDataURL(file);
     }
   }
-
+  navigateToVariants(idProduct:any): void {
+    this.router.navigateByUrl('/basic/variants/' + idProduct);
+  }
   removeFile(): void {
     this.selectedFile = null;
     this.previewUrl = null;

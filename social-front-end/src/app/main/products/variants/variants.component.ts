@@ -28,11 +28,13 @@ export class VariantsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private variantService: VariantsService,
     private cdr:ChangeDetectorRef
   ) {}
-
+  navigateToVariants(idProduct:any): void {
+    console.log('Navigating to variants for product ID:', idProduct);
+  }
   ngOnInit(): void {
     this.productId = Number(this.route.snapshot.paramMap.get('idProduct'));
     if (this.productId) {

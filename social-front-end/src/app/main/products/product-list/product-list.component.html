@@ -25,7 +25,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr class="hover:bg-slate-50 cursor-pointer group" onclick="window.location.href='/basic/variants/'+product.idPc" *ngFor="let product of productsList">
+    <tr class="hover:bg-slate-50 cursor-pointer group" *ngFor="let product of productsList" (click)="navigateToVariants.emit(product.idPc)">
       <td class="p-4 border-b border-slate-200 py-5">
         <img src="{{product.media}}" alt="Product 1" class="w-16 h-16 object-cover rounded" />
       </td>
@@ -74,7 +74,7 @@
 <!-- Mobile Card View (visible only on mobile) -->
 <div class="lg:hidden space-y-4 font-mono">
   <!-- Product Card 1 -->
-  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location.href='basic/variants/'+product.idPc" *ngFor="let product of productsList">
+  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" *ngFor="let product of productsList" (click)="navigateToVariants.emit(product.idPc)">
     <div class="flex items-start space-x-4">
       <img src="{{product.media}}" alt="Product 1" class="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
       <div class="flex-1 min-w-0">
