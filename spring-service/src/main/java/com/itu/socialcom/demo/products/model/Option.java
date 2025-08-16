@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Entity representing a product option in the social commerce platform.
  * This entity does not use JPA relationships to maintain manual control over data access.
@@ -33,7 +36,10 @@ public class Option {
      */
     @Column(name = "id_product", nullable = false)
     private Long idProduct;
-    
+
+    @Transient
+    private List<OptionValue> optionValues = new ArrayList<>();
+
     /**
      * Default constructor
      */

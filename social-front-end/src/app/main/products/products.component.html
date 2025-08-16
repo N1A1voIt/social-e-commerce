@@ -1,5 +1,5 @@
-<div class="w-full h-full bg-white p-6 rounded-3xl">
-  <app-product-list (addProductClicked)="showForm = true"></app-product-list>
+<div class="w-full h-full bg-white p-6 rounded-3xl overflow-y-scroll hide-scrollbar">
+  <app-product-list (navigateToVariants)="navigateToVariants($event)" (addProductClicked)="showForm = true" [productsList]="products"></app-product-list>
   <app-form-container *ngIf="showForm" (closeForm)="showForm = false">
     <!-- Step 1: Product Details -->
     <form  *ngIf="currentStep === 1" [formGroup]="step1Form" (ngSubmit)="saveStep1()" class="space-y-4 w-full flex flex-col gap-1">

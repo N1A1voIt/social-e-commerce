@@ -41,3 +41,75 @@ export interface Product {
   idCategory: number,
   formattedPrice: number
 }
+
+export interface ProductCpl {
+  idPc: number,
+  description: string,
+  name: string,
+  price: number,
+  media: string,
+  idSeller: number,
+  idCategory: number,
+  categoryName: string,
+  productNumber: number
+  stockStatus: string
+}
+
+export interface Variant {
+  idVariant:number;
+  title:string;
+  price:number;
+  idProduct:number;
+  createdAt:Date;
+  updatedAt:Date;
+}
+
+export interface VariantOptionDTO {
+  idOption: number;
+  optionLabel: string;
+  idOptionValue: number;
+  optionValue: string;
+}
+
+export interface VariantWithOptionsDTO {
+  idVariant: number;
+  title: string;
+  price: number;
+  idProduct: number;
+  createdAt: Date;
+  updatedAt: Date;
+  stockQuantity?: number;
+  stockStatus?: string;
+  options: VariantOptionDTO[];
+}
+
+export interface CreateVariantWithOptionsRequest {
+  title: string;
+  price: number;
+  optionValueIds: number[];
+}
+
+export interface GenerateVariantsRequest {
+  basePrice: number;
+  titlePrefix?: string;
+  overwriteExisting?: boolean;
+}
+
+export interface UpdateVariantRequest {
+  title?: string;
+  price?: number;
+}
+
+export interface ProductOption {
+  idOption: number;
+  label: string;
+  idProduct: number;
+  optionValues: ProductOptionValue[];
+}
+
+export interface ProductOptionValue {
+  idOv: number;
+  value: string;
+  idOption: number;
+}
+

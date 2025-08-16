@@ -7,9 +7,11 @@ import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {javaHost} from "../../../environments/environment";
-import {TempProduct, OptionValueDTO, CreationStepsDTO, DisplayProduct, Category} from "./products.types"
+import {TempProduct, OptionValueDTO, CreationStepsDTO, DisplayProduct, Category, ProductCpl} from "./products.types"
 import {SupabaseService} from "../../shared/supabase.service";
 import {BasicSelectComponent, SelectOption} from "../../shared/basic-select/basic-select.component";
+import {ProductServiceService} from "./product-service.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-products',
@@ -45,7 +47,7 @@ export class ProductsComponent implements OnInit {
   uploadError = '';
 
   showForm:boolean = false;
-
+  products:ProductCpl[] = [];
 
   private apiUrl = javaHost + '/api/steps'; // Adjust base URL as needed
   private authToken = ''; // Get from your auth service
@@ -53,9 +55,22 @@ export class ProductsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
+    private router: Router,
+    private productService:ProductServiceService,
     private supabaseService: SupabaseService
   ) {
     this.initializeForms();
+  }
+
+  fetchProducts() {
+    this.productService.fetchProducts().subscribe({
+      next: (data: ProductCpl[]) => {
+        this.products = data;
+      },
+      error: (error) => {
+        alert("Error fetching products: " + error.message);
+      }
+    })
   }
 
   ngOnInit() {
@@ -64,6 +79,7 @@ export class ProductsComponent implements OnInit {
 
     // Try to recover existing data on component initialization
     this.recoverData();
+    this.fetchProducts();
   }
 
   private initializeForms() {
@@ -112,7 +128,9 @@ export class ProductsComponent implements OnInit {
       reader.readAsDataURL(file);
     }
   }
-
+  navigateToVariants(idProduct:any): void {
+    this.router.navigateByUrl('/basic/variants/' + idProduct);
+  }
   removeFile(): void {
     this.selectedFile = null;
     this.previewUrl = null;

@@ -18,7 +18,6 @@
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Product</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Name</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Category</th>
-      <th class="p-4 text-sm font-normal leading-none text-slate-500">SKU</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Quantity</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Price</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Status</th>
@@ -26,33 +25,30 @@
     </tr>
     </thead>
     <tbody>
-    <tr class="hover:bg-slate-50 cursor-pointer group" onclick="window.location.href='/products/1'" *ngFor="let product of products">
+    <tr class="hover:bg-slate-50 cursor-pointer group" *ngFor="let product of productsList" (click)="navigateToVariants.emit(product.idPc)">
       <td class="p-4 border-b border-slate-200 py-5">
         <img src="{{product.media}}" alt="Product 1" class="w-16 h-16 object-cover rounded" />
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <div>
           <p class="block font-semibold text-sm text-slate-800 group-hover:text-blue-600">{{ product.name }}</p>
-          <p class="text-xs text-slate-500">{{ product }}</p>
+          <p class="text-xs text-slate-500 w-[400px] truncate text-ellipsis">{{ product.description }}</p>
         </div>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
+        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ product.categoryName }}</span>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500 font-mono">CHR-001</p>
-      </td>
-      <td class="p-4 border-b border-slate-200 py-5">
-        <p class="text-sm text-slate-500">2</p>
+        <p class="text-sm text-slate-500">{{product.productNumber}}</p>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <div>
-          <p class="text-sm font-semibold text-slate-800">$500</p>
-          <p class="text-xs text-slate-500">Total: $1,000</p>
+          <p class="text-sm font-semibold text-slate-800">{{product.price}}</p>
+          <p class="text-xs text-slate-500">Total: ${{product.productNumber * product.price}}</p>
         </div>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
-        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">In Stock</span>
+        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">{{ product.stockStatus }}</span>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <div class="flex space-x-2">
@@ -78,17 +74,17 @@
 <!-- Mobile Card View (visible only on mobile) -->
 <div class="lg:hidden space-y-4 font-mono">
   <!-- Product Card 1 -->
-  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="window.location.href='/products/1'">
+  <div class="bg-fotsy shadow-md rounded-3xl p-4 hover:shadow-lg transition-shadow cursor-pointer" *ngFor="let product of productsList" (click)="navigateToVariants.emit(product.idPc)">
     <div class="flex items-start space-x-4">
-      <img src="https://demos.creative-tim.com/corporate-ui-dashboard-pro/assets/img/kam-idris-_HqHX3LBN18-unsplash.jpg" alt="Product 1" class="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+      <img src="{{product.media}}" alt="Product 1" class="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
       <div class="flex-1 min-w-0">
         <div class="flex justify-between items-start mb-2">
           <div class="flex-1">
-            <h3 class="font-semibold text-slate-800 text-base truncate">Beautiful Chair</h3>
-            <p class="text-xs text-slate-500 mb-1">Ergonomic office chair</p>
+            <h3 class="font-semibold text-slate-800 text-base truncate w-[100px]">{{ product.name }}</h3>
+            <p class="text-xs text-slate-500 mb-1 w-[100px] truncate text-ellipsis">{{product.description}}</p>
             <div class="flex items-center space-x-2 mb-2">
-              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Furniture</span>
-              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">In Stock</span>
+              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ product.categoryName }}</span>
+              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">{{ product.stockStatus }}</span>
             </div>
           </div>
           <div class="flex space-x-1 ml-2">
@@ -107,25 +103,21 @@
         </div>
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <span class="text-slate-500">SKU:</span>
-            <span class="text-slate-800 ml-1 font-mono text-xs">CHR-001</span>
-          </div>
-          <div>
             <span class="text-slate-500">Qty:</span>
-            <span class="text-slate-800 ml-1">2</span>
+            <span class="text-slate-800 ml-1">{{product.productNumber}}</span>
           </div>
           <div>
             <span class="text-slate-500">Price:</span>
-            <span class="text-slate-800 ml-1 font-semibold">$500</span>
+            <span class="text-slate-800 ml-1 font-semibold">${{product.price}}</span>
           </div>
           <div>
             <span class="text-slate-500">Total:</span>
-            <span class="text-slate-800 ml-1 font-semibold">$1,000</span>
+            <span class="text-slate-800 ml-1 font-semibold">${{product.productNumber * product.price}}</span>
           </div>
         </div>
         <div class="mt-2 pt-2 border-t border-slate-200">
-          <button class="text-blue-600 text-sm font-medium hover:text-blue-800" onclick="event.stopPropagation(); window.location.href='/products/1'">
-            View Details →
+          <button class="text-blue-600 text-sm font-medium hover:text-blue-800" onclick="event.stopPropagation(); window.location.href='/basic/variants/'+product.idPc">
+            View variants →
           </button>
         </div>
       </div>

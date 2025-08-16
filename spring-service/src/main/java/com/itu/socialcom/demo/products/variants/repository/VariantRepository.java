@@ -1,6 +1,6 @@
-package com.itu.socialcom.demo.products.repository;
+package com.itu.socialcom.demo.products.variants.repository;
 
-import com.itu.socialcom.demo.products.model.Variant;
+import com.itu.socialcom.demo.products.variants.model.Variant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,13 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Repository interface for Variant entity operations.
  * Provides CRUD operations and product-specific variant queries.
- * 
  * Requirements addressed:
  * - 2.1: Variant creation and management
  * - 2.6: Variant listing for products
@@ -105,4 +105,8 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
      */
     @Query("SELECT v FROM Variant v WHERE v.idProduct = :idProduct ORDER BY v.price ASC")
     List<Variant> findByIdProductOrderByPriceAsc(@Param("idProduct") Long idProduct);
+
+    List<Variant> findVariantsByIdProduct(Long idProduct);
+
+    List<Variant> findByIdProductIn(Collection<Long> idProducts);
 }
