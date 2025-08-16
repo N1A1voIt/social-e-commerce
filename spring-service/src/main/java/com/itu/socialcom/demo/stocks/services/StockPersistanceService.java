@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.stocks.services;
 
+import com.itu.socialcom.demo.stocks.InsufficientStockException;
 import com.itu.socialcom.demo.stocks.StockChild;
 import com.itu.socialcom.demo.stocks.StockParent;
 import org.springframework.stereotype.Service;
@@ -11,11 +12,11 @@ import java.util.*;
 public class StockPersistanceService extends StockSavingService {
     @Override
     @Transactional
-    public StockParent saveStock(StockParent stockParent) {
+    public StockParent saveStock(StockParent stockParent) throws InsufficientStockException {
         super.stockParentRepository.save(stockParent);
         List<Long> variantsIds = new ArrayList<>();
         Set<Long> productRecords = new HashSet<>();
-        for (StockChild stockChild : stockParent.getStockChildren()) {
+        for (StockChild stockChild : stockParent.getItems()) {
             variantsIds.add(stockChild.getIdVariant());
             productRecords.add(stockChild.getIdProduct());
         }
@@ -30,7 +31,7 @@ public class StockPersistanceService extends StockSavingService {
         for (StockChild sc : productChildRecords) {
             productChildMap.put(sc.getIdProduct(), sc);
         }
-        for (StockChild currentChild : stockParent.getStockChildren()) {
+        for (StockChild currentChild : stockParent.getItems()) {
             StockChild correspondingVariantChild = stockChildMap.get(currentChild.getIdVariant());
             StockChild productStockRecord = productChildMap.get(currentChild.getIdProduct());
             if (correspondingVariantChild != null && productStockRecord != null) {
@@ -47,6 +48,9 @@ public class StockPersistanceService extends StockSavingService {
             } else {
                 currentChild.setDVariantNumber(currentChild.getInput() - currentChild.getOutput());
                 currentChild.setDProductNumber(currentChild.getInput() - currentChild.getOutput());
+            }
+            if (currentChild.getDVariantNumber() < 0 || currentChild.getDProductNumber() < 0) {
+                throw new InsufficientStockException("Stock cannot be negative for product or variant.");
             }
             currentChild.setIdMv(stockParent.getId());
             super.stockChildRepository.save(currentChild);

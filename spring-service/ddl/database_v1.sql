@@ -547,63 +547,62 @@ SELECT sc.*
 FROM stocks_child sc
 JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.created_at = sub.max_created_at;
 
-
-CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
-    RETURNS TRIGGER AS $$
-BEGIN
-    -- The trigger is fired FOR EACH ROW that is inserted or updated.
-
-    -- The first part of this function updates the variant and product stock numbers
-    -- from the current row's timestamp onwards.
-
-    WITH RunningTotals AS (
-        SELECT
-            sc.id_st_ch,
-            sc.id_variant,
-            sc.id_product,
-
-            -- Calculate the cumulative sum for the variant stock
-            -- We start the sum from the last known value before this transaction's date.
-            COALESCE((
-                         SELECT d_variant_number
-                         FROM stocks_child
-                         WHERE id_variant = NEW.id_variant AND created_at < NEW.created_at
-                         ORDER BY created_at DESC
-                         LIMIT 1
-                     ), 0) + SUM(COALESCE(sc.input, 0) - COALESCE(sc.output, 0)) OVER (PARTITION BY sc.id_variant ORDER BY sc.created_at) AS new_variant_number,
-
-            -- Calculate the cumulative sum for the product stock
-            COALESCE((
-                         SELECT d_product_number
-                         FROM stocks_child
-                         WHERE id_product = NEW.id_product AND created_at < NEW.created_at
-                         ORDER BY created_at DESC
-                         LIMIT 1
-                     ), 0) + SUM(COALESCE(sc.input, 0) - COALESCE(sc.output, 0)) OVER (PARTITION BY sc.id_product ORDER BY sc.created_at) AS new_product_number
-        FROM stocks_child sc
-        WHERE
-            (sc.id_variant = NEW.id_variant OR sc.id_product = NEW.id_product)
-          AND sc.created_at >= NEW.created_at
-    )
-    UPDATE stocks_child
-    SET
-        d_variant_number = rt.new_variant_number,
-        d_product_number = rt.new_product_number
-    FROM RunningTotals rt
-    WHERE stocks_child.id_st_ch = rt.id_st_ch;
-
-    -- This ensures the current row being inserted/updated also gets the correct values.
-    -- The `UPDATE` statement above might not catch the `NEW` row itself, depending on timing.
-    -- We'll manually set the values to be safe.
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_stocks_child_denormalized_fields_trigger
-    AFTER INSERT OR UPDATE ON stocks_child
-    FOR EACH ROW
-EXECUTE FUNCTION update_stocks_child_denormalized_fields_function();
-
+--
+-- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
+--     RETURNS TRIGGER AS $$
+-- BEGIN
+--     -- The trigger is fired FOR EACH ROW that is inserted or updated.
+--
+--     -- The first part of this function updates the variant and product stock numbers
+--     -- from the current row's timestamp onwards.
+--
+--     WITH RunningTotals AS (
+--         SELECT
+--             sc.id_st_ch,
+--             sc.id_variant,
+--             sc.id_product,
+--
+--             -- Calculate the cumulative sum for the variant stock
+--             -- We start the sum from the last known value before this transaction's date.
+--             COALESCE((
+--                          SELECT d_variant_number
+--                          FROM stocks_child
+--                          WHERE id_variant = NEW.id_variant AND created_at < NEW.created_at
+--                          ORDER BY created_at DESC
+--                          LIMIT 1
+--                      ), 0) + SUM(COALESCE(sc.input, 0) - COALESCE(sc.output, 0)) OVER (PARTITION BY sc.id_variant ORDER BY sc.created_at) AS new_variant_number,
+--
+--             -- Calculate the cumulative sum for the product stock
+--             COALESCE((
+--                          SELECT d_product_number
+--                          FROM stocks_child
+--                          WHERE id_product = NEW.id_product AND created_at < NEW.created_at
+--                          ORDER BY created_at DESC
+--                          LIMIT 1
+--                      ), 0) + SUM(COALESCE(sc.input, 0) - COALESCE(sc.output, 0)) OVER (PARTITION BY sc.id_product ORDER BY sc.created_at) AS new_product_number
+--         FROM stocks_child sc
+--         WHERE
+--             (sc.id_variant = NEW.id_variant OR sc.id_product = NEW.id_product)
+--           AND sc.created_at >= NEW.created_at
+--     )
+--     UPDATE stocks_child
+--     SET
+--         d_variant_number = rt.new_variant_number,
+--         d_product_number = rt.new_product_number
+--     FROM RunningTotals rt
+--     WHERE stocks_child.id_st_ch = rt.id_st_ch;
+--
+--     -- This ensures the current row being inserted/updated also gets the correct values.
+--     -- The `UPDATE` statement above might not catch the `NEW` row itself, depending on timing.
+--     -- We'll manually set the values to be safe.
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE TRIGGER update_stocks_child_denormalized_fields_trigger
+--     AFTER INSERT OR UPDATE ON stocks_child
+--     FOR EACH ROW
+-- EXECUTE FUNCTION update_stocks_child_denormalized_fields_function();
 
 
 

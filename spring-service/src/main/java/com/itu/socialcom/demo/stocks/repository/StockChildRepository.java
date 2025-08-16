@@ -17,7 +17,7 @@ public interface StockChildRepository extends JpaRepository<StockChild,Long> {
             WHERE id_variant IN (?) 
             GROUP BY id_variant 
         )
-        SELECT sc.* 
+        SELECT sc.id_st_ch, sc.price, sc.action_at, coalesce(sc.input,0) as input, coalesce(sc.output,0) as output, coalesce(sc.d_product_number,0) as d_product_number, coalesce(sc.d_variant_number,0) as d_variant_number, sc.product_name, sc.variant_name, sc.id_product, sc.id_variant, sc.id_mv,sc.created_at
         FROM stocks_child sc 
         JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.created_at = sub.max_created_at ORDER BY sc.created_at
     """,nativeQuery = true)
@@ -30,7 +30,7 @@ public interface StockChildRepository extends JpaRepository<StockChild,Long> {
             WHERE id_product IN (?) 
             GROUP BY id_product 
         )
-        SELECT sc.* 
+        SELECT sc.id_st_ch, sc.price, sc.action_at, coalesce(sc.input,0) as input, coalesce(sc.output,0) as output, coalesce(sc.d_product_number,0) as d_product_number, coalesce(sc.d_variant_number,0) as d_variant_number, sc.product_name, sc.variant_name, sc.id_product, sc.id_variant, sc.id_mv,sc.created_at
         FROM stocks_child sc 
         JOIN recent_products_retriever AS sub ON sc.id_product = sub.id_product AND sc.created_at = sub.max_created_at ORDER BY sc.created_at
     """,nativeQuery = true)

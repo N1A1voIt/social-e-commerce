@@ -20,9 +20,10 @@ public class StockParent {
     private LocalDateTime createdAt;
     @Column(name = "id_order_m")
     private Long idOrderM;
-
+    @Column(name = "id_seller")
+    private Long idSeller;
     @Transient
-    List<StockChild> stockChildren;
+    List<StockChild> items;
 
     @Transient
     boolean isEntry;

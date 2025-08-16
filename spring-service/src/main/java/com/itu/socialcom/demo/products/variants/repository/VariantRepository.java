@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,4 +107,6 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
     List<Variant> findByIdProductOrderByPriceAsc(@Param("idProduct") Long idProduct);
 
     List<Variant> findVariantsByIdProduct(Long idProduct);
+
+    List<Variant> findByIdProductIn(Collection<Long> idProducts);
 }

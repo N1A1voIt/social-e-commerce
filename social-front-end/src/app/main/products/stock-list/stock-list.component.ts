@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import {StockFormComponent} from "../stock-form/stock-form.component";
 
 interface StockItem {
   id: number;
@@ -18,7 +19,7 @@ interface StockItem {
 @Component({
   selector: 'app-stock-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, StockFormComponent],
   templateUrl: './stock-list.component.html',
   styleUrl: './stock-list.component.css'
 })
@@ -101,25 +102,25 @@ export class StockListComponent implements OnInit {
 
   getTimeAgo(date: Date): string {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    
+
     let interval = Math.floor(seconds / 31536000);
     if (interval > 1) return `${interval} years ago`;
     if (interval === 1) return '1 year ago';
-    
+
     interval = Math.floor(seconds / 2592000);
     if (interval > 1) return `${interval} months ago`;
     if (interval === 1) return '1 month ago';
-    
+
     interval = Math.floor(seconds / 86400);
     if (interval > 1) return `${interval} days ago`;
     if (interval === 1) return 'yesterday';
-    
+
     interval = Math.floor(seconds / 3600);
     if (interval >= 1) return `${interval} hour${interval === 1 ? '' : 's'} ago`;
-    
+
     interval = Math.floor(seconds / 60);
     if (interval >= 1) return `${interval} minute${interval === 1 ? '' : 's'} ago`;
-    
+
     return 'just now';
   }
 }
