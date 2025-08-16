@@ -4,6 +4,7 @@ import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.products.repository.ProductRepository;
 import com.itu.socialcom.demo.products.variants.repository.VariantRepository;
+import com.itu.socialcom.demo.stocks.InsufficientStockException;
 import com.itu.socialcom.demo.stocks.StockChild;
 import com.itu.socialcom.demo.stocks.StockParent;
 import com.itu.socialcom.demo.stocks.dto.StockUtilities;
@@ -56,7 +57,13 @@ public class StockController {
             apiResponse.setData(savedStock);
             apiResponse.setStatus(200);
             return ResponseEntity.ok(apiResponse);
-        } catch (Exception e) {
+        } catch (InsufficientStockException e) {
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(409); // Conflict
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
+        }
+        catch (Exception e) {
             e.printStackTrace();
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);

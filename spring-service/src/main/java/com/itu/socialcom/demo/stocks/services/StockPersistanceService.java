@@ -6,6 +6,7 @@ import com.itu.socialcom.demo.stocks.StockParent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -35,6 +36,7 @@ public class StockPersistanceService extends StockSavingService {
             StockChild correspondingVariantChild = stockChildMap.get(currentChild.getIdVariant());
             StockChild productStockRecord = productChildMap.get(currentChild.getIdProduct());
             if (correspondingVariantChild != null && productStockRecord != null) {
+                System.out.println("Going right here");
                 double newProductNumber = (currentChild.getInput() > 0) ?
                         (productStockRecord.getDProductNumber() + currentChild.getInput()) :
                         (productStockRecord.getDProductNumber() - currentChild.getOutput());
@@ -50,9 +52,10 @@ public class StockPersistanceService extends StockSavingService {
                 currentChild.setDProductNumber(currentChild.getInput() - currentChild.getOutput());
             }
             if (currentChild.getDVariantNumber() < 0 || currentChild.getDProductNumber() < 0) {
-                throw new InsufficientStockException("Stock cannot be negative for product or variant.");
+                throw new InsufficientStockException("Stock cannot be negative for product or variant."+currentChild.getDVariantNumber()+","+currentChild.getDProductNumber());
             }
             currentChild.setIdMv(stockParent.getId());
+            currentChild.setCreatedAt(LocalDateTime.now());
             super.stockChildRepository.save(currentChild);
         }
         return stockParent;
