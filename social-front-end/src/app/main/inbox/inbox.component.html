@@ -83,20 +83,30 @@
         </div>
 
         <div class="w-full" *ngFor="let message of messages">
-          <div class="flex items-end gap-2 max-w-[80%]" *ngIf="message.fromPlatform">
+          <div class="flex items-end gap-2 max-w-[80%] relative" *ngIf="message.fromPlatform">
             <div class="rounded-full overflow-hidden w-[30px] h-[30px] flex-shrink-0">
               <img src="{{ actualCustomer.mediaUrl }}" alt="Profile" class="w-full h-full object-cover">
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col relative">
               <div class="bg-fotsy py-2 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
                 <p class="text-blackt">{{message.message}}</p>
               </div>
-              <span class="text-xs text-gray-500 mt-1">{{ getFormattedDate(message.createdAt)}}</span>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-xs text-gray-500">{{ getFormattedDate(message.createdAt)}}</span>
+                <button
+                  class="ml-2 px-2 py-1 bg-zinc-500 hover:bg-zinc-600 text-white text-xs rounded-full transition-colors duration-200 flex items-center gap-1"
+                  title="Extract order"
+                  (click)="analyzeMessage(message.message)"
+                >
+                  <i class="pi pi-sparkles"></i>
+                  AI
+                </button>
+              </div>
             </div>
           </div>
 
           <div class="flex flex-col items-end ml-auto max-w-[80%]" *ngIf="!message.fromPlatform">
-            <div class="bg-orange text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
+            <div class="bg-yellow text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
               <p>{{ message.message }}</p>
             </div>
             <div class="flex items-center gap-1 mt-1">
@@ -144,7 +154,7 @@
 
         <!-- Send button -->
         <button
-          class="text-xl p-3 rounded-full bg-orange text-white flex justify-center items-center"
+          class="text-xl p-3 rounded-full bg-yellow text-white flex justify-center items-center"
           [ngClass]="{'opacity-50': !message.trim(), 'cursor-not-allowed': !message.trim()}"
           [disabled]="!message.trim()"
           (click)="sendMessage()"
@@ -159,3 +169,5 @@
 
   </div>
 </div>
+
+<app-inbox-popup *ngIf="openPopup" (closePopup)="openPopup = false" [variants]="orderPreview" [isLoading]="loadingOrders"></app-inbox-popup>

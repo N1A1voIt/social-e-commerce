@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { NgIf, NgForOf, CurrencyPipe } from '@angular/common';
+import {NgIf, NgForOf, CurrencyPipe, AsyncPipe} from '@angular/common';
 import {
   ProductOption,
   ProductOptionValue,
@@ -13,6 +13,7 @@ import { BasicSelectComponent } from '../../../../shared/basic-select/basic-sele
 import { BasicButtonComponent } from '../../../../shared/basic-button/basic-button.component';
 import {ApiResponse} from "../../../inbox/inbox.service";
 import {HttpErrorResponse} from "@angular/common/http";
+import {SupabaseService} from "../../../../shared/supabase.service";
 
 @Component({
   selector: 'app-variant-form',
@@ -24,7 +25,8 @@ import {HttpErrorResponse} from "@angular/common/http";
     CurrencyPipe,
     BasicInputComponent,
     BasicSelectComponent,
-    BasicButtonComponent
+    BasicButtonComponent,
+    AsyncPipe
   ],
   templateUrl: './variant-form.component.html',
   styleUrl: './variant-form.component.css'
@@ -41,9 +43,18 @@ export class VariantFormComponent implements OnInit {
   submitting: boolean = false;
   errorMessage: string = '';
 
+
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+  isUploadingFile = false;
+  uploadError = '';
+
+  isLoading = false;
+
   constructor(
     private fb: FormBuilder,
-    private variantsService: VariantsService
+    private variantsService: VariantsService,
+    private supabaseService: SupabaseService
   ) {}
 
   ngOnInit(): void {
@@ -57,9 +68,50 @@ export class VariantFormComponent implements OnInit {
     this.variantForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(2)]],
       price: [0, [Validators.required, Validators.min(0.01)]],
+      sku: ['', [Validators.required, Validators.required]],
+      media: [''],
       selectedOptions: this.fb.group({})
     });
   }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.uploadError = 'Please select an image file.';
+        return;
+      }
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        this.uploadError = 'File size must be less than 10MB.';
+        return;
+      }
+
+      this.selectedFile = file;
+      this.uploadError = '';
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeFile(): void {
+    this.selectedFile = null;
+    this.previewUrl = null;
+    this.uploadError = '';
+
+    // Clear the media URL from form if it was previously uploaded
+    this.variantForm.patchValue({ media: '' });
+  }
+
 
   private loadProductOptions(): void {
     this.loading = true;
@@ -124,12 +176,42 @@ export class VariantFormComponent implements OnInit {
   //   // Auto-generate title when options change
   //   this.generateTitle();
   // }
+  async uploadFileToSupabase(): Promise<string | null> {
+    if (!this.selectedFile) {
+      return null;
+    }
 
-  onSubmit(): void {
+    try {
+      this.isUploadingFile = true;
+      this.uploadError = '';
+
+      const mediaUrl = await this.supabaseService.uploadFile(this.selectedFile, 'products');
+
+      // Update form with the uploaded file URL
+      this.variantForm.patchValue({ media: mediaUrl });
+
+      return mediaUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      this.uploadError = 'Failed to upload image. Please try again.';
+      return null;
+    } finally {
+      this.isUploadingFile = false;
+    }
+  }
+  async onSubmit(): Promise<void> {
     if (this.variantForm.valid) {
       this.submitting = true;
       this.errorMessage = '';
-
+      this.isLoading = true;
+      if (this.selectedFile) {
+        const uploadedUrl = await this.uploadFileToSupabase();
+        if (!uploadedUrl) {
+          this.isLoading = false;
+          return; // Stop if upload failed
+        }
+        this.variantForm.patchValue({ media: uploadedUrl });
+      }
       const formValue = this.variantForm.value;
       const selectedOptionsGroup = this.variantForm.get('selectedOptions') as FormGroup;
 
@@ -143,11 +225,13 @@ export class VariantFormComponent implements OnInit {
       });
 
       const request: CreateVariantWithOptionsRequest = {
+        sku: formValue.sku,
+        media: formValue.media,
         title: formValue.title,
         price: formValue.price,
         optionValueIds: optionValueIds
       };
-
+      console.log('Creating variant with options:', request);
       this.variantsService.createVariantWithOptions(this.productId, request).subscribe({
         next: (variant: ApiResponse) => {
           this.submitting = false;

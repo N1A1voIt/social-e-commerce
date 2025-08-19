@@ -6,11 +6,13 @@ import {ApiResponse, InboxService} from "./inbox.service";
 import {InboxDisplay, Message, MessageBody, MessageBox} from "./inbox-element.type";
 import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
 import {PageListComponent} from "./page-list/page-list.component";
+import {InboxPopupComponent} from "./inbox-popup/inbox-popup.component";
+import {VariantWithQuantity} from "../products/products.types";
 
 @Component({
   selector: 'app-inbox',
   standalone: true,
-  imports: [CommonModule, FormsModule, ManagedAccountComponent, PageListComponent],
+  imports: [CommonModule, FormsModule, ManagedAccountComponent, PageListComponent, InboxPopupComponent],
   providers:[DatePipe],
   templateUrl: './inbox.component.html',
   styleUrl: './inbox.component.css'
@@ -24,7 +26,9 @@ export class InboxComponent implements OnInit {
   showPageList: boolean = false;
   messages:Message[] = [];
   actualCustomer!: MessageBox;
-
+  orderPreview: VariantWithQuantity[] = [];
+  openPopup: boolean = false;
+  loadingOrders: boolean = false;
   changePage(page:ManagedPageCPL) {
 
     this.fetchInboxContent(page.idMp);
@@ -115,6 +119,19 @@ export class InboxComponent implements OnInit {
       next: (response:ApiResponse) => {
         console.log(response);
         this.messages.push(response.data);
+      }, error(err) {
+        alert(err.message);
+      }
+    });
+  }
+  analyzeMessage(message:string):void {
+    this.openPopup = true;
+    this.loadingOrders = true;
+    this.inboxService.fetchAnalyses(message).subscribe({
+      next: (response:ApiResponse) => {
+        console.log(response);
+        this.orderPreview = response.data;
+        this.loadingOrders = false;
       }, error(err) {
         alert(err.message);
       }
