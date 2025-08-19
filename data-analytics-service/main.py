@@ -1,3 +1,4 @@
+import json
 import uuid
 from typing import Optional
 
@@ -20,7 +21,7 @@ load_dotenv()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],  # or ["*"] for dev
+    allow_origins=["*",],  # or ["*"] for dev
     allow_credentials=True,
     allow_methods=["*"],  # Or ["GET", "POST", "OPTIONS"]
     allow_headers=["*"],  # You can restrict this if needed
@@ -96,7 +97,7 @@ async def extract_skus_qty(query_payload:QueryPayload,authorization: Optional[st
         for event in events:
             if event.is_final_response():
                 returned = event.content.parts[0].text
-        return returned
+        return json.loads(returned)
     return call_agent(query=query)
 
 

@@ -36,7 +36,7 @@ public class MessageController {
             if (seller == null) {
                 throw new AuthException("Please log in to fetch orders");
             }
-            List<VariantWithQuantity> messageChildren = fetchSkusQtyFromPython.fetchVariants(uquery, seller.getId());
+            List<VariantWithQuantity> messageChildren = fetchSkusQtyFromPython.fetchVariants(uquery, seller.getId(),token);
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(messageChildren);

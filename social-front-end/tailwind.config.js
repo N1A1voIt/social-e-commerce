@@ -13,16 +13,17 @@ module.exports = {
         '2xl': ['3vh', { lineHeight: '2rem' }],     // 24px
         '3xl': ['4vh', { lineHeight: '2.25rem' }] // 30px
       },colors: {
-        blackt: '#252C35',
-        fotsy: '#ffffff',
-        gray: '#666667',
-        principal : '#F1EAEA',
-        white :'#E9E8E9',
-        black:'#212429',
-        brown:'#D4C4B8',
-        yellow:'#E8BC34',
-        orange:'#FC6657',
-        cardbg:'#d7c9c7'
+        blackt:   '#1C1F26',   // Darker, cooler black for strong backgrounds
+        fotsy:    '#FFFFFF',   // True white for high contrast
+        gray:     '#7A7A8C',   // Neutral gray with better tone
+        principal:'#EDECEA',   // Soft light gray, clean UI background
+        white:    '#E1DCDA',   // Subtle off-white for cards or sections
+        black:    '#1A1A1A',   // Strong black for headings/text
+        brown:    '#B89C86',   // Soft earthy brown (less dusty)
+        yellow:   '#C93355',   // Warmer, vibrant yellow
+        orange:   '#FF6B4D',   // Slightly more vibrant for CTA buttons
+        cardbg:   '#ECE7E5',   // Light warm gray for card backgrounds
+
       }
 
     },

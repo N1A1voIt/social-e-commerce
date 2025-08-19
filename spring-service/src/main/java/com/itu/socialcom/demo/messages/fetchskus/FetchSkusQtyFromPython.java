@@ -6,7 +6,7 @@ import com.itu.socialcom.demo.products.variants.repository.VariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.relational.core.sql.In;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,14 +22,23 @@ public class FetchSkusQtyFromPython {
     @Autowired
     private VariantRepository variantRepository;
 
-    public VariantSkuResponse getVariantsFromPythonService(String inputText) {
+    public VariantSkuResponse getVariantsFromPythonService(UserQuery userQuery, String token) {
         String url = pythonServiceUrl + "/extract-skus-qty";
-        ResponseEntity<VariantSkuResponse> response = restTemplate.postForEntity(
-                url, inputText, VariantSkuResponse.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", token);
+        HttpEntity<UserQuery> requestEntity = new HttpEntity<>(userQuery, headers);
+        ResponseEntity<VariantSkuResponse> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity,
+                VariantSkuResponse.class
+        );
         return response.getBody();
     }
-    public List<VariantWithQuantity> fetchVariants(UserQuery userQuery, Long userId) {
-        VariantSkuResponse variantSkuResponse = getVariantsFromPythonService(userQuery.getQuery());
+
+    public List<VariantWithQuantity> fetchVariants(UserQuery userQuery, Long userId,String token) {
+        VariantSkuResponse variantSkuResponse = getVariantsFromPythonService(userQuery,token);
         if (variantSkuResponse != null && variantSkuResponse.getVariants() != null) {
             HashMap<String,Integer> skuQtyMap = new HashMap<>();
             for (VariantSkuQty variantSkuQty : variantSkuResponse.getVariants()) {

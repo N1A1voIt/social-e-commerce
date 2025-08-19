@@ -106,7 +106,7 @@
           </div>
 
           <div class="flex flex-col items-end ml-auto max-w-[80%]" *ngIf="!message.fromPlatform">
-            <div class="bg-orange text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
+            <div class="bg-yellow text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
               <p>{{ message.message }}</p>
             </div>
             <div class="flex items-center gap-1 mt-1">
@@ -154,7 +154,7 @@
 
         <!-- Send button -->
         <button
-          class="text-xl p-3 rounded-full bg-orange text-white flex justify-center items-center"
+          class="text-xl p-3 rounded-full bg-yellow text-white flex justify-center items-center"
           [ngClass]="{'opacity-50': !message.trim(), 'cursor-not-allowed': !message.trim()}"
           [disabled]="!message.trim()"
           (click)="sendMessage()"
@@ -170,4 +170,4 @@
   </div>
 </div>
 
-<app-inbox-popup *ngIf="false"></app-inbox-popup>
+<app-inbox-popup *ngIf="openPopup" (closePopup)="openPopup = false" [variants]="orderPreview" [isLoading]="loadingOrders"></app-inbox-popup>

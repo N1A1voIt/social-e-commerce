@@ -126,12 +126,12 @@ export class InboxComponent implements OnInit {
   }
   analyzeMessage(message:string):void {
     this.openPopup = true;
-    this.loadingOrders = false;
+    this.loadingOrders = true;
     this.inboxService.fetchAnalyses(message).subscribe({
       next: (response:ApiResponse) => {
         console.log(response);
         this.orderPreview = response.data;
-        this.loadingOrders = true;
+        this.loadingOrders = false;
       }, error(err) {
         alert(err.message);
       }
