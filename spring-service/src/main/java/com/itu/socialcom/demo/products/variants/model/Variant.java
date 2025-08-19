@@ -49,6 +49,10 @@ public class Variant {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "sku")
+    private String sku;
+    @Column(name = "id_seller")
+    private Long idSeller;
     
     @PrePersist
     protected void onCreate() {

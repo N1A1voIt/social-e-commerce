@@ -60,7 +60,16 @@
           [errorMessage]="getFieldError('price')">
         </app-basic-input>
       </div>
-
+      <div>
+        <app-basic-input
+          label="SKU"
+          placeholder="SKU"
+          type="text"
+          [formControl]="$any(variantForm.get('sku'))"
+          [error]="!!getFieldError('sku')"
+          [errorMessage]="getFieldError('sku')">
+        </app-basic-input>
+      </div>
       <!-- Option Selections -->
       <div *ngIf="productOptions.length > 0" formGroupName="selectedOptions">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Select Option Values</h3>

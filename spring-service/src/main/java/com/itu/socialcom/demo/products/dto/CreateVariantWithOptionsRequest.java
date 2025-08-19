@@ -24,16 +24,20 @@ public class CreateVariantWithOptionsRequest {
     @DecimalMin(value = "0.00", message = "Price must be non-negative")
     @JsonProperty("price")
     private BigDecimal price;
-    
-    @NotEmpty(message = "At least one option value must be selected")
-    @JsonProperty("optionValueIds")
-    private List<Long> optionValueIds;
-    
+
     /**
      * Default constructor
      */
     public CreateVariantWithOptionsRequest() {}
-    
+
+    @NotNull(message = "SKU is needed for variant")
+    @JsonProperty("sku")
+    private String sku;
+
+    @NotEmpty(message = "At least one option value must be selected")
+    @JsonProperty("optionValueIds")
+    private List<Long> optionValueIds;
+
     /**
      * Constructor with all fields
      */

@@ -57,6 +57,7 @@ export class VariantFormComponent implements OnInit {
     this.variantForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(2)]],
       price: [0, [Validators.required, Validators.min(0.01)]],
+      sku: ['', [Validators.required, Validators.required]],
       selectedOptions: this.fb.group({})
     });
   }
