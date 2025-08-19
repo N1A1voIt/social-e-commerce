@@ -53,6 +53,8 @@ public class Variant {
     private String sku;
     @Column(name = "id_seller")
     private Long idSeller;
+    @Column(name = "media_url")
+    private String mediaUrl;
     
     @PrePersist
     protected void onCreate() {

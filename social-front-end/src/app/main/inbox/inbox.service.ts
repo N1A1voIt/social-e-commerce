@@ -39,5 +39,13 @@ export class InboxService {
     };
     return this.http.post<ApiResponse>(javaHost + '/api/messages',message,{headers:header});
   }
-
+  fetchAnalyses(message:string) : Observable<ApiResponse> {
+    const query = {
+      'query': message
+    };
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.post<ApiResponse>(javaHost + '/api/messages/fetch-orders',query,{headers:header});
+  }
 }

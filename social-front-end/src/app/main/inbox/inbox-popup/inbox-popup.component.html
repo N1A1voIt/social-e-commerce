@@ -1,8 +1,9 @@
-<app-form-container label="The order itself">
-  <div class="flex flex-col w-full border border-black rounded-xl mt-4">
-    <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-black ">
+<app-form-container label="The order itself">*
+  <app-loader *ngIf="isLoading"></app-loader>
+  <div *ngIf="!isLoading" class="flex flex-col w-full border border-black rounded-xl mt-4">
+    <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-black " *ngFor="let order of variants">
       <div class="w-[80px] h-[80px] rounded-md overflow-hidden">
-        <img src="assets/imgs/gustavo.jpeg" class="w-full h-full object-cover"  alt="" srcset="">
+        <img src="{{ order.variant.mediaUrl }}" class="w-full h-full object-cover"  alt="" srcset="">
       </div>
       <div class="flex-grow h-full flex flex-col gap-2 justify-center font-light " style="letter-spacing: 1px">
         <h2 class="capitalize font-bold text-xl font-mono">Produit N°1</h2>

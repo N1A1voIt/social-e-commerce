@@ -3,6 +3,7 @@ package com.itu.socialcom.demo.messages;
 import com.itu.socialcom.demo.authentication.token.TokenV2ServiceImpl;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.messages.dtol.MessageBody;
+import com.itu.socialcom.demo.messages.dtol.VariantWithQuantity;
 import com.itu.socialcom.demo.messages.fetchskus.FetchSkusQtyFromPython;
 import com.itu.socialcom.demo.messages.fetchskus.UserQuery;
 import com.itu.socialcom.demo.messages.messagechild.MessageChild;
@@ -35,7 +36,7 @@ public class MessageController {
             if (seller == null) {
                 throw new AuthException("Please log in to fetch orders");
             }
-            List<Variant> messageChildren = fetchSkusQtyFromPython.fetchVariants(uquery, seller.getId());
+            List<VariantWithQuantity> messageChildren = fetchSkusQtyFromPython.fetchVariants(uquery, seller.getId());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(messageChildren);

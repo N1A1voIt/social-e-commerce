@@ -24,7 +24,8 @@ public class CreateVariantWithOptionsRequest {
     @DecimalMin(value = "0.00", message = "Price must be non-negative")
     @JsonProperty("price")
     private BigDecimal price;
-
+    @JsonProperty("media")
+    private String mediaUrl;
     /**
      * Default constructor
      */

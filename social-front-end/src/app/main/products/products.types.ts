@@ -62,6 +62,7 @@ export interface Variant {
   idProduct:number;
   createdAt:Date;
   updatedAt:Date;
+  mediaUrl:string;
 }
 
 export interface VariantOptionDTO {
@@ -84,6 +85,8 @@ export interface VariantWithOptionsDTO {
 }
 
 export interface CreateVariantWithOptionsRequest {
+  sku:string;
+  media:string;
   title: string;
   price: number;
   optionValueIds: number[];
@@ -113,3 +116,7 @@ export interface ProductOptionValue {
   idOption: number;
 }
 
+export interface VariantWithQuantity {
+  variant: Variant;
+  quantity: number;
+}

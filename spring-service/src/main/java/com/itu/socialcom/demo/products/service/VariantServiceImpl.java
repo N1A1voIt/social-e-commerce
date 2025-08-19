@@ -52,6 +52,7 @@ public class VariantServiceImpl implements VariantService {
         Variant variant = new Variant(request.getTitle(), request.getPrice(), productId);
         variant.setIdSeller(sellerId);
         variant.setSku(request.getSku());
+        variant.setMediaUrl(request.getMediaUrl());
         variant = variantRepository.save(variant);
         
         // Create option value associations
