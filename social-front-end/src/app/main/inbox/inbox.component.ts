@@ -6,11 +6,12 @@ import {ApiResponse, InboxService} from "./inbox.service";
 import {InboxDisplay, Message, MessageBody, MessageBox} from "./inbox-element.type";
 import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
 import {PageListComponent} from "./page-list/page-list.component";
+import {InboxPopupComponent} from "./inbox-popup/inbox-popup.component";
 
 @Component({
   selector: 'app-inbox',
   standalone: true,
-  imports: [CommonModule, FormsModule, ManagedAccountComponent, PageListComponent],
+  imports: [CommonModule, FormsModule, ManagedAccountComponent, PageListComponent, InboxPopupComponent],
   providers:[DatePipe],
   templateUrl: './inbox.component.html',
   styleUrl: './inbox.component.css'

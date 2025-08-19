@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'custom-font': ['MonaSans', 'sans-serif'], // 'custom-font' is your Tailwind utility, 'MyCustomFont' matches your @font-face name
+        'mono': ['LTSuperiorSerif', 'sans-serif'], // 'custom-font' is your Tailwind utility, 'MyCustomFont' matches your @font-face name
       },
       fontSize: {
         // base mobile font sizes

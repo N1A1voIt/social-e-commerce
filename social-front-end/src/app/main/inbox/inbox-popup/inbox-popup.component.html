@@ -1,0 +1,30 @@
+<app-form-container label="The order itself">
+  <div class="flex flex-col w-full border border-black rounded-xl mt-4">
+    <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-black ">
+      <div class="w-[80px] h-[80px] rounded-md overflow-hidden">
+        <img src="assets/imgs/gustavo.jpeg" class="w-full h-full object-cover"  alt="" srcset="">
+      </div>
+      <div class="flex-grow h-full flex flex-col gap-2 justify-center font-light " style="letter-spacing: 1px">
+        <h2 class="capitalize font-bold text-xl font-mono">Produit N°1</h2>
+        <span class="flex flex-row gap-2 text-md">
+          <span>2</span> <span>X</span> <span>750.0 $</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-col justify-center items-center p-2 gap-12 w-full border-black py-4 px-4">
+      <div class="flex justify-between items-center w-full text-xl font-mono font-bold">
+        <span>Subtotal</span>
+        <span>1000.0 $</span>
+      </div>
+      <div class="flex flex-col justify-between items-center w-full">
+        <div>
+          <app-beautiful-button text="Proceed to order"></app-beautiful-button>
+        </div>
+      </div>
+      <div>
+        <a href="" class="underline text-black" style="letter-spacing: 1px">Update order</a>
+      </div>
+    </div>
+  </div>
+</app-form-container>

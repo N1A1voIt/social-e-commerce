@@ -10,6 +10,15 @@
   font-style: normal;
   font-display: swap; /* Optional: controls how font is loaded and displayed */
 }
+
+@font-face {
+  font-family: 'LTSuperiorSerif'; /* This is the name you'll use in Tailwind */
+  src: url('./assets/font/LT_superior_serif/LTSuperiorSerif-Medium.otf') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Optional: controls how font is loaded and displayed */
+}
+
 /* Hide scrollbar for all elements with this class */
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */
