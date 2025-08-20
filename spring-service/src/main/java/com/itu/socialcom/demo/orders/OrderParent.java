@@ -1,0 +1,36 @@
+package com.itu.socialcom.demo.orders;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Data
+@Table(name = "order_mother")
+public class OrderParent {
+    @Id
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @Column(name = "id_order_m")
+    private Long idOrderM;
+    @Column(name = "description")
+    private String description;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    @Column(name = "d_total")
+    private Double dTotal;
+    @Column(name = "d_customer_name")
+    private String dCustomerName;
+    @Column(name = "d_status")
+    private Integer dStatus;
+    @Column(name = "shipping_address")
+    private String shippingAddress;
+    @Column(name = "customer_number")
+    private String customerNumber;
+    @Column(name = "id_pc")
+    private String idPc;
+
+    @Transient
+    private List<OrderChild> childs;
+}
