@@ -11,3 +11,6 @@ class VariantNumber(BaseModel):
 class MessageNLPOutput(BaseModel):
     """A container for the list of extracted variants."""
     variants: List[VariantNumber] = Field(description="A list of all extracted SKU and quantity pairs.")
+    customerName: str = Field(description="The customer name.")
+    customerNumber: str = Field(description="The customer number.")
+    shippingAddress: str = Field(description="The shipping address.")

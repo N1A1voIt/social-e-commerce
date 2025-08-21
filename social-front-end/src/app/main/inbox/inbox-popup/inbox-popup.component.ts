@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormContainerComponent} from "../../../shared/form-container/form-container.component";
 import {BeautifulButtonComponent} from "../../../shared/beautiful-button/beautiful-button.component";
-import {Product, Variant, VariantWithQuantity} from "../../products/products.types";
+import {OrderPreview, Product, Variant, VariantWithQuantity} from "../../products/products.types";
 import {LoaderComponent} from "../../../shared/loader/loader.component";
 import {DecimalPipe, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -26,7 +26,7 @@ import {ApiResponse} from "../inbox.service";
 export class InboxPopupComponent implements OnInit {
   @Input() isLoading = false;
   @Input() showForm = false;
-  @Input() variants: VariantWithQuantity[] = [];
+  @Input() variants!: OrderPreview;
   @Input() orderMessage: string = '';
   @Output() closePopup = new EventEmitter<void>();
   @Output() variantsUpdated = new EventEmitter<VariantWithQuantity[]>(); // Emit when variants are updated
@@ -43,7 +43,7 @@ export class InboxPopupComponent implements OnInit {
   }
 
   getSubtotal(): number {
-    return this.variants.reduce((total, variant) => total + variant.quantity * variant.variant.price ,0);
+    return this.variants?.variants.reduce((total, variant) => total + variant.quantity * variant.variant.price ,0);
   }
 
   toggleUpdateMode(event: Event): void {
@@ -52,6 +52,19 @@ export class InboxPopupComponent implements OnInit {
     if (!this.showUpdateMode) {
       this.showCatalog = false;
     }
+  }
+
+  saveOrder() {
+    console.log(this.variants);
+    this.iPopupService.saveOrder(this.variants).subscribe(
+      {
+        next: (response:ApiResponse) => {
+          this.closePopup.emit();
+        },error(err:ApiResponse) {
+          alert(err.errors[0].message);
+        }
+      }
+    )
   }
 
   toggleCatalog(): void {
@@ -74,31 +87,31 @@ export class InboxPopupComponent implements OnInit {
   }
 
   increaseQuantity(index: number): void {
-    if (index >= 0 && index < this.variants.length) {
-      this.variants[index].quantity++;
+    if (index >= 0 && index < this.variants.variants.length) {
+      this.variants.variants[index].quantity++;
       this.emitVariantsUpdate();
     }
   }
 
   decreaseQuantity(index: number): void {
-    if (index >= 0 && index < this.variants.length && this.variants[index].quantity > 1) {
-      this.variants[index].quantity--;
+    if (index >= 0 && index < this.variants.variants.length && this.variants.variants[index].quantity > 1) {
+      this.variants.variants[index].quantity--;
       this.emitVariantsUpdate();
     }
   }
 
   removeItem(index: number): void {
-    if (index >= 0 && index < this.variants.length) {
-      this.variants.splice(index, 1);
+    if (index >= 0 && index < this.variants.variants.length) {
+      this.variants.variants.splice(index, 1);
       this.emitVariantsUpdate();
     }
   }
 
   addProductToOrder(product: Variant): void {
-    const existingIndex = this.variants.findIndex(v => v.variant.idVariant === product.idVariant);
+    const existingIndex = this.variants.variants.findIndex(v => v.variant.idVariant === product.idVariant);
 
     if (existingIndex !== -1) {
-      this.variants[existingIndex].quantity++;
+      this.variants.variants[existingIndex].quantity++;
     } else {
       const newVariant: VariantWithQuantity = {
         quantity: 1,
@@ -112,7 +125,7 @@ export class InboxPopupComponent implements OnInit {
           updatedAt: product.updatedAt,
         }
       };
-      this.variants.push(newVariant);
+      this.variants.variants.push(newVariant);
     }
 
     this.emitVariantsUpdate();
@@ -125,6 +138,6 @@ export class InboxPopupComponent implements OnInit {
   }
 
   private emitVariantsUpdate(): void {
-    this.variantsUpdated.emit([...this.variants]);
+    this.variantsUpdated.emit([...this.variants.variants]);
   }
 }

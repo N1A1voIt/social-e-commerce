@@ -7,7 +7,7 @@ import {InboxDisplay, Message, MessageBody, MessageBox} from "./inbox-element.ty
 import {ManagedAccountComponent} from "../settings/managed-account/managed-account.component";
 import {PageListComponent} from "./page-list/page-list.component";
 import {InboxPopupComponent} from "./inbox-popup/inbox-popup.component";
-import {VariantWithQuantity} from "../products/products.types";
+import {OrderPreview, VariantWithQuantity} from "../products/products.types";
 
 @Component({
   selector: 'app-inbox',
@@ -26,7 +26,7 @@ export class InboxComponent implements OnInit {
   showPageList: boolean = false;
   messages:Message[] = [];
   actualCustomer!: MessageBox;
-  orderPreview: VariantWithQuantity[] = [];
+  orderPreview!: OrderPreview;
   openPopup: boolean = false;
   loadingOrders: boolean = false;
   orderMessage: string = '';
@@ -37,7 +37,9 @@ export class InboxComponent implements OnInit {
 
 
   fetchMessages(customer:MessageBox) {
+    console.log("SUTOMER"+JSON.stringify(customer) );
     this.actualCustomer = customer;
+    this.actualCustomer.id_pc = customer.idPc;
     this.showChatOnMobile = !this.showChatOnMobile;
     this.inboxService.fetchMessages(customer.idMm).subscribe({
       next: (response) => {
@@ -133,6 +135,8 @@ export class InboxComponent implements OnInit {
       next: (response:ApiResponse) => {
         console.log(response);
         this.orderPreview = response.data;
+        this.orderPreview.idPc = this.actualCustomer.id_pc;
+        console.log(this.orderPreview);
         this.loadingOrders = false;
       }, error(err) {
         alert(err.message);

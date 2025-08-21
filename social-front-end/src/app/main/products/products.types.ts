@@ -116,6 +116,21 @@ export interface ProductOptionValue {
   idOption: number;
 }
 
+export interface OrderPreview {
+  variants: VariantWithQuantity[];
+  customerName: string;
+  customerNumber: string;
+  shippingAddress: string;
+  idPc?:string
+}
+
+export interface MessageOrdering {
+  variants: VariantWithQuantity[];
+  customerName: string;
+  customerNumber: string;
+  shippingAddress: string;
+}
+
 export interface VariantWithQuantity {
   variant: Variant;
   quantity: number;

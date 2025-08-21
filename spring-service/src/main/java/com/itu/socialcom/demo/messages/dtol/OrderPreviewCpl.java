@@ -1,11 +1,12 @@
-package com.itu.socialcom.demo.messages.fetchskus;
+package com.itu.socialcom.demo.messages.dtol;
 
 import lombok.Data;
 
 import java.util.List;
+
 @Data
-public class VariantSkuResponse {
-    private List<VariantSkuQty> variants;
+public class OrderPreviewCpl {
+    List<VariantWithQuantity> variants;
     String customerName;
     String customerNumber;
     String shippingAddress;

@@ -3,11 +3,28 @@
   <div *ngIf="!isLoading" class="flex flex-row w-full gap-4">
     <!-- Main order form -->
       <div class="flex flex-col w-full border-fotsy rounded-xl mt-4" [class]="showUpdateMode">
+        <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3">
+          <h2 class="text-lg font-bold font-mono">Customer Information</h2>
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-row justify-between">
+              <span class="font-semibold">Name:</span>
+              <span>{{ variants?.customerName }}</span>
+            </div>
+            <div class="flex flex-row justify-between">
+              <span class="font-semibold">Shipment Address:</span>
+              <span>{{ variants?.shippingAddress }}</span>
+            </div>
+            <div class="flex flex-row justify-between">
+              <span class="font-semibold">Customer Number:</span>
+              <span>{{ variants?.customerNumber }}</span>
+            </div>
+          </div>
+        </div>
       <!-- Order items -->
       <div class="w-full border border-blackt rounded-xl flex justify-center items-center">
         {{orderMessage}}
       </div>
-      <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-blackt" *ngFor="let order of variants; let i = index">
+      <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-blackt" *ngFor="let order of variants?.variants; let i = index">
         <div class="w-[80px] h-[80px] rounded-md overflow-hidden">
           <img src="{{ order.variant.mediaUrl }}" class="w-full h-full object-cover" alt="" srcset="">
         </div>
@@ -47,7 +64,7 @@
         </div>
         <div class="flex flex-col justify-between items-center w-full">
           <div>
-            <app-beautiful-button text="Proceed to order" *ngIf="!showUpdateMode"></app-beautiful-button>
+            <app-beautiful-button text="Proceed to order" (click)="saveOrder()" *ngIf="!showUpdateMode"></app-beautiful-button>
             <app-beautiful-button text="Save changes" *ngIf="showUpdateMode" (click)="saveChanges()"></app-beautiful-button>
           </div>
         </div>
