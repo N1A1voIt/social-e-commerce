@@ -29,6 +29,7 @@ export class InboxComponent implements OnInit {
   orderPreview: VariantWithQuantity[] = [];
   openPopup: boolean = false;
   loadingOrders: boolean = false;
+  orderMessage: string = '';
   changePage(page:ManagedPageCPL) {
 
     this.fetchInboxContent(page.idMp);
@@ -125,6 +126,7 @@ export class InboxComponent implements OnInit {
     });
   }
   analyzeMessage(message:string):void {
+    this.orderMessage = message;
     this.openPopup = true;
     this.loadingOrders = true;
     this.inboxService.fetchAnalyses(message).subscribe({

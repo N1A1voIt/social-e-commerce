@@ -21,4 +21,9 @@ public class OrderChild {
     private Long idProduct;
     @Column(name = "id_order_m")
     private Long idOrderM;
+    @Column(name = "media_url")
+    private String mediaUrl;
+    @Column(name = "product_name")
+    private String productName;
+
 }

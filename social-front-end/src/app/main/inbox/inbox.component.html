@@ -170,4 +170,4 @@
   </div>
 </div>
 
-<app-inbox-popup *ngIf="openPopup" (closePopup)="openPopup = false" [variants]="orderPreview" [isLoading]="loadingOrders"></app-inbox-popup>
+<app-inbox-popup [orderMessage]="orderMessage" [showForm]="openPopup" (closePopup)="openPopup = false" [variants]="orderPreview" [isLoading]="loadingOrders"></app-inbox-popup>
