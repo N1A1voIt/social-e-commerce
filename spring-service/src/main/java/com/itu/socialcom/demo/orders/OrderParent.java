@@ -35,7 +35,10 @@ public class OrderParent {
     private String idPc;
     @Column(name = "id_seller")
     private Integer idSeller;
-
+    @Transient
+    private Double downPPercent;
+    @Transient
+    private Double downP;
     @Transient
     private List<OrderChild> childs;
 }

@@ -476,6 +476,18 @@ CREATE TABLE down_payment_parameter(
    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
 
+CREATE TABLE temp_payment_link(
+  id TEXT,
+  temp_link TEXT NOT NULL,
+  expired_at TIMESTAMP NOT NULL,
+  phone_number TEXT NOT NULL,
+  id_order_m INTEGER NOT NULL,
+  id_seller INTEGER NOT NULL,
+  PRIMARY KEY(id),
+  FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+  FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
 
 SELECT * FROM pat_refresh_tokens;
 

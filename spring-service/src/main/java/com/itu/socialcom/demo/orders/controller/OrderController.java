@@ -2,10 +2,12 @@ package com.itu.socialcom.demo.orders.controller;
 
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.orders.DownPayment;
 import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.OrdersToDisplay;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
+import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.service.CreateOrderFromMessage;
@@ -30,6 +32,10 @@ public class OrderController {
     private OrderChildRepository orderChildRepository;
     @Autowired
     private TokenV2Service tokenV2Service;
+    @Autowired
+    private DownPaymentRepository downPaymentRepository;
+
+
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
         orderCreationService = createOrderFromMessage;
@@ -70,6 +76,11 @@ public class OrderController {
             }
             OrdersToDisplay ordersToDisplay = new OrdersToDisplay();
             List<OrderParent> orders = orderParentRepository.findAllByIdSeller(seller.getId().intValue(),pageable).getContent();
+            DownPayment downPayment = downPaymentRepository.findByIdSeller(seller.getId()).get(0);
+            for (OrderParent order : orders) {
+                order.setDownP(downPayment.getPaymentInPercent() / 100 * order.getDTotal());
+                order.setDownPPercent(downPayment.getPaymentInPercent() / 100);
+            }
             ordersToDisplay.setOrders(orders);
             ordersToDisplay.setTotalOrders(orderParentRepository.countByIdSeller(seller.getId().intValue()));
             ApiResponse apiResponse = new ApiResponse();
