@@ -12,12 +12,13 @@ import { RippleModule } from 'primeng/ripple';
 import {FormsModule} from "@angular/forms";
 import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
 import { MessageService } from 'primeng/api';
+import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -29,11 +30,13 @@ export class OrdersComponent implements OnInit{
   loading: boolean = true;
   loadingChildren: { [key: string]: boolean } = {}; // Track loading state for child orders
 
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService,private messagingService:MessageService) {}
 
   ngOnInit(): void {
     this.fetchOrders();
   }
+
+
 
   fetchOrders(event?: TableLazyLoadEvent): void {
     this.loading = true;
@@ -95,8 +98,11 @@ export class OrdersComponent implements OnInit{
 
   onRowCollapse(event: TableRowCollapseEvent): void {
     console.log('Row collapsed:', event.data);
+    this.messagingService.add({ severity: 'info', summary: 'Product Expanded', detail: event.data.name, life: 3000 })
   }
-
+   async exportOrder(order: OrderParent) {
+      await this.orderService.generateOrderPdf(order);
+   }
   getStatusLabel(status?: number): string {
     if (status === undefined) return 'Unknown';
 

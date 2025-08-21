@@ -57,6 +57,7 @@
               Total
               <p-sortIcon field="dTotal" />
             </th>
+            <th>Actions</th>
           </tr>
         </ng-template>
 
@@ -80,6 +81,15 @@
             <td>{{ order.customerNumber || 'N/A' }}</td>
             <td>{{ order.createdAt | date:'short' }}</td>
             <td>{{ order.dtotal | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td class="">
+              <i
+
+                class="pi text-green-500 pi-arrow-circle-right" title="Next step"
+              ></i>
+
+              <i class="pi text-red-500 pi-times-circle" title="Cancel"></i>
+              <i class="pi text-red-500 pi-file-export" title="Export order" (click)="exportOrder(order)"></i>
+            </td>
           </tr>
         </ng-template>
 
@@ -152,20 +162,10 @@
             </td>
           </tr>
         </ng-template>
-
-        <!-- Empty message -->
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="8" class="text-center py-8">
-              <div class="text-gray-500">
-                <i class="pi pi-info-circle mr-2" style="font-size: 2rem"></i>
-                <p class="mt-2 mb-0">No orders found.</p>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
       </p-table>
     </div>
   </div>
 </div>
+<!--<app-form-container>-->
+
+<!--</app-form-container>-->
