@@ -23,6 +23,8 @@ public class OrderChild {
     private Long idOrderM;
     @Column(name = "media_url")
     private String mediaUrl;
+    @Column(name = "sku")
+    private String sku;
     @Column(name = "product_name")
     private String productName;
 

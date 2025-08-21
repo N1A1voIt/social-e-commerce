@@ -15,6 +15,7 @@ import {ProductDetailComponent} from "./client/marketplace/product-detail/produc
 import {StockListComponent} from "./main/products/stock-list/stock-list.component";
 import {ValidatePagesComponent} from "./main/authentication/validate-pages/validate-pages.component";
 import {VariantsComponent} from "./main/products/variants/variants.component";
+import {OrdersComponent} from "./main/orders/orders.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -35,6 +36,7 @@ const homeRoutes: Routes = [
       { path: 'variants/:idProduct', component: VariantsComponent },
       { path: 'stocks', component: StockListComponent },
       { path: 'content', component: ContentManagementComponent },
+      { path: 'orders', component: OrdersComponent },
     ]
   },
   {

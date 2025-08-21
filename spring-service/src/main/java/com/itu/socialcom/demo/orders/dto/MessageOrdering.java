@@ -43,6 +43,7 @@ public class MessageOrdering {
                     child.setIdProduct(vwq.getVariant().getIdProduct());
                     child.setMediaUrl(vwq.getVariant().getMediaUrl());
                     child.setProductName(vwq.getVariant().getTitle());
+                    child.setSku(vwq.getVariant().getSku());
                     return child;
                 })
                 .collect(Collectors.toList());

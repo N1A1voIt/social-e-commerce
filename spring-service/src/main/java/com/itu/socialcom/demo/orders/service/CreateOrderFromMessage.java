@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.orders.service;
 
+import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.messages.dtol.VariantWithQuantity;
 import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
@@ -14,11 +15,12 @@ import java.util.List;
 public class CreateOrderFromMessage extends OrderCreationService {
     @Override
     @Transactional
-    public OrderParent createOrder(OrderParent parent) {
+    public OrderParent createOrder(OrderParent parent, Seller seller) {
         double totalPrice = 0.0;
         for (OrderChild child: parent.getChilds()) {
             totalPrice += child.getPrice() * child.getQuantity();
         }
+        parent.setIdSeller(seller.getId().intValue());
         parent.setDTotal(totalPrice);
         parent.setDStatus(1);
         parent.setCreatedAt(LocalDateTime.now());
@@ -32,8 +34,8 @@ public class CreateOrderFromMessage extends OrderCreationService {
 
     @Override
     @Transactional
-    public OrderParent createOrderFromMessage(MessageOrdering messageOrdering) {
+    public OrderParent createOrderFromMessage(MessageOrdering messageOrdering, Seller seller) {
         OrderParent orderParent = messageOrdering.toOrderParent();
-        return this.createOrder(orderParent);
+        return this.createOrder(orderParent,seller);
     }
 }

@@ -2,12 +2,15 @@ package com.itu.socialcom.demo.orders;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "order_mother")
 public class OrderParent {
     @Id
@@ -30,6 +33,8 @@ public class OrderParent {
     private String customerNumber;
     @Column(name = "id_pc")
     private String idPc;
+    @Column(name = "id_seller")
+    private Integer idSeller;
 
     @Transient
     private List<OrderChild> childs;

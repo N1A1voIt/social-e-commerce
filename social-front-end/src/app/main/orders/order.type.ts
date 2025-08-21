@@ -21,4 +21,5 @@ export interface OrderChild {
   idOrderM?: number;
   mediaUrl?: string;
   productName?:string;
+  sku?: string;
 }

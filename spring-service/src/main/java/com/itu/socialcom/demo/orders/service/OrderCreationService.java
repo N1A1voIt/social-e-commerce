@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.orders.service;
 
+import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.messages.dtol.VariantWithQuantity;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
@@ -15,6 +16,6 @@ public abstract class OrderCreationService {
    protected OrderChildRepository orderChildRepository;
    @Autowired
    protected OrderParentRepository orderParentRepository;
-   public abstract OrderParent createOrder(OrderParent parent);
-   public abstract OrderParent createOrderFromMessage(MessageOrdering messageOrdering);
+   public abstract OrderParent createOrder(OrderParent parent, Seller seller);
+   public abstract OrderParent createOrderFromMessage(MessageOrdering messageOrdering,Seller seller);
 }
