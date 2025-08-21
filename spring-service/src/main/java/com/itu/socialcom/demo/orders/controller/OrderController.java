@@ -4,6 +4,7 @@ import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
+import com.itu.socialcom.demo.orders.OrdersToDisplay;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
@@ -11,6 +12,7 @@ import com.itu.socialcom.demo.orders.service.CreateOrderFromMessage;
 import com.itu.socialcom.demo.orders.service.OrderCreationService;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,8 +56,9 @@ public class OrderController {
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
+
     @GetMapping("/api/orders")
-    public ResponseEntity<ApiResponse> getAllOrders(@RequestHeader(name = "Authorization") String token) {
+    public ResponseEntity<ApiResponse> getAllOrders(@RequestHeader(name = "Authorization") String token, Pageable pageable) {
         try {
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
@@ -65,10 +68,13 @@ public class OrderController {
                 apiResponse.setErrors(List.of(new Exception("Please log in to view orders")));
                 return ResponseEntity.status(401).body(apiResponse);
             }
-            List<OrderParent> orders = orderParentRepository.findAllByIdSeller(seller.getId().intValue());
+            OrdersToDisplay ordersToDisplay = new OrdersToDisplay();
+            List<OrderParent> orders = orderParentRepository.findAllByIdSeller(seller.getId().intValue(),pageable).getContent();
+            ordersToDisplay.setOrders(orders);
+            ordersToDisplay.setTotalOrders(orderParentRepository.countByIdSeller(seller.getId().intValue()));
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
-            apiResponse.setData(orders);
+            apiResponse.setData(ordersToDisplay);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

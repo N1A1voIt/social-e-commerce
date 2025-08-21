@@ -3,13 +3,17 @@ export interface OrderParent {
   idOrderM?: number;
   description?: string;
   createdAt?: Date;
-  dTotal?: number;
-  dCustomerName?: string;
-  dStatus?: number;
+  dtotal?: number;
+  dcustomerName?: string;
+  dstatus?: number;
   shippingAddress?: string;
   customerNumber?: string;
   idPc?: string;
   childs?: OrderChild[];
+}
+export interface OrderDisplay {
+  orders : OrderParent[];
+  totalOrders : number;
 }
 
 export interface OrderChild {

@@ -1,0 +1,171 @@
+<!-- orders.component.html -->
+<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
+  <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
+    <div class="">
+      <h1>Order list</h1>
+    </div>
+    <div class="card w-full font-cusom-font rounded-3xl">
+      <p-toast />
+
+      <!-- Add a collapse all button -->
+      <div class="mb-3">
+<!--        <p-button label="Collapse All"-->
+<!--                  icon="pi pi-minus"-->
+<!--                  (onClick)="collapseAll()"-->
+<!--                  severity="secondary"-->
+<!--                  size="small">-->
+<!--        </p-button>-->
+      </div>
+
+      <p-table
+        [value]="orders"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="totalRecords"
+        [lazy]="true"
+        [loading]="loading"
+        (onLazyLoad)="fetchOrders($event)"
+        dataKey="idOrderM"
+        [tableStyle]="{ 'min-width': '70rem' }"
+        [expandedRowKeys]="expandedRows"
+        (onRowExpand)="onRowExpand($event)"
+        (onRowCollapse)="onRowCollapse($event)">
+
+        <!-- Table Header -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem"></th>
+            <th pSortableColumn="description">
+              Description
+              <p-sortIcon field="description" />
+            </th>
+            <th pSortableColumn="dCustomerName">
+              Customer
+              <p-sortIcon field="dCustomerName" />
+            </th>
+            <th pSortableColumn="dStatus">
+              Status
+              <p-sortIcon field="dStatus" />
+            </th>
+            <th>Shipping Address</th>
+            <th>Phone Number</th>
+            <th pSortableColumn="createdAt">
+              Created At
+              <p-sortIcon field="createdAt" />
+            </th>
+            <th pSortableColumn="dTotal">
+              Total
+              <p-sortIcon field="dTotal" />
+            </th>
+          </tr>
+        </ng-template>
+
+        <!-- Table Body -->
+        <ng-template pTemplate="body" let-order let-expanded="expanded">
+          <tr>
+            <!-- Row Expand Toggle -->
+            <td>
+              <p-button type="button" pRipple [pRowToggler]="order"
+                        [text]="true" severity="secondary" [rounded]="true"
+                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+              </p-button>
+            </td>
+
+            <td>{{ order.description || 'N/A' }}</td>
+            <td>{{ order.dcustomerName || 'N/A' }}</td>
+            <td>
+              <p-tag [value]="getStatusLabel(order.dstatus)" [severity]="getStatusSeverity(order.dstatus)"></p-tag>
+            </td>
+            <td>{{ order.shippingAddress || 'N/A' }}</td>
+            <td>{{ order.customerNumber || 'N/A' }}</td>
+            <td>{{ order.createdAt | date:'short' }}</td>
+            <td>{{ order.dtotal | currency:'USD':'symbol':'1.2-2' }}</td>
+          </tr>
+        </ng-template>
+
+        <!-- Expanded Row (Child Orders) -->
+        <ng-template pTemplate="rowexpansion" let-order>
+          <tr>
+            <td colspan="8">
+              <div class="p-4">
+                <div class="flex justify-between items-center mb-3">
+                  <h5 class="m-0">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
+                  <p-tag [value]="'Order ID: ' + order.idOrderM" severity="info" />
+                </div>
+
+                <!-- Loading state for child orders -->
+                <div *ngIf="isChildOrdersLoading(order)" class="text-center py-4">
+                  <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
+                  <p>Loading order details...</p>
+                </div>
+
+                <!-- Child orders table -->
+                <p-table *ngIf="!isChildOrdersLoading(order)"
+                         [value]="order.childs"
+                         dataKey="idOrderDetails"
+                         [tableStyle]="{ 'min-width': '50rem' }">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Detail ID</th>
+                      <th>Product</th>
+                      <th>SKU</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                      <th>Image</th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="body" let-child>
+                    <tr>
+                      <td>{{ child.idOrderDetails }}</td>
+                      <td>{{ child.productName || 'N/A' }}</td>
+                      <td>
+                        <p-tag [value]="child.sku || 'N/A'" severity="secondary" />
+                      </td>
+                      <td class="text-center">{{ child.quantity || 0 }}</td>
+                      <td>{{ child.price | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>{{ (child.price || 0) * (child.quantity || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>
+                        <img *ngIf="child.mediaUrl"
+                             [src]="child.mediaUrl"
+                             [alt]="child.productName || 'Product image'"
+                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"
+                             onerror="this.style.display='none'">
+                        <span *ngIf="!child.mediaUrl" class="text-gray-400">No image</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="7" class="text-center py-4">
+                        <div class="text-gray-500">
+                          <i class="pi pi-info-circle mr-2"></i>
+                          No order details found for this order.
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Empty message -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center py-8">
+              <div class="text-gray-500">
+                <i class="pi pi-info-circle mr-2" style="font-size: 2rem"></i>
+                <p class="mt-2 mb-0">No orders found.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+  </div>
+</div>

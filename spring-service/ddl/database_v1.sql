@@ -466,6 +466,16 @@ CREATE TABLE linked_products(
     FOREIGN KEY(id_post) REFERENCES posts(id_post)
 );
 
+CREATE TABLE down_payment_parameter(
+   id SERIAL,
+   start_at TIMESTAMP NOT NULL,
+   end_at TIMESTAMP NOT NULL,
+   payment_in_percent NUMERIC(4,1)  ,
+   id_seller INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
 
 SELECT * FROM pat_refresh_tokens;
 
