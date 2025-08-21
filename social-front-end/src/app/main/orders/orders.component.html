@@ -81,14 +81,13 @@
             <td>{{ order.customerNumber || 'N/A' }}</td>
             <td>{{ order.createdAt | date:'short' }}</td>
             <td>{{ order.dtotal | currency:'USD':'symbol':'1.2-2' }}</td>
-            <td class="">
+            <td class="flex justify-center gap-2">
               <i
-
-                class="pi text-green-500 pi-arrow-circle-right" title="Next step"
+                (click)="nextStep(order)"
+                class="pi text-green-500 text-xl pi-arrow-circle-right" title="Next step"
               ></i>
-
-              <i class="pi text-red-500 pi-times-circle" title="Cancel"></i>
-              <i class="pi text-red-500 pi-file-export" title="Export order" (click)="exportOrder(order)"></i>
+              <i class="pi text-xl text-red-500 pi-times-circle" title="Cancel"></i>
+              <i class="pi text-xl text-red-500 pi-file-export" title="Export order" (click)="exportOrder(order)"></i>
             </td>
           </tr>
         </ng-template>
@@ -166,6 +165,25 @@
     </div>
   </div>
 </div>
-<!--<app-form-container>-->
-
-<!--</app-form-container>-->
+<app-form-container (closeForm)="openModal=false" [isVisible]="step=='1' && openModal">
+  <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3">
+    <h2 class="text-lg font-bold font-mono">Customer Information</h2>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Name:</span>
+        <span>{{ activeOrder?.dcustomerName }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Shipment Address:</span>
+        <span>{{ activeOrder?.shippingAddress }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Customer Number:</span>
+        <span>{{ activeOrder?.customerNumber }}</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <app-beautiful-button [text]="'Send billing and payment link'" (click)="sendBillingAndPaymentLink()"></app-beautiful-button>
+  </div>
+</app-form-container>

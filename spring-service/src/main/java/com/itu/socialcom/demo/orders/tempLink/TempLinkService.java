@@ -19,7 +19,7 @@ public class TempLinkService {
         this.repository = repository;
     }
 
-    public TempLink createLink(String phoneNumber, Integer idOrderM, Integer idSeller) {
+    public TempLink createLink(String phoneNumber, Integer idOrderM, Integer idSeller,double downPayment) {
         TempLink link = new TempLink();
         String id = UUID.randomUUID().toString();
 
@@ -28,7 +28,7 @@ public class TempLinkService {
         link.setIdOrderM(idOrderM);
         link.setIdSeller(idSeller);
         link.setExpiredAt(LocalDateTime.now().plusHours(1));
-
+        link.setAmount(downPayment);
         // Secure temp link generation
         String tempLink = baseUrl + "/payment?number=" + id;
         link.setTempLink(tempLink);

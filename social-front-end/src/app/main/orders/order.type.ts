@@ -26,4 +26,5 @@ export interface OrderChild {
   mediaUrl?: string;
   productName?:string;
   sku?: string;
+  idManagedPages?: number;
 }

@@ -23,11 +23,14 @@ public class TempLink {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @Column(nullable = false)
+    @Column(name = "id_order_m",nullable = false)
     private Integer idOrderM;
 
     @Column(nullable = false)
     private Integer idSeller;
+
+    @Column(name = "amount")
+    private Double amount;
 
     @PrePersist
     public void prePersist() {

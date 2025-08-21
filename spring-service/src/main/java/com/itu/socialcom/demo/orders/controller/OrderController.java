@@ -12,6 +12,7 @@ import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.service.CreateOrderFromMessage;
 import com.itu.socialcom.demo.orders.service.OrderCreationService;
+import com.itu.socialcom.demo.orders.service.OrderPaymentLink;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,8 @@ public class OrderController {
     private TokenV2Service tokenV2Service;
     @Autowired
     private DownPaymentRepository downPaymentRepository;
-
+    @Autowired
+    private OrderPaymentLink orderPaymentLink;
 
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
@@ -147,6 +149,33 @@ public class OrderController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(createdOrder);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    @PostMapping("/api/order/ask-for-pay")
+    public ResponseEntity<ApiResponse> payOrder(@RequestBody OrderParent orderParent, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+            orderPaymentLink.askUserToPay(orderParent);
+//            orderParentRepository.save(orderParent);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

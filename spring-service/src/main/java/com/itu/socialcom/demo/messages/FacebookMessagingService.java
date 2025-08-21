@@ -72,7 +72,6 @@ public class FacebookMessagingService extends MessageService{
         MessageMother messageMother = super.motherRepo.findById(messageBody.getIdMm().intValue()).orElse(null);
 //        System.out.println("MessageMother: " + messageMother.getIdMp());
         ManagedPageCPL managedPageCPL = super.managedPageCPLRepository.findById(messageMother.getIdMp().longValue()).orElse(null);
-        System.out.println("ManagedPageCPL: " + managedPageCPL.getPlatformIdentifier() + ", Token: " + managedPageCPL.getRefreshToken());
         PotentialCustomerV2 potentialCustomerV2 = super.potentialCustomerV2Repository.findById(messageMother.getIdPc()).orElse(null);
         sendMessage(potentialCustomerV2.getIdentifierOnPlatform(),messageBody.getMessage(),managedPageCPL.getRefreshToken());
         return messageChild;

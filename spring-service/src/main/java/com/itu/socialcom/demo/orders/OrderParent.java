@@ -35,6 +35,8 @@ public class OrderParent {
     private String idPc;
     @Column(name = "id_seller")
     private Integer idSeller;
+    @Column(name = "id_managed_pages")
+    private Integer idManagedPages;
     @Transient
     private Double downPPercent;
     @Transient

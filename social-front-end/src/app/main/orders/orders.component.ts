@@ -13,12 +13,13 @@ import {FormsModule} from "@angular/forms";
 import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
 import { MessageService } from 'primeng/api';
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
+import {BeautifulButtonComponent} from "../../shared/beautiful-button/beautiful-button.component";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -28,7 +29,10 @@ export class OrdersComponent implements OnInit{
   expandedRows: { [key: string]: boolean } = {};
   totalRecords: number = 0;
   loading: boolean = true;
+  activeOrder?: OrderParent;
   loadingChildren: { [key: string]: boolean } = {}; // Track loading state for child orders
+  step:string = '1'; // 1 - apyment , 2 - delivery
+  openModal: boolean = false;
 
   constructor(private orderService: OrderService,private messagingService:MessageService) {}
 
@@ -36,6 +40,31 @@ export class OrdersComponent implements OnInit{
     this.fetchOrders();
   }
 
+  sendBillingAndPaymentLink() {
+
+    this.orderService.sendBillingAndPaymentLink(this.activeOrder!).subscribe({
+        next: (response: ApiResponse) => {
+          console.log(response);
+          this.openModal = false;
+          this.fetchOrders();
+        },error(err:ApiResponse) {
+          alert(err.errors[0].message);
+          // .messagingService.add({severity: 'error', summary: 'Error', detail: err.errors[0].message});
+        }
+    });
+  }
+
+
+  nextStep(order:OrderParent) {
+    this.activeOrder = order;
+    this.openModal=true;
+    if (order.dstatus == 1) {
+      console.log(order.dstatus);
+      this.step = '1';
+    } if (order.dstatus == 11) {
+      this.step = '2';
+    }
+  }
 
 
   fetchOrders(event?: TableLazyLoadEvent): void {

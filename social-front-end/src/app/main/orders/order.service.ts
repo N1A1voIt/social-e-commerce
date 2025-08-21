@@ -22,6 +22,13 @@ export class OrderService {
     return this.http.get<ApiResponse>(javaHost+'/api/orders?size=10&page='+pageNum,{headers:header});
   }
 
+  sendBillingAndPaymentLink(order:OrderParent):Observable<ApiResponse> {
+    const  header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(javaHost+'/api/order/ask-for-pay',order,{headers:header});
+  }
+
   fetchOrderChild(id:number):Observable<ApiResponse> {
     console.log('Fetching child orders for order ID:', id);
     const header = {
