@@ -7,6 +7,7 @@ import {DecimalPipe, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {IPopupService} from "./i-popup.service";
 import {ApiResponse} from "../inbox.service";
+import {InboxDisplay, MessageBox} from "../inbox-element.type";
 
 @Component({
   selector: 'app-inbox-popup',
@@ -26,6 +27,7 @@ import {ApiResponse} from "../inbox.service";
 export class InboxPopupComponent implements OnInit {
   @Input() isLoading = false;
   @Input() showForm = false;
+  @Input() inbox!:InboxDisplay;
   @Input() variants!: OrderPreview;
   @Input() orderMessage: string = '';
   @Output() closePopup = new EventEmitter<void>();
@@ -56,6 +58,7 @@ export class InboxPopupComponent implements OnInit {
 
   saveOrder() {
     console.log(this.variants);
+    this.variants.idManagedPages = this.inbox.page.idMp;
     this.iPopupService.saveOrder(this.variants).subscribe(
       {
         next: (response:ApiResponse) => {

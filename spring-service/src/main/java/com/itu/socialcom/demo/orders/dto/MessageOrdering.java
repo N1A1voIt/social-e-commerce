@@ -22,6 +22,8 @@ public class MessageOrdering {
     String shippingAddress;
     @JsonProperty("customerNumber")
     String customerNumber;
+    @JsonProperty("idManagedPages")
+    Integer idManagedPages;
 
     public OrderParent toOrderParent() {
         if (this.variants == null || this.variants.isEmpty()) {
@@ -33,6 +35,7 @@ public class MessageOrdering {
         orderParent.setShippingAddress(this.shippingAddress);
         orderParent.setCustomerNumber(this.customerNumber);
         orderParent.setCreatedAt(LocalDateTime.now());
+        orderParent.setIdManagedPages(idManagedPages);
         double total = 0.0;
         List<OrderChild> childs = this.variants.stream()
                 .map(vwq -> {

@@ -61,11 +61,14 @@ export class OrdersComponent implements OnInit{
     if (order.dstatus == 1) {
       console.log(order.dstatus);
       this.step = '1';
-    } if (order.dstatus == 11) {
+    } if (order.dstatus == 5) {
       this.step = '2';
     }
   }
 
+  sendMission() {
+    
+  }
 
   fetchOrders(event?: TableLazyLoadEvent): void {
     this.loading = true;

@@ -30,6 +30,7 @@ export class InboxComponent implements OnInit {
   openPopup: boolean = false;
   loadingOrders: boolean = false;
   orderMessage: string = '';
+
   changePage(page:ManagedPageCPL) {
 
     this.fetchInboxContent(page.idMp);

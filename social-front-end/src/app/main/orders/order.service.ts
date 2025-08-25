@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import {HttpClient} from "@angular/common/http";
 import {ApiResponse} from "../inbox/inbox.service";
 import {javaHost} from "../../../environments/environment";
@@ -72,13 +72,14 @@ export class OrderService {
       ]);
     });
 
-    (doc as any).autoTable({
+    // ✅ use autoTable correctly
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 70,
     });
 
-    const finalY = (doc as any).previousAutoTable?.finalY || 70;
+    const finalY = (doc as any).lastAutoTable?.finalY || 70;
     doc.text(`Total: $${order.dtotal}`, 14, finalY + 10);
 
     doc.save(`Order-${order.idOrderM}.pdf`);

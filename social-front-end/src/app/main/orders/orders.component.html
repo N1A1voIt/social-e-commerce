@@ -187,3 +187,8 @@
     <app-beautiful-button [text]="'Send billing and payment link'" (click)="sendBillingAndPaymentLink()"></app-beautiful-button>
   </div>
 </app-form-container>
+<app-form-container (closeForm)="openModal=false" [isVisible]="step=='2' && openModal">
+  <div>
+    <app-beautiful-button [text]="'Send mission to delivery persons'" (click)="sendMission()"></app-beautiful-button>
+  </div>
+</app-form-container>

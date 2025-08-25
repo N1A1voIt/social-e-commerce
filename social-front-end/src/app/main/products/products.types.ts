@@ -121,7 +121,8 @@ export interface OrderPreview {
   customerName: string;
   customerNumber: string;
   shippingAddress: string;
-  idPc?:string
+  idPc?:string,
+  idManagedPages?:number
 }
 
 export interface MessageOrdering {

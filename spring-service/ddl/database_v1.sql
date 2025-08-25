@@ -416,6 +416,20 @@ CREATE TABLE delivery_driver_v2(
                                    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
 
+CREATE TABLE shipping_points(
+    id_shp SERIAL,
+    place_name TEXT NOT NULL,
+    latitude NUMERIC(8,6)  ,
+    longitude NUMERIC(8,6)  ,
+    distance NUMERIC(15,2)   NOT NULL,
+    origin VARCHAR(250) ,
+    id_delivery INTEGER NOT NULL,
+    id_mp INTEGER NOT NULL,
+    PRIMARY KEY(id_shp),
+    FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery),
+    FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
 CREATE TABLE delivery_v2(
                             id_delivery SERIAL,
                             shipping_address VARCHAR(50) ,
@@ -486,6 +500,19 @@ CREATE TABLE temp_payment_link(
   PRIMARY KEY(id),
   FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+
+
+CREATE TABLE delivery_dp (
+    id_delivery_dp SERIAL,
+    id_order_m INTEGER NOT NULL,
+    id_dd INTEGER NOT NULL,
+    id_delivery INTEGER NOT NULL,
+    PRIMARY KEY(id_delivery_dp),
+    FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+    FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
+    FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
 );
 
 
