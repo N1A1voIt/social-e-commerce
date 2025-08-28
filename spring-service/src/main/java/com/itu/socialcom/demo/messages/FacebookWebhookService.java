@@ -61,11 +61,12 @@ public class FacebookWebhookService extends WebhookService{
             inbox.setIdMp(managedPage.getId().intValue());
             inboxRepository.save(inbox);
             newInbox = true;
+            System.out.println("New inbox created" + inbox.getId());
         } else {
             inbox = inboxRepository.findByIdMp(managedPage.getId().intValue()).orElse(null);
         }
         MessageMother messageMother = new MessageMother();
-        if (newInbox && newCustomer) {
+        if (newInbox || newCustomer) {
             messageMother.setIdPc(pc.get(0).getId());
             messageMother.setIdIm(inbox.getId());
             messageMother.setIdMp(managedPage.getId().intValue());

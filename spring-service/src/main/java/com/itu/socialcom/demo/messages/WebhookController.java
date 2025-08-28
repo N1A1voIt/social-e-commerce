@@ -52,7 +52,7 @@ public class WebhookController {
     public ResponseEntity<String> handleWebhook(
             @RequestBody String body,
             HttpServletRequest request) {
-
+        System.out.println("bruh");
         logger.info("Received webhook POST request");
 
         if (!verifyRequestSignature(request, body)) {
@@ -63,7 +63,7 @@ public class WebhookController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(body);
-
+            System.out.println("Hello");
             JsonNode entries = jsonNode.get("entry");
             if (entries != null && entries.isArray()) {
                 for (JsonNode entry : entries) {
