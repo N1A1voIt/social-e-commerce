@@ -7,7 +7,7 @@ nlp_messaging_agent = LlmAgent(
     name="nlp_messaging_agent",
     model="gemini-2.0-flash-001",
     description="Extracts product SKUs and quantities from a user's message.",
-    instruction="""
+    instruction = """
         You are a Natural Language Processing assistant.
         Your task is to analyze the user's query and extract all product SKUs , their quantities ,customer information and shipping address.
         GUIDELINES:

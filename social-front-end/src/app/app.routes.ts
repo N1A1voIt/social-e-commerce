@@ -16,6 +16,7 @@ import {StockListComponent} from "./main/products/stock-list/stock-list.componen
 import {ValidatePagesComponent} from "./main/authentication/validate-pages/validate-pages.component";
 import {VariantsComponent} from "./main/products/variants/variants.component";
 import {OrdersComponent} from "./main/orders/orders.component";
+import {TransactionComponent} from "./main/transaction/transaction.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -39,6 +40,7 @@ const homeRoutes: Routes = [
       { path: 'orders', component: OrdersComponent },
     ]
   },
+
   {
     path: 'client',
     component: MenuClientComponent,
@@ -47,6 +49,9 @@ const homeRoutes: Routes = [
       { path: 'marketplace/product/:id', component: ProductDetailComponent }
     ]
   }
+]
+const freeRoutes:Routes = [
+  {path:'transactions',component:TransactionComponent}
 ]
 
 
@@ -58,4 +63,5 @@ export const routes: Routes = [
   },
   ...authRoutes,
   ...homeRoutes,
+  ...freeRoutes
 ];

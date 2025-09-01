@@ -13,6 +13,7 @@ public class MVolaProvider extends PaymentProvider {
     private String accessToken;
     private String partnerName;
     private String partnerMsisdn;
+
     @Override
     public void initiateProvider(String properties) throws IOException {
         Properties props = ConfigLoader.load(properties);
@@ -24,6 +25,7 @@ public class MVolaProvider extends PaymentProvider {
 
     @Override
     public PaymentResponse initiateTransaction(PaymentRequest request) {
+        
         return null;
     }
 
