@@ -14,12 +14,13 @@ import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
 import { MessageService } from 'primeng/api';
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {BeautifulButtonComponent} from "../../shared/beautiful-button/beautiful-button.component";
+import {BasicSelectComponent} from "../../shared/basic-select/basic-select.component";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -67,7 +68,7 @@ export class OrdersComponent implements OnInit{
   }
 
   sendMission() {
-    
+
   }
 
   fetchOrders(event?: TableLazyLoadEvent): void {

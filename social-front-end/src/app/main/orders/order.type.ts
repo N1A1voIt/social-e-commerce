@@ -28,3 +28,9 @@ export interface OrderChild {
   sku?: string;
   idManagedPages?: number;
 }
+export interface shippingPoints {
+  idShippingPoint?: number;
+  name?: string;
+  address?: string;
+  
+}

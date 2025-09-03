@@ -1,4 +1,12 @@
-CREATE DATABASE postgres;
+1. Project Overview
+
+Project Name: [your project name here]
+
+Purpose of Backend: [short description, e.g., payment system, delivery tracking, etc.]
+
+Tech Stack: Java + Spring Boot
+
+2. Database Schema
 CREATE TYPE platforms_pro as ENUM ('google', 'facebook','basic','X','github');
 
 CREATE TABLE seller_v2(
@@ -504,229 +512,63 @@ CREATE TABLE delivery_dp (
     FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
 );
 
+Relationships (foreign keys, joins) should be inferred directly from that file.
 
-SELECT * FROM pat_refresh_tokens;
+3. Existing Code & Conventions
+Project Structure (Domain-Based by Theme):
+Each theme corresponds to a domain object (e.g., users, orders, payments).
+Inside each theme package:
 
-CREATE VIEW v_managed_accounts AS
-WITH max_accesstoken AS (
-    SELECT id_pat, access_token, expired_at, MAX(created_at), id_prt FROM pat_access_tokens group by id_pat
-), max_refreshtoken AS (
-    SELECT id_prt, token, expired_at, MAX(created_at),revoked,id_mp FROM pat_refresh_tokens group by id_prt
-) , max_tokens AS (
-    SELECT id_pat, access_token, max_accesstoken.expired_at as acctoken_expiration,max_refreshtoken.expired_at as reftoken_expiration, max_refreshtoken.id_prt, token, revoked, id_mp FROM max_accesstoken
-    RIGHT JOIN max_refreshtoken ON max_accesstoken.id_prt = max_refreshtoken.id_prt
-)
-SELECT max_tokens.id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username
-,access_token,acctoken_expiration,reftoken_expiration,token, revoked
-FROM managed_pages
-                  JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
-                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller
-                  JOIN max_tokens ON managed_pages.id_mp = max_tokens.id_mp
-;
-
-CREATE VIEW v_refresh_token_holder AS
-    SELECT row_number() over (order by 1) as id, managed_pages.*,s.email,pat_refresh_tokens.token FROM seller_v2 as s
-        JOIN pat_refresh_tokens
-        JOIN managed_pages
-            ON pat_refresh_tokens.id_mp = managed_pages.id_mp
-            ON s.id_seller = managed_pages.id_seller
-        WHERE pat_refresh_tokens.revoked = false;
-
-
-CREATE VIEW v_post_child_media AS
-    SELECT row_number() over (partition by 1) as id,post_childs.id_child,
-           post_childs.media_url as main_media_url,description,mp.platform_identifier,post_childs.type,s.id_sp,s.label as supported_platform,
-           id_child_1,p.id_post,p.id_seller,m.media_url as additional_media,mp.page_title,mp.associated_media
-    FROM post_childs
-        LEFT JOIN medias m on post_childs.id_child = m.id_child
-        JOIN posts p on post_childs.id_post = p.id_post
-        JOIN supported_platforms_v2 s on post_childs.id_sp = s.id_sp
-        JOIN managed_pages mp on s.id_sp = mp.id_sp ORDER BY post_childs.id_child, type;
-
-
-CREATE VIEW v_message_box AS
-    SELECT id_mm, message_mother.id_pc, id_mp, id_im, name, link_to_profile, d_platform, identifier_on_platform, media_url, id_sp FROM message_mother JOIN potential_customers_v2 ON potential_customers_v2.id_pc = message_mother.id_pc;
-
-CREATE VIEW v_product_stock_cpl AS
-    WITH stock_details AS (
-        SELECT max(action_at),d_product_number,id_product FROM stocks_child GROUP BY id_product, d_product_number
-    )
-    SELECT
-        p.id_product,description,name,price,media,id_seller,c.id_category,
-        c.val as category,COALESCE(d_product_number,0) as product_number,
-        CASE WHEN COALESCE(d_product_number,0) = 0 THEN 'Out of Stock'
-                WHEN COALESCE(d_product_number,0) >= 10 THEN 'In Stock'
-                WHEN COALESCE(d_product_number,0) > 0 AND COALESCE(d_product_number,0) < 10 THEN 'Low Stock' END as stock_status
-        FROM products_v2 p
-        LEFT JOIN stock_details s ON p.id_product = s.id_product
-        JOIN category c on c.id_category = p.id_category;
-
-CREATE VIEW v_variant_cpl AS
-    WITH stock_details AS (
-        SELECT max(action_at),d_variant_number,id_variant FROM stocks_child GROUP BY id_variant, d_variant_number
-    )
-    SELECT
-        v.id_variant, v.title, v.price, v.created_at, v.updated_at, v.id_product,
-        COALESCE(d_variant_number,0) as variant_number,
-        CASE WHEN COALESCE(d_variant_number,0) = 0 THEN 'Out of Stock'
-                WHEN COALESCE(d_variant_number,0) >= 10 THEN 'In Stock'
-                WHEN COALESCE(d_variant_number,0) > 0 AND COALESCE(d_variant_number,0) < 10 THEN 'Low Stock' END as stock_status
-        FROM variants_v2 v LEFT JOIN stock_details ON v.id_variant = stock_details.id_variant;
-
-
-WITH recent_variants_retriever AS
-(
-    SELECT id_variant, MAX(created_at) AS max_created_at
-    FROM stocks_child
-    WHERE id_variant IN (?)
-    GROUP BY id_variant
-)
-SELECT sc.*
-FROM stocks_child sc
-JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.created_at = sub.max_created_at;
-
---
--- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
---     RETURNS TRIGGER AS $$
--- BEGIN
---     -- The trigger is fired FOR EACH ROW that is inserted or updated.
---
---     -- The first part of this function updates the variant and product stock numbers
---     -- from the current row's timestamp onwards.
---
---     WITH RunningTotals AS (
---         SELECT
---             sc.id_st_ch,
---             sc.id_variant,
---             sc.id_product,
---
---             -- Calculate the cumulative sum for the variant stock
---             -- We start the sum from the last known value before this transaction's date.
---             COALESCE((
---                          SELECT d_variant_number
---                          FROM stocks_child
---                          WHERE id_variant = NEW.id_variant AND created_at < NEW.created_at
---                          ORDER BY created_at DESC
---                          LIMIT 1
---                      ), 0) + SUM(COALESCE(sc.input, 0) - COALESCE(sc.output, 0)) OVER (PARTITION BY sc.id_variant ORDER BY sc.created_at) AS new_variant_number,
---
---             -- Calculate the cumulative sum for the product stock
---             COALESCE((
---                          SELECT d_product_number
---                          FROM stocks_child
---                          WHERE id_product = NEW.id_product AND created_at < NEW.created_at
---                          ORDER BY created_at DESC
---                          LIMIT 1
---                      ), 0) + SUM(COALESCE(sc.input, 0) - COALESCE(sc.output, 0)) OVER (PARTITION BY sc.id_product ORDER BY sc.created_at) AS new_product_number
---         FROM stocks_child sc
---         WHERE
---             (sc.id_variant = NEW.id_variant OR sc.id_product = NEW.id_product)
---           AND sc.created_at >= NEW.created_at
---     )
---     UPDATE stocks_child
---     SET
---         d_variant_number = rt.new_variant_number,
---         d_product_number = rt.new_product_number
---     FROM RunningTotals rt
---     WHERE stocks_child.id_st_ch = rt.id_st_ch;
---
---     -- This ensures the current row being inserted/updated also gets the correct values.
---     -- The `UPDATE` statement above might not catch the `NEW` row itself, depending on timing.
---     -- We'll manually set the values to be safe.
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
---
--- CREATE TRIGGER update_stocks_child_denormalized_fields_trigger
---     AFTER INSERT OR UPDATE ON stocks_child
---     FOR EACH ROW
--- EXECUTE FUNCTION update_stocks_child_denormalized_fields_function();
+src/main/java/com/itu/socialcom/demo/{theme}/
+├── controllers/   # REST endpoints for this theme
+├── services/      # Business logic for this theme
+├── models/        # JPA entities for this theme
+└── repository/    # Spring Data JPA repositories for this theme
 
 
 
+⚠️ Sometimes, a model may be placed directly inside the theme package (e.g., orders/Order.java) instead of inside /models/.
 
--- Electronics & Technology
-INSERT INTO category (val, desc_) VALUES ('Electronics', 'Consumer electronics, gadgets, and electronic devices');
-INSERT INTO category (val, desc_) VALUES ('Computers & Laptops', 'Desktop computers, laptops, tablets, and computer accessories');
-INSERT INTO category (val, desc_) VALUES ('Mobile Phones', 'Smartphones, basic phones, and mobile accessories');
-INSERT INTO category (val, desc_) VALUES ('Audio & Video', 'Headphones, speakers, cameras, TVs, and audio/video equipment');
-INSERT INTO category (val, desc_) VALUES ('Gaming', 'Video games, gaming consoles, and gaming accessories');
-INSERT INTO category (val, desc_) VALUES ('Smart Home', 'Home automation devices, smart speakers, and IoT products');
 
--- Fashion & Clothing
-INSERT INTO category (val, desc_) VALUES ('Men''s Clothing', 'Clothing and apparel for men');
-INSERT INTO category (val, desc_) VALUES ('Women''s Clothing', 'Clothing and apparel for women');
-INSERT INTO category (val, desc_) VALUES ('Kids & Baby Clothing', 'Clothing for children and babies');
-INSERT INTO category (val, desc_) VALUES ('Shoes & Footwear', 'All types of footwear for men, women, and children');
-INSERT INTO category (val, desc_) VALUES ('Accessories & Jewelry', 'Fashion accessories, jewelry, watches, and bags');
-INSERT INTO category (val, desc_) VALUES ('Activewear & Sportswear', 'Sports clothing, gym wear, and athletic apparel');
+⚠️ Sometimes controllers appear as direct children of {theme}/.
 
--- Home & Garden
-INSERT INTO category (val, desc_) VALUES ('Home Decor', 'Decorative items, artwork, and home styling products');
-INSERT INTO category (val, desc_) VALUES ('Furniture', 'Indoor and outdoor furniture for all rooms');
-INSERT INTO category (val, desc_) VALUES ('Kitchen & Dining', 'Cookware, dinnerware, kitchen appliances, and utensils');
-INSERT INTO category (val, desc_) VALUES ('Bedding & Bath', 'Bed linens, towels, bathroom accessories, and sleep products');
-INSERT INTO category (val, desc_) VALUES ('Garden & Outdoor', 'Gardening supplies, outdoor furniture, and lawn care equipment');
-INSERT INTO category (val, desc_) VALUES ('Home Improvement', 'Tools, hardware, paint, and home renovation supplies');
+Naming Conventions: camelCase for variables & methods, PascalCase for classes, snake_case in DB.
 
--- Health & Beauty
-INSERT INTO category (val, desc_) VALUES ('Beauty & Personal Care', 'Cosmetics, skincare, haircare, and personal hygiene products');
-INSERT INTO category (val, desc_) VALUES ('Health & Wellness', 'Vitamins, supplements, medical supplies, and health products');
-INSERT INTO category (val, desc_) VALUES ('Fitness Equipment', 'Exercise machines, weights, and fitness accessories');
-INSERT INTO category (val, desc_) VALUES ('Pharmacy', 'Over-the-counter medications and pharmaceutical products');
+Error Handling: Minimal → implement locally in each controller/service if needed.
 
--- Automotive
-INSERT INTO category (val, desc_) VALUES ('Car Parts & Accessories', 'Vehicle parts, accessories, and automotive supplies');
-INSERT INTO category (val, desc_) VALUES ('Motorcycles & ATVs', 'Motorcycles, ATVs, and related parts and accessories');
-INSERT INTO category (val, desc_) VALUES ('Car Electronics', 'GPS systems, dash cams, car audio, and automotive electronics');
+Authentication / Authorization: Observe patterns in existing code (do not assume).
 
--- Sports & Recreation
-INSERT INTO category (val, desc_) VALUES ('Sports Equipment', 'Equipment for various sports and recreational activities');
-INSERT INTO category (val, desc_) VALUES ('Outdoor Recreation', 'Camping, hiking, fishing, and outdoor adventure gear');
-INSERT INTO category (val, desc_) VALUES ('Bicycles', 'Bikes, bike parts, and cycling accessories');
-INSERT INTO category (val, desc_) VALUES ('Water Sports', 'Swimming, surfing, boating, and water activity equipment');
+Configuration: application.properties
 
--- Books, Media & Entertainment
-INSERT INTO category (val, desc_) VALUES ('Books', 'Physical and digital books across all genres');
-INSERT INTO category (val, desc_) VALUES ('Movies & TV', 'DVDs, Blu-rays, digital movies, and TV show collections');
-INSERT INTO category (val, desc_) VALUES ('Music', 'CDs, vinyl records, digital music, and musical instruments');
-INSERT INTO category (val, desc_) VALUES ('Musical Instruments', 'Guitars, pianos, drums, and all musical instruments');
+4. Code Understanding Rules
 
--- Food & Beverages
-INSERT INTO category (val, desc_) VALUES ('Groceries', 'Food items, snacks, and everyday grocery products');
-INSERT INTO category (val, desc_) VALUES ('Beverages', 'Drinks, juices, coffee, tea, and alcoholic beverages');
-INSERT INTO category (val, desc_) VALUES ('Gourmet Food', 'Specialty foods, organic products, and premium food items');
-INSERT INTO category (val, desc_) VALUES ('Pet Food', 'Food and treats for dogs, cats, and other pets');
+The agent must scan the codebase to:
 
--- Toys & Baby Products
-INSERT INTO category (val, desc_) VALUES ('Toys & Games', 'Toys for all ages, board games, and educational toys');
-INSERT INTO category (val, desc_) VALUES ('Baby Products', 'Baby care items, strollers, car seats, and infant supplies');
-INSERT INTO category (val, desc_) VALUES ('Kids'' Furniture', 'Furniture designed specifically for children');
+Detect all existing endpoints and their signatures.
 
--- Office & Business
-INSERT INTO category (val, desc_) VALUES ('Office Supplies', 'Stationery, office equipment, and workplace essentials');
-INSERT INTO category (val, desc_) VALUES ('Business Equipment', 'Printers, scanners, office furniture, and business machines');
-INSERT INTO category (val, desc_) VALUES ('Industrial & Scientific', 'Professional tools, laboratory equipment, and industrial supplies');
+Understand how services are wired into controllers.
 
--- Pet Supplies
-INSERT INTO category (val, desc_) VALUES ('Pet Supplies', 'General pet care products and accessories');
-INSERT INTO category (val, desc_) VALUES ('Dog Supplies', 'Products specifically for dogs');
-INSERT INTO category (val, desc_) VALUES ('Cat Supplies', 'Products specifically for cats');
-INSERT INTO category (val, desc_) VALUES ('Fish & Aquatic Pets', 'Aquarium supplies and fish care products');
+Map models/entities to the DB schema.
 
--- Art & Crafts
-INSERT INTO category (val, desc_) VALUES ('Arts & Crafts', 'Art supplies, craft materials, and creative hobby items');
-INSERT INTO category (val, desc_) VALUES ('Sewing & Knitting', 'Fabric, yarn, sewing machines, and textile crafts');
-INSERT INTO category (val, desc_) VALUES ('Collectibles', 'Antiques, collectible items, and rare finds');
+Recognize utility/helper classes.
 
--- Services
-INSERT INTO category (val, desc_) VALUES ('Digital Services', 'Software, apps, digital subscriptions, and online services');
-INSERT INTO category (val, desc_) VALUES ('Gift Cards', 'Gift certificates and prepaid cards');
-INSERT INTO category (val, desc_) VALUES ('Professional Services', 'Consulting, repairs, installations, and professional assistance');
+Do not rely on manual feature lists → infer directly from existing code & conventions.
+Always align new code with the existing structure.
 
--- Miscellaneous
-INSERT INTO category (val, desc_) VALUES ('Travel & Luggage', 'Suitcases, travel accessories, and travel-related products');
-INSERT INTO category (val, desc_) VALUES ('Religious & Spiritual', 'Religious books, spiritual items, and ceremonial products');
-INSERT INTO category (val, desc_) VALUES ('Party Supplies', 'Decorations, party favors, and event planning items');
-INSERT INTO category (val, desc_) VALUES ('Seasonal Items', 'Holiday decorations, seasonal products, and special occasion items');
-INSERT INTO category (val, desc_) VALUES ('Other', 'Miscellaneous items that don''t fit other categories');
+5. Extra Rules
+
+Always validate inputs before DB access.
+
+Always return JSON responses using the ApiResponse class.
+
+Never hardcode sensitive configs → always use application.properties.
+
+Follow REST best practices for endpoints.
+
+🔑 Why this works better
+
+Explicit directory tree helps the agent parse the repo.
+
+One inline SQL table example helps it understand the schema format.
+
+Mentioning ApiResponse explicitly tells the agent to reuse it for uniform responses.

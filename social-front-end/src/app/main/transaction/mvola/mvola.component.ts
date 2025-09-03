@@ -14,13 +14,14 @@ import {MessageService} from "primeng/api";
 @Component({
   selector: 'app-mvola',
   standalone: true,
+  providers:[MessageService],
   imports: [
     FormContainerComponent,
     BasicInputComponent,
     NgIf,
     ReactiveFormsModule,
     BeautifulButtonComponent,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './mvola.component.html',
   styleUrl: './mvola.component.css'

@@ -188,6 +188,7 @@
   </div>
 </app-form-container>
 <app-form-container (closeForm)="openModal=false" [isVisible]="step=='2' && openModal">
+  <app-basic-select></app-basic-select>
   <div>
     <app-beautiful-button [text]="'Send mission to delivery persons'" (click)="sendMission()"></app-beautiful-button>
   </div>
