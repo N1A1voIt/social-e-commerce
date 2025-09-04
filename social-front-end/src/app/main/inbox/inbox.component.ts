@@ -121,7 +121,6 @@ export class InboxComponent implements OnInit {
     };
     this.inboxService.sendMessage(message).subscribe({
       next: (response:ApiResponse) => {
-        console.log(response);
         this.messages.push(response.data);
       }, error(err) {
         alert(err.message);

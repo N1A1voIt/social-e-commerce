@@ -15,6 +15,9 @@ import { MessageService } from 'primeng/api';
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {BeautifulButtonComponent} from "../../shared/beautiful-button/beautiful-button.component";
 import {BasicSelectComponent} from "../../shared/basic-select/basic-select.component";
+import {ShippingPointService} from "../settings/managed-account/shipping-point/shipping-point.service";
+import {ShippingPoint} from "../settings/managed-account/shipping-point/shipping-point.model";
+import {SelectOption} from "../../shared/basic-select/basic-select.component";
 
 @Component({
   selector: 'app-orders',
@@ -32,10 +35,20 @@ export class OrdersComponent implements OnInit{
   loading: boolean = true;
   activeOrder?: OrderParent;
   loadingChildren: { [key: string]: boolean } = {}; // Track loading state for child orders
-  step:string = '1'; // 1 - apyment , 2 - delivery
+  step:string = '1'; // 1 - payment , 2 - delivery
   openModal: boolean = false;
 
-  constructor(private orderService: OrderService,private messagingService:MessageService) {}
+  // Shipping points related properties
+  shippingPoints: ShippingPoint[] = [];
+  shippingPointOptions: SelectOption[] = [];
+  selectedShippingPoint: number | null = null;
+  loadingShippingPoints: boolean = false;
+
+  constructor(
+    private orderService: OrderService,
+    private messagingService: MessageService,
+    private shippingPointService: ShippingPointService
+  ) {}
 
   ngOnInit(): void {
     this.fetchOrders();
@@ -58,17 +71,97 @@ export class OrdersComponent implements OnInit{
 
   nextStep(order:OrderParent) {
     this.activeOrder = order;
-    this.openModal=true;
+    this.openModal = true;
+    this.selectedShippingPoint = null;
+
     if (order.dstatus == 1) {
       console.log(order.dstatus);
       this.step = '1';
-    } if (order.dstatus == 5) {
+    } else if (order.dstatus == 5) {
       this.step = '2';
+      // Fetch child orders if not already loaded to get the managed page ID
+      if (!order.childs || order.childs.length === 0) {
+        this.fetchChildOrders(order, () => {
+          this.fetchShippingPointsForOrder(order);
+        });
+      } else {
+        this.fetchShippingPointsForOrder(order);
+      }
     }
   }
 
-  sendMission() {
+  fetchShippingPointsForOrder(order: OrderParent) {
+    if (!order.childs || order.childs.length === 0) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No order details found to determine shipping points'
+      });
+      return;
+    }
 
+    // Get the first child order with a managed page ID
+    const childWithManagedPage = order.childs.find(child => child.idManagedPages);
+
+    if (!childWithManagedPage || !childWithManagedPage.idManagedPages) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No managed page associated with this order'
+      });
+      return;
+    }
+
+    this.loadingShippingPoints = true;
+    this.shippingPointService.getShippingPointsByManagedPageId(childWithManagedPage.idManagedPages)
+      .subscribe({
+        next: (points: ShippingPoint[]) => {
+          this.shippingPoints = points;
+          this.shippingPointOptions = this.convertToSelectOptions(points);
+          this.loadingShippingPoints = false;
+        },
+        error: (err) => {
+          console.error('Error fetching shipping points:', err);
+          this.messagingService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to load shipping points'
+          });
+          this.loadingShippingPoints = false;
+        }
+      });
+  }
+
+  convertToSelectOptions(points: ShippingPoint[]): SelectOption[] {
+    return points.map(point => ({
+      value: point.id,
+      label: point.placeName,
+      description: `Distance: ${point.distance} km`
+    }));
+  }
+
+  sendMission() {
+    if (!this.selectedShippingPoint) {
+      this.messagingService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select a shipping point'
+      });
+      return;
+    }
+
+    // Here you would implement the actual API call to send the mission
+    // with the selected shipping point and order details
+    console.log('Sending mission with shipping point:', this.selectedShippingPoint);
+    console.log('For order:', this.activeOrder);
+
+    this.messagingService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Mission sent to delivery persons'
+    });
+
+    this.openModal = false;
   }
 
   fetchOrders(event?: TableLazyLoadEvent): void {
@@ -93,7 +186,7 @@ export class OrdersComponent implements OnInit{
   }
 
   // Fetch child orders when a row is expanded
-  fetchChildOrders(order: OrderParent): void {
+  fetchChildOrders(order: OrderParent, callback?: () => void): void {
     if (!order.idOrderM) return;
 
     const orderId = order.idOrderM;
@@ -105,12 +198,27 @@ export class OrdersComponent implements OnInit{
         if (orderIndex !== -1) {
           this.orders[orderIndex].childs = response.data; // Adjust based on your API response structure
         }
+
+        // If this is the active order, update it directly
+        if (this.activeOrder && this.activeOrder.idOrderM === order.idOrderM) {
+          this.activeOrder.childs = response.data;
+        }
+
         this.loadingChildren[orderId] = false;
+
+        // Call the callback if provided
+        if (callback) {
+          callback();
+        }
       },
       error: (err) => {
         this.loadingChildren[orderId] = false;
         console.error('Error fetching child orders:', err);
-        alert('Failed to load order details');
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load order details'
+        });
       }
     });
   }
@@ -131,7 +239,7 @@ export class OrdersComponent implements OnInit{
 
   onRowCollapse(event: TableRowCollapseEvent): void {
     console.log('Row collapsed:', event.data);
-    this.messagingService.add({ severity: 'info', summary: 'Product Expanded', detail: event.data.name, life: 3000 })
+    this.messagingService.add({ severity: 'info', summary: 'Order Collapsed', detail: `Order #${event.data.idOrderM}`, life: 3000 })
   }
    async exportOrder(order: OrderParent) {
       await this.orderService.generateOrderPdf(order);

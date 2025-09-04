@@ -12,10 +12,16 @@ export class ShippingPointService {
 
   constructor(private http: HttpClient) { }
 
-  createShippingPoint(shippingPoint: ShippingPoint): Observable<ShippingPoint> {
+  getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+  }
 
-    return this.http.post<ShippingPoint>(this.apiUrl, shippingPoint, { headers });
+  createShippingPoint(shippingPoint: ShippingPoint): Observable<ShippingPoint> {
+    return this.http.post<ShippingPoint>(this.apiUrl, shippingPoint, { headers: this.getHeaders() });
+  }
+
+  getShippingPointsByManagedPageId(managedPageId: number): Observable<ShippingPoint[]> {
+    return this.http.get<ShippingPoint[]>(`${this.apiUrl}/managed-page/${managedPageId}`, { headers: this.getHeaders() });
   }
 }

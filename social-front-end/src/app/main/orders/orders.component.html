@@ -1,21 +1,18 @@
 <!-- orders.component.html -->
 <div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
   <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
-    <div class="">
-      <h1>Order list</h1>
+    <div class="w-full flex justify-between items-center px-4">
+      <h1>Order List</h1>
+      <p-button label="Collapse All"
+                icon="pi pi-minus"
+                (onClick)="collapseAll()"
+                severity="secondary"
+                size="small"
+                styleClass="p-button-rounded p-button-outlined">
+      </p-button>
     </div>
     <div class="card w-full font-cusom-font rounded-3xl">
       <p-toast />
-
-      <!-- Add a collapse all button -->
-      <div class="mb-3">
-<!--        <p-button label="Collapse All"-->
-<!--                  icon="pi pi-minus"-->
-<!--                  (onClick)="collapseAll()"-->
-<!--                  severity="secondary"-->
-<!--                  size="small">-->
-<!--        </p-button>-->
-      </div>
 
       <p-table
         [value]="orders"
@@ -29,7 +26,9 @@
         [tableStyle]="{ 'min-width': '70rem' }"
         [expandedRowKeys]="expandedRows"
         (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)">
+        (onRowCollapse)="onRowCollapse($event)"
+        styleClass="p-datatable-rounded p-datatable-hoverable-rows"
+        [rowHover]="true">
 
         <!-- Table Header -->
         <ng-template pTemplate="header">
@@ -81,13 +80,18 @@
             <td>{{ order.customerNumber || 'N/A' }}</td>
             <td>{{ order.createdAt | date:'short' }}</td>
             <td>{{ order.dtotal | currency:'USD':'symbol':'1.2-2' }}</td>
-            <td class="flex justify-center gap-2">
-              <i
-                (click)="nextStep(order)"
-                class="pi text-green-500 text-xl pi-arrow-circle-right" title="Next step"
-              ></i>
-              <i class="pi text-xl text-red-500 pi-times-circle" title="Cancel"></i>
-              <i class="pi text-xl text-red-500 pi-file-export" title="Export order" (click)="exportOrder(order)"></i>
+            <td>
+              <div class="action-buttons">
+                <button class="action-button bg-green-50" (click)="nextStep(order)" title="Next step">
+                  <i class="pi pi-arrow-circle-right text-green-500 text-xl"></i>
+                </button>
+                <button class="action-button bg-red-50" title="Cancel">
+                  <i class="pi pi-times-circle text-red-500 text-xl"></i>
+                </button>
+                <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
+                  <i class="pi pi-file-export text-blue-500 text-xl"></i>
+                </button>
+              </div>
             </td>
           </tr>
         </ng-template>
@@ -95,23 +99,24 @@
         <!-- Expanded Row (Child Orders) -->
         <ng-template pTemplate="rowexpansion" let-order>
           <tr>
-            <td colspan="8">
-              <div class="p-4">
-                <div class="flex justify-between items-center mb-3">
-                  <h5 class="m-0">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
-                  <p-tag [value]="'Order ID: ' + order.idOrderM" severity="info" />
+            <td colspan="9">
+              <div class="p-4 p-rowexpansion-content">
+                <div class="order-details-header">
+                  <h5 class="m-0 text-lg font-semibold">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
+                  <p-tag [value]="'Order ID: ' + order.idOrderM" severity="info" styleClass="p-tag-rounded" />
                 </div>
 
                 <!-- Loading state for child orders -->
-                <div *ngIf="isChildOrdersLoading(order)" class="text-center py-4">
+                <div *ngIf="isChildOrdersLoading(order)" class="loading-spinner">
                   <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
-                  <p>Loading order details...</p>
+                  <p class="mt-2">Loading order details...</p>
                 </div>
 
                 <!-- Child orders table -->
                 <p-table *ngIf="!isChildOrdersLoading(order)"
                          [value]="order.childs"
                          dataKey="idOrderDetails"
+                         styleClass="child-orders-table"
                          [tableStyle]="{ 'min-width': '50rem' }">
                   <ng-template pTemplate="header">
                     <tr>
@@ -139,7 +144,7 @@
                         <img *ngIf="child.mediaUrl"
                              [src]="child.mediaUrl"
                              [alt]="child.productName || 'Product image'"
-                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"
+                             class="product-image"
                              onerror="this.style.display='none'">
                         <span *ngIf="!child.mediaUrl" class="text-gray-400">No image</span>
                       </td>
@@ -148,10 +153,11 @@
 
                   <ng-template pTemplate="emptymessage">
                     <tr>
-                      <td colspan="7" class="text-center py-4">
-                        <div class="text-gray-500">
-                          <i class="pi pi-info-circle mr-2"></i>
-                          No order details found for this order.
+                      <td colspan="7" class="text-center py-6">
+                        <div class="flex flex-col items-center text-gray-500 p-4 bg-gray-50 rounded-lg">
+                          <i class="pi pi-inbox text-3xl mb-2 text-blue-400"></i>
+                          <span class="font-medium">No order details found for this order</span>
+                          <p class="text-sm mt-1">This order doesn't have any product details attached.</p>
                         </div>
                       </td>
                     </tr>
@@ -188,8 +194,50 @@
   </div>
 </app-form-container>
 <app-form-container (closeForm)="openModal=false" [isVisible]="step=='2' && openModal">
-  <app-basic-select></app-basic-select>
+  <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3 mb-4">
+    <h2 class="text-lg font-bold font-mono">Delivery Information</h2>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Order ID:</span>
+        <span>{{ activeOrder?.idOrderM }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Customer:</span>
+        <span>{{ activeOrder?.dcustomerName }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Delivery Address:</span>
+        <span>{{ activeOrder?.shippingAddress }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loadingShippingPoints" class="flex justify-center items-center p-4">
+    <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
+    <span class="ml-2">Loading shipping points...</span>
+  </div>
+
+  <div *ngIf="!loadingShippingPoints" class="mb-4">
+    <app-basic-select
+      [options]="shippingPointOptions"
+      [label]="'Select Shipping Point'"
+      [placeholder]="'Choose a shipping point...'"
+      [(ngModel)]="selectedShippingPoint"
+      [error]="selectedShippingPoint === null && shippingPointOptions.length > 0"
+      [errorMessage]="'Please select a shipping point'"
+    ></app-basic-select>
+
+    <div *ngIf="shippingPointOptions.length === 0" class="text-center p-4 bg-gray-50 rounded-lg mt-2">
+      <i class="pi pi-exclamation-circle text-yellow-500 text-xl mb-2"></i>
+      <p class="text-gray-600">No shipping points available for this order.</p>
+      <p class="text-sm text-gray-500 mt-1">Please add shipping points for this managed page first.</p>
+    </div>
+  </div>
+
   <div>
-    <app-beautiful-button [text]="'Send mission to delivery persons'" (click)="sendMission()"></app-beautiful-button>
+    <app-beautiful-button
+      [text]="'Send mission to delivery persons'"
+      (click)="sendMission()">
+    </app-beautiful-button>
   </div>
 </app-form-container>
