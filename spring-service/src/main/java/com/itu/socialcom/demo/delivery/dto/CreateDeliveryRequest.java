@@ -15,5 +15,6 @@ public class CreateDeliveryRequest {
     /**
      * ID of the order associated with the delivery
      */
+
     private Long orderId;
 }

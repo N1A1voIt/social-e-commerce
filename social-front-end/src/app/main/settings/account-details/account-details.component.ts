@@ -2,10 +2,11 @@ import {Component, Output, EventEmitter, OnInit, ChangeDetectorRef} from '@angul
 import { ContactsComponent } from "../contacts/contacts.component";
 import { ManagedAccountComponent } from "../managed-account/managed-account.component";
 import { NgIcon } from "@ng-icons/core";
-import { NgIf } from "@angular/common";
+import { NgIf, NgFor } from "@angular/common";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {environment, javaHost} from "../../../../environments/environment";
 import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.component";
+import {ShippingPointFormComponent} from "../managed-account/shipping-point/shipping-point-form.component";
 
 export interface ManagedPageCPL {
   idMp: number;
@@ -34,7 +35,9 @@ interface Seller {
     ManagedAccountComponent,
     NgIcon,
     NgIf,
-    ProfileEditFormComponent
+    NgFor,
+    ProfileEditFormComponent,
+    ShippingPointFormComponent
   ],
   templateUrl: './account-details.component.html',
   styleUrl: './account-details.component.css'
@@ -53,7 +56,18 @@ export class AccountDetailsComponent implements OnInit {
   }
   isLoading: boolean = false;
   managedPages: ManagedPageCPL[] = [];
+  selectedManagedPageId: number | null = null;
   @Output() close = new EventEmitter<void>();
+
+  onAddShippingPoint(managedPageId: number): void {
+    this.selectedManagedPageId = managedPageId;
+    this.formApply = 'shipping-points';
+  }
+
+  closeShippingPointForm(): void {
+    this.formApply = 'jean';
+    this.selectedManagedPageId = null;
+  }
 
   constructor(private http: HttpClient,private cdr:ChangeDetectorRef) {}
 

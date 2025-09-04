@@ -18,8 +18,13 @@ import {NgForOf} from "@angular/common";
 export class ManagedAccountComponent {
    @Input() managedPages:ManagedPageCPL[] = [];
    @Output() editClicked = new EventEmitter<void>();
+   @Output() addShippingPoint = new EventEmitter<number>();
 
   triggerEdit(): void {
     this.editClicked.emit();
+  }
+
+  onAddShippingPoint(managedPageId: number): void {
+    this.addShippingPoint.emit(managedPageId);
   }
 }

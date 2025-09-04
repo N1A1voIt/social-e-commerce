@@ -21,16 +21,24 @@
   </div>
 
   <div class="w-full">
-    <app-platform-row
-      *ngFor="let page of managedPages"
-      [platform]="page.platform"
-      [pageTitle]="page.pageTitle"
-      [username]="page.username"
-      [logo]="page.platformIdentifier"
-      [status]="page.status"
-      [associatedMedia]="page.associatedMedia"
-      [linkToPlatform]="page.linkToPlatform"
-    ></app-platform-row>
+    <div *ngFor="let page of managedPages" class="flex items-center mb-2">
+      <app-platform-row
+        [platform]="page.platform"
+        [pageTitle]="page.pageTitle"
+        [username]="page.username"
+        [logo]="page.platformIdentifier"
+        [status]="page.status"
+        [associatedMedia]="page.associatedMedia"
+        [linkToPlatform]="page.linkToPlatform"
+        [managedPageId]="page.idMp"
+        class="flex-1"
+      ></app-platform-row>
+      <span
+        class="text-lg  text-fotsy cursor-pointer"
+        (click)="onAddShippingPoint(page.idMp)"
+      >
+        <i class="pi pi-truck bg-yellow rounded-full p-4"></i>
+      </span>
+    </div>
   </div>
 </div>
-
