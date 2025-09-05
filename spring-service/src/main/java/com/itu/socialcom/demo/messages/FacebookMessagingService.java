@@ -26,7 +26,7 @@ public class FacebookMessagingService extends MessageService{
     @Override
     public void sendMessage(String recipientId, String messageText, String pageAccessToken) throws Exception{
         try {
-            String apiUrl = "https://graph.facebook.com/v23.0/me/messages?access_token=" + pageAccessToken;
+            String apiUrl = "https://graph.facebook.com/v18.0/me/messages?access_token=" + pageAccessToken;
 
             // JSON payload
             String jsonPayload = "{"

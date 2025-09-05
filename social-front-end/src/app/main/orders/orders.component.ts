@@ -99,21 +99,23 @@ export class OrdersComponent implements OnInit{
       });
       return;
     }
+    console.log(order)
 
     // Get the first child order with a managed page ID
-    const childWithManagedPage = order.childs.find(child => child.idManagedPages);
-
-    if (!childWithManagedPage || !childWithManagedPage.idManagedPages) {
-      this.messagingService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No managed page associated with this order'
-      });
-      return;
-    }
+    // const childWithManagedPage = order.childs.find(child => child.idManagedPages);
+    //
+    // if (!childWithManagedPage || !childWithManagedPage.idManagedPages) {
+    //   this.messagingService.add({
+    //     severity: 'error',
+    //     summary: 'Error',
+    //     detail: 'No managed page associated with this order'
+    //   });
+    //   return;
+    // }
 
     this.loadingShippingPoints = true;
-    this.shippingPointService.getShippingPointsByManagedPageId(childWithManagedPage.idManagedPages)
+    // console.log(childWithManagedPage)
+    this.shippingPointService.getShippingPointsByManagedPageId(order?.idManagedPages || -1)
       .subscribe({
         next: (points: ShippingPoint[]) => {
           this.shippingPoints = points;

@@ -193,7 +193,7 @@
     <app-beautiful-button [text]="'Send billing and payment link'" (click)="sendBillingAndPaymentLink()"></app-beautiful-button>
   </div>
 </app-form-container>
-<app-form-container (closeForm)="openModal=false" [isVisible]="step=='2' && openModal">
+<app-form-container (closeForm)="openModal=false" label="Make a call for tenders" [isVisible]="step=='2' && openModal">
   <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3 mb-4">
     <h2 class="text-lg font-bold font-mono">Delivery Information</h2>
     <div class="flex flex-col gap-2">
@@ -211,33 +211,35 @@
       </div>
     </div>
   </div>
+  <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3 mb-4">
+    <div *ngIf="loadingShippingPoints" class="flex justify-center items-center p-4">
+      <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
+      <span class="ml-2">Loading shipping points...</span>
+    </div>
 
-  <div *ngIf="loadingShippingPoints" class="flex justify-center items-center p-4">
-    <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
-    <span class="ml-2">Loading shipping points...</span>
-  </div>
+    <div *ngIf="!loadingShippingPoints" class="mb-4">
+      <app-basic-select
+        [options]="shippingPointOptions"
+        [label]="'Select Shipping Point'"
+        [placeholder]="'Choose a shipping point...'"
+        [(ngModel)]="selectedShippingPoint"
+        [error]="selectedShippingPoint === null && shippingPointOptions.length > 0"
+        [errorMessage]="'Please select a shipping point'"
+      ></app-basic-select>
 
-  <div *ngIf="!loadingShippingPoints" class="mb-4">
-    <app-basic-select
-      [options]="shippingPointOptions"
-      [label]="'Select Shipping Point'"
-      [placeholder]="'Choose a shipping point...'"
-      [(ngModel)]="selectedShippingPoint"
-      [error]="selectedShippingPoint === null && shippingPointOptions.length > 0"
-      [errorMessage]="'Please select a shipping point'"
-    ></app-basic-select>
+      <div *ngIf="shippingPointOptions.length === 0" class="text-center p-4 bg-gray-50 rounded-lg mt-2">
+        <i class="pi pi-exclamation-circle text-yellow-500 text-xl mb-2"></i>
+        <p class="text-gray-600">No shipping points available for this order.</p>
+        <p class="text-sm text-gray-500 mt-1">Please add shipping points for this managed page first.</p>
+      </div>
+    </div>
 
-    <div *ngIf="shippingPointOptions.length === 0" class="text-center p-4 bg-gray-50 rounded-lg mt-2">
-      <i class="pi pi-exclamation-circle text-yellow-500 text-xl mb-2"></i>
-      <p class="text-gray-600">No shipping points available for this order.</p>
-      <p class="text-sm text-gray-500 mt-1">Please add shipping points for this managed page first.</p>
+    <div>
+      <app-beautiful-button
+        [text]="'Send mission to delivery persons'"
+        (click)="sendMission()">
+      </app-beautiful-button>
     </div>
   </div>
 
-  <div>
-    <app-beautiful-button
-      [text]="'Send mission to delivery persons'"
-      (click)="sendMission()">
-    </app-beautiful-button>
-  </div>
 </app-form-container>

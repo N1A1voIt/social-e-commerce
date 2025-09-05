@@ -9,6 +9,7 @@ export interface OrderParent {
   shippingAddress?: string;
   customerNumber?: string;
   idPc?: string;
+  idManagedPages?:number;
   childs?: OrderChild[];
 }
 export interface OrderDisplay {
@@ -32,5 +33,5 @@ export interface shippingPoints {
   idShippingPoint?: number;
   name?: string;
   address?: string;
-  
+
 }
