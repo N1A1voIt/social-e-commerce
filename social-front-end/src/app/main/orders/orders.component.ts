@@ -264,8 +264,10 @@ export class OrdersComponent implements OnInit{
 
     const statusMap: { [key: number]: string } = {
       1: 'Created',
+      5: 'Waiting for payment',
       11: 'Ordered',
       21: 'Cancelled',
+      25: 'Waiting for deliverer',
       31: 'Shipped',
     };
 

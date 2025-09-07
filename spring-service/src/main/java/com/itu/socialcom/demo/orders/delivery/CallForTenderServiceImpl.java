@@ -4,7 +4,9 @@ import com.itu.socialcom.demo.delivery.entity.AmountDistance;
 import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.delivery.repository.AmountDistanceRepository;
 import com.itu.socialcom.demo.delivery.repository.DeliveryRepository;
+import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.dto.CallForTendersRequest;
+import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.shipping.entity.ShippingPoint;
 import com.itu.socialcom.demo.shipping.service.ShippingPointService;
 import jakarta.transaction.Transactional;
@@ -22,9 +24,14 @@ public class CallForTenderServiceImpl implements CallForTenderService{
     AmountDistanceRepository amountDistanceRepository;
     @Autowired
     ShippingPointService shippingPointService;
+    @Autowired
+    OrderParentRepository orderParentRepository;
     @Transactional
     @Override
     public Delivery transfromToDelivery(CallForTendersRequest request) {
+        OrderParent orderParent = request.getOrderParent();
+        orderParent.setDStatus(25);
+        orderParentRepository.save(orderParent);
         Delivery delivery = new Delivery();
         delivery.setPhoneNumber(request.getOrderParent().getCustomerNumber());
         delivery.setOrderMotherId(request.getOrderParent().getIdOrderM());
