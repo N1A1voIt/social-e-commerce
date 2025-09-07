@@ -65,12 +65,10 @@ public class AmountDistanceController {
         try {
             Seller seller = getCurrentSeller(token);
 
-            // If this is a user-specific configuration, set the user ID to the current seller
-            if (amountDistance.getUserId() != null) {
+//            if (amountDistance.getUserId() != null) {
                 amountDistance.setUserId(seller.getId());
-            }
+//            }
 
-            // Validate that at least one of userId or managedPageId is set
             if (amountDistance.getUserId() == null && amountDistance.getManagedPageId() == null) {
                 return ResponseEntity.badRequest().build();
             }
@@ -103,9 +101,9 @@ public class AmountDistanceController {
                 existingAmountDistance.setPricePerDistance(amountDistance.getPricePerDistance());
 
                 // If this is a user-specific configuration, ensure the user ID is the current seller
-                if (amountDistance.getUserId() != null) {
+//                if (amountDistance.getUserId() != null) {
                     existingAmountDistance.setUserId(seller.getId());
-                }
+//                }
 
                 // Validate that at least one of userId or managedPageId is set
                 if (existingAmountDistance.getUserId() == null && existingAmountDistance.getManagedPageId() == null) {

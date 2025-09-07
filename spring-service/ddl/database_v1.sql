@@ -513,6 +513,40 @@ CREATE TABLE delivery_dp (
     FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
 );
 
+CREATE TABLE amount_distance_log (
+                                     id SERIAL PRIMARY KEY,
+                                     id_amount_distance INTEGER NOT NULL,
+                                     price_per_distance NUMERIC(15,2) NOT NULL,
+                                     id_user INTEGER,
+                                     id_mp INTEGER,
+                                     happened_at TIMESTAMP NOT NULL DEFAULT now(),
+                                     action TEXT NOT NULL, -- e.g. INSERT, UPDATE, DELETE
+                                     FOREIGN KEY (id_user) REFERENCES seller_v2(id_seller),
+                                     FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
+);
+
+CREATE OR REPLACE FUNCTION log_amount_distance_changes()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO amount_distance_log (id_amount_distance, price_per_distance, id_user, id_mp, happened_at, action)
+        VALUES (OLD.id_amount_distance, OLD.price_per_distance, OLD.id_user, OLD.id_mp, now(), TG_OP);
+        RETURN OLD;
+    ELSE
+        INSERT INTO amount_distance_log (id_amount_distance, price_per_distance, id_user, id_mp, happened_at, action)
+        VALUES (NEW.id_amount_distance, NEW.price_per_distance, NEW.id_user, NEW.id_mp, now(), TG_OP);
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_amount_distance_log
+    AFTER INSERT OR UPDATE OR DELETE
+    ON amount_distance
+    FOR EACH ROW
+EXECUTE FUNCTION log_amount_distance_changes();
+
+
 
 SELECT * FROM pat_refresh_tokens;
 

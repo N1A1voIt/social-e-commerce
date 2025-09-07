@@ -2,10 +2,13 @@ package com.itu.socialcom.demo.orders.controller;
 
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.orders.DownPayment;
 import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.OrdersToDisplay;
+import com.itu.socialcom.demo.orders.delivery.CallForTenderServiceImpl;
+import com.itu.socialcom.demo.orders.dto.CallForTendersRequest;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
 import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
@@ -37,7 +40,8 @@ public class OrderController {
     private DownPaymentRepository downPaymentRepository;
     @Autowired
     private OrderPaymentLink orderPaymentLink;
-
+    @Autowired
+    private CallForTenderServiceImpl call;
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
         orderCreationService = createOrderFromMessage;
@@ -178,6 +182,35 @@ public class OrderController {
             apiResponse.setData(orderParent);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    @PostMapping("/api/order/call-for-tenders")
+    public ResponseEntity<ApiResponse> callForTenders(@RequestBody CallForTendersRequest call, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to call for tenders")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+            System.out.println(call.toString());
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+//            orderPaymentLink.callForTenders(call.getOrderParent(),call.getSupplierIds());
+//            orderPaymentLink.callForTenders(orderParent);
+            Delivery delivery = this.call.transfromToDelivery(call);
+            apiResponse.setData(delivery);
+            return ResponseEntity.ok(apiResponse);
+        }catch (Exception e) {
             e.printStackTrace();
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);

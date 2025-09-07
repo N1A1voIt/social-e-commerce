@@ -35,3 +35,9 @@ export interface shippingPoints {
   address?: string;
 
 }
+
+
+export interface DeliveryMission {
+  orderParent:OrderParent;
+  shippingPointId?:number;
+}

@@ -43,4 +43,24 @@ public class OrderParent {
     private Double downP;
     @Transient
     private List<OrderChild> childs;
+
+
+    @Override
+    public String toString() {
+        return "OrderParent{" +
+                "idOrderM=" + idOrderM +
+                ", description='" + description + '\'' +
+                ", createdAt=" + createdAt +
+                ", dTotal=" + dTotal +
+                ", dCustomerName='" + dCustomerName + '\'' +
+                ", dStatus=" + dStatus +
+                ", shippingAddress='" + shippingAddress + '\'' +
+                ", customerNumber='" + customerNumber + '\'' +
+                ", idPc='" + idPc + '\'' +
+                ", idSeller=" + idSeller +
+                ", idManagedPages=" + idManagedPages +
+                ", downPPercent=" + downPPercent +
+                ", downP=" + downP +
+                '}';
+    }
 }

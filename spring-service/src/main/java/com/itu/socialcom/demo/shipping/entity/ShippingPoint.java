@@ -58,11 +58,4 @@ public class ShippingPoint {
      */
     @Column(name = "id_mp", nullable = false)
     private Long managedPageId;
-    
-    /**
-     * ManyToOne relationship with ManagedPage
-     */
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id_mp", insertable = false, updatable = false)
-//    private ManagedPage managedPage;
 }

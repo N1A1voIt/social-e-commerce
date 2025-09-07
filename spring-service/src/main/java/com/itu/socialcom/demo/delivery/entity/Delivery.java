@@ -77,6 +77,9 @@ public class Delivery {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_shp", insertable = false, updatable = false)
     private ShippingPoint shippingPoint;
+
+    @Column(name = "distance")
+    private double distance; // in km
     
     @PrePersist
     protected void onCreate() {

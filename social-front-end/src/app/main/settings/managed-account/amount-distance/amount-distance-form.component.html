@@ -1,0 +1,46 @@
+<div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative">
+  <div class="flex justify-between w-full p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
+    <div>
+      <h1 class="text-gray"></h1>
+      <h1>Configure Delivery Price Per Distance</h1>
+    </div>
+    <div class="text-xl flex justify-center items-center" (click)="onClose()">
+      <ng-icon name="heroPlusCircle" size="30" class="cursor-pointer"></ng-icon>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center p-8">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+  </div>
+
+  <form *ngIf="!isLoading" [formGroup]="amountDistanceForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 p-4">
+    <div class="form-group">
+      <app-basic-input
+        label="Price Per Distance (per km) *"
+        placeholder="Enter price per distance"
+        formControlName="pricePerDistance"
+        type="number"
+      ></app-basic-input>
+      <div *ngIf="amountDistanceForm.get('pricePerDistance')?.invalid && amountDistanceForm.get('pricePerDistance')?.touched" class="text-red-500 text-sm mt-1">
+        Price per distance is required and must be a positive number
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="text-red-500 text-sm mt-2">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="text-green-500 text-sm mt-2">
+      {{ successMessage }}
+    </div>
+
+    <div class="flex justify-end mt-4">
+      <app-beautiful-button
+        type="submit"
+        [text]="isSubmitting
+          ? (existingConfig ? 'Updating...' : 'Creating...')
+          : (existingConfig ? 'Update Price Configuration' : 'Create Price Configuration')"
+      ></app-beautiful-button>
+    </div>
+  </form>
+</div>

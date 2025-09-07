@@ -1,0 +1,8 @@
+/* Styles for the amount distance form component */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

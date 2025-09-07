@@ -1,7 +1,7 @@
 // orders.component.ts
 import {Component, OnInit} from '@angular/core';
 import {OrderService} from "./order.service";
-import {OrderDisplay, OrderParent, OrderChild} from "./order.type";
+import {OrderDisplay, OrderParent, OrderChild, DeliveryMission} from "./order.type";
 import {ApiResponse} from "../inbox/inbox.service";
 import {TableModule, TableRowCollapseEvent, TableRowExpandEvent, TableLazyLoadEvent} from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -151,7 +151,20 @@ export class OrdersComponent implements OnInit{
       });
       return;
     }
-
+    let orderMission:DeliveryMission = {
+      orderParent:this.activeOrder!,
+      shippingPointId:this.selectedShippingPoint
+    }
+    this.orderService.sendMission(orderMission).subscribe({
+      next: (response:ApiResponse) => {
+        console.log(response);
+        this.openModal = false;
+        this.fetchOrders();
+      },error(err:ApiResponse) {
+        alert(err.errors[0].message);
+      }
+    });
+    // this.orderService.sendMission(
     // Here you would implement the actual API call to send the mission
     // with the selected shipping point and order details
     console.log('Sending mission with shipping point:', this.selectedShippingPoint);

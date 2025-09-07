@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {environment, javaHost} from "../../../../environments/environment";
 import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.component";
 import {ShippingPointFormComponent} from "../managed-account/shipping-point/shipping-point-form.component";
+import {AmountDistanceFormComponent} from "../managed-account/amount-distance/amount-distance-form.component";
 
 export interface ManagedPageCPL {
   idMp: number;
@@ -37,7 +38,8 @@ interface Seller {
     NgIf,
     NgFor,
     ProfileEditFormComponent,
-    ShippingPointFormComponent
+    ShippingPointFormComponent,
+    AmountDistanceFormComponent
   ],
   templateUrl: './account-details.component.html',
   styleUrl: './account-details.component.css'
@@ -64,7 +66,17 @@ export class AccountDetailsComponent implements OnInit {
     this.formApply = 'shipping-points';
   }
 
+  onAddAmountDistance(managedPageId: number): void {
+    this.selectedManagedPageId = managedPageId;
+    this.formApply = 'amount-distance';
+  }
+
   closeShippingPointForm(): void {
+    this.formApply = 'jean';
+    this.selectedManagedPageId = null;
+  }
+
+  closeAmountDistanceForm(): void {
     this.formApply = 'jean';
     this.selectedManagedPageId = null;
   }

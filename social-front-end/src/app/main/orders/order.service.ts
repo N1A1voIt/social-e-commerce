@@ -5,7 +5,7 @@ import {HttpClient} from "@angular/common/http";
 import {ApiResponse} from "../inbox/inbox.service";
 import {javaHost} from "../../../environments/environment";
 import {Observable} from "rxjs";
-import {OrderChild, OrderParent} from "./order.type";
+import {DeliveryMission, OrderChild, OrderParent} from "./order.type";
 
 
 @Injectable({
@@ -85,5 +85,10 @@ export class OrderService {
     doc.save(`Order-${order.idOrderM}.pdf`);
   }
 
-
+  sendMission(order:DeliveryMission):Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(javaHost+'/api/order/call-for-tenders',order,{headers:header});
+  }
 }
