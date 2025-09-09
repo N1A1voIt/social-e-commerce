@@ -1,5 +1,7 @@
 package com.itu.socialcom.demo.orders.delivery;
 
+import com.itu.socialcom.demo.delivery.deliverydriver.DeliveryDriver;
+import com.itu.socialcom.demo.delivery.deliverydriver.DeliveryDriverRepository;
 import com.itu.socialcom.demo.delivery.entity.AmountDistance;
 import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.delivery.repository.AmountDistanceRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -33,6 +36,8 @@ public class CallForTenderServiceImpl implements CallForTenderService{
     OrderParentRepository orderParentRepository;
     @Autowired
     WhatsAppService whatsAppService;
+    @Autowired
+    DeliveryDriverRepository deliveryDriverRepository;
     @Transactional
     @Override
     public Delivery transfromToDelivery(CallForTendersRequest request) {
@@ -168,64 +173,74 @@ public class CallForTenderServiceImpl implements CallForTenderService{
     @Override
     public ApiResponse sendTemplateMessage(Delivery delivery) {
         try {
-            if (delivery == null) {
-                log.error("Cannot send template message: delivery is null");
-                ApiResponse response = new ApiResponse();
-                response.setStatus(HttpStatus.BAD_REQUEST.value());
-                response.setData("Delivery cannot be null");
-                return response;
+            ApiResponse validationResponse = validateDelivery(delivery);
+            if (validationResponse != null) return validationResponse;
+            List<DeliveryDriver> deliveryDrivers =
+                    deliveryDriverRepository.findByPriceInRange(delivery.getAmount().doubleValue());
+            boolean sent = true;
+            String message = "";
+            for (int i = 0; i < deliveryDrivers.size(); i++) {
+                String phoneNumber = formatPhoneNumber(deliveryDrivers.get(i).getPhoneNumber());
+                if (phoneNumber == null) {
+                    sent = false;
+                    message = "Phone number is missing for delivery driver ID " + deliveryDrivers.get(i).getId();
+                    break;
+                }
+                whatsAppService.sendTemplateMessage(
+                        phoneNumber,
+                        "call_for_tenders",
+                        delivery.getId(),
+                        delivery.getShippingAddress(),
+                        delivery.getAmount(),
+                        delivery.getDistance(),
+                        delivery.getStatus(),
+                        delivery.getStartedAt().plusMinutes(50),
+                        delivery.getShippingPoint()
+                );
             }
-
-            String phoneNumber = delivery.getPhoneNumber();
-            if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-                log.error("Cannot send template message: phone number is missing for delivery ID {}", delivery.getId());
-                ApiResponse response = new ApiResponse();
-                response.setStatus(HttpStatus.BAD_REQUEST.value());
-                response.setData("Phone number is missing");
-                return response;
-            }
-
-            // Format phone number if needed (ensure it has country code)
-            if (!phoneNumber.startsWith("+")) {
-                phoneNumber = "+" + phoneNumber;
-            }
-
-
-            // Send WhatsApp template message
-            boolean sent = whatsAppService.sendTemplateMessage(phoneNumber,"call_for_tenders",delivery.getId(),delivery.getShippingAddress(),delivery.getAmount(),delivery.getDistance(),delivery.getStatus(),delivery.getStartedAt().plusMinutes(50),delivery.getShippingPoint());
             if (sent) {
-                log.info("WhatsApp template message sent successfully to {} for delivery ID {}", phoneNumber, delivery.getId());
-
-                // Update delivery status
-                delivery.setStatus("NOTIFIED_VIA_WHATSAPP_TEMPLATE");
-                deliveryRepository.save(delivery);
-
-                ApiResponse response = new ApiResponse();
-                response.setStatus(HttpStatus.OK.value());
-                response.setData("WhatsApp template message sent successfully");
-                return response;
+                message = "WhatsApp template message sent successfully to all eligible delivery drivers";
+                log.info("Template message sent to for delivery {}", delivery.getId());
+                return buildResponse(HttpStatus.OK, message);
             } else {
-                log.error("Failed to send WhatsApp template message to {} for delivery ID {}", phoneNumber, delivery.getId());
-                ApiResponse response = new ApiResponse();
-                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-                response.setData("Failed to send WhatsApp template message");
-                return response;
+                log.error("Failed to send template message to for delivery {}", delivery.getId());
+                return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, message);
             }
         } catch (Exception e) {
-            log.error("Error sending WhatsApp template message for delivery ID {}", delivery.getId(), e);
-            ApiResponse response = new ApiResponse();
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setData("Error sending WhatsApp template message: " + e.getMessage());
-            return response;
+            log.error("Error sending WhatsApp template for delivery {}",
+                    delivery != null ? delivery.getId() : "unknown", e);
+            return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
         }
     }
+
+    private ApiResponse validateDelivery(Delivery delivery) {
+        if (delivery == null) {
+            log.error("Cannot send template message: delivery is null");
+            return buildResponse(HttpStatus.BAD_REQUEST, "Delivery cannot be null");
+        }
+        return null;
+    }
+
+    private String formatPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            log.error("Cannot send template message: phone number is missing");
+            return null;
+        }
+        return phoneNumber.startsWith("+") ? phoneNumber : "+" + phoneNumber;
+    }
+
+    private ApiResponse buildResponse(HttpStatus status, String message) {
+        ApiResponse response = new ApiResponse();
+        response.setStatus(status.value());
+        response.setData(message);
+        return response;
+    }
+
 
     @Override
     public ApiResponse sendTemplateMessage(int deliveryId) {
         try {
-            // Find delivery by ID
             Delivery delivery = deliveryRepository.findById((long) deliveryId).orElse(null);
-
             if (delivery == null) {
                 log.error("Cannot send template message: delivery not found with ID {}", deliveryId);
                 ApiResponse response = new ApiResponse();
@@ -233,7 +248,6 @@ public class CallForTenderServiceImpl implements CallForTenderService{
                 response.setData("Delivery not found with ID: " + deliveryId);
                 return response;
             }
-
             return sendTemplateMessage(delivery);
         } catch (Exception e) {
             log.error("Error processing sendTemplateMessage for delivery ID {}", deliveryId, e);
