@@ -208,6 +208,7 @@ public class OrderController {
 //            orderPaymentLink.callForTenders(call.getOrderParent(),call.getSupplierIds());
 //            orderPaymentLink.callForTenders(orderParent);
             Delivery delivery = this.call.transfromToDelivery(call);
+
             apiResponse.setData(delivery);
             return ResponseEntity.ok(apiResponse);
         }catch (Exception e) {
@@ -217,6 +218,28 @@ public class OrderController {
             apiResponse.setData(null);
             apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+    @GetMapping("/api/order/call-for-tenders/test/{id_delivery}")
+    public ResponseEntity<ApiResponse> testCallForTenders(@PathVariable("id_delivery") int idDelivery) {
+        try {
+//            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+//            if (seller == null) {
+//                ApiResponse apiResponse = new ApiResponse();
+//                apiResponse.setStatus(401);
+//                apiResponse.setData(null);
+//                apiResponse.setErrors(List.of(new Exception("Please log in to call for tenders")));
+//                return ResponseEntity.status(401).body(apiResponse);
+//            }
+            ApiResponse apiResponse = call.sendTemplateMessage(idDelivery);
+            return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+        } catch (Exception e) {
+//            throw new RuntimeException(e);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
         }
     }
 }
