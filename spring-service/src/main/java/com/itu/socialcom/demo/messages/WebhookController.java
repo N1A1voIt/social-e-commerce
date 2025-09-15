@@ -15,10 +15,11 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 @RestController
 public class WebhookController {
-
+    private static final String TARGET_NUMBER = "whatsapp:+15551750923";
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
     @Autowired
     FacebookWebhookService webhookService;
@@ -45,6 +46,46 @@ public class WebhookController {
             logger.warn("Webhook verification failed - incorrect token");
             return ResponseEntity.status(403).body("Forbidden");
         }
+    }
+    @GetMapping("/whatsapp/webhook")
+    public ResponseEntity<String> verifyWhatsappWebhook(
+            @RequestParam("hub.mode") String mode,
+            @RequestParam("hub.verify_token") String token,
+            @RequestParam("hub.challenge") String challenge) {
+
+        logger.info("Webhook verification request - Mode: {}, Token: {}", mode, token);
+
+        if ("subscribe".equals(mode) && verifyToken.equals(token)) {
+            logger.info("WEBHOOK_VERIFIED");
+            return ResponseEntity.ok(challenge);
+        } else {
+            logger.warn("Webhook verification failed - incorrect token");
+            return ResponseEntity.status(403).body("Forbidden");
+        }
+    }
+    @PostMapping("/whatsapp/webhook")
+    public ResponseEntity<String> receiveMessage(@RequestBody Map<String, Object> body) {
+        System.out.println("Webhook received: " + body);
+
+        try {
+            Map entry = ((java.util.List<Map>) body.get("entry")).get(0);
+            Map changes = ((java.util.List<Map>) entry.get("changes")).get(0);
+            Map value = (Map) changes.get("value");
+
+            if (value.containsKey("messages")) {
+                Map message = ((java.util.List<Map>) value.get("messages")).get(0);
+                Map contact = ((java.util.List<Map>) value.get("contacts")).get(0);
+
+                String from = (String) message.get("from");
+                String text = (String) ((Map) message.get("text")).get("body");
+                System.out.println(from);
+                System.out.println("Texte :" + text);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok("EVENT_RECEIVED");
     }
 
     // Webhook endpoint (POST request from Facebook)
