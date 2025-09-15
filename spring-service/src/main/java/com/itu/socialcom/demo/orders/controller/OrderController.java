@@ -17,6 +17,7 @@ import com.itu.socialcom.demo.orders.service.CreateOrderFromMessage;
 import com.itu.socialcom.demo.orders.service.OrderCreationService;
 import com.itu.socialcom.demo.orders.service.OrderPaymentLink;
 import com.itu.socialcom.demo.utils.ApiResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -190,7 +191,7 @@ public class OrderController {
             return ResponseEntity.status(500).body(apiResponse);
         }
     }
-
+    @Transactional
     @PostMapping("/api/order/call-for-tenders")
     public ResponseEntity<ApiResponse> callForTenders(@RequestBody CallForTendersRequest call, @RequestHeader(name = "Authorization") String token) {
         try {
@@ -208,7 +209,7 @@ public class OrderController {
 //            orderPaymentLink.callForTenders(call.getOrderParent(),call.getSupplierIds());
 //            orderPaymentLink.callForTenders(orderParent);
             Delivery delivery = this.call.transfromToDelivery(call);
-
+            apiResponse = this.call.sendTemplateMessage(delivery.getId().intValue());
             apiResponse.setData(delivery);
             return ResponseEntity.ok(apiResponse);
         }catch (Exception e) {

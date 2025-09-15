@@ -11,4 +11,6 @@ public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, 
     List<DeliveryDriver> findByMinRangeGreaterThanAndMaxRangeLessThan(Double minRangeIsGreaterThan, Double maxRangeIsLessThan);
     @Query(value = "SELECT * FROM delivery_driver_v2 WHERE min_range <= :price AND max_range >= :price ", nativeQuery = true)
     List<DeliveryDriver> findByPriceInRange(@Param("price") Double price);
+
+    List<DeliveryDriver> findByPhoneNumber(String phoneNumber);
 }

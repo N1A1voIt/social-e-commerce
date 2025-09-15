@@ -525,6 +525,24 @@ CREATE TABLE amount_distance_log (
                                      FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
 );
 
+
+
+
+CREATE TABLE delivery_log(
+                               id_di SERIAL,
+                               message TEXT NOT NULL,
+                               contact VARCHAR(50) ,
+                               id_mp INTEGER NOT NULL,
+                               id_seller INTEGER NOT NULL,
+                               id_dd INTEGER NOT NULL,
+                               id_delivery INTEGER NOT NULL,
+                               PRIMARY KEY(id_di),
+                               FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+                               FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
+                               FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
+                               FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
+);
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

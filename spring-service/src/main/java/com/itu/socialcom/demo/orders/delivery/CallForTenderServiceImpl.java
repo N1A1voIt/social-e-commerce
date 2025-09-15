@@ -11,14 +11,18 @@ import com.itu.socialcom.demo.orders.dto.CallForTendersRequest;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.shipping.entity.ShippingPoint;
 import com.itu.socialcom.demo.shipping.service.ShippingPointService;
+import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
+import com.itu.socialcom.demo.socialmedia.repository.ManagedPageCPLRepository;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import com.itu.socialcom.demo.whatsapp.service.WhatsAppService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.DateFormatter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +42,10 @@ public class CallForTenderServiceImpl implements CallForTenderService{
     WhatsAppService whatsAppService;
     @Autowired
     DeliveryDriverRepository deliveryDriverRepository;
+    @Autowired
+    OrderParentRepository orderRepository;
+    @Autowired
+    ManagedPageCPLRepository managedPageCPLRepository;
     @Transactional
     @Override
     public Delivery transfromToDelivery(CallForTendersRequest request) {
@@ -57,6 +65,7 @@ public class CallForTenderServiceImpl implements CallForTenderService{
             delivery.setAmount(BigDecimal.valueOf(amountDistance.getPricePerDistance().doubleValue() * shippingPoint.getDistance().doubleValue()));
             delivery.setDistance(shippingPoint.getDistance().doubleValue());
         }
+        delivery.setShippingAddress(shippingPoint.getPlaceName());
 //        delivery.setAmount();
         deliveryRepository.save(delivery);
         return delivery;
@@ -170,6 +179,7 @@ public class CallForTenderServiceImpl implements CallForTenderService{
 
         return message.toString();
     }
+    @Transactional
     @Override
     public ApiResponse sendTemplateMessage(Delivery delivery) {
         try {
@@ -179,6 +189,9 @@ public class CallForTenderServiceImpl implements CallForTenderService{
                     deliveryDriverRepository.findByPriceInRange(delivery.getAmount().doubleValue());
             boolean sent = true;
             String message = "";
+            OrderParent order = orderParentRepository.findById(delivery.getOrderMotherId()).orElse(null);
+            assert order != null;
+            ManagedPageCPL managedPageCPL = managedPageCPLRepository.findByIdMp(order.getIdManagedPages().longValue());
             for (int i = 0; i < deliveryDrivers.size(); i++) {
                 String phoneNumber = formatPhoneNumber(deliveryDrivers.get(i).getPhoneNumber());
                 if (phoneNumber == null) {
@@ -189,13 +202,13 @@ public class CallForTenderServiceImpl implements CallForTenderService{
                 whatsAppService.sendTemplateMessage(
                         phoneNumber,
                         "call_for_tenders",
+                        "DEL_"+delivery.getId()+"_"+managedPageCPL.getIdMp()+"_"+managedPageCPL.getIdSeller(),
                         delivery.getId(),
                         delivery.getShippingAddress(),
                         delivery.getAmount(),
                         delivery.getDistance(),
-                        delivery.getStatus(),
                         delivery.getStartedAt().plusMinutes(50),
-                        delivery.getShippingPoint()
+                        managedPageCPL.getPageTitle()
                 );
             }
             if (sent) {
@@ -207,9 +220,7 @@ public class CallForTenderServiceImpl implements CallForTenderService{
                 return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, message);
             }
         } catch (Exception e) {
-            log.error("Error sending WhatsApp template for delivery {}",
-                    delivery != null ? delivery.getId() : "unknown", e);
-            return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -235,8 +246,7 @@ public class CallForTenderServiceImpl implements CallForTenderService{
         response.setData(message);
         return response;
     }
-
-
+    @Transactional
     @Override
     public ApiResponse sendTemplateMessage(int deliveryId) {
         try {
@@ -251,10 +261,7 @@ public class CallForTenderServiceImpl implements CallForTenderService{
             return sendTemplateMessage(delivery);
         } catch (Exception e) {
             log.error("Error processing sendTemplateMessage for delivery ID {}", deliveryId, e);
-            ApiResponse response = new ApiResponse();
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setData("Error processing template message: " + e.getMessage());
-            return response;
+            throw e;
         }
     }
 }

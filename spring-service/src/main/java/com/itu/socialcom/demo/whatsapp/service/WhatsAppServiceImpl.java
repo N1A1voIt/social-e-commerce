@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.whatsapp.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -127,9 +128,9 @@ public class WhatsAppServiceImpl implements WhatsAppService {
             return false;
         }
     }
-
+    @Transactional
     @Override
-    public boolean sendTemplateMessage(String phoneNumber, String templateName, Object... parameters) {
+    public boolean sendTemplateMessage(String phoneNumber, String templateName, String buttonPayload, Object... parameters) {
         try {
             String url = apiUrl + "/" + phoneNumberId + "/messages";
 
@@ -149,18 +150,31 @@ public class WhatsAppServiceImpl implements WhatsAppService {
             ObjectNode languageNode = templateNode.putObject("language");
             languageNode.put("code", "en");
 
-            if (parameters != null && parameters.length > 0) {
-                var componentsArray = templateNode.putArray("components");
+            var componentsArray = templateNode.putArray("components");
 
+            if (parameters != null && parameters.length > 0) {
                 var bodyComponent = componentsArray.addObject();
                 bodyComponent.put("type", "body");
                 var bodyParams = bodyComponent.putArray("parameters");
 
-                for (int i = 0; i < parameters.length; i++) {
+                for (Object paramValue : parameters) {
                     var param = bodyParams.addObject();
                     param.put("type", "text");
-                    param.put("text", parameters[i].toString());
+                    param.put("text", paramValue.toString());
                 }
+            }
+
+            // --- Button with custom payload ---
+            if (buttonPayload != null) {
+                var buttonComponent = componentsArray.addObject();
+                buttonComponent.put("type", "button");
+                buttonComponent.put("sub_type", "quick_reply");
+                buttonComponent.put("index", "0"); // button index in your template
+
+                var buttonParams = buttonComponent.putArray("parameters");
+                var payloadNode = buttonParams.addObject();
+                payloadNode.put("type", "payload");
+                payloadNode.put("payload", buttonPayload);
             }
 
             HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
@@ -168,15 +182,16 @@ public class WhatsAppServiceImpl implements WhatsAppService {
             log.debug("Sending WhatsApp template message: {}", requestBody.toString());
 
             ResponseEntity<String> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, String.class);
+                    url, HttpMethod.POST, entity, String.class);
 
             log.info("WhatsApp template message sent to {}: {}", phoneNumber, response.getBody());
             return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
             log.error("Failed to send WhatsApp template message to {}", phoneNumber, e);
-            return false;
+            throw e;
         }
     }
+
     @Override
     public boolean sendHelloWorldTemplate(String phoneNumber) {
         try {
@@ -204,4 +219,6 @@ public class WhatsAppServiceImpl implements WhatsAppService {
             return false;
         }
     }
+
+
 }

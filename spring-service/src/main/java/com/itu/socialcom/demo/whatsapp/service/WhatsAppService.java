@@ -30,7 +30,7 @@ public interface WhatsAppService {
      * @param parameters The parameters to fill in the template
      * @return true if the message was sent successfully, false otherwise
      */
-    boolean sendTemplateMessage(String phoneNumber, String templateName, Object... parameters);
+    boolean sendTemplateMessage(String phoneNumber, String templateName,String buttonPayload, Object... parameters);
 
     /**
      * Sends a WhatsApp "hello_world" template message to the specified phone number.

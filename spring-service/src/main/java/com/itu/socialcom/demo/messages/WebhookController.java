@@ -2,6 +2,9 @@ package com.itu.socialcom.demo.messages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itu.socialcom.demo.orders.delivery.DeliveryLog;
+import com.itu.socialcom.demo.whatsapp.service.WhatsAppServiceImpl;
+import com.itu.socialcom.demo.whatsapp.service.WhatsappReceiverImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,7 +27,10 @@ public class WebhookController {
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
     @Autowired
     FacebookWebhookService webhookService;
-
+    @Autowired
+    WhatsappReceiverImpl whatsappReceiver;
+    @Autowired
+    WhatsAppServiceImpl whatsAppService;
     @Value("${messenger.verify-token}")
     private String verifyToken;
 
@@ -68,18 +75,33 @@ public class WebhookController {
         System.out.println("Webhook received: " + body);
 
         try {
-            Map entry = ((java.util.List<Map>) body.get("entry")).get(0);
-            Map changes = ((java.util.List<Map>) entry.get("changes")).get(0);
+            Map entry = ((List<Map>) body.get("entry")).get(0);
+            Map changes = ((List<Map>) entry.get("changes")).get(0);
             Map value = (Map) changes.get("value");
 
             if (value.containsKey("messages")) {
-                Map message = ((java.util.List<Map>) value.get("messages")).get(0);
-                Map contact = ((java.util.List<Map>) value.get("contacts")).get(0);
+                Map message = ((List<Map>) value.get("messages")).get(0);
+                Map contact = ((List<Map>) value.get("contacts")).get(0);
 
                 String from = (String) message.get("from");
-                String text = (String) ((Map) message.get("text")).get("body");
-                System.out.println(from);
-                System.out.println("Texte :" + text);
+                String type = (String) message.get("type");
+
+                if ("button".equals(type)) {
+                    Map button = (Map) message.get("button");
+                    String payload = (String) button.get("payload");
+                    String buttonText = (String) button.get("text");
+
+                    System.out.println("Button clicked: " + buttonText + " | Payload: " + payload);
+                    DeliveryLog deliveryLog = whatsappReceiver.processIncomingMessage(payload, from,buttonText);
+
+                } else if ("text".equals(type)) {
+                    Map textObj = (Map) message.get("text");
+                    String userMessage = (String) textObj.get("body");
+                    System.out.println("User sent text: " + userMessage);
+                    whatsAppService.sendMessage(from, "You are only allowed to click on a button, not chat in this channel.");
+                } else {
+                    System.out.println("Unhandled message type: " + type);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,6 +109,7 @@ public class WebhookController {
 
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
+
 
     // Webhook endpoint (POST request from Facebook)
     @PostMapping("/webhook")
