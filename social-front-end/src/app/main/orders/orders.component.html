@@ -1,17 +1,10 @@
 <!-- orders.component.html -->
 <div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
   <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
-    <div class="w-full flex justify-between items-center px-4">
+    <div class="w-full flex justify-between items-center px-4 font-mono">
       <h1>Order List</h1>
-      <p-button label="Collapse All"
-                icon="pi pi-minus"
-                (onClick)="collapseAll()"
-                severity="secondary"
-                size="small"
-                styleClass="p-button-rounded p-button-outlined">
-      </p-button>
     </div>
-    <div class="card w-full font-cusom-font rounded-3xl">
+    <div class="card w-full font-custom-font rounded-3xl border border-gray-200">
       <p-toast />
 
       <p-table
@@ -27,41 +20,44 @@
         [expandedRowKeys]="expandedRows"
         (onRowExpand)="onRowExpand($event)"
         (onRowCollapse)="onRowCollapse($event)"
-        styleClass="p-datatable-rounded p-datatable-hoverable-rows"
-        [rowHover]="true">
+        styleClass="p-datatable-rounded p-datatable-hoverable-rows p-datatable-striped p-datatable-gridlines"
+
+        [rowHover]="true"
+        responsiveLayout="stack"
+        [breakpoint]="'960px'">
 
         <!-- Table Header -->
         <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 3rem"></th>
+          <tr class="font-mono ">
+            <th style="width: 3rem" class="text-center">#</th>
             <th pSortableColumn="description">
               Description
-              <p-sortIcon field="description" />
+<!--              <p-sortIcon field="description" />-->
             </th>
             <th pSortableColumn="dCustomerName">
               Customer
-              <p-sortIcon field="dCustomerName" />
+<!--              <p-sortIcon field="dCustomerName" />-->
             </th>
             <th pSortableColumn="dStatus">
               Status
-              <p-sortIcon field="dStatus" />
+<!--              <p-sortIcon field="dStatus" />-->
             </th>
             <th>Shipping Address</th>
             <th>Phone Number</th>
             <th pSortableColumn="createdAt">
               Created At
-              <p-sortIcon field="createdAt" />
+<!--              <p-sortIcon field="createdAt" />-->
             </th>
             <th pSortableColumn="dTotal">
               Total
-              <p-sortIcon field="dTotal" />
+<!--              <p-sortIcon field="dTotal" />-->
             </th>
             <th>Actions</th>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-order let-expanded="expanded">
-          <tr>
+          <tr class="font-mono">
             <td>
               <p-button type="button" pRipple [pRowToggler]="order"
                         [text]="true" severity="secondary" [rounded]="true"
@@ -96,12 +92,12 @@
 
         <!-- Expanded Row (Child Orders) -->
         <ng-template pTemplate="rowexpansion" let-order>
-          <tr>
+          <tr >
             <td colspan="9">
               <div class="p-4 p-rowexpansion-content">
                 <div class="order-details-header">
-                  <h5 class="m-0 text-lg font-semibold">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
-                  <p-tag [value]="'Order ID: ' + order.idOrderM" severity="info" styleClass="p-tag-rounded" />
+                  <h5 class="m-0 text-lg font-semibold font-mono">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
+                  <p-tag [value]="'Order ID: ' + order.idOrderM" class="font-mono" severity="info" styleClass="p-tag-rounded" />
                 </div>
 
                 <!-- Loading state for child orders -->
@@ -114,10 +110,13 @@
                 <p-table *ngIf="!isChildOrdersLoading(order)"
                          [value]="order.childs"
                          dataKey="idOrderDetails"
-                         styleClass="child-orders-table"
-                         [tableStyle]="{ 'min-width': '50rem' }">
+                         styleClass="child-orders-table p-datatable-striped p-datatable-gridlines p-datatable-sm"
+
+                         [tableStyle]="{ 'min-width': '50rem' }"
+                         responsiveLayout="stack"
+                         [breakpoint]="'768px'">
                   <ng-template pTemplate="header">
-                    <tr>
+                    <tr class="font-custom-font">
                       <th>Detail ID</th>
                       <th>Product</th>
                       <th>SKU</th>
@@ -129,8 +128,8 @@
                   </ng-template>
 
                   <ng-template pTemplate="body" let-child>
-                    <tr>
-                      <td>{{ child.idOrderDetails }}</td>
+                    <tr class="font-mono">
+                      <td >{{ child.idOrderDetails }}</td>
                       <td>{{ child.productName || 'N/A' }}</td>
                       <td>
                         <p-tag [value]="child.sku || 'N/A'" severity="secondary" />

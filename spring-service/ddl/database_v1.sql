@@ -514,33 +514,30 @@ CREATE TABLE delivery_dp (
 );
 
 CREATE TABLE amount_distance_log (
-                                     id SERIAL PRIMARY KEY,
-                                     id_amount_distance INTEGER NOT NULL,
-                                     price_per_distance NUMERIC(15,2) NOT NULL,
-                                     id_user INTEGER,
-                                     id_mp INTEGER,
-                                     happened_at TIMESTAMP NOT NULL DEFAULT now(),
-                                     action TEXT NOT NULL, -- e.g. INSERT, UPDATE, DELETE
-                                     FOREIGN KEY (id_user) REFERENCES seller_v2(id_seller),
-                                     FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
+     id SERIAL PRIMARY KEY,
+     id_amount_distance INTEGER NOT NULL,
+     price_per_distance NUMERIC(15,2) NOT NULL,
+     id_user INTEGER,
+     id_mp INTEGER,
+     happened_at TIMESTAMP NOT NULL DEFAULT now(),
+     action TEXT NOT NULL, -- e.g. INSERT, UPDATE, DELETE
+     FOREIGN KEY (id_user) REFERENCES seller_v2(id_seller),
+     FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
 );
 
-
-
-
 CREATE TABLE delivery_log(
-                               id_di SERIAL,
-                               message TEXT NOT NULL,
-                               contact VARCHAR(50) ,
-                               id_mp INTEGER NOT NULL,
-                               id_seller INTEGER NOT NULL,
-                               id_dd INTEGER NOT NULL,
-                               id_delivery INTEGER NOT NULL,
-                               PRIMARY KEY(id_di),
-                               FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
-                               FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
-                               FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
-                               FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
+   id_di SERIAL,
+   message TEXT NOT NULL,
+   contact VARCHAR(50) ,
+   id_mp INTEGER NOT NULL,
+   id_seller INTEGER NOT NULL,
+   id_dd INTEGER NOT NULL,
+   id_delivery INTEGER NOT NULL,
+   PRIMARY KEY(id_di),
+   FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
+   FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
+   FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
 );
 
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
@@ -649,13 +646,13 @@ JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.c
 
 CREATE VIEW v_delivery_applicants AS
     SELECT
-        delivery_log.id_di,d.shipping_address,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
+        delivery_log.id_di,d.shipping_address,d.id_shp,d.d_status,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
         FROM delivery_log
         JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
         JOIN delivery_driver_v2 dd on dd.id_dd = delivery_log.id_dd
         JOIN managed_pages mp on delivery_log.id_mp = mp.id_mp
-        JOIN seller_v2 s on delivery_log.id_seller = s.id_seller
-;
+        JOIN seller_v2 s on delivery_log.id_seller = s.id_seller;
+
 
 --
 -- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
