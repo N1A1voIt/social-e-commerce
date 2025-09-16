@@ -646,6 +646,17 @@ SELECT sc.*
 FROM stocks_child sc
 JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.created_at = sub.max_created_at;
 
+
+CREATE VIEW v_delivery_applicants AS
+    SELECT
+        delivery_log.id_di,d.shipping_address,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
+        FROM delivery_log
+        JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
+        JOIN delivery_driver_v2 dd on dd.id_dd = delivery_log.id_dd
+        JOIN managed_pages mp on delivery_log.id_mp = mp.id_mp
+        JOIN seller_v2 s on delivery_log.id_seller = s.id_seller
+;
+
 --
 -- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
 --     RETURNS TRIGGER AS $$
