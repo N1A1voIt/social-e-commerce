@@ -250,6 +250,7 @@ public class OrderController {
             return ResponseEntity.badRequest().body(apiResponse);
         }
     }
+
     @GetMapping("/api/applications/{id_order}")
     public ResponseEntity<ApiResponse> applicantsList(@PathVariable("id_order") Long idOrder,@RequestHeader(name = "Authorization") String token) {
         try {

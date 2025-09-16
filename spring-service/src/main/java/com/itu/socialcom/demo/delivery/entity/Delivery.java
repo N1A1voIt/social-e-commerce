@@ -70,6 +70,9 @@ public class Delivery {
      */
     @Column(name = "id_order_m", nullable = false)
     private Long orderMotherId;
+
+    @Column(name = "id_dd")
+    private Long deliveryDriverId;
     
     /**
      * ManyToOne relationship with ShippingPoint
