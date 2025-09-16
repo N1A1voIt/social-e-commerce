@@ -6,6 +6,7 @@ import lombok.Data;
 @Entity
 @Table(name = "v_delivery_applicants")
 @Data
+@Access(AccessType.FIELD)
 public class DeliveryApplicant {
     @Id
     @Column(name = "id_di")

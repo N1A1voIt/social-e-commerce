@@ -1,7 +1,7 @@
 // orders.component.ts
 import {Component, OnInit} from '@angular/core';
 import {OrderService} from "./order.service";
-import {OrderDisplay, OrderParent, OrderChild, DeliveryMission} from "./order.type";
+import {OrderDisplay, OrderParent, OrderChild, DeliveryMission, DeliveryApplicant} from "./order.type";
 import {ApiResponse} from "../inbox/inbox.service";
 import {TableModule, TableRowCollapseEvent, TableRowExpandEvent, TableLazyLoadEvent} from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -10,7 +10,7 @@ import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import {FormsModule} from "@angular/forms";
-import {CurrencyPipe, DatePipe, NgIf} from "@angular/common";
+import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
 import { MessageService } from 'primeng/api';
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {BeautifulButtonComponent} from "../../shared/beautiful-button/beautiful-button.component";
@@ -18,17 +18,19 @@ import {BasicSelectComponent} from "../../shared/basic-select/basic-select.compo
 import {ShippingPointService} from "../settings/managed-account/shipping-point/shipping-point.service";
 import {ShippingPoint} from "../settings/managed-account/shipping-point/shipping-point.model";
 import {SelectOption} from "../../shared/basic-select/basic-select.component";
+import {CheckboxComponent} from "../../shared/checkbox/checkbox.component";
+import {PhonePipe} from "../../shared/phone.pipe";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, CheckboxComponent, NgForOf, PhonePipe],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
 export class OrdersComponent implements OnInit{
-
+  showApplicants!:boolean;
   orders: OrderParent[] = [];   // ✅ Should be an array for p-table
   expandedRows: { [key: string]: boolean } = {};
   totalRecords: number = 0;
@@ -37,7 +39,7 @@ export class OrdersComponent implements OnInit{
   loadingChildren: { [key: string]: boolean } = {}; // Track loading state for child orders
   step:string = '1'; // 1 - payment , 2 - delivery
   openModal: boolean = false;
-
+  applicants:DeliveryApplicant[] = [];
   // Shipping points related properties
   shippingPoints: ShippingPoint[] = [];
   shippingPointOptions: SelectOption[] = [];
@@ -258,6 +260,19 @@ export class OrdersComponent implements OnInit{
   }
    async exportOrder(order: OrderParent) {
       await this.orderService.generateOrderPdf(order);
+   }
+   viewApplicants(order: OrderParent) {
+
+     if (order.idOrderM != null) {
+       this.orderService.fetchApplicants(order.idOrderM).subscribe({
+         next: (response: ApiResponse) => {
+          this.showApplicants = true;
+          this.applicants = response.data;
+         }, error: (err: ApiResponse) => {
+          alert(err);
+         }
+       });
+     }
    }
   getStatusLabel(status?: number): string {
     if (status === undefined) return 'Unknown';

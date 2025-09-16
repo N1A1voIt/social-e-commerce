@@ -3,6 +3,7 @@ package com.itu.socialcom.demo.orders.controller;
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.delivery.entity.Delivery;
+import com.itu.socialcom.demo.delivery.repository.DeliveryRepository;
 import com.itu.socialcom.demo.orders.DownPayment;
 import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
@@ -47,6 +48,8 @@ public class OrderController {
     private CallForTenderServiceImpl call;
     @Autowired
     private DeliveryApplicantRepository deliveryApplicantRepository;
+    @Autowired
+    private DeliveryRepository deliveryRepository;
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
         orderCreationService = createOrderFromMessage;
@@ -247,10 +250,19 @@ public class OrderController {
             return ResponseEntity.badRequest().body(apiResponse);
         }
     }
-
-    public ResponseEntity<ApiResponse> applicantsList(@PathVariable("id_delivery") Long idDelivery) {
+    @GetMapping("/api/applications/{id_order}")
+    public ResponseEntity<ApiResponse> applicantsList(@PathVariable("id_order") Long idOrder,@RequestHeader(name = "Authorization") String token) {
         try {
-            List<DeliveryApplicant> applicants = deliveryApplicantRepository.findByIdDeliveryAndDStatus(idDelivery,"CALL_FOR_TENDERED");
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to view applicants")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+            Delivery delivery = deliveryRepository.findByOrderMotherId(idOrder).get(0);
+            List<DeliveryApplicant> applicants = deliveryApplicantRepository.findBydStatusAndIdDelivery("CALL_FOR_TENDERED",delivery.getId());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(applicants);

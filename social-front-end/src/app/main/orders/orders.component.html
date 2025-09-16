@@ -85,8 +85,8 @@
                 <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
                   <i class="pi pi-file-export text-blue-500 text-xl"></i>
                 </button>
-                <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
-                  <i class="pi pi-file-export text-blue-500 text-xl"></i>
+                <button class="action-button bg-blue-50" (click)="viewApplicants(order)" title="View applicants">
+                  <i class="pi pi-file-export text-gray text-xl"></i>
                 </button>
               </div>
             </td>
@@ -171,6 +171,15 @@
     </div>
   </div>
 </div>
+
+<!--<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-[40vw] h-full lg:p-4 p-0 gap-8">-->
+<!--  <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">-->
+<!--    <div class="w-full flex justify-between items-center px-4 font-mono">-->
+<!--      <h1>Order List</h1>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+
 <app-form-container (closeForm)="openModal=false" [isVisible]="step=='1' && openModal">
   <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3">
     <h2 class="text-lg font-bold font-mono">Customer Information</h2>
@@ -242,4 +251,20 @@
     </div>
   </div>
 
+</app-form-container>
+<app-form-container [label]="'Applicants'" [isVisible]="showApplicants">
+  <div class="cont-box w-full flex gap-5 justify-start mt-2 rounded-3xl border p-2" *ngFor="let applicant of applicants">
+    <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden flex items-center justify-center bg-black">
+<!--      <img width="30" [src]="associatedMedia" alt="{{ platform }}">-->
+      {{ applicant.driverName?.charAt(0) }}
+    </div>
+    <div class="flex flex-col" style="letter-spacing: 1px">
+      <a href="" class="text-md font-semibold">{{ applicant.driverName }}</a>
+      <p  class="text-sm text-gray">+{{ applicant.driverPhone}}</p>
+      <span class="items-center flex gap-2">
+<!--      <app-checkbox ></app-checkbox>-->
+<!--      <span class="font-medium">Connected</span>-->
+    </span>
+    </div>
+  </div>
 </app-form-container>

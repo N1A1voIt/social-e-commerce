@@ -41,3 +41,20 @@ export interface DeliveryMission {
   orderParent:OrderParent;
   shippingPointId?:number;
 }
+export interface DeliveryApplicant {
+  id: number;                // Long -> number
+  shippingAddress?: string;   // String -> string, optional if nullable
+  idDelivery?: number;
+  idShp?: number;
+  dStatus?: string;
+  amount?: number;
+  distance?: number;
+  idDd?: number;
+  driverName?: string;
+  driverPhone?: string;
+  idMp?: number;
+  pageTitle?: string;
+  idSeller?: number;          // Integer -> number
+  email?: string;
+  username?: string;
+}

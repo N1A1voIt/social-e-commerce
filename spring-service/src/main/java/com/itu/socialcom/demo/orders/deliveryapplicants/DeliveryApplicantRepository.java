@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DeliveryApplicantRepository extends JpaRepository<DeliveryApplicant, Integer> {
-    List<DeliveryApplicant> findByIdDeliveryAndDStatus(Long idDelivery, String dStatus);
+    List<DeliveryApplicant> findBydStatusAndIdDelivery(String dStatus,Long idDelivery);
+//    List<DeliveryApplicant> findByDStatus(String dStatus);
 }

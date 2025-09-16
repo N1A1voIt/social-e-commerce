@@ -91,4 +91,10 @@ export class OrderService {
     }
     return this.http.post<ApiResponse>(javaHost+'/api/order/call-for-tenders',order,{headers:header});
   }
+  fetchApplicants(idOrder:number) {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.get<ApiResponse>(javaHost+'/api/applications/'+idOrder, {headers:header});
+  }
 }
