@@ -646,7 +646,7 @@ JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.c
 
 CREATE VIEW v_delivery_applicants AS
     SELECT
-        delivery_log.id_di,d.shipping_address,d.id_shp,d.d_status,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
+        delivery_log.id_di,d.id_delivery,d.shipping_address,d.id_shp,d.d_status,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
         FROM delivery_log
         JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
         JOIN delivery_driver_v2 dd on dd.id_dd = delivery_log.id_dd

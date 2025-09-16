@@ -13,6 +13,8 @@ public class DeliveryApplicant {
     private Long id;
     @Column(name = "shipping_address")
     private String shippingAddress;
+    @Column(name = "id_delivery")
+    private Long idDelivery;
     @Column(name = "id_shp")
     private Long idShp;
     @Column(name = "d_status")

@@ -85,6 +85,9 @@
                 <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
                   <i class="pi pi-file-export text-blue-500 text-xl"></i>
                 </button>
+                <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
+                  <i class="pi pi-file-export text-blue-500 text-xl"></i>
+                </button>
               </div>
             </td>
           </tr>
@@ -97,7 +100,7 @@
               <div class="p-4 p-rowexpansion-content">
                 <div class="order-details-header">
                   <h5 class="m-0 text-lg font-semibold font-mono">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
-                  <p-tag [value]="'Order ID: ' + order.idOrderM" class="font-mono" severity="info" styleClass="p-tag-rounded" />
+<!--                  <p-tag [value]="'Order ID: ' + order.idOrderM" class="font-mono" severity="info" styleClass="p-tag-rounded" />-->
                 </div>
 
                 <!-- Loading state for child orders -->

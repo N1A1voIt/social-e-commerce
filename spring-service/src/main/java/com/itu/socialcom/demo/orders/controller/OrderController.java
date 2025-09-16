@@ -8,6 +8,8 @@ import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.OrdersToDisplay;
 import com.itu.socialcom.demo.orders.delivery.CallForTenderServiceImpl;
+import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicant;
+import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicantRepository;
 import com.itu.socialcom.demo.orders.dto.CallForTendersRequest;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
 import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
@@ -43,6 +45,8 @@ public class OrderController {
     private OrderPaymentLink orderPaymentLink;
     @Autowired
     private CallForTenderServiceImpl call;
+    @Autowired
+    private DeliveryApplicantRepository deliveryApplicantRepository;
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
         orderCreationService = createOrderFromMessage;
@@ -236,6 +240,22 @@ public class OrderController {
             return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
         } catch (Exception e) {
 //            throw new RuntimeException(e);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    public ResponseEntity<ApiResponse> applicantsList(@PathVariable("id_delivery") Long idDelivery) {
+        try {
+            List<DeliveryApplicant> applicants = deliveryApplicantRepository.findByIdDeliveryAndDStatus(idDelivery,"CALL_FOR_TENDERED");
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(applicants);
+            return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
+        } catch (Exception e) {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
