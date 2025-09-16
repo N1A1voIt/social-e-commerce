@@ -253,18 +253,25 @@
 
 </app-form-container>
 <app-form-container [label]="'Applicants'" [isVisible]="showApplicants">
-  <div class="cont-box w-full flex gap-5 justify-start mt-2 rounded-3xl border p-2" *ngFor="let applicant of applicants">
-    <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden flex items-center justify-center bg-black">
-<!--      <img width="30" [src]="associatedMedia" alt="{{ platform }}">-->
-      {{ applicant.driverName?.charAt(0) }}
+  <div class="cont-box w-full flex gap-5 justify-between items-center mt-2 rounded-3xl border p-2" *ngFor="let applicant of applicants">
+    <div class="flex justify-center items-center gap-5">
+      <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden flex items-center justify-center bg-black">
+  <!--      <img width="30" [src]="associatedMedia" alt="{{ platform }}">-->
+        {{ applicant.driverName?.charAt(0) }}
+      </div>
+      <div class="flex flex-col" style="letter-spacing: 1px">
+        <a href="" class="text-md font-semibold">{{ applicant.driverName }}</a>
+        <p  class="text-sm text-gray">+{{ applicant.driverPhone}}</p>
+        <span class="items-center flex gap-2">
+  <!--      <app-checkbox ></app-checkbox>-->
+  <!--      <span class="font-medium">Connected</span>-->
+        </span>
+      </div>
     </div>
-    <div class="flex flex-col" style="letter-spacing: 1px">
-      <a href="" class="text-md font-semibold">{{ applicant.driverName }}</a>
-      <p  class="text-sm text-gray">+{{ applicant.driverPhone}}</p>
-      <span class="items-center flex gap-2">
-<!--      <app-checkbox ></app-checkbox>-->
-<!--      <span class="font-medium">Connected</span>-->
-    </span>
+    <div>
+      <div class="">
+              <app-beautiful-button [text]="'Assigner'" (click)="assignDriver(applicant)"></app-beautiful-button>
+      </div>
     </div>
   </div>
 </app-form-container>

@@ -11,5 +11,5 @@ public interface OrderParentRepository extends JpaRepository<OrderParent, Long> 
     Page<OrderParent> findAllByIdSeller(Integer idSeller, org.springframework.data.domain.Pageable pageable);
     int countByIdSeller(Integer idSeller);
 
-    List<OrderParent> findByIdOrderM(Long idOrderM);()
+    List<OrderParent> findByIdOrderM(Long idOrderM);
 }

@@ -5,7 +5,7 @@ import {HttpClient} from "@angular/common/http";
 import {ApiResponse} from "../inbox/inbox.service";
 import {javaHost} from "../../../environments/environment";
 import {Observable} from "rxjs";
-import {DeliveryMission, OrderChild, OrderParent} from "./order.type";
+import {DeliveryApplicant, DeliveryMission, OrderChild, OrderParent} from "./order.type";
 
 
 @Injectable({
@@ -96,5 +96,11 @@ export class OrderService {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     }
     return this.http.get<ApiResponse>(javaHost+'/api/applications/'+idOrder, {headers:header});
+  }
+  assignDriver(applicant:DeliveryApplicant) {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.get<ApiResponse>(javaHost+'/api/deliveries/'+applicant.idDelivery+'/assign/'+applicant.idDd,{headers:header});
   }
 }

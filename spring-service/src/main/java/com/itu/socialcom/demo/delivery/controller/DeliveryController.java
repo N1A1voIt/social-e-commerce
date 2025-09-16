@@ -7,6 +7,8 @@ import com.itu.socialcom.demo.delivery.dto.DeliveryResponse;
 import com.itu.socialcom.demo.delivery.dto.UpdateDeliveryStatusRequest;
 import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.delivery.service.DeliveryService;
+import com.itu.socialcom.demo.orders.delivery.ApplicantService;
+import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,31 @@ public class DeliveryController {
 
     private final DeliveryService deliveryService;
     private final TokenV2ServiceImpl tokenV2Service;
+    @Autowired
+    ApplicantService applicantService;
 
+    @GetMapping("/{id_delivery}/assign/{id_applicant}")
+    public ResponseEntity<ApiResponse> assignDelivery(@PathVariable("id_delivery") Long idDelivery, @PathVariable("id_applicant") Long idApplicant) {
+        try {
+            Delivery delivery = applicantService.assignDelivery(idDelivery, idApplicant);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData("Delivery assigned successfully");
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(new java.util.ArrayList<>(){
+                {
+                    add(e);
+                }
+            });
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+
+    }
     @Autowired
     public DeliveryController(DeliveryService deliveryService, TokenV2ServiceImpl tokenV2Service) {
         this.deliveryService = deliveryService;

@@ -326,4 +326,15 @@ export class OrdersComponent implements OnInit{
     if (!order.idOrderM) return false;
     return this.loadingChildren[order.idOrderM.toString()] || false;
   }
+  assignDriver(applicant:DeliveryApplicant) {
+    this.orderService.assignDriver(applicant).subscribe({
+      next: (response: ApiResponse) => {
+        this.showApplicants = false;
+        this.messagingService.add({ severity: 'info', summary: 'Deliverer assigned', detail: `You have assigned ${applicant.driverName} to this order`, life: 3000 })
+      },
+      error: (err: any) => {
+        this.messagingService.add({ severity: 'error', summary: 'An error has occured', detail: `${err.error.errors[0].message}`, life: 3000 })
+      },
+    })
+  }
 }
