@@ -14,5 +14,6 @@ public class PaymentRequest {
     private String description;
     private String customerMsisdn;
     private LocalDateTime requestDate;
+    private String requestingOrganisationTransactionReference;
 }
 
