@@ -540,6 +540,16 @@ CREATE TABLE delivery_log(
    FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
 );
 
+
+CREATE TABLE mvola_tokens(
+                             id_token SERIAL,
+                             token TEXT NOT NULL,
+                             start_date TIMESTAMP NOT NULL,
+                             expiration_date TIMESTAMP NOT NULL,
+                             PRIMARY KEY(id_token)
+);
+
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

@@ -25,6 +25,7 @@ public class TransactionController {
             apiResponse.setData(paymentResponse);
             return ResponseEntity.status(200).body(apiResponse);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

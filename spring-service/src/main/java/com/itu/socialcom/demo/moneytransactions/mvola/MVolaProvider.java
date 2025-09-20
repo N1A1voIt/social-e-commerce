@@ -2,20 +2,22 @@ package com.itu.socialcom.demo.moneytransactions.mvola;
 
 import com.itu.socialcom.demo.authentication.token.TokenV2;
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
-import com.itu.socialcom.demo.moneytransactions.ConfigLoader;
-import com.itu.socialcom.demo.moneytransactions.PaymentProvider;
-import com.itu.socialcom.demo.moneytransactions.PaymentRequest;
-import com.itu.socialcom.demo.moneytransactions.PaymentResponse;
+import com.itu.socialcom.demo.moneytransactions.*;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.io.OutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.Optional;
@@ -24,28 +26,67 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class MVolaProvider extends PaymentProvider {
+    @Value("${mvola.baseUrl}")
     private String baseUrl;
     private String partnerName;
     private String partnerMsisdn;
-
+    @Value("${mvola.consumer.key}")
+    private String consumerKey;
+    @Value("${mvola.consumer.secret}")
+    private String consumerSecret;
     private final TokenV2Service tokenV2Service;
-
+    @Autowired
+    MvolaTokenRepository mvolaTokenRepository;
     /**
      * Retrieves a valid MVola token from the database
      * @return The token string or null if no valid token is found
      */
-    private String retrieveTokenFromDb() {
-        // Get the most recent valid token from the database
-//        Optional<TokenV2> tokenOpt = tokenV2Service.getToken("mvola_token");
-//        if (tokenOpt.isPresent() && tokenOpt.get().getExpiryDate().isAfter(LocalDateTime.now())) {
-//            return tokenOpt.get().getToken();
-//        }
-        return "eyJ4NXQiOiJaREUzWW1RNFkyRmtZekprTmpNMk5EVmtZVE5oTkRSak16azFObVEyWXprelkyUTFaVFZqWVEiLCJraWQiOiJNVGRsTXpneFpqZGtNakk0WmpKbVlUZ3dNRFJpWWpNMU1tUmhOamxoTUdNME1XTmtPV05tT1RobU16VXlNMlUxTkRZNE5UWXhOMk01TW1SbU5XUTRPQV9SUzI1NiIsInR5cCI6ImF0K2p3dCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJueWF2b3JhbmRyaWFuYXJpc29hQGdtYWlsLmNvbSIsImF1dCI6IkFQUExJQ0FUSU9OIiwiYXVkIjoiZlM5Mkt3dGpJMzZkT0ttVWVINEo4YkxHUXZrYSIsIm5iZiI6MTc1ODIyMDA4NywiYXpwIjoiZlM5Mkt3dGpJMzZkT0ttVWVINEo4YkxHUXZrYSIsInNjb3BlIjoiRVhUX0lOVF9NVk9MQV9TQ09QRSIsImlzcyI6Imh0dHBzOlwvXC9kZXZlbG9wZXIubXZvbGEubWdcL29hdXRoMlwvdG9rZW4iLCJyZWFsbSI6eyJzaWduaW5nX3RlbmFudCI6ImNhcmJvbi5zdXBlciJ9LCJleHAiOjE3NTgyMjM2ODcsImlhdCI6MTc1ODIyMDA4NywianRpIjoiY2IxYmRhMjgtYTA1YS00ZWU5LTlkMzYtZDE5ZjdmMjg1MWM2In0.Um10PvyW1AlYnwtOr5C6xTuPM4JlsTKPyMHtRNUugHbjXDOxYhw2ZuMeIzQDvSKMRCs_hcKQy5q2ZBxwroPEIRyJEHXqKBKi1z5yRsmHoZ0qFGsKFc92Mm-kt9TvbVyPhRnw3IC4ql8xR2GsvjnoSg9nOhUJ8wy7W-fQD686YMUz7RzuQWdL6T19lMR9Yx011_3VC4PzVkBgoTF4lls5u2TAS8X3Q1PY5JrgC3bwqeMx7T_DTJcYZoZLXMklJfczgug4dSVjpPJkVfMcplS_MIpBgvadbB36B1lYOEsrRbl_tcGrwnJJZS_AuHwTIPJ_AQI50sgQkL2A05Fj2U5VhQ";
+    private String retrieveTokenFromDb() throws IOException, InterruptedException {
+        MvolaTokens ret = null;
+        Optional<MvolaTokens> token = mvolaTokenRepository.findValid();
+        if (token.isEmpty()) {
+            String auth = consumerKey + ":" + consumerSecret;
+            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+
+            String body = "grant_type=client_credentials&scope=EXT_INT_MVOLA_SCOPE";
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl+"/token"))
+                    .header("Authorization", "Basic " + encodedAuth)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Cache-Control", "no-cache")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println(response);
+                JSONObject jsonResponse = new JSONObject(response.body());
+                String accessToken = jsonResponse.getString("access_token");
+                int expiresIn = jsonResponse.getInt("expires_in");
+                MvolaTokens mvolaTokens = new MvolaTokens();
+                System.out.println(accessToken);
+                mvolaTokens.setToken(accessToken);
+                mvolaTokens.setStartDate(LocalDateTime.now());
+                mvolaTokens.setExpirationDate(LocalDateTime.now().plusSeconds(expiresIn));
+                mvolaTokenRepository.save(mvolaTokens);
+                ret = mvolaTokens;
+            } else {
+                System.out.println("wxdcfvgbhjn,k;l:mù!");
+                throw new IOException("Failed to retrieve token, status code: " + response.statusCode());
+            }
+        } else {
+            ret = token.get();
+        }
+        return ret.getToken();
     }
 
     @Override

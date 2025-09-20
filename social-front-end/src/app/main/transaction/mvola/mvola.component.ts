@@ -32,7 +32,8 @@ export class MvolaComponent {
   constructor(formBuilder:FormBuilder,private messageService:MessageService,private router:ActivatedRoute,private  transactionService:TransactionService) {
     this.mvolaForm = formBuilder.group({
       'amount' : [0,Validators.min(100)],
-      'description' : ['',Validators.required]
+      'description' : ['',Validators.required],
+      'phoneNumber' : ['',[Validators.pattern(/^(\0\d{9}|\d{9})$/),Validators.required]]
     })
   }
   executeTransaction() {

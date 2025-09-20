@@ -17,6 +17,13 @@
       [formControl]="$any(mvolaForm.get('description'))"
       type="textarea">
     </app-basic-input>
+    <app-basic-input
+      class="w-full"
+      [label]="'Phone number'"
+      placeholder="0340000000"
+      [formControl]="$any(mvolaForm.get('phoneNumber'))"
+      type="text">
+    </app-basic-input>
     <app-beautiful-button  [text]="'Pay'" type="submit"></app-beautiful-button>
   </form>
 </app-form-container>
