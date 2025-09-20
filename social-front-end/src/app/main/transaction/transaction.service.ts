@@ -12,6 +12,7 @@ export class TransactionService {
 
   constructor(private http:HttpClient) { }
   mobilePay(paymentBody:TransactionDetail):Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${javaHost}/mobilepay/a.json`,paymentBody);
+    console.log(paymentBody)
+    return this.http.post<ApiResponse>(`${javaHost}/api/order/pay?link_identifier=${paymentBody.idPayment}`,paymentBody);
   }
 }

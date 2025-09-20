@@ -35,7 +35,9 @@ import org.springframework.stereotype.Service;
 public class MVolaProvider extends PaymentProvider {
     @Value("${mvola.baseUrl}")
     private String baseUrl;
+    @Value("${mvola.partnerName}")
     private String partnerName;
+    @Value("${mvola.partnerMsisdn}")
     private String partnerMsisdn;
     @Value("${mvola.consumer.key}")
     private String consumerKey;
@@ -68,7 +70,6 @@ public class MVolaProvider extends PaymentProvider {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
-                System.out.println(response);
                 JSONObject jsonResponse = new JSONObject(response.body());
                 String accessToken = jsonResponse.getString("access_token");
                 int expiresIn = jsonResponse.getInt("expires_in");
@@ -91,10 +92,10 @@ public class MVolaProvider extends PaymentProvider {
 
     @Override
     public void initiateProvider(String properties) throws IOException {
-        Properties props = ConfigLoader.load(properties);
-        this.baseUrl = props.getProperty("mvola.baseUrl", "https://devapi.mvola.mg");
-        this.partnerName = props.getProperty("mvola.partnerName");
-        this.partnerMsisdn = props.getProperty("mvola.partnerMsisdn");
+//        Properties props = ConfigLoader.load(properties);
+//        this.baseUrl = props.getProperty("mvola.baseUrl", "https://devapi.mvola.mg");
+//        this.partnerName = props.getProperty("mvola.partnerName");
+//        this.partnerMsisdn = props.getProperty("mvola.partnerMsisdn");
     }
 
     @Override

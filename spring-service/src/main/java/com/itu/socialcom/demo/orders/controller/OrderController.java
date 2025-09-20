@@ -258,16 +258,16 @@ public class OrderController {
     }
 
     @PostMapping("/api/order/pay")
-    public ResponseEntity<ApiResponse> payOrderDirectly(@RequestBody PaymentDTO paymentDTO, @RequestParam(name = "link_identifier") String linkIdentifier, @RequestHeader(name = "Authorization") String token) {
+    public ResponseEntity<ApiResponse> payOrderDirectly(@RequestBody PaymentDTO paymentDTO, @RequestParam(name = "link_identifier") String linkIdentifier) {
         try {
-            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
-            if (seller == null) {
-                ApiResponse apiResponse = new ApiResponse();
-                apiResponse.setStatus(401);
-                apiResponse.setData(null);
-                apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
-                return ResponseEntity.status(401).body(apiResponse);
-            }
+//            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+//            if (seller == null) {
+//                ApiResponse apiResponse = new ApiResponse();
+//                apiResponse.setStatus(401);
+//                apiResponse.setData(null);
+//                apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
+//                return ResponseEntity.status(401).body(apiResponse);
+//            }
             PaymentResponse paymentResponse = orderPaymentService.processOrderPayment(paymentDTO,linkIdentifier);
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
@@ -276,7 +276,12 @@ public class OrderController {
             return ResponseEntity.status(401).body(apiResponse);
         }
         catch (Exception e) {
-
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
         }
     }
 

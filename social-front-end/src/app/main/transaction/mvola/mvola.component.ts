@@ -39,12 +39,13 @@ export class MvolaComponent {
   executeTransaction() {
     let transactionBody:TransactionDetail = this.mvolaForm.value;
     transactionBody.provider = 'mvola';
-    transactionBody.idPayment = this.router.snapshot.paramMap?.get("id_payment") || "";
+    console.log(this.router.snapshot.queryParamMap?.get("id_payment"))
+    transactionBody.idPayment = this.router.snapshot.queryParamMap?.get("id_payment") || "";
     this.transactionService.mobilePay(transactionBody).subscribe({
       next: (data: ApiResponse) => {
-        // this.messageService.
-      },error : (err:ApiResponse) => {
-
+        alert(JSON.stringify(data.data))
+      },error : (err:any) => {
+        alert(err.errors)
       }
     })
   }

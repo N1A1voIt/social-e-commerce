@@ -7,6 +7,7 @@ export interface TransactionStatus {
 export interface TransactionDetail {
   amount?:number;
   description?:string;
+  phoneNumber?:string;
   provider?:string;
   idPayment?:string;
 }

@@ -12,6 +12,7 @@ import com.itu.socialcom.demo.orders.tempLink.TempLink;
 import com.itu.socialcom.demo.orders.tempLink.TempLinkRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPagesNumber;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPagesNumberRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,25 +32,32 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     private OrderParentRepository orderParentRepository;
 
     @Override
+    @Transactional
     public PaymentResponse processOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception {
-        TempLink tempLink = tempLinkRepository.findById(detailsIdentifier)
-                .orElseThrow(() -> new Exception("Invalid payment link."));
-        OrderParent orderParent = parentRepository.findById(tempLink.getIdOrderM().longValue())
-                .orElseThrow(() -> new Exception("Order not found."));
-        ManagedPagesNumber managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
-        SellerPhoneNumber sellerPhoneNumber = sellerPhoneNumberRepository.findById(managedPagesNumber.getIdSpn())
-                .orElseThrow(() -> new Exception("Seller phone number not found."));
-        PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);
-        PaymentResponse paymentResponse = mVolaProvider.initiateTransaction(paymentRequest);
-        orderParent.setDStatus(11); //Ordered
-        orderParentRepository.save(orderParent);
-        return paymentResponse;
+        try {
+
+            TempLink tempLink = tempLinkRepository.findById(detailsIdentifier)
+                    .orElseThrow(() -> new Exception("Invalid payment link."));
+            OrderParent orderParent = parentRepository.findById(tempLink.getIdOrderM().longValue())
+                    .orElseThrow(() -> new Exception("Order not found."));
+            ManagedPagesNumber managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
+            SellerPhoneNumber sellerPhoneNumber = sellerPhoneNumberRepository.findById(managedPagesNumber.getIdSpn())
+                    .orElseThrow(() -> new Exception("Seller phone number not found."));
+            PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);
+            PaymentResponse paymentResponse = mVolaProvider.initiateTransaction(paymentRequest);
+            orderParent.setDStatus(11); //Ordered
+            orderParentRepository.save(orderParent);
+            return paymentResponse;
+
+        } catch (Exception e) {
+            throw new Exception("Payment processing failed: " + e.getMessage());
+        }
     }
     private PaymentRequest createPaymentRequest(PaymentDTO paymentDTO,OrderParent parent, SellerPhoneNumber sellerPhoneNumber) {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setAmount(paymentDTO.getAmount());
         paymentRequest.setCurrency("Ar");
-        paymentRequest.setDescription("Payment for #" + parent.getIdOrderM());
+        paymentRequest.setDescription("P" + parent.getIdOrderM());
         paymentRequest.setPayer(sellerPhoneNumber.getPhoneNumber());
         paymentRequest.setPayee(paymentDTO.getPhoneNumber());
         paymentRequest.setCustomerMsisdn(paymentDTO.getPhoneNumber());
