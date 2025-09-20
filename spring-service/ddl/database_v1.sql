@@ -550,6 +550,16 @@ CREATE TABLE mvola_tokens(
 );
 
 
+CREATE TABLE mp_payment_number(
+                                  id SERIAL,
+                                  id_spn INTEGER NOT NULL,
+                                  id_mp INTEGER NOT NULL,
+                                  PRIMARY KEY(id),
+                                  UNIQUE (id_spn, id_mp),
+                                  FOREIGN KEY(id_spn) REFERENCES sellers_phone_number_e(id_spn),
+                                  FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

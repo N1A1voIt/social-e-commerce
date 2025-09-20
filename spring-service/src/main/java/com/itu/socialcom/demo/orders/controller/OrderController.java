@@ -4,6 +4,7 @@ import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.delivery.repository.DeliveryRepository;
+import com.itu.socialcom.demo.moneytransactions.PaymentResponse;
 import com.itu.socialcom.demo.orders.DownPayment;
 import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
@@ -13,12 +14,14 @@ import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicant;
 import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicantRepository;
 import com.itu.socialcom.demo.orders.dto.CallForTendersRequest;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
+import com.itu.socialcom.demo.orders.dto.PaymentDTO;
 import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.service.CreateOrderFromMessage;
 import com.itu.socialcom.demo.orders.service.OrderCreationService;
 import com.itu.socialcom.demo.orders.service.OrderPaymentLink;
+import com.itu.socialcom.demo.orders.service.OrderPaymentServiceImpl;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,9 @@ public class OrderController {
     private DeliveryApplicantRepository deliveryApplicantRepository;
     @Autowired
     private DeliveryRepository deliveryRepository;
+    @Autowired
+    private OrderPaymentServiceImpl orderPaymentService;
+
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
         orderCreationService = createOrderFromMessage;
@@ -250,6 +256,31 @@ public class OrderController {
             return ResponseEntity.badRequest().body(apiResponse);
         }
     }
+
+    @PostMapping("/api/order/pay")
+    public ResponseEntity<ApiResponse> payOrderDirectly(@RequestBody PaymentDTO paymentDTO, @RequestParam(name = "link_identifier") String linkIdentifier, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+            PaymentResponse paymentResponse = orderPaymentService.processOrderPayment(paymentDTO,linkIdentifier);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
+            return ResponseEntity.status(401).body(apiResponse);
+        }
+        catch (Exception e) {
+
+        }
+    }
+
+
 
     @GetMapping("/api/applications/{id_order}")
     public ResponseEntity<ApiResponse> applicantsList(@PathVariable("id_order") Long idOrder,@RequestHeader(name = "Authorization") String token) {
