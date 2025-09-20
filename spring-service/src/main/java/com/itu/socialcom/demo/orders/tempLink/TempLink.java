@@ -32,6 +32,9 @@ public class TempLink {
     @Column(name = "amount")
     private Double amount;
 
+    @Column(name = "used")
+    private Boolean used = false;
+
     @PrePersist
     public void prePersist() {
         if (this.expiredAt == null) {

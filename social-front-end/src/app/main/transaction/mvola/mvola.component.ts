@@ -5,7 +5,7 @@ import {NgIf} from "@angular/common";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {BeautifulButtonComponent} from "../../../shared/beautiful-button/beautiful-button.component";
 import {TransactionDetail} from "../transaction.type";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {routes} from "../../../app.routes";
 import {TransactionService} from "../transaction.service";
 import {ApiResponse} from "../../inbox/inbox.service";
@@ -21,7 +21,7 @@ import {MessageService} from "primeng/api";
     NgIf,
     ReactiveFormsModule,
     BeautifulButtonComponent,
-    FormsModule,
+    FormsModule
   ],
   templateUrl: './mvola.component.html',
   styleUrl: './mvola.component.css'
@@ -29,7 +29,7 @@ import {MessageService} from "primeng/api";
 export class MvolaComponent {
   @Input() isVisible:boolean = false;
   mvolaForm!:FormGroup;
-  constructor(formBuilder:FormBuilder,private messageService:MessageService,private router:ActivatedRoute,private  transactionService:TransactionService) {
+  constructor(formBuilder:FormBuilder,private messageService:MessageService,private naavigateRouter:Router,private router:ActivatedRoute,private  transactionService:TransactionService) {
     this.mvolaForm = formBuilder.group({
       'amount' : [0,Validators.min(100)],
       'description' : ['',Validators.required],
@@ -43,9 +43,13 @@ export class MvolaComponent {
     transactionBody.idPayment = this.router.snapshot.queryParamMap?.get("id_payment") || "";
     this.transactionService.mobilePay(transactionBody).subscribe({
       next: (data: ApiResponse) => {
-        alert(JSON.stringify(data.data))
+        this.isVisible = false;
+        this.naavigateRouter.navigateByUrl("/success-redirection");
+        this.messageService.add({ severity: 'info', summary: 'Deliverer assigned', detail: `Transaction Succesfull`, life: 3000 })
       },error : (err:any) => {
-        alert(err.errors)
+        // alert(err.errors)
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Transaction failed'});
+        alert(err.error.errors[0].message)
       }
     })
   }

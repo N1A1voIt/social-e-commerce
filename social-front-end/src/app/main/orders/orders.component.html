@@ -76,7 +76,7 @@
             <td>{{ order.dtotal | currency:'USD':'symbol':'1.2-2' }}</td>
             <td>
               <div class="action-buttons">
-                <button class="action-button bg-green-50" (click)="nextStep(order)" title="Next step">
+                <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 31))" (click)="nextStep(order)" title="Next step">
                   <i class="pi pi-arrow-circle-right text-green-500 text-xl"></i>
                 </button>
                 <button class="action-button bg-red-50" title="Cancel">
@@ -85,7 +85,7 @@
                 <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
                   <i class="pi pi-file-export text-blue-500 text-xl"></i>
                 </button>
-                <button class="action-button bg-blue-50" (click)="viewApplicants(order)" title="View applicants">
+                <button class="action-button  bg-blue-50" *ngIf="((order.dstatus == 25))" (click)="viewApplicants(order)" title="View applicants">
                   <i class="pi pi-file-export text-gray text-xl"></i>
                 </button>
               </div>
@@ -252,7 +252,7 @@
   </div>
 
 </app-form-container>
-<app-form-container [label]="'Applicants'" [isVisible]="showApplicants">
+<app-form-container (closeForm)="showApplicants=false" [label]="'Applicants'" [isVisible]="showApplicants">
   <div class="cont-box w-full flex gap-5 justify-between items-center mt-2 rounded-3xl border p-2" *ngFor="let applicant of applicants">
     <div class="flex justify-center items-center gap-5">
       <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden flex items-center justify-center bg-black">

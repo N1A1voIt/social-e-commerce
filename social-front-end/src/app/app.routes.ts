@@ -17,6 +17,7 @@ import {ValidatePagesComponent} from "./main/authentication/validate-pages/valid
 import {VariantsComponent} from "./main/products/variants/variants.component";
 import {OrdersComponent} from "./main/orders/orders.component";
 import {TransactionComponent} from "./main/transaction/transaction.component";
+import {SuccessRedirectionComponent} from "./client/success-redirection/success-redirection.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -51,7 +52,8 @@ const homeRoutes: Routes = [
   }
 ]
 const freeRoutes:Routes = [
-  {path:'transactions',component:TransactionComponent}
+  {path:'transactions',component:TransactionComponent},
+  {path:'success-redirection',component:SuccessRedirectionComponent}
 ]
 
 

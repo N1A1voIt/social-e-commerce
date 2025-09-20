@@ -271,9 +271,9 @@ public class OrderController {
             PaymentResponse paymentResponse = orderPaymentService.processOrderPayment(paymentDTO,linkIdentifier);
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
-            apiResponse.setData(null);
-            apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
-            return ResponseEntity.status(401).body(apiResponse);
+            apiResponse.setData(paymentResponse);
+            apiResponse.setErrors(null);
+            return ResponseEntity.status(200).body(apiResponse);
         }
         catch (Exception e) {
             e.printStackTrace();

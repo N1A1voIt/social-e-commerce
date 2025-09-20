@@ -38,6 +38,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
 
             TempLink tempLink = tempLinkRepository.findById(detailsIdentifier)
                     .orElseThrow(() -> new Exception("Invalid payment link."));
+            if (tempLink.getUsed()) throw new Exception("This payment link has already been used.");
             OrderParent orderParent = parentRepository.findById(tempLink.getIdOrderM().longValue())
                     .orElseThrow(() -> new Exception("Order not found."));
             ManagedPagesNumber managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
@@ -46,9 +47,10 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);
             PaymentResponse paymentResponse = mVolaProvider.initiateTransaction(paymentRequest);
             orderParent.setDStatus(11); //Ordered
+            tempLink.setUsed(true);
             orderParentRepository.save(orderParent);
+            tempLinkRepository.save(tempLink);
             return paymentResponse;
-
         } catch (Exception e) {
             throw new Exception("Payment processing failed: " + e.getMessage());
         }
@@ -59,7 +61,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         paymentRequest.setCurrency("Ar");
         paymentRequest.setDescription("P" + parent.getIdOrderM());
         paymentRequest.setPayer(sellerPhoneNumber.getPhoneNumber());
-        paymentRequest.setPayee(paymentDTO.getPhoneNumber());
+        paymentRequest.setPayee(sellerPhoneNumber.getPhoneNumber());
         paymentRequest.setCustomerMsisdn(paymentDTO.getPhoneNumber());
         return paymentRequest;
     }

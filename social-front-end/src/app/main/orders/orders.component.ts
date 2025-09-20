@@ -79,7 +79,7 @@ export class OrdersComponent implements OnInit{
     if (order.dstatus == 1) {
       console.log(order.dstatus);
       this.step = '1';
-    } else if (order.dstatus == 5) {
+    } else if (order.dstatus == 11) {
       this.step = '2';
       // Fetch child orders if not already loaded to get the managed page ID
       if (!order.childs || order.childs.length === 0) {
