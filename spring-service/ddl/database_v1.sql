@@ -569,6 +569,8 @@ CREATE TABLE deliverer_token(
                                 FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd)
 );
 
+
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

@@ -19,6 +19,10 @@ import {OrdersComponent} from "./main/orders/orders.component";
 import {TransactionComponent} from "./main/transaction/transaction.component";
 import {SuccessRedirectionComponent} from "./client/success-redirection/success-redirection.component";
 import {DsignupComponent} from "./deliverer/authentication/dsignup/dsignup.component";
+import {DsigninComponent} from "./deliverer/authentication/dsignin/dsignin.component";
+import {MenuDeliveryComponent} from "./deliverer/main/menu-delivery/menu-delivery.component";
+import {DdashboardComponent} from "./deliverer/main/ddashboard/ddashboard.component";
+import {DeliveryAuthGuard} from "./shared/guards/delivery-auth.guard";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -58,8 +62,20 @@ const freeRoutes:Routes = [
 ]
 const deliveryRoutes = [
   {
-    path:'delivery',
+    path:'delivery/signup',
     component:DsignupComponent
+  } , {
+    path:'delivery/signin',
+    component:DsigninComponent
+  },
+  {
+    path: 'delivery/space',
+    component:MenuDeliveryComponent,
+    canActivate:[DeliveryAuthGuard],
+    canActivateChild:[DeliveryAuthGuard],
+    children: [
+      {path: 'dashboard',component:DdashboardComponent}
+    ]
   }
 ]
 

@@ -25,11 +25,9 @@ import {PlatformButtonComponent} from "../../../shared/forms/auth/platform-butto
     ReactiveFormsModule,
     DialogModule,
     FormsModule,
-    ButtonDirective,
     InputTextModule,
     LoginInputComponent,
-    NgIf,
-    PlatformButtonComponent
+    NgIf
   ],
   templateUrl: './dsignup.component.html',
   styleUrl: './dsignup.component.css'
@@ -46,25 +44,26 @@ export class DsignupComponent implements OnInit{
       username: [''],
       minRange: [''],
       maxRange: [''],
+      phoneNumber : [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
   signup() {
-    const { email, password, name, username,minRange,maxRange } = this.signupForm.value;
+    const { email, password, name, username,minRange,maxRange,phoneNumber } = this.signupForm.value;
 
     createUserWithEmailAndPassword(this.auth, email, password)
       .then(userCredential =>
         updateProfile(userCredential.user, { displayName: name }).then(() => userCredential)
       )
       .then(userCredential => userCredential.user.getIdToken())
-      .then(idToken => this.http.post(`${javaHost}/api/auth/signup`, { idToken, name, username,minRange,maxRange }).toPromise())
+      .then(idToken => this.http.post(`${javaHost}/api/delivery/auth/signup`, { idToken, name, username,minRange,maxRange,phoneNumber }).toPromise())
       .then((response: any) => {
         // Store token in localStorage
         localStorage.setItem('token',"Bearer " + response.token);
         this.errorMessage = ''; // Clear any previous error
-        this.router.navigate(['/basic/dashboard']);
+        this.router.navigate(['/delivery/space/dashboard']);
       })
       .catch(error => {
         if (error.error) {
@@ -96,53 +95,6 @@ export class DsignupComponent implements OnInit{
           }
         } else {
           this.errorMessage = error.message || 'Signup failed';
-        }
-      });
-  }
-
-  signupWithGoogle() {
-    signInWithPopup(this.auth, new GoogleAuthProvider())
-      .then(userCredential => userCredential.user.getIdToken())
-      .then(idToken => {
-        const { name, username } = this.signupForm.value;
-        return this.http.post(`${javaHost}/api/auth/signup`, { idToken, name, username }).toPromise();
-      })
-      .then((response: any) => {
-        // Store token in localStorage
-        localStorage.setItem('token',"Bearer " +  response.token);
-        this.errorMessage = ''; // Clear any previous error
-        this.router.navigate(['/basic/dashboard']);
-      })
-      .catch(error => {
-        if (error.error) {
-          // Handle backend error response
-          if (error.error.error === 'Invalid token' && error.error.message) {
-            this.errorMessage = error.error.message;
-          } else if (error.error.error) {
-            this.errorMessage = error.error.error;
-          } else {
-            this.errorMessage = 'Google signup failed';
-          }
-        } else if (error.code) {
-          // Handle Firebase authentication errors
-          switch (error.code) {
-            case 'auth/popup-closed-by-user':
-              this.errorMessage = 'Signup popup was closed. Please try again.';
-              break;
-            case 'auth/cancelled-popup-request':
-              this.errorMessage = 'Signup request was cancelled. Please try again.';
-              break;
-            case 'auth/popup-blocked':
-              this.errorMessage = 'Signup popup was blocked by your browser. Please allow popups for this site.';
-              break;
-            case 'auth/account-exists-with-different-credential':
-              this.errorMessage = 'An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.';
-              break;
-            default:
-              this.errorMessage = error.message || 'Google signup failed';
-          }
-        } else {
-          this.errorMessage = error.message || 'Google signup failed';
         }
       });
   }

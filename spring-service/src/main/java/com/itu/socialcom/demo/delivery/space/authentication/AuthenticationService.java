@@ -27,14 +27,18 @@ public class AuthenticationService {
 
     @Transactional
     public String signup (Map<String, Object> body, FirebaseToken decodedToken) throws FirebaseAuthException {
-        if ( (double) body.get("minRange") < 0
-                || (double) body.get("maxRange") <= 0
-                || (double) body.get("minRange") > (double) body.get("maxRange")) {
+        double minRange = Double.parseDouble(body.get("minRange").toString());
+        double maxRange = Double.parseDouble(body.get("maxRange").toString());
+
+        if (minRange < 0 || maxRange <= 0 || minRange > maxRange) {
             throw new IllegalArgumentException("Invalid range values");
         }
+
+
         String idToken = body.get("idToken").toString();
         String uid = decodedToken.getUid();
         String email = decodedToken.getEmail();
+        String phoneNumber = body.get("idToken").toString();
 
         // Get UserRecord from Firebase to access provider details
         UserRecord userRecord = firebaseAuth.getUser(uid);
@@ -47,18 +51,17 @@ public class AuthenticationService {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Username is required.");
         }
-        double minRange = (double) body.get("minRange");
-        double maxRange = (double) body.get("maxRange");
         DeliveryDriver deliveryDriver = new DeliveryDriver();
         deliveryDriver.setFirebaseUid(uid);
         deliveryDriver.setEmail(email);
         deliveryDriver.setName(name);
         deliveryDriver.setMinRange(minRange);
         deliveryDriver.setMaxRange(maxRange);
-        deliveryDriverRepository.save(deliveryDriver);
+        deliveryDriver.setPhoneNumber(phoneNumber);
+        deliveryDriver = deliveryDriverRepository.save(deliveryDriver);
         DelivererToken delivererToken = new DelivererToken();
         delivererToken.setToken(idToken);
-        delivererToken.setIdDeliverer(delivererToken.getIdDeliverer());
+        delivererToken.setIdDeliverer(deliveryDriver.getId());
         delivererTokenRepository.save(delivererToken);
         return delivererToken.getToken();
     }
