@@ -150,4 +150,5 @@ public class DeliveryController {
         return tokenV2Service.findSellerByToken(token)
                 .orElseThrow(() -> new IllegalStateException("Authenticated user is not a valid seller"));
     }
+
 }

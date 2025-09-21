@@ -15,7 +15,7 @@ export class DeliveryAuthGuard implements CanActivate, CanActivateChild {
         if (isLoggedIn) {
           return true;
         } else {
-          return this.router.createUrlTree(['/auth/login']);
+          return this.router.createUrlTree(['/delivery/space/dashboard']);
         }
       })
     );

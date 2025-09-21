@@ -38,7 +38,7 @@ public class AuthenticationService {
         String idToken = body.get("idToken").toString();
         String uid = decodedToken.getUid();
         String email = decodedToken.getEmail();
-        String phoneNumber = body.get("idToken").toString();
+        String phoneNumber = body.get("phoneNumber").toString();
 
         // Get UserRecord from Firebase to access provider details
         UserRecord userRecord = firebaseAuth.getUser(uid);
