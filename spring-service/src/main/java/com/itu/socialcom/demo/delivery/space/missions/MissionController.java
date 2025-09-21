@@ -5,13 +5,11 @@ import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.delivery.repository.DeliveryRepository;
 import com.itu.socialcom.demo.delivery.service.DeliveryService;
 import com.itu.socialcom.demo.delivery.space.authentication.token.DelivererTokenService;
+import com.itu.socialcom.demo.orders.delivery.DeliveryLog;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,11 +22,13 @@ public class MissionController {
     DeliveryRepository deliveryService;
     @Autowired
     MissionHistoryRepository missionHistoryRepository;
+    @Autowired
+    MissionService missionService;
     @GetMapping()
     public ResponseEntity<ApiResponse> getMissions(@RequestHeader(name = "Authorization") String token) {
         try {
             DeliveryDriver deliveryDriver = delivererTokenService.findByToken(token);
-            List<Delivery> deliveries = deliveryService.findByAmountInRange(deliveryDriver.getMinRange(), deliveryDriver.getMaxRange());
+            List<Delivery> deliveries = deliveryService.findByAmountInRange(deliveryDriver.getId(),deliveryDriver.getMinRange(), deliveryDriver.getMaxRange());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(deliveries);
@@ -54,6 +54,28 @@ public class MissionController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(deliveries);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(new java.util.ArrayList<>(){
+                {
+                    add(e);
+                }
+            });
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+    @GetMapping("/apply/{id_mission}")
+    public ResponseEntity<ApiResponse> applyForMission(@RequestHeader(name = "Authorization") String token, @PathVariable(name = "id_mission") Long idMission) {
+        try {
+            DeliveryDriver deliveryDriver = delivererTokenService.findByToken(token);
+            DeliveryLog deliveryLog = missionService.applyTo(idMission,deliveryDriver);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(deliveryLog);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

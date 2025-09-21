@@ -62,4 +62,17 @@ export class DdashboardComponent implements OnInit {
         return 'bg-gray-100 text-gray-800';
     }
   }
+  applyMission(mission:Delivery) {
+    this.deliveryService.apply(mission.id).subscribe({
+      next: (response) => {
+        alert("Mission applied successfully")
+        this.loadMissions();
+      },
+      error: (err) => {
+        console.error('Error fetching missions:', err.error);
+        this.error = 'Failed to load missions. Please try again later.';
+        this.loading = false;
+      }
+    });
+  }
 }

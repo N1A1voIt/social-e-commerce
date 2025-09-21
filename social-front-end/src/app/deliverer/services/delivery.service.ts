@@ -21,6 +21,13 @@ export class DeliveryService {
     return this.http.get<ApiResponse>(`${javaHost}/api/delivery/space/missions`, { headers });
   }
 
+  apply(deliveryId:number) : Observable<ApiResponse> {
+    const headers = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.get<ApiResponse>(`${javaHost}/api/delivery/space/missions/apply/${deliveryId}`, { headers });
+  }
+
   /**
    * Update the status of a delivery mission
    */

@@ -1,6 +1,6 @@
-<div class="lg:hidden w-screen h-screen">
+<div class="lg:hidden w-screen h-screen ">
   <div class="w-full p-2  bg-transparent  fixed bottom-1 ">
-    <div class="w-full bg-black flex rounded-2xl px-5 flex-row gap-2 items-center justify-between">
+    <div class="w-full bg-fotsy flex rounded-2xl px-5 flex-row gap-2 items-center justify-between">
       <app-nav-button icon="heroHome" [isActive]="true" href="/alll"></app-nav-button>
       <app-nav-button icon="heroHeart" href="/alll"></app-nav-button>
       <app-nav-button icon="heroBellAlert" href="/alll"></app-nav-button>
@@ -10,15 +10,15 @@
   </div>
   <router-outlet></router-outlet>
 </div>
-<div class="lg:flex flex-row h-screen w-screen hidden p-3">
+<div class="lg:flex flex-row h-screen w-screen hidden gap-4 p-3 bg-white">
   <aside
-    class="hidden w-[70px] lg:flex flex-col items-center bg-black text-fotsy rounded-xl shadow h-full">
+    class="hidden w-[70px] lg:flex flex-col items-center bg-fotsy text-black rounded-xl shadow-xl h-full">
     <!-- Side Nav Bar-->
 
     <div class="h-16 flex items-center w-full">
       <!-- Logo Section -->
       <a class="h-6 w-6 mx-auto" href="">
-        <div class="rounded-full bg-black font-mono text-white justify-center flex items-center font-bold text-xl">
+        <div class="rounded-full bg-fotsy font-mono text-white justify-center flex items-center font-bold text-xl">
           <span>C</span>
         </div>
       </a>
@@ -71,7 +71,7 @@
     </div>
 
   </aside>
-  <div class="flex-1 p-2 rounded-xl bg-fotsy">
+  <div class="flex-1 rounded-xl ">
     <router-outlet></router-outlet>
   </div>
 </div>

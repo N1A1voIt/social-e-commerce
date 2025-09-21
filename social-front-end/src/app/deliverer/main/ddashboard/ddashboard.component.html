@@ -1,4 +1,4 @@
-<main class="h-full w-full bg-white rounded-3xl p-6 font-mono">
+<main class="h-full w-full bg-fotsy rounded-3xl p-6 font-mono">
   <div class="mb-6">
     <h1 class="text-2xl font-bold text-gray-800">My Delivery Missions</h1>
     <p class="text-gray-600">View and manage your assigned delivery missions</p>
@@ -24,17 +24,15 @@
 
   <!-- Missions list -->
   <div *ngIf="!loading && !error && missions.length > 0" class="grid grid-cols-1 gap-4 missions-grid">
-    <div *ngFor="let mission of missions" class="mission-card bg-white border rounded-lg shadow-sm p-4 hover:shadow-md">
-      <div class="flex justify-between items-start mb-3">
+    <div *ngFor="let mission of missions" class="mission-card bg-fotsy text-black border rounded-xl shadow-sm p-4 hover:shadow-md">
+      <div class="flex justify-between items-start mb-10">
         <div>
           <h3 class="text-lg font-semibold">Delivery #{{ mission.id }}</h3>
           <p class="text-sm text-gray-600">Order #{{ mission.orderMotherId }}</p>
         </div>
-        <span class="px-3 py-1 rounded-full text-xs font-medium"
-              [ngClass]="[getStatusClass(mission.status),
-                         'status-' + mission.status.toLowerCase().replace('_', '-')]">
-          {{ mission.status }}
-        </span>
+        <div>
+          <app-beautiful-button text="Apply" (click)="applyMission(mission)"></app-beautiful-button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
@@ -62,10 +60,9 @@
           <p class="text-sm text-gray-500">Amount</p>
           <p class="text-gray-800">{{ mission.amount ? '$' + mission.amount : 'N/A' }}</p>
         </div>
-<!--        <div>-->
-<!--          <app-beautiful-button></app-beautiful-button>-->
-<!--        </div>-->
+
       </div>
+
     </div>
   </div>
 </main>

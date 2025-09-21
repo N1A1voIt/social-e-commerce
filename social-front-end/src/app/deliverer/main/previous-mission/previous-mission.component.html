@@ -30,11 +30,10 @@
           <h3 class="text-lg font-semibold">Delivery #{{ mission.idDelivery }}</h3>
           <p class="text-sm text-gray-600">Order #{{ mission.idOrderM }}</p>
         </div>
-<!--        <span class="px-3 py-1 rounded-full text-xs font-medium"-->
-<!--              [ngClass]="[getStatusClass(mission.dStatus),-->
-<!--                         'status-' + mission.dStatus.toLowerCase().replace('_', '-')]">-->
-<!--          {{ mission.dStatus }}-->
-<!--        </span>-->
+        <span class="px-3 py-1 rounded-full text-xs font-medium"
+              >
+          {{ mission.dStatus }}
+        </span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">

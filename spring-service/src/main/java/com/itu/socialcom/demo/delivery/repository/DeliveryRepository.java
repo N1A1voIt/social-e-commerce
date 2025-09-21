@@ -42,8 +42,15 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     @Query("SELECT d FROM Delivery d JOIN ShippingPoint sp ON d.shippingPointId = sp.id JOIN ManagedPage mp ON sp.managedPageId = mp.id WHERE mp.sellerId = :sellerId")
     List<Delivery> findBySellerIdThroughManagedPages(@Param("sellerId") Long sellerId);
 
-    @Query("SELECT d FROM Delivery d WHERE d.amount <= :maxRange AND d.amount >= :minRange AND d.status = 'CALL_FOR_TENDERED'")
-    List<Delivery> findByAmountInRange(@Param("minRange") Double minRange, @Param("maxRange") Double maxRange);
+    @Query("""
+        SELECT d
+        FROM Delivery d
+        LEFT JOIN DeliveryLog dl ON dl.idDelivery = d.id AND dl.idDd = :myId
+        WHERE d.amount BETWEEN :minRange AND :maxRange
+          AND d.status = 'CALL_FOR_TENDERED'
+          AND dl.idDd IS NULL
+    """)
+    List<Delivery> findByAmountInRange(@Param("myId") Long myId,@Param("minRange") Double minRange, @Param("maxRange") Double maxRange);
     /**
      * Find a specific delivery by ID and seller ID (through managed pages)
      */
