@@ -560,6 +560,15 @@ CREATE TABLE mp_payment_number(
                                   FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
+CREATE TABLE deliverer_token(
+                                id SERIAL,
+                                token TEXT NOT NULL,
+                                expiry_date TIMESTAMP NOT NULL,
+                                id_dd INTEGER NOT NULL,
+                                PRIMARY KEY(id),
+                                FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd)
+);
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

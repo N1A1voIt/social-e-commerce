@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.relational.core.sql.In;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, Integer> {
     List<DeliveryDriver> findByMinRangeGreaterThanAndMaxRangeLessThan(Double minRangeIsGreaterThan, Double maxRangeIsLessThan);
@@ -13,4 +14,6 @@ public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, 
     List<DeliveryDriver> findByPriceInRange(@Param("price") Double price);
 
     List<DeliveryDriver> findByPhoneNumber(String phoneNumber);
+
+    Optional<DeliveryDriver> findDeliveryDriverByFirebaseUid(String firebaseUid);
 }

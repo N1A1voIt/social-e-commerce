@@ -18,6 +18,7 @@ import {VariantsComponent} from "./main/products/variants/variants.component";
 import {OrdersComponent} from "./main/orders/orders.component";
 import {TransactionComponent} from "./main/transaction/transaction.component";
 import {SuccessRedirectionComponent} from "./client/success-redirection/success-redirection.component";
+import {DsignupComponent} from "./deliverer/authentication/dsignup/dsignup.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -55,7 +56,12 @@ const freeRoutes:Routes = [
   {path:'transactions',component:TransactionComponent},
   {path:'success-redirection',component:SuccessRedirectionComponent}
 ]
-
+const deliveryRoutes = [
+  {
+    path:'delivery',
+    component:DsignupComponent
+  }
+]
 
 export const routes: Routes = [
   {
@@ -65,5 +71,6 @@ export const routes: Routes = [
   },
   ...authRoutes,
   ...homeRoutes,
-  ...freeRoutes
+  ...freeRoutes,
+  ...deliveryRoutes
 ];

@@ -11,6 +11,8 @@ public class DeliveryDriver {
     @Column(name = "id_dd")
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "email")
+    private String email;
     @Column(name = "name")
     private String name;
     @Column(name = "phone_number")
@@ -23,4 +25,6 @@ public class DeliveryDriver {
     private Double minRange;
     @Column(name = "max_range")
     private Double maxRange;
+    @Column(name = "firebase_uid")
+    private String firebaseUid;
 }
