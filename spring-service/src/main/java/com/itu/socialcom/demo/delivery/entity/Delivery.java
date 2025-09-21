@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.delivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itu.socialcom.demo.shipping.entity.ShippingPoint;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -77,6 +78,7 @@ public class Delivery {
     /**
      * ManyToOne relationship with ShippingPoint
      */
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_shp", insertable = false, updatable = false)
     private ShippingPoint shippingPoint;

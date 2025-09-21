@@ -22,11 +22,35 @@ public class MissionController {
     DelivererTokenService delivererTokenService;
     @Autowired
     DeliveryRepository deliveryService;
+    @Autowired
+    MissionHistoryRepository missionHistoryRepository;
     @GetMapping()
     public ResponseEntity<ApiResponse> getMissions(@RequestHeader(name = "Authorization") String token) {
         try {
             DeliveryDriver deliveryDriver = delivererTokenService.findByToken(token);
             List<Delivery> deliveries = deliveryService.findByAmountInRange(deliveryDriver.getMinRange(), deliveryDriver.getMaxRange());
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(deliveries);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(new java.util.ArrayList<>(){
+                {
+                    add(e);
+                }
+            });
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+    @GetMapping("/completed")
+    public ResponseEntity<ApiResponse> getCompletedMissions(@RequestHeader(name = "Authorization") String token) {
+        try {
+            DeliveryDriver deliveryDriver = delivererTokenService.findByToken(token);
+            List<MissionHistory> deliveries = missionHistoryRepository.findByIdDd(deliveryDriver.getId());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(deliveries);

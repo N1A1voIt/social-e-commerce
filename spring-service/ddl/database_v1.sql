@@ -684,6 +684,13 @@ CREATE VIEW v_delivery_applicants AS
         JOIN managed_pages mp on delivery_log.id_mp = mp.id_mp
         JOIN seller_v2 s on delivery_log.id_seller = s.id_seller;
 
+CREATE VIEW v_mission_history AS
+    SELECT id_di,d.*,sp.origin,sp.place_name FROM delivery_log
+        JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
+        JOIN shipping_points sp on d.id_shp = sp.id_shp
+;
+
+
 
 --
 -- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()

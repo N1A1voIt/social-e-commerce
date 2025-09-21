@@ -23,6 +23,7 @@ import {DsigninComponent} from "./deliverer/authentication/dsignin/dsignin.compo
 import {MenuDeliveryComponent} from "./deliverer/main/menu-delivery/menu-delivery.component";
 import {DdashboardComponent} from "./deliverer/main/ddashboard/ddashboard.component";
 import {DeliveryAuthGuard} from "./shared/guards/delivery-auth.guard";
+import {PreviousMissionComponent} from "./deliverer/main/previous-mission/previous-mission.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -74,7 +75,8 @@ const deliveryRoutes = [
     canActivate:[DeliveryAuthGuard],
     canActivateChild:[DeliveryAuthGuard],
     children: [
-      {path: 'dashboard',component:DdashboardComponent}
+      {path: 'dashboard',component:DdashboardComponent},
+      {path: 'mission-history',component:PreviousMissionComponent}
     ]
   }
 ]
