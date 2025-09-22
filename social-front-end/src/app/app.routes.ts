@@ -15,6 +15,16 @@ import {ProductDetailComponent} from "./client/marketplace/product-detail/produc
 import {StockListComponent} from "./main/products/stock-list/stock-list.component";
 import {ValidatePagesComponent} from "./main/authentication/validate-pages/validate-pages.component";
 import {VariantsComponent} from "./main/products/variants/variants.component";
+import {OrdersComponent} from "./main/orders/orders.component";
+import {TransactionComponent} from "./main/transaction/transaction.component";
+import {SuccessRedirectionComponent} from "./client/success-redirection/success-redirection.component";
+import {DsignupComponent} from "./deliverer/authentication/dsignup/dsignup.component";
+import {DsigninComponent} from "./deliverer/authentication/dsignin/dsignin.component";
+import {MenuDeliveryComponent} from "./deliverer/main/menu-delivery/menu-delivery.component";
+import {DdashboardComponent} from "./deliverer/main/ddashboard/ddashboard.component";
+import {DeliveryAuthGuard} from "./shared/guards/delivery-auth.guard";
+import {PreviousMissionComponent} from "./deliverer/main/previous-mission/previous-mission.component";
+import {PendingRequestComponent} from "./deliverer/main/pending-request/pending-request.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -35,8 +45,10 @@ const homeRoutes: Routes = [
       { path: 'variants/:idProduct', component: VariantsComponent },
       { path: 'stocks', component: StockListComponent },
       { path: 'content', component: ContentManagementComponent },
+      { path: 'orders', component: OrdersComponent },
     ]
   },
+
   {
     path: 'client',
     component: MenuClientComponent,
@@ -46,7 +58,30 @@ const homeRoutes: Routes = [
     ]
   }
 ]
-
+const freeRoutes:Routes = [
+  {path:'transactions',component:TransactionComponent},
+  {path:'success-redirection',component:SuccessRedirectionComponent}
+]
+const deliveryRoutes = [
+  {
+    path:'delivery/signup',
+    component:DsignupComponent
+  } , {
+    path:'delivery/signin',
+    component:DsigninComponent
+  },
+  {
+    path: 'delivery/space',
+    component:MenuDeliveryComponent,
+    canActivate:[DeliveryAuthGuard],
+    canActivateChild:[DeliveryAuthGuard],
+    children: [
+      {path: 'dashboard',component:DdashboardComponent},
+      {path: 'mission-history',component:PreviousMissionComponent},
+      {path: 'pending-applications',component:PendingRequestComponent}
+    ]
+  }
+]
 
 export const routes: Routes = [
   {
@@ -56,4 +91,6 @@ export const routes: Routes = [
   },
   ...authRoutes,
   ...homeRoutes,
+  ...freeRoutes,
+  ...deliveryRoutes
 ];

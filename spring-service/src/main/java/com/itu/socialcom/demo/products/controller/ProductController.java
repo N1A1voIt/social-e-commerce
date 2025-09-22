@@ -12,6 +12,9 @@ import com.itu.socialcom.demo.products.repository.OptionValueRepository;
 import com.itu.socialcom.demo.products.repository.ProductCplRepository;
 import com.itu.socialcom.demo.products.repository.ProductRepository;
 import com.itu.socialcom.demo.products.service.OptionService;
+import com.itu.socialcom.demo.products.variants.model.Variant;
+import com.itu.socialcom.demo.products.variants.repository.VariantRepository;
+import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +39,9 @@ public class ProductController {
     private OptionValueRepository optionValueRepository;
     @Autowired
     private OptionService optionService;
+    @Autowired
+    private VariantRepository variantRepository;
+
     @GetMapping("/api/products")
     public ResponseEntity<List<Product>> products(@RequestHeader("Authorization") String token, Pageable pageable) {
         try {
@@ -54,6 +60,31 @@ public class ProductController {
             return ResponseEntity.ok(productCplRepository.findByIdSeller(seller.getId()));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(null);
+        }
+    }
+
+    @GetMapping("/api/products/variant/{SKU}")
+    public ResponseEntity<ApiResponse> fetchProductByVariantSKU(@RequestHeader("Authorization") String token, @PathVariable String SKU) {
+        try {
+            Seller seller = sellerRepository.findSellerByToken(token).orElse(null);
+            if (seller == null) throw new Exception("Not logged in");
+            List<Variant> product = variantRepository.findByIdSellerAndSkuIn(seller.getId(), List.of(SKU));
+            ApiResponse response = new ApiResponse();
+            if (product == null) {
+                response.setStatus(404);
+                return ResponseEntity.status(404).body(response);
+            }
+            response.setStatus(200);
+            response.setData(product);
+            response.setErrors(null);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse response = new ApiResponse();
+            response.setStatus(500);
+            response.setData(null);
+            response.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(response);
         }
     }
 

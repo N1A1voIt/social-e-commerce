@@ -1,0 +1,29 @@
+<app-form-container [isVisible]="isVisible" [label]="'Mvola Payment'" (closeForm)="isVisible = false">
+  <form class="space-y-4 w-full flex flex-col items-end gap-1" (ngSubmit)="executeTransaction()">
+<!--    <input type="hidden" [formControl]="$any(step1Form.get('idProduct'))">-->
+    <app-basic-input
+      class="w-full"
+      label="Amount"
+      placeholder="40.000 Ariary"
+      type="number"
+      [formControl]="$any(mvolaForm.get('amount'))"
+      [error]="mvolaForm.get('amount')?.invalid && mvolaForm.get('amount')?.touched">
+    </app-basic-input>
+
+    <app-basic-input
+      class="w-full"
+      [label]="'Description'"
+      placeholder="Enter product description"
+      [formControl]="$any(mvolaForm.get('description'))"
+      type="textarea">
+    </app-basic-input>
+    <app-basic-input
+      class="w-full"
+      [label]="'Phone number'"
+      placeholder="0340000000"
+      [formControl]="$any(mvolaForm.get('phoneNumber'))"
+      type="text">
+    </app-basic-input>
+    <app-beautiful-button  [text]="'Pay'" type="submit"></app-beautiful-button>
+  </form>
+</app-form-container>

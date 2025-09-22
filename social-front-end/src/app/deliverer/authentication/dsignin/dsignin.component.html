@@ -1,0 +1,29 @@
+<main class="h-[100vh] w-[100vw] bg-cardbg flex flex-row justify-center items-center ">
+  <div class="h-[100vh] w-[100vw] xl:w-[80vw] md:w-[50%] md:h-[80vh] xl:h-[80vh] flex flex-row justify-center items-center shadow rounded-3xl">
+    <div class="bg-orange w-[60%] h-[80vh] hidden xl:block rounded-3xl">
+
+    </div>
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class=" xl:w-[40%] w-full h-full lg:h-[80vh] flex justify-center items-center flex-col gap-3">
+      <div class="title w-[80%] flex justify-center flex-col items-center gap-2">
+        <h1 class="font-mono text-3xl font-semibold">Sign in!</h1>
+        <p class="text-xl text-center text-gray font-mono">Delivery</p>
+      </div>
+      <div class="forms w-[80%] flex flex-col gap-4 font-mono">
+        <app-login-input formControlName="email" placeholder="Email"></app-login-input>
+        <app-login-input formControlName="password" placeholder="Password" type="password"></app-login-input>
+        <div *ngIf="errorMessage" class="px-1 py-1 text-red-500 text-sm">
+          {{ errorMessage }}
+        </div>
+        <div class="text-right px-1 py-3 text-gray">
+          <a href="#">Recover password</a>
+        </div>
+      </div>
+      <div class="w-[80%] font-mono">
+        <input type="submit" class="w-full p-4 bg-orange rounded-xl text-white font-bold text-md" style="letter-spacing: 0px">
+      </div>
+      <div class="py-2 px-2 flex justify-center items-center gap-8 font-thin font-mono" style="letter-spacing: 0px">
+        <p>Not a member? <a href="/delivery/signup" class="text-orange">Sign up</a></p>
+      </div>
+    </form>
+  </div>
+</main>

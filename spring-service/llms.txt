@@ -1,0 +1,574 @@
+1. Project Overview
+
+Project Name: [your project name here]
+
+Purpose of Backend: [short description, e.g., payment system, delivery tracking, etc.]
+
+Tech Stack: Java + Spring Boot
+
+2. Database Schema
+CREATE TYPE platforms_pro as ENUM ('google', 'facebook','basic','X','github');
+
+CREATE TABLE seller_v2(
+                          id_seller SERIAL,
+                          email TEXT NOT NULL,
+                          username TEXT NOT NULL,
+                          id_provider platforms_pro,
+                          phone_number TEXT,
+                          firebase_uid TEXT NOT NULL,
+                          PRIMARY KEY(id_seller),
+                          UNIQUE(email)
+);
+
+CREATE TABLE tokens_v2(
+                          id_token SERIAL,
+                          token TEXT NOT NULL,
+                          expired_at TIMESTAMP,
+                          id_seller INTEGER NOT NULL,
+                          PRIMARY KEY(id_token),
+                          FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE supported_platforms_v2(
+   id_sp SERIAL,
+   label VARCHAR(250) ,
+   PRIMARY KEY(id_sp)
+);
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'facebook');
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'instagram');
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'x');
+INSERT INTO supported_platforms_v2 (label) VALUES ( 'thread');
+
+CREATE TABLE managed_pages(
+      id_mp SERIAL,
+      d_status VARCHAR(50) ,
+      platform_identifier TEXT NOT NULL,
+      page_title TEXT NOT NULL,
+      associated_media TEXT,
+      link_to_platform TEXT NOT NULL,
+      id_sp INTEGER NOT NULL,
+      id_seller INTEGER NOT NULL,
+      PRIMARY KEY(id_mp),
+      FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
+      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE platform_status(
+                                id_status SERIAL,
+                                status_labem VARCHAR(50)  NOT NULL,
+                                PRIMARY KEY(id_status)
+);
+INSERT INTO platform_status (status_labem) VALUES ('active');
+INSERT INTO platform_status (status_labem) VALUES ('inactive');
+
+CREATE TABLE posts(
+                      id_post SERIAL,
+                      type VARCHAR(50) ,
+                      create_at TIMESTAMP NOT NULL,
+                      id_seller INTEGER NOT NULL,
+                      PRIMARY KEY(id_post),
+                      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE post_childs(
+                            id_child SERIAL,
+                            post_url TEXT NOT NULL,
+                            media_url TEXT,
+                            description TEXT,
+                            platform_identifier TEXT NOT NULL,
+                            type TEXT,
+                            id_sp INTEGER NOT NULL,
+                            id_child_1 INTEGER,
+                            id_post INTEGER NOT NULL,
+                            PRIMARY KEY(id_child),
+                            UNIQUE(platform_identifier),
+                            FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp),
+                            FOREIGN KEY(id_child_1) REFERENCES post_childs(id_child),
+                            FOREIGN KEY(id_post) REFERENCES posts(id_post)
+);
+
+CREATE TABLE potential_customers_v2(
+                                       id_pc TEXT,
+                                       name TEXT NOT NULL,
+                                       link_to_profile TEXT,
+                                       d_platform VARCHAR(50) ,
+                                       identifier_on_platform VARCHAR(50)  NOT NULL,
+                                       media_url TEXT,
+                                       id_sp INTEGER NOT NULL,
+                                       PRIMARY KEY(id_pc),
+                                       FOREIGN KEY(id_sp) REFERENCES supported_platforms_v2(id_sp)
+);
+
+CREATE TABLE likes_history(
+                              id_lh SERIAL,
+                              created_at TIMESTAMP NOT NULL,
+                              deleted BOOLEAN,
+                              id_child INTEGER,
+                              id_pc TEXT NOT NULL,
+                              PRIMARY KEY(id_lh),
+                              FOREIGN KEY(id_child) REFERENCES post_childs(id_child),
+                              FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+);
+
+CREATE TABLE comments_v2(
+                            id_comment TEXT,
+                            message TEXT NOT NULL,
+                            created_at TIMESTAMP NOT NULL,
+                            deleted BOOLEAN,
+                            id_child INTEGER NOT NULL,
+                            PRIMARY KEY(id_comment),
+                            FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
+);
+
+CREATE TABLE inbox(
+                      id_im SERIAL,
+                      id_mp INTEGER NOT NULL,
+                      PRIMARY KEY(id_im),
+                      FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
+CREATE TABLE message_mother(
+                               id_mm SERIAL,
+                               id_pc TEXT NOT NULL,
+                               id_mp INTEGER NOT NULL,
+                               id_im INTEGER NOT NULL,
+                               PRIMARY KEY(id_mm),
+                               FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                               FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+                               FOREIGN KEY(id_im) REFERENCES inbox(id_im)
+);
+
+CREATE TABLE message_child(
+                              id_mc SERIAL,
+                              message TEXT NOT NULL,
+                              from_platform BOOLEAN NOT NULL,
+                              id_mm INTEGER NOT NULL,
+                              PRIMARY KEY(id_mc),
+                              FOREIGN KEY(id_mm) REFERENCES message_mother(id_mm)
+);
+
+CREATE TABLE category (
+    id_category SERIAL,
+    val TEXT NOT NULL,
+    desc_ TEXT,
+    embedding VECTOR(384),
+    PRIMARY KEY(id_category)
+);
+
+CREATE TABLE temporary_product(
+    id_temp_product SERIAL,
+    description TEXT,
+    name TEXT NOT NULL,
+    price NUMERIC(18,2)   NOT NULL,
+    media TEXT,
+    id_category INTEGER NOT NULL,
+    id_seller INTEGER NOT NULL,
+    state BOOLEAN,
+    PRIMARY KEY(id_temp_product),
+    FOREIGN KEY(id_category) REFERENCES category(id_category),
+    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+/*
+CREATE TABLE temp_product_state(
+    id_temp_product INTEGER NOT NULL,
+    state VARCHAR(50) ,
+    created_at TIMESTAMP NOT NULL,
+    PRIMARY KEY(id_temp_product, state),
+    FOREIGN KEY(id_temp_product) REFERENCES temporary_product(id_temp_product)
+);*/
+
+CREATE TABLE products_v2(
+                            id_product SERIAL,
+                            description TEXT,
+                            name TEXT NOT NULL,
+                            price NUMERIC(18,2)   NOT NULL,
+                            created_at TIMESTAMP,
+                            updated_at TIMESTAMP,
+                            media TEXT,
+                            id_category INTEGER NOT NULL,
+                            id_seller INTEGER NOT NULL,
+                            PRIMARY KEY(id_product),
+                            FOREIGN KEY(id_category) REFERENCES category(id_category),
+                            FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE variants_v2(
+                            id_variant SERIAL,
+                            title TEXT NOT NULL,
+                            price NUMERIC(18,2)   NOT NULL,
+                            created_at TIMESTAMP NOT NULL,
+                            updated_at TIMESTAMP,
+                            id_product INTEGER NOT NULL,
+                            PRIMARY KEY(id_variant),
+                            FOREIGN KEY(id_product) REFERENCES products_v2(id_product)
+);
+
+CREATE TABLE options_v2(
+                           id_option SERIAL,
+                           label TEXT NOT NULL,
+                           id_product INTEGER NOT NULL,
+                           PRIMARY KEY(id_option),
+                           FOREIGN KEY(id_product) REFERENCES products_v2(id_product)
+);
+
+CREATE TABLE options_values_v2(
+                                  id_ov SERIAL ,
+                                  value_ TEXT NOT NULL,
+                                  id_option INTEGER NOT NULL,
+                                  PRIMARY KEY(id_ov),
+                                  FOREIGN KEY(id_option) REFERENCES options_v2(id_option)
+);
+
+CREATE TABLE variant_option_values_v2(
+                                         id SERIAL,
+                                         id_ov INTEGER  NOT NULL,
+                                         id_variant INTEGER NOT NULL,
+                                         PRIMARY KEY(id),
+                                         FOREIGN KEY(id_ov) REFERENCES options_values_v2(id_ov),
+                                         FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant)
+);
+
+CREATE TABLE order_mother(
+                             id_order_m SERIAL,
+                             description TEXT,
+                             created_at TIMESTAMP NOT NULL,
+                             d_total NUMERIC(18,2)  ,
+                             d_customer_name TEXT,
+                             d_status VARCHAR(50) ,
+                             shipping_address TEXT,
+                             customer_number VARCHAR(50) ,
+                             id_pc TEXT NOT NULL,
+                             PRIMARY KEY(id_order_m),
+                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+);
+
+CREATE TABLE order_status_v2(
+                                id_status SERIAL,
+                                label TEXT,
+                                PRIMARY KEY(id_status)
+);
+
+/*
+CREATE TABLE product_creation_sessions (
+   id SERIAL,
+   user_id INTEGER NOT NULL,
+   session_id VARCHAR(100) NOT NULL UNIQUE,
+   redis_key VARCHAR(200) NOT NULL,
+   current_step INTEGER DEFAULT 1,
+   completed_steps JSON, -- [1, 2, 3]
+   form_data JSON, -- Complete form data as backup
+   created_at TIMESTAMP DEFAULT NOW(),
+   updated_at TIMESTAMP DEFAULT NOW() ON UPDATE NOW(),
+   status ENUM('active', 'completed', 'abandoned') DEFAULT 'active',
+   PRIMARY KEY(id),
+   INDEX idx_user_status (user_id, status),
+   INDEX idx_updated (updated_at)
+);*/
+
+
+CREATE TABLE order_details_v2(
+                                 id_order_details SERIAL,
+                                 price NUMERIC(18,2)   NOT NULL,
+                                 quantity NUMERIC(15,2)  ,
+                                 id_product INTEGER NOT NULL,
+                                 id_variant INTEGER NOT NULL,
+                                 id_order_m INTEGER NOT NULL,
+                                 PRIMARY KEY(id_order_details),
+                                 FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+                                 FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant),
+                                 FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m)
+);
+
+CREATE TABLE stocks_v2(
+                          id_mv SERIAL,
+                          description TEXT,
+                          created_at TIMESTAMP NOT NULL,
+                          id_order_m INTEGER,
+                          PRIMARY KEY(id_mv),
+                          FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m)
+);
+
+CREATE TABLE stocks_child(
+                             id_st_ch SERIAL,
+                             price NUMERIC(15,2)   NOT NULL,
+                             action_at TIMESTAMP NOT NULL,
+                             input NUMERIC(15,2)  ,
+                             output NUMERIC(15,2)  ,
+                             d_product_number NUMERIC(15,2)  ,
+                             d_variant_number NUMERIC(15,2)  ,
+                             product_name TEXT,
+                             variant_name TEXT,
+                             id_product INTEGER NOT NULL,
+                             id_variant INTEGER NOT NULL,
+                             id_mv INTEGER NOT NULL,
+                             created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
+                             PRIMARY KEY(id_st_ch),
+                             FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+                             FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant),
+                             FOREIGN KEY(id_mv) REFERENCES stocks_v2(id_mv)
+);
+
+CREATE TABLE payment_method_v2(
+                                  id_pm SERIAL,
+                                  payment_name TEXT,
+                                  PRIMARY KEY(id_pm),
+                                  UNIQUE(payment_name)
+);
+
+CREATE TABLE sellers_phone_number_e(
+                                       id_spn SERIAL,
+                                       phone_number VARCHAR(50)  NOT NULL,
+                                       associated_name TEXT NOT NULL,
+                                       id_pm INTEGER NOT NULL,
+                                       id_seller INTEGER NOT NULL,
+                                       PRIMARY KEY(id_spn),
+                                       FOREIGN KEY(id_pm) REFERENCES payment_method_v2(id_pm),
+                                       FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE payment_link(
+                             id_pl SERIAL,
+                             p_key TEXT NOT NULL,
+                             expired_at TIMESTAMP NOT NULL,
+                             d_expired BOOLEAN,
+                             amount_of_transaction NUMERIC(18,2)   NOT NULL,
+                             id_pc TEXT NOT NULL,
+                             id_order_m INTEGER NOT NULL,
+                             PRIMARY KEY(id_pl),
+                             UNIQUE(p_key),
+                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                             FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m)
+);
+
+CREATE TABLE delivery_status_v2(
+                                   id_status SERIAL,
+                                   status VARCHAR(50) ,
+                                   PRIMARY KEY(id_status)
+);
+
+CREATE TABLE transport_type_v2(
+                                  id_tt SERIAL,
+                                  label VARCHAR(50) ,
+                                  price_per_ten_km NUMERIC(15,2)  ,
+                                  id_seller INTEGER NOT NULL,
+                                  PRIMARY KEY(id_tt),
+                                  FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE pat_refresh_tokens(
+       id_prt SERIAL,
+       token TEXT NOT NULL,
+       expired_at TIMESTAMP NOT NULL,
+       created_at TIMESTAMP NOT NULL,
+       revoked BOOLEAN,
+       id_mp INTEGER NOT NULL,
+       PRIMARY KEY(id_prt),
+       UNIQUE(token),
+       FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
+
+CREATE TABLE pat_access_tokens(
+   id_pat SERIAL,
+   access_token TEXT NOT NULL,
+   expired_at TIMESTAMP NOT NULL,
+   created_at TIMESTAMP NOT NULL,
+   id_prt INTEGER NOT NULL,
+   PRIMARY KEY(id_pat),
+   FOREIGN KEY(id_prt) REFERENCES pat_refresh_tokens(id_prt)
+);
+
+CREATE TABLE medias(
+                       id SERIAL,
+                       media_url TEXT NOT NULL,
+                       id_child INTEGER NOT NULL,
+                       PRIMARY KEY(id),
+                       FOREIGN KEY(id_child) REFERENCES post_childs(id_child)
+);
+
+CREATE TABLE likes_history(
+      id_lh SERIAL,
+      created_at TIMESTAMP NOT NULL,
+      deleted BOOLEAN,
+      id_post INTEGER NOT NULL,
+      id_pc TEXT NOT NULL,
+      PRIMARY KEY(id_lh),
+      FOREIGN KEY(id_post) REFERENCES posts(id_post),
+      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+);
+
+CREATE TABLE sales(
+                      id_sale TIMESTAMP,
+                      amount NUMERIC(18,2)   NOT NULL,
+                      effectued_at TIMESTAMP NOT NULL,
+                      from_number TEXT NOT NULL,
+                      from_name VARCHAR(50)  NOT NULL,
+                      description TEXT,
+                      id_spn INTEGER NOT NULL,
+                      id_order_m INTEGER NOT NULL,
+                      id_pc TEXT NOT NULL,
+                      PRIMARY KEY(id_sale),
+                      FOREIGN KEY(id_spn) REFERENCES sellers_phone_number_e(id_spn),
+                      FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+                      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+);
+
+CREATE TABLE delivery_v2(
+    id_delivery SERIAL,
+    shipping_address VARCHAR(50) ,
+    ended_at TIMESTAMP,
+    phone_number VARCHAR(50) ,
+    started_at TIMESTAMP NOT NULL,
+    d_status VARCHAR(50)  NOT NULL,
+    amount NUMERIC(15,2)  ,
+    id_shp INTEGER NOT NULL,
+    id_order_m INTEGER NOT NULL,
+    PRIMARY KEY(id_delivery),
+    FOREIGN KEY(id_shp) REFERENCES shipping_points(id_shp),
+    FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m)
+);
+
+CREATE TABLE shipping_points(
+    id_shp SERIAL,
+    place_name TEXT NOT NULL,
+    latitude NUMERIC(8,6)  ,
+    longitude NUMERIC(8,6)  ,
+    distance NUMERIC(15,2)   NOT NULL,
+    origin VARCHAR(250) ,
+    id_mp INTEGER NOT NULL,
+    PRIMARY KEY(id_shp),
+    FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
+
+CREATE TABLE pages_state(
+    id_mp INTEGER,
+    id_status INTEGER,
+    state_at TIMESTAMP NOT NULL,
+    PRIMARY KEY(id_mp, id_status),
+    FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+    FOREIGN KEY(id_status) REFERENCES platform_status(id_status)
+);
+
+CREATE TABLE orders_state(
+     id_order_m INTEGER,
+     id_status INTEGER,
+     state_at TIMESTAMP NOT NULL,
+     PRIMARY KEY(id_order_m, id_status),
+     FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+     FOREIGN KEY(id_status) REFERENCES order_status_v2(id_status)
+);
+
+CREATE TABLE deliveries_state(
+     id_delivery INTEGER,
+     id_status INTEGER,
+     state_at TIMESTAMP,
+     PRIMARY KEY(id_delivery, id_status),
+     FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery),
+     FOREIGN KEY(id_status) REFERENCES delivery_status_v2(id_status)
+);
+
+CREATE TABLE linked_products(
+    id_lp SERIAL,
+    id_product INTEGER NOT NULL,
+    id_post INTEGER NOT NULL,
+    PRIMARY KEY(id_lp),
+    FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+    FOREIGN KEY(id_post) REFERENCES posts(id_post)
+);
+
+CREATE TABLE down_payment_parameter(
+   id SERIAL,
+   start_at TIMESTAMP NOT NULL,
+   end_at TIMESTAMP NOT NULL,
+   payment_in_percent NUMERIC(4,1)  ,
+   id_seller INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE temp_payment_link(
+  id TEXT,
+  temp_link TEXT NOT NULL,
+  expired_at TIMESTAMP NOT NULL,
+  phone_number TEXT NOT NULL,
+  id_order_m INTEGER NOT NULL,
+  id_seller INTEGER NOT NULL,
+  PRIMARY KEY(id),
+  FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+  FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+
+
+CREATE TABLE delivery_dp (
+    id_delivery_dp SERIAL,
+    id_order_m INTEGER NOT NULL,
+    id_dd INTEGER NOT NULL,
+    id_delivery INTEGER NOT NULL,
+    PRIMARY KEY(id_delivery_dp),
+    FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+    FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
+    FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
+);
+
+Relationships (foreign keys, joins) should be inferred directly from that file.
+
+3. Existing Code & Conventions
+Project Structure (Domain-Based by Theme):
+Each theme corresponds to a domain object (e.g., users, orders, payments).
+Inside each theme package:
+
+src/main/java/com/itu/socialcom/demo/{theme}/
+├── controllers/   # REST endpoints for this theme
+├── services/      # Business logic for this theme
+├── models/        # JPA entities for this theme
+└── repository/    # Spring Data JPA repositories for this theme
+
+
+
+⚠️ Sometimes, a model may be placed directly inside the theme package (e.g., orders/Order.java) instead of inside /models/.
+
+
+⚠️ Sometimes controllers appear as direct children of {theme}/.
+
+Naming Conventions: camelCase for variables & methods, PascalCase for classes, snake_case in DB.
+
+Error Handling: Minimal → implement locally in each controller/service if needed.
+
+Authentication / Authorization: Observe patterns in existing code (do not assume).
+
+Configuration: application.properties
+
+4. Code Understanding Rules
+
+The agent must scan the codebase to:
+
+Detect all existing endpoints and their signatures.
+
+Understand how services are wired into controllers.
+
+Map models/entities to the DB schema.
+
+Recognize utility/helper classes.
+
+Do not rely on manual feature lists → infer directly from existing code & conventions.
+Always align new code with the existing structure.
+
+5. Extra Rules
+
+Always validate inputs before DB access.
+
+Always return JSON responses using the ApiResponse class.
+
+Never hardcode sensitive configs → always use application.properties.
+
+Follow REST best practices for endpoints.
+
+🔑 Why this works better
+
+Explicit directory tree helps the agent parse the repo.
+
+One inline SQL table example helps it understand the schema format.
+
+Mentioning ApiResponse explicitly tells the agent to reuse it for uniform responses.

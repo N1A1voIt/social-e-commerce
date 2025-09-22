@@ -1,0 +1,52 @@
+:host( ) {
+  width: 100%;
+  height: 100%;
+}
+
+/* Mission card styles */
+.mission-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.mission-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Status badge colors */
+.status-pending {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+.status-in-progress {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.status-completed {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.status-cancelled {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* Responsive grid adjustments */
+@media (min-width: 768px) {
+  .missions-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}

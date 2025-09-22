@@ -1,0 +1,245 @@
+/* Custom styles for the orders component */
+
+/* Main container styling */
+:host ::ng-deep .card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  /*padding: 1.5rem;*/
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Enhanced table styling */
+:host ::ng-deep .p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+:host ::ng-deep .p-datatable-gridlines .p-datatable-thead > tr > th {
+  border: 1px solid #e9ecef;
+}
+
+:host ::ng-deep .p-datatable-gridlines .p-datatable-tbody > tr > td {
+  border: 1px solid #e9ecef;
+}
+
+:host ::ng-deep .p-datatable-sm .p-datatable-thead > tr > th,
+:host ::ng-deep .p-datatable-sm .p-datatable-tbody > tr > td {
+  padding: 0.5rem 0.75rem;
+}
+
+/* Table header styling */
+:host ::ng-deep .p-datatable .p-datatable-header {
+  background-color: #f1f5f9;
+  border-radius: 8px 8px 0 0;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 2px solid #cbd5e1;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th:hover {
+  background-color: #e2e8f0;
+}
+
+/* Table row styling */
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f0f7ff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+/* Expanded row styling */
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr.p-datatable-row-expansion > td {
+  padding: 0;
+}
+
+:host ::ng-deep .p-rowexpansion-content {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  margin: 0.5rem 1rem;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Action buttons styling */
+:host ::ng-deep .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+:host ::ng-deep .action-button {
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host ::ng-deep .action-button:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
+}
+
+/* Status tag styling */
+:host ::ng-deep .p-tag {
+  padding: 0.3rem 0.75rem;
+  font-weight: 500;
+}
+
+/* Child orders table styling */
+:host ::ng-deep .child-orders-table {
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .child-orders-table .p-datatable-thead > tr > th {
+  background-color: #edf2f7;
+  padding: 0.75rem;
+}
+
+:host ::ng-deep .child-orders-table .p-datatable-tbody > tr > td {
+  padding: 0.5rem 0.75rem;
+}
+
+/* Order details header */
+:host ::ng-deep .order-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Loading spinner */
+:host ::ng-deep .loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+/* Product image styling */
+:host ::ng-deep .product-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+:host ::ng-deep .product-image:hover {
+  transform: scale(1.1);
+}
+
+/* Pagination styling */
+:host ::ng-deep .p-paginator {
+  background-color: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+  padding: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 0.1rem;
+  border-radius: 50%;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background-color: #f63b8f;
+  color: #ffffff;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-first,
+:host ::ng-deep .p-paginator .p-paginator-prev,
+:host ::ng-deep .p-paginator .p-paginator-next,
+:host ::ng-deep .p-paginator .p-paginator-last {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+/* Page title styling */
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  /* Styles for stacked layout */
+  :host ::ng-deep .p-datatable.p-datatable-responsive-stack .p-datatable-tbody > tr > td {
+    display: flex;
+    width: 100% !important;
+    align-items: center;
+    border-bottom: 0;
+    padding: 0.75rem 1rem;
+  }
+
+  :host ::ng-deep .p-datatable.p-datatable-responsive-stack .p-datatable-tbody > tr > td .p-column-title {
+    font-weight: 600;
+    margin-right: 0.5rem;
+    min-width: 30%;
+  }
+
+  :host ::ng-deep .p-datatable.p-datatable-responsive-stack .p-datatable-tbody > tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  :host ::ng-deep .p-datatable.p-datatable-responsive-stack .p-datatable-tbody > tr:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Adjust action buttons in stacked layout */
+  :host ::ng-deep .p-datatable.p-datatable-responsive-stack .action-buttons {
+    justify-content: flex-start;
+  }
+
+  /* Adjust child table in stacked layout */
+  :host ::ng-deep .child-orders-table.p-datatable-responsive-stack .p-datatable-tbody > tr > td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  :host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}

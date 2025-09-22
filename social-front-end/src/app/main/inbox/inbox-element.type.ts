@@ -3,6 +3,7 @@ import {ManagedPageCPL} from "../settings/account-details/account-details.compon
 export interface MessageBox {
   idMm: number;
   id_pc: string;
+  idPc: string;
   name: string;
   link_to_profile:string;
   platform: string;

@@ -1,0 +1,51 @@
+<div class="payment-container">
+  <div class="payment-header">
+    <h2>Select Payment Method</h2>
+    <p>Choose your preferred payment option to continue</p>
+  </div>
+
+  <div class="payment-methods">
+    <div
+      *ngFor="let method of paymentMethods"
+      class="payment-method-card"
+      [class.selected]="selectedMethod === method.id"
+      (click)="selectPaymentMethod(method.id)"
+      [style.border-color]="selectedMethod === method.id ? method.color : '#e0e0e0'"
+    >
+      <div class="method-icon" [style.background-color]="method.color">
+        <i [class]="method.icon"></i>
+      </div>
+      <div class="method-info">
+        <h3>{{ method.name }}</h3>
+        <p>{{ method.description }}</p>
+      </div>
+      <div class="method-radio">
+        <input
+          type="radio"
+          [id]="method.id"
+          name="paymentMethod"
+          [value]="method.id"
+          [checked]="selectedMethod === method.id"
+          (change)="selectPaymentMethod(method.id)"
+        >
+        <label [for]="method.id"></label>
+      </div>
+    </div>
+  </div>
+  <app-mvola [isVisible]="selectedMethod == 'mvola'" >
+
+  </app-mvola>
+  <div class="payment-actions">
+    <button
+      class="btn-continue"
+      [disabled]="!selectedMethod"
+      (click)="proceedWithPayment()"
+    >
+      Continue with {{ getSelectedMethodName() }}
+    </button>
+    <button class="btn-cancel" (click)="cancel()">
+      Cancel
+    </button>
+  </div>
+
+</div>

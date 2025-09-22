@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.messages.fetchskus;
 
+import com.itu.socialcom.demo.messages.dtol.OrderPreviewCpl;
 import com.itu.socialcom.demo.messages.dtol.VariantWithQuantity;
 import com.itu.socialcom.demo.products.variants.model.Variant;
 import com.itu.socialcom.demo.products.variants.repository.VariantRepository;
@@ -37,7 +38,7 @@ public class FetchSkusQtyFromPython {
         return response.getBody();
     }
 
-    public List<VariantWithQuantity> fetchVariants(UserQuery userQuery, Long userId,String token) {
+    public OrderPreviewCpl fetchVariants(UserQuery userQuery, Long userId,String token) {
         VariantSkuResponse variantSkuResponse = getVariantsFromPythonService(userQuery,token);
         if (variantSkuResponse != null && variantSkuResponse.getVariants() != null) {
             HashMap<String,Integer> skuQtyMap = new HashMap<>();
@@ -53,8 +54,13 @@ public class FetchSkusQtyFromPython {
                 variantWithQuantity.setQuantity(skuQtyMap.get(variant.getSku()));
                 variantWithQuantities.add(variantWithQuantity);
             }
-            return variantWithQuantities;
+            OrderPreviewCpl orderPreviewCpl = new OrderPreviewCpl();
+            orderPreviewCpl.setVariants(variantWithQuantities);
+            orderPreviewCpl.setCustomerName(variantSkuResponse.getCustomerName());
+            orderPreviewCpl.setCustomerNumber(variantSkuResponse.getCustomerNumber());
+            orderPreviewCpl.setShippingAddress(variantSkuResponse.getShippingAddress());
+            return orderPreviewCpl;
         }
-        return List.of();
+        return null;
     }
 }

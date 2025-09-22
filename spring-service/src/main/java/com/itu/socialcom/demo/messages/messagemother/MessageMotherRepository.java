@@ -12,4 +12,6 @@ public interface MessageMotherRepository extends JpaRepository<MessageMother, In
     List<MessageMother> findByIdMp(Integer idMp);
 
     Integer id(Integer id);
+
+    MessageMother findByIdPcAndIdMp(String idPc, Integer idMp);
 }

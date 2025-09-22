@@ -1,31 +1,127 @@
-<app-form-container label="The order itself" (closeForm)="closePopup.emit()">
+<app-form-container [isVisible]="showForm" label="Order preview" (closeForm)="closePopup.emit()">
   <app-loader *ngIf="isLoading"></app-loader>
-  <div *ngIf="!isLoading" class="flex flex-col w-full  border-fotsy rounded-xl mt-4">
-    <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-blackt " *ngFor="let order of variants">
-      <div class="w-[80px] h-[80px] rounded-md overflow-hidden">
-        <img src="{{ order.variant.mediaUrl }}" class="w-full h-full object-cover"  alt="" srcset="">
+  <div *ngIf="!isLoading" class="flex flex-row w-full gap-4">
+    <!-- Main order form -->
+      <div class="flex flex-col w-full border-fotsy rounded-xl mt-4" [class]="showUpdateMode">
+        <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3">
+          <h2 class="text-lg font-bold font-mono">Customer Information</h2>
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-row justify-between">
+              <span class="font-semibold">Name:</span>
+              <span>{{ variants?.customerName }}</span>
+            </div>
+            <div class="flex flex-row justify-between">
+              <span class="font-semibold">Shipment Address:</span>
+              <span>{{ variants?.shippingAddress }}</span>
+            </div>
+            <div class="flex flex-row justify-between">
+              <span class="font-semibold">Customer Number:</span>
+              <span>{{ variants?.customerNumber }}</span>
+            </div>
+          </div>
+        </div>
+      <!-- Order items -->
+      <div class="w-full border p-3 mt-3  border-blackt rounded-xl flex justify-center items-center">
+        {{orderMessage}}
       </div>
-      <div class="flex-grow h-full flex flex-col gap-2 justify-center font-light " style="letter-spacing: 1px">
-        <h2 class="capitalize font-bold text-xl font-mono">{{ order.variant.title }}</h2>
-        <span class="flex flex-row gap-2 text-md">
-          <span>{{ order.quantity }}</span> <span>X</span> <span>{{ order.variant.price | number: '1.2-2' }} $</span>
-        </span>
+      <div class="flex flex-row justify-center items-center p-2 gap-12 w-full h-[120px] border-b border-blackt" *ngFor="let order of variants?.variants; let i = index">
+        <div class="w-[80px] h-[80px] rounded-md overflow-hidden">
+          <img src="{{ order.variant.mediaUrl }}" class="w-full h-full object-cover" alt="" srcset="">
+        </div>
+        <div class="flex-grow h-full flex flex-col gap-2 justify-center font-light" style="letter-spacing: 1px">
+          <h2 class="capitalize font-bold text-xl font-mono">{{ order.variant.title }}</h2>
+          <div class="flex flex-row gap-2 text-md items-center">
+            <!-- Quantity controls in update mode -->
+            <div *ngIf="showUpdateMode" class="flex items-center gap-2">
+              <button (click)="decreaseQuantity(i)" class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm hover:bg-gray-300">-</button>
+              <span>{{ order.quantity }}</span>
+              <button (click)="increaseQuantity(i)" class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm hover:bg-gray-300">+</button>
+            </div>
+            <!-- Normal display -->
+            <span *ngIf="!showUpdateMode">{{ order.quantity }}</span>
+            <span>X</span>
+            <span>{{ order.variant.price | number: '1.2-2' }} $</span>
+            <!-- Remove button in update mode -->
+            <button *ngIf="showUpdateMode" (click)="removeItem(i)" class="ml-2 text-red-500 hover:text-red-700 text-sm">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Plus button for adding more items (only show on first item in update mode) -->
+        <div *ngIf="showUpdateMode && i === 0" class="flex flex-col items-center">
+          <button (click)="toggleCatalog()" class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600">
+            <i class="pi pi-plus"></i>
+          </button>
+          <span class="text-xs mt-1">Add item</span>
+        </div>
+      </div>
+
+      <!-- Subtotal and actions -->
+      <div class="flex flex-col justify-center items-center p-2 gap-12 w-full border-black py-4 px-4">
+        <div class="flex justify-between items-center w-full text-xl font-mono font-bold">
+          <span>Subtotal</span>
+          <span>{{ getSubtotal() | number: '1.2-2' }} $</span>
+        </div>
+        <div class="flex flex-col justify-between items-center w-full">
+          <div>
+            <app-beautiful-button text="Proceed to order" (click)="saveOrder()" *ngIf="!showUpdateMode"></app-beautiful-button>
+            <app-beautiful-button text="Save changes" *ngIf="showUpdateMode" (click)="saveChanges()"></app-beautiful-button>
+          </div>
+        </div>
+        <div>
+          <a href="#" (click)="toggleUpdateMode($event)" class="underline text-black" style="letter-spacing: 1px">
+            {{ showUpdateMode ? 'Cancel update' : 'Update order' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="showUpdateMode && showCatalog" class="w-full border-fotsy rounded-xl mt-4 p-4 bg-gray-50">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-bold font-mono">Add Products</h3>
+      <button (click)="toggleCatalog()" class="text-gray-500 hover:text-gray-700">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Search bar -->
+    <div class="mb-4">
+      <div class="relative">
+        <div class="search">
+          <input type="text" class="search__input" [(ngModel)]="searchTerm"
+                 (input)="filterProducts()" placeholder="Type the SKU">
+          <button class="search__button">
+            <svg class="search__icon" aria-hidden="true" viewBox="0 0 24 24">
+              <g>
+                <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
+              </g>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="flex flex-col justify-center items-center p-2 gap-12 w-full border-black py-4 px-4">
-      <div class="flex justify-between items-center w-full text-xl font-mono font-bold">
-        <span>Subtotal</span>
-        <span>{{ getSubtotal() | number: '1.2-2' }} $</span>
-      </div>
-      <div class="flex flex-col justify-between items-center w-full">
-        <div>
-          <app-beautiful-button text="Proceed to order"></app-beautiful-button>
+    <!-- Product list -->
+    <div class="max-h-96 overflow-y-auto">
+      <div *ngFor="let product of filteredProducts"
+           class="flex items-center gap-3 p-3 border-b border-gray-200 hover:bg-white cursor-pointer"
+           (click)="addProductToOrder(product)">
+        <div class="w-12 h-12 rounded-md overflow-hidden">
+          <img [src]="product.mediaUrl" class="w-full h-full object-cover" alt="">
         </div>
+        <div class="flex-grow">
+          <h4 class="font-medium capitalize">{{ product.title }}</h4>
+          <p class="text-sm text-gray-600">{{ product.price | number: '1.2-2' }} $</p>
+        </div>
+        <button class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm hover:bg-blue-600">
+          <i class="pi pi-plus"></i>
+        </button>
       </div>
-      <div>
-        <a href="" class="underline text-black" style="letter-spacing: 1px">Update order</a>
+
+      <div *ngIf="filteredProducts.length === 0" class="text-center py-8 text-gray-500">
+        No products found
       </div>
     </div>
   </div>
 </app-form-container>
+

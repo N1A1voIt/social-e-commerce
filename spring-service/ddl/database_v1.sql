@@ -379,14 +379,14 @@ CREATE TABLE medias(
 );
 
 CREATE TABLE likes_history(
-                              id_lh SERIAL,
-                              created_at TIMESTAMP NOT NULL,
-                              deleted BOOLEAN,
-                              id_post INTEGER NOT NULL,
-                              id_pc TEXT NOT NULL,
-                              PRIMARY KEY(id_lh),
-                              FOREIGN KEY(id_post) REFERENCES posts(id_post),
-                              FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+      id_lh SERIAL,
+      created_at TIMESTAMP NOT NULL,
+      deleted BOOLEAN,
+      id_post INTEGER NOT NULL,
+      id_pc TEXT NOT NULL,
+      PRIMARY KEY(id_lh),
+      FOREIGN KEY(id_post) REFERENCES posts(id_post),
+      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
 
 CREATE TABLE sales(
@@ -405,38 +405,50 @@ CREATE TABLE sales(
                       FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
 
-CREATE TABLE delivery_driver_v2(
-                                   id_dd SERIAL,
-                                   name VARCHAR(250) ,
-                                   phone_number VARCHAR(50)  NOT NULL,
-                                   id_tt INTEGER NOT NULL,
-                                   id_seller INTEGER NOT NULL,
-                                   PRIMARY KEY(id_dd),
-                                   FOREIGN KEY(id_tt) REFERENCES transport_type_v2(id_tt),
-                                   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+CREATE TABLE delivery_v2(
+    id_delivery SERIAL,
+    shipping_address VARCHAR(50) ,
+    ended_at TIMESTAMP,
+    phone_number VARCHAR(50) ,
+    started_at TIMESTAMP NOT NULL,
+    d_status VARCHAR(50)  NOT NULL,
+    amount NUMERIC(15,2)  ,
+    id_shp INTEGER NOT NULL,
+    id_order_m INTEGER NOT NULL,
+    PRIMARY KEY(id_delivery),
+    FOREIGN KEY(id_shp) REFERENCES shipping_points(id_shp),
+    FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m)
 );
 
-CREATE TABLE delivery_v2(
-                            id_delivery SERIAL,
-                            shipping_address VARCHAR(50) ,
-                            ended_at TIMESTAMP,
-                            phone_number VARCHAR(50) ,
-                            started_at TIMESTAMP NOT NULL,
-                            d_status VARCHAR(50)  NOT NULL,
-                            id_order_m INTEGER NOT NULL,
-                            id_dd INTEGER NOT NULL,
-                            PRIMARY KEY(id_delivery),
-                            FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
-                            FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd)
+CREATE TABLE shipping_points(
+    id_shp SERIAL,
+    place_name TEXT NOT NULL,
+    latitude NUMERIC(8,6)  ,
+    longitude NUMERIC(8,6)  ,
+    distance NUMERIC(15,2)   NOT NULL,
+    origin VARCHAR(250) ,
+    id_mp INTEGER NOT NULL,
+    PRIMARY KEY(id_shp),
+    FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+CREATE TABLE amount_distance(
+    id_amount_distance SERIAL,
+    price_per_distance NUMERIC(15,2) NOT NULL,
+    id_user INTEGER,
+    id_mp INTEGER,
+    PRIMARY KEY(id_amount_distance),
+    FOREIGN KEY(id_user) REFERENCES seller_v2(id_seller),
+    FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+    CHECK (id_user IS NOT NULL OR id_mp IS NOT NULL)
 );
 
 CREATE TABLE pages_state(
-                            id_mp INTEGER,
-                            id_status INTEGER,
-                            state_at TIMESTAMP NOT NULL,
-                            PRIMARY KEY(id_mp, id_status),
-                            FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
-                            FOREIGN KEY(id_status) REFERENCES platform_status(id_status)
+    id_mp INTEGER,
+    id_status INTEGER,
+    state_at TIMESTAMP NOT NULL,
+    PRIMARY KEY(id_mp, id_status),
+    FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+    FOREIGN KEY(id_status) REFERENCES platform_status(id_status)
 );
 
 CREATE TABLE orders_state(
@@ -465,6 +477,121 @@ CREATE TABLE linked_products(
     FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
     FOREIGN KEY(id_post) REFERENCES posts(id_post)
 );
+
+CREATE TABLE down_payment_parameter(
+   id SERIAL,
+   start_at TIMESTAMP NOT NULL,
+   end_at TIMESTAMP NOT NULL,
+   payment_in_percent NUMERIC(4,1)  ,
+   id_seller INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+CREATE TABLE temp_payment_link(
+  id TEXT,
+  temp_link TEXT NOT NULL,
+  expired_at TIMESTAMP NOT NULL,
+  phone_number TEXT NOT NULL,
+  id_order_m INTEGER NOT NULL,
+  id_seller INTEGER NOT NULL,
+  PRIMARY KEY(id),
+  FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+  FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+);
+
+
+
+CREATE TABLE delivery_dp (
+    id_delivery_dp SERIAL,
+    id_order_m INTEGER NOT NULL,
+    id_dd INTEGER NOT NULL,
+    id_delivery INTEGER NOT NULL,
+    PRIMARY KEY(id_delivery_dp),
+    FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
+    FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
+    FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
+);
+
+CREATE TABLE amount_distance_log (
+     id SERIAL PRIMARY KEY,
+     id_amount_distance INTEGER NOT NULL,
+     price_per_distance NUMERIC(15,2) NOT NULL,
+     id_user INTEGER,
+     id_mp INTEGER,
+     happened_at TIMESTAMP NOT NULL DEFAULT now(),
+     action TEXT NOT NULL, -- e.g. INSERT, UPDATE, DELETE
+     FOREIGN KEY (id_user) REFERENCES seller_v2(id_seller),
+     FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
+);
+
+CREATE TABLE delivery_log(
+   id_di SERIAL,
+   message TEXT NOT NULL,
+   contact VARCHAR(50) ,
+   id_mp INTEGER NOT NULL,
+   id_seller INTEGER NOT NULL,
+   id_dd INTEGER NOT NULL,
+   id_delivery INTEGER NOT NULL,
+   PRIMARY KEY(id_di),
+   FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp),
+   FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
+   FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd),
+   FOREIGN KEY(id_delivery) REFERENCES delivery_v2(id_delivery)
+);
+
+
+CREATE TABLE mvola_tokens(
+                             id_token SERIAL,
+                             token TEXT NOT NULL,
+                             start_date TIMESTAMP NOT NULL,
+                             expiration_date TIMESTAMP NOT NULL,
+                             PRIMARY KEY(id_token)
+);
+
+
+CREATE TABLE mp_payment_number(
+                                  id SERIAL,
+                                  id_spn INTEGER NOT NULL,
+                                  id_mp INTEGER NOT NULL,
+                                  PRIMARY KEY(id),
+                                  UNIQUE (id_spn, id_mp),
+                                  FOREIGN KEY(id_spn) REFERENCES sellers_phone_number_e(id_spn),
+                                  FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
+);
+
+CREATE TABLE deliverer_token(
+                                id SERIAL,
+                                token TEXT NOT NULL,
+                                expiry_date TIMESTAMP NOT NULL,
+                                id_dd INTEGER NOT NULL,
+                                PRIMARY KEY(id),
+                                FOREIGN KEY(id_dd) REFERENCES delivery_driver_v2(id_dd)
+);
+
+
+
+CREATE OR REPLACE FUNCTION log_amount_distance_changes()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO amount_distance_log (id_amount_distance, price_per_distance, id_user, id_mp, happened_at, action)
+        VALUES (OLD.id_amount_distance, OLD.price_per_distance, OLD.id_user, OLD.id_mp, now(), TG_OP);
+        RETURN OLD;
+    ELSE
+        INSERT INTO amount_distance_log (id_amount_distance, price_per_distance, id_user, id_mp, happened_at, action)
+        VALUES (NEW.id_amount_distance, NEW.price_per_distance, NEW.id_user, NEW.id_mp, now(), TG_OP);
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_amount_distance_log
+    AFTER INSERT OR UPDATE OR DELETE
+    ON amount_distance
+    FOR EACH ROW
+EXECUTE FUNCTION log_amount_distance_changes();
+
 
 
 SELECT * FROM pat_refresh_tokens;
@@ -546,6 +673,30 @@ WITH recent_variants_retriever AS
 SELECT sc.*
 FROM stocks_child sc
 JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.created_at = sub.max_created_at;
+
+
+CREATE VIEW v_delivery_applicants AS
+    SELECT
+        delivery_log.id_di,d.id_delivery,d.shipping_address,d.id_shp,d.d_status,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
+        FROM delivery_log
+        JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
+        JOIN delivery_driver_v2 dd on dd.id_dd = delivery_log.id_dd
+        JOIN managed_pages mp on delivery_log.id_mp = mp.id_mp
+        JOIN seller_v2 s on delivery_log.id_seller = s.id_seller;
+
+CREATE VIEW v_mission_history AS
+    SELECT id_di,d.*,sp.origin,sp.place_name,delivery_log.id_dd AS log_id_deliverer FROM delivery_log
+        JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
+        JOIN shipping_points sp on d.id_shp = sp.id_shp WHERE d_status='CLOSED'
+;
+
+CREATE view v_pending_request AS
+    SELECT id_di,delivery_v2.*,sp.place_name,dl.id_dd as log_id_deliverer,sp.origin FROM delivery_v2
+        JOIN delivery_log dl on delivery_v2.id_delivery = dl.id_delivery
+        JOIN delivery_driver_v2 dd on dl.id_dd = dd.id_dd
+        JOIN shipping_points sp on delivery_v2.id_shp = sp.id_shp
+             WHERE d_status='CALL_FOR_TENDERED';
+
 
 --
 -- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
