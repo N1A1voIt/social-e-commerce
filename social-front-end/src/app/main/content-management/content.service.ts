@@ -4,6 +4,8 @@ import {javaHost} from "../../../environments/environment";
 import {Observable} from "rxjs";
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 import {Product} from "../products/products.types";
+import {ApiResponse} from "../inbox/inbox.service";
+import {ManagedPage} from "../authentication/validate-pages/page.service";
 
 export interface MotherPostDisplay {
   idPost:number,
@@ -31,5 +33,10 @@ export class ContentService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
     return this.http.get<PostUtilities>(javaHost + '/api/posts/fetch-utilities?page=0&size=10', { headers });
+  }
+  fetchPageIds() : Observable<ManagedPage[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return this.http.get<ManagedPage[]>(javaHost + '/api/posts/fetch-page-ids', { headers });
   }
 }

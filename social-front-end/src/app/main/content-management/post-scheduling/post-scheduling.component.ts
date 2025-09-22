@@ -23,6 +23,8 @@ import {FormValidationSummaryComponent} from "./form-validation-summary/form-val
 import {SupabaseService} from "../../../shared/supabase.service";
 import {PromptFormComponent} from "./prompt-form/prompt-form.component";
 import {javaHost} from "../../../../environments/environment";
+import {ManagedPage} from "../../authentication/validate-pages/page.service";
+import {firstValueFrom} from "rxjs";
 interface MediaDetail {
   imageUrl: string;
   message: string;
@@ -61,8 +63,14 @@ export class PostSchedulingComponent implements OnInit{
   step:string = 'platforms';
   postForm: FormGroup;
   isSubmitting = false;
-  pagesIn : Map<string,ManagedPageCPL> = new Map();
-
+  // pagesIn : Map<string,ManagedPageCPL> = new Map();
+  postData : PostData = {
+    pagesIds: [],
+    mediaDetails: [],
+    mainMessage: '',
+    idProducts: []
+  };
+  pagesIn: ManagedPageCPL[] = [];
   @Input() showForm: boolean = false;
   @Output() showFormChange = new EventEmitter<boolean>();
   loading = false;
@@ -112,8 +120,11 @@ export class PostSchedulingComponent implements OnInit{
       this.mediaDetailsArray.removeAt(index);
     }
   }
-
+  isPageSelected(page: ManagedPageCPL): boolean {
+    return this.pagesIn.some(p => p.platformIdentifier === page.platformIdentifier);
+  }
   async onSubmit(): Promise<void> {
+
     if (this.postForm.valid) {
       this.isSubmitting = true;
       const header = {
@@ -124,16 +135,25 @@ export class PostSchedulingComponent implements OnInit{
         await this.uploadAllMedia();
 
         // Build and submit post data with the uploaded URLs
-        const postData = this.buildPostData();
+        await this.buildPostData();
         // If you need just id and platform from each page
-        postData.pagesIds = Array.from(this.pagesIn.values()).map(page => ({
-          pageId: page.platformIdentifier, // or page.platformIdentifier
-          platform: page.platform
-        }));
-        console.log('Post Data:', postData);
+        console.log('Pages In',this.pagesIn)
+        this.postData.pagesIds = [];
+        for(let page of this.pagesIn){
+          this.postData.pagesIds.push({
+            pageId: page.platformIdentifier, // unique ID
+            platform: page.platform
+          })
+        }
+        // this.postData.pagesIds = this.pagesIn.map(page => ({
+        //   pageId: page.platformIdentifier, // unique ID
+        //   platform: page.platform
+        // }));
+
+        console.log('Post Data:', this.postData);
 
         // Replace with your actual API endpoint
-        this.http.post(javaHost + '/api/posts/make-post', postData,{headers:header}).subscribe({
+        this.http.post(javaHost + '/api/posts/make-post', this.postData,{headers:header}).subscribe({
           next: (response) => {
             console.log('Post created successfully:', response);
             this.isSubmitting = false;
@@ -201,21 +221,31 @@ export class PostSchedulingComponent implements OnInit{
     });
   }
 
-  buildPostData(): PostData {
+  async buildPostData(): Promise<void> {
     const formValue = this.postForm.value;
 
-    return {
-      pagesIds: [
-        { pageId: "757064984155341", platform: "facebook" }
-      ],
-      mediaDetails: formValue.mediaDetails.map((media: any) => ({
-        imageUrl: media.imageUrl,
-        message: media.message
-      })),
-      mainMessage: formValue.mainMessage,
-      idProducts: [101, 102, 103] // Static for now
-    };
+    try {
+      const pages: ManagedPage[] = await firstValueFrom(this.postService.fetchPageIds());
+      const pageIds = pages.map((page) => ({
+        pageId: page.platformIdentifier,
+        platform: page.platform
+      }));
+
+      this.postData = {
+        pagesIds: [...pageIds],
+        mediaDetails: formValue.mediaDetails.map((media: any) => ({
+          imageUrl: media.imageUrl,
+          message: media.message
+        })),
+        mainMessage: formValue.mainMessage,
+        idProducts: [101, 102, 103] // Static for now
+      };
+    } catch (err: any) {
+      console.error('Failed to load managed pages', err);
+      throw err; // so onSubmit can catch it
+    }
   }
+
   ngOnInit(): void {
       this.addMediaDetail();
 
@@ -230,17 +260,35 @@ export class PostSchedulingComponent implements OnInit{
         },
       });
   }
+  // updateStatus(page: ManagedPageCPL) {
+  //   const key = page.platformIdentifier;
+  //   if (this.pagesIn.has(key)) {
+  //     this.pagesIn.delete(key);
+  //     console.log(`Removed: ${key}`);
+  //   } else {
+  //     this.pagesIn.set(key, page);
+  //     this.tabTest.push(page);
+  //     console.log(`Added: ${key}`);
+  //   }
+  //   console.log('Current pagesIn:', Array.from(this.pagesIn.entries()));
+  //   console.log('Array:',this.tabTest)
+  // }
   updateStatus(page: ManagedPageCPL) {
-    const key = page.platformIdentifier;
-    if (this.pagesIn.has(key)) {
-      this.pagesIn.delete(key);
-      console.log(`Removed: ${key}`);
+    const index = this.pagesIn.findIndex(p => p.platformIdentifier === page.platformIdentifier);
+    if (index > -1) {
+      // Create a new array without the page
+      this.pagesIn = [...this.pagesIn.slice(0, index), ...this.pagesIn.slice(index + 1)];
+      console.log(`Removed: ${page.platformIdentifier}`);
     } else {
-      this.pagesIn.set(key, page);
-      console.log(`Added: ${key}`);
+      // Create a new array with the page added
+      this.pagesIn = [...this.pagesIn, page];
+      console.log(`Added: ${page.platformIdentifier}`);
     }
-    console.log('Current pagesIn:', Array.from(this.pagesIn.entries()));
+    console.log('Current pagesIn:', this.pagesIn.map(p => p.platformIdentifier));
+    // Force change detection
+    this.cdr.detectChanges();
   }
+
 
 
   populateForm(parsed: any) {

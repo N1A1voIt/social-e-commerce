@@ -12,11 +12,12 @@
           <span class="text-xl font-bold font-mono">Choose on which platform you want to post</span>
           <app-platform-post-check
             *ngFor="let page of pages"
+            [id]="page.platformIdentifier"
             [platform]="page.platform"
             [pageTitle]="page.pageTitle"
             [username]="page.username"
             [logo]="page.platform"
-            [status]="pagesIn.has(page.platformIdentifier)"
+            [status]="isPageSelected(page)"
             [associatedMedia]="page.associatedMedia"
             [linkToPlatform]="page.linkToPlatform"
             (statusChange)="updateStatus(page)"
