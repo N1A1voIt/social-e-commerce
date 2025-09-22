@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class InstagramPostSaver implements SavePostService {
@@ -53,17 +54,47 @@ public class InstagramPostSaver implements SavePostService {
         List<String> mediaIds = postDetails.getMediaIds();
         String caption = postDetails.getMessage();
 
-        // For Instagram, we need to publish the container
+        if (mediaIds.isEmpty()) {
+            throw new IllegalArgumentException("No media IDs provided");
+        }
+
+        String creationId;
+
+        if (mediaIds.size() == 1) {
+            // Single media post
+            creationId = mediaIds.get(0).split("__SEP__")[0];
+        } else {
+            // Carousel post
+            String childrenIds = mediaIds.stream()
+                    .map(id -> id.split("__SEP__")[0])
+                    .collect(Collectors.joining(","));
+
+            String carouselUrl = String.format("https://graph.facebook.com/v23.0/%s/media", instagramUserId);
+            HttpPost carouselPost = new HttpPost(carouselUrl);
+            MultipartEntityBuilder carouselBuilder = MultipartEntityBuilder.create();
+            carouselBuilder.addTextBody("access_token", accessToken);
+            carouselBuilder.addTextBody("media_type", "CAROUSEL");
+            carouselBuilder.addTextBody("children", childrenIds);
+            carouselBuilder.addTextBody("caption", caption);
+
+            carouselPost.setEntity(carouselBuilder.build());
+
+            try (CloseableHttpClient client = HttpClients.createDefault();
+                 CloseableHttpResponse response = client.execute(carouselPost)) {
+
+                String json = EntityUtils.toString(response.getEntity());
+                System.out.println("Instagram carousel container response: " + json);
+                JSONObject obj = new JSONObject(json);
+                creationId = obj.getString("id");
+            }
+        }
+
+        // Publish the post
         String publishUrl = String.format("https://graph.facebook.com/v23.0/%s/media_publish", instagramUserId);
-
-        // Instagram only allows publishing one media container at a time
-        // We'll use the first media ID for this example
-        String mediaContainerId = mediaIds.get(0).split("__SEP__")[0];
-
         HttpPost publishPost = new HttpPost(publishUrl);
         MultipartEntityBuilder publishBuilder = MultipartEntityBuilder.create();
         publishBuilder.addTextBody("access_token", accessToken);
-        publishBuilder.addTextBody("creation_id", mediaContainerId);
+        publishBuilder.addTextBody("creation_id", creationId);
 
         publishPost.setEntity(publishBuilder.build());
 
@@ -76,6 +107,7 @@ public class InstagramPostSaver implements SavePostService {
             String postId = obj.getString("id");
             String postUrl = "https://www.instagram.com/p/" + postId;
 
+            // Build PostChild object
             PostChild mother = new PostChild();
             mother.setPostUrl(postUrl);
             mother.setPlatformIdentifier("instagram");
@@ -85,6 +117,7 @@ public class InstagramPostSaver implements SavePostService {
             mother.setIdPost(null);
             mother.setIdChild1(null);
 
+            // Children for carousel or single media
             List<PostChild> children = new ArrayList<>();
             for (String mediaId : mediaIds) {
                 PostChild child = new PostChild();
@@ -92,7 +125,7 @@ public class InstagramPostSaver implements SavePostService {
                 child.setMediaUrl("https://www.instagram.com/p/" + mediaId.split("__SEP__")[0]);
                 child.setPlatformIdentifier(mediaId.split("__SEP__")[0]);
                 child.setDescription(mediaId.split("__SEP__")[1]);
-                child.setType("photo");
+                child.setType(mediaIds.size() == 1 ? "photo" : "carousel_photo");
                 child.setIdSp(2L);
                 child.setIdPost(null);
                 child.setIdChild1(null);
@@ -103,6 +136,7 @@ public class InstagramPostSaver implements SavePostService {
             return mother;
         }
     }
+
 
     public PostChild schedulePostWithMedia(PostDetails postDetails, long scheduledUnixTime) throws IOException {
 

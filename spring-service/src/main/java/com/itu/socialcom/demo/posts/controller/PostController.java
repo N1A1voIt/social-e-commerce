@@ -44,6 +44,23 @@ public class PostController {
     ProductRepository productRepository;
     @Autowired
     ManagedPageCPLRepository managedPageCPLRepository;
+
+    @GetMapping("/fetch-page-ids")
+    public ResponseEntity<List<ManagedPageCPL>> fetchPageIds(@RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                throw new SellerNotLogged("Seller not found");
+            }
+            return ResponseEntity.ok(managedPageCPLRepository.findByIdSeller(seller.getId()));
+        } catch (SellerNotLogged e) {
+            return ResponseEntity.status(400).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
     @GetMapping("/loads")
     public ResponseEntity<List<Post>> extractPost(@RequestHeader(name = "Authorization") String token) {
         try{
