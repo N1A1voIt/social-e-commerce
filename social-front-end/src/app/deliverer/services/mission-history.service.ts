@@ -19,4 +19,10 @@ export class MissionHistoryService {
     };
     return this.http.get<ApiResponse>(`${javaHost}/api/delivery/space/missions/completed`, { headers });
   }
+  getPreviousRequests() : Observable<ApiResponse> {
+    const headers = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.get<ApiResponse>(`${javaHost}/api/delivery/space/missions/pending-requests`, { headers });
+  }
 }

@@ -1,16 +1,19 @@
 package com.itu.socialcom.demo.delivery.space.missions;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
+import org.hibernate.annotations.Immutable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "v_mission_history")
+@Table(name = "v_pending_request")
+@Immutable
 @Data
-public class MissionHistory {
-
+public class PendingMission {
     @Id
     @Column(name = "id_di")  // Assuming this is the best candidate for @Id
     private Long idDi;

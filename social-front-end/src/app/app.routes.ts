@@ -24,6 +24,7 @@ import {MenuDeliveryComponent} from "./deliverer/main/menu-delivery/menu-deliver
 import {DdashboardComponent} from "./deliverer/main/ddashboard/ddashboard.component";
 import {DeliveryAuthGuard} from "./shared/guards/delivery-auth.guard";
 import {PreviousMissionComponent} from "./deliverer/main/previous-mission/previous-mission.component";
+import {PendingRequestComponent} from "./deliverer/main/pending-request/pending-request.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -76,7 +77,8 @@ const deliveryRoutes = [
     canActivateChild:[DeliveryAuthGuard],
     children: [
       {path: 'dashboard',component:DdashboardComponent},
-      {path: 'mission-history',component:PreviousMissionComponent}
+      {path: 'mission-history',component:PreviousMissionComponent},
+      {path: 'pending-applications',component:PendingRequestComponent}
     ]
   }
 ]

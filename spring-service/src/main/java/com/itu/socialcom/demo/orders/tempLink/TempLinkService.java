@@ -30,7 +30,7 @@ public class TempLinkService {
         link.setExpiredAt(LocalDateTime.now().plusHours(1));
         link.setAmount(downPayment);
         // Secure temp link generation
-        String tempLink = baseUrl + "/payment?number=" + id;
+        String tempLink = baseUrl + "/transactions?id_payment=" + id;
         link.setTempLink(tempLink);
 
         return repository.save(link);

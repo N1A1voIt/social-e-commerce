@@ -24,6 +24,8 @@ public class MissionController {
     MissionHistoryRepository missionHistoryRepository;
     @Autowired
     MissionService missionService;
+    @Autowired
+    PendingMissionRepository pendingMissionRepository;
     @GetMapping()
     public ResponseEntity<ApiResponse> getMissions(@RequestHeader(name = "Authorization") String token) {
         try {
@@ -50,10 +52,32 @@ public class MissionController {
     public ResponseEntity<ApiResponse> getCompletedMissions(@RequestHeader(name = "Authorization") String token) {
         try {
             DeliveryDriver deliveryDriver = delivererTokenService.findByToken(token);
-            List<MissionHistory> deliveries = missionHistoryRepository.findByIdDd(deliveryDriver.getId());
+            List<MissionHistory> deliveries = missionHistoryRepository.findByIdDdAndLogIdDeliverer(deliveryDriver.getId(),deliveryDriver.getId());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(deliveries);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(new java.util.ArrayList<>(){
+                {
+                    add(e);
+                }
+            });
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+    @GetMapping("/pending-requests")
+    public ResponseEntity<ApiResponse> getPendingRequests(@RequestHeader(name = "Authorization") String token) {
+        try {
+            DeliveryDriver deliveryDriver = delivererTokenService.findByToken(token);
+            List<PendingMission> pendingMissions = pendingMissionRepository.findByLogIdDeliverer(deliveryDriver.getId());
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(pendingMissions);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

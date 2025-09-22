@@ -685,11 +685,17 @@ CREATE VIEW v_delivery_applicants AS
         JOIN seller_v2 s on delivery_log.id_seller = s.id_seller;
 
 CREATE VIEW v_mission_history AS
-    SELECT id_di,d.*,sp.origin,sp.place_name FROM delivery_log
+    SELECT id_di,d.*,sp.origin,sp.place_name,delivery_log.id_dd AS log_id_deliverer FROM delivery_log
         JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
-        JOIN shipping_points sp on d.id_shp = sp.id_shp
+        JOIN shipping_points sp on d.id_shp = sp.id_shp WHERE d_status='CLOSED'
 ;
 
+CREATE view v_pending_request AS
+    SELECT id_di,delivery_v2.*,sp.place_name,dl.id_dd as log_id_deliverer,sp.origin FROM delivery_v2
+        JOIN delivery_log dl on delivery_v2.id_delivery = dl.id_delivery
+        JOIN delivery_driver_v2 dd on dl.id_dd = dd.id_dd
+        JOIN shipping_points sp on delivery_v2.id_shp = sp.id_shp
+             WHERE d_status='CALL_FOR_TENDERED';
 
 
 --

@@ -199,17 +199,23 @@ public class CallForTenderServiceImpl implements CallForTenderService{
                     message = "Phone number is missing for delivery driver ID " + deliveryDrivers.get(i).getId();
                     break;
                 }
-                whatsAppService.sendTemplateMessage(
-                        phoneNumber,
-                        "call_for_tenders",
-                        "DEL_"+delivery.getId()+"_"+managedPageCPL.getIdMp()+"_"+managedPageCPL.getIdSeller(),
-                        delivery.getId(),
-                        delivery.getShippingAddress(),
-                        delivery.getAmount(),
-                        delivery.getDistance(),
-                        delivery.getStartedAt().plusMinutes(50),
-                        managedPageCPL.getPageTitle()
-                );
+                try {
+                    whatsAppService.sendTemplateMessage (
+                            phoneNumber,
+                            "call_for_tenders",
+                            "DEL_"+delivery.getId()+"_"+managedPageCPL.getIdMp()+"_"+managedPageCPL.getIdSeller(),
+                            delivery.getId(),
+                            delivery.getShippingAddress(),
+                            delivery.getAmount(),
+                            delivery.getDistance(),
+                            delivery.getStartedAt().plusMinutes(50),
+                            managedPageCPL.getPageTitle()
+                    );
+                } catch (Exception e) {
+                    log.error("Error sending template message to {}: {}", phoneNumber, e.getMessage());
+                    message = "Error sending template message to " + phoneNumber + ": " + e.getMessage();
+                    break;
+                }
             }
             if (sent) {
                 message = "WhatsApp template message sent successfully to all eligible delivery drivers";

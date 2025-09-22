@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MissionHistoryRepository extends JpaRepository<MissionHistory,Long> {
     List<MissionHistory> findByIdDd(Long idDd);
+
+    List<MissionHistory> findByIdDdAndLogIdDeliverer(Long idDd, Long logIdDeliverer);
 }

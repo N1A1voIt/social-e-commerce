@@ -128,7 +128,7 @@ public class WhatsAppServiceImpl implements WhatsAppService {
             return false;
         }
     }
-    @Transactional
+//    @Transactional
     @Override
     public boolean sendTemplateMessage(String phoneNumber, String templateName, String buttonPayload, Object... parameters) {
         try {
