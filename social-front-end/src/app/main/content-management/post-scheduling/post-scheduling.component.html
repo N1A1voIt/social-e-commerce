@@ -69,10 +69,25 @@
             (removeMedia)="removeMediaDetail($event)">
           </app-media-details-container>
 
+          <!-- Scheduling Section -->
+          <div class="mt-4 p-3 rounded-md bg-white/40">
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" formControlName="scheduledEnabled" class="h-4 w-4">
+              <span class="text-sm">Schedule this post</span>
+            </label>
+            <div class="mt-2" *ngIf="postForm.get('scheduledEnabled')?.value">
+              <label class="block text-xs text-gray-600 mb-1">Publish at</label>
+              <input type="datetime-local" formControlName="scheduledAt" class="w-full rounded-md border px-2 py-1 text-sm" />
+              <p class="text-[11px] text-gray-500 mt-1">Time is in your local timezone.</p>
+            </div>
+          </div>
+
           <!-- Submit Button -->
           <app-submit-button
             [disabled]="!postForm.valid"
             [isSubmitting]="isSubmitting"
+            [buttonText]="postForm.get('scheduledEnabled')?.value ? 'Schedule Post' : 'Create Post'"
+            [loadingText]="postForm.get('scheduledEnabled')?.value ? 'Scheduling...' : 'Creating Post...'"
             (submit)="onSubmit()">
           </app-submit-button>
         </form>

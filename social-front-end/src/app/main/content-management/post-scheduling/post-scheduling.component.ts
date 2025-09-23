@@ -35,6 +35,7 @@ interface PostData {
   mediaDetails: MediaDetail[];
   mainMessage: string;
   idProducts: number[];
+  scheduledUnixTime?: number; // if set, schedule instead of immediate publish
 }
 @Component({
   selector: 'app-post-scheduling',
@@ -93,7 +94,9 @@ export class PostSchedulingComponent implements OnInit{
   createForm(): FormGroup {
     return this.fb.group({
       mainMessage: ['', [Validators.required, Validators.maxLength(500)]],
-      mediaDetails: this.fb.array([], Validators.required)
+      mediaDetails: this.fb.array([], Validators.required),
+      scheduledEnabled: [false],
+      scheduledAt: [''] // HTML datetime-local string
     });
   }
   get mainMessageControl(): FormControl {
@@ -131,47 +134,38 @@ export class PostSchedulingComponent implements OnInit{
         'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
       };
       try {
-        // Upload all media files first
         await this.uploadAllMedia();
-
-        // Build and submit post data with the uploaded URLs
         await this.buildPostData();
-        // If you need just id and platform from each page
         console.log('Pages In',this.pagesIn)
         this.postData.pagesIds = [];
         for(let page of this.pagesIn){
           this.postData.pagesIds.push({
-            pageId: page.platformIdentifier, // unique ID
+            pageId: page.platformIdentifier,
             platform: page.platform
           })
         }
-        // this.postData.pagesIds = this.pagesIn.map(page => ({
-        //   pageId: page.platformIdentifier, // unique ID
-        //   platform: page.platform
-        // }));
 
         console.log('Post Data:', this.postData);
 
-        // Replace with your actual API endpoint
-        this.http.post(javaHost + '/api/posts/make-post', this.postData,{headers:header}).subscribe({
+        const endpoint = (this.postData.scheduledUnixTime && this.postData.scheduledUnixTime > 0)
+          ? '/api/posts/schedule-post'
+          : '/api/posts/make-post';
+
+        this.http.post(javaHost + endpoint, this.postData,{headers:header}).subscribe({
           next: (response) => {
             console.log('Post created successfully:', response);
             this.isSubmitting = false;
-            // Handle success (redirect, show message, etc.)
           },
           error: (error) => {
             console.error('Failed to create post:', error);
             this.isSubmitting = false;
-            // Handle error
           }
         });
       } catch (error) {
         console.error('Error uploading media:', error);
         this.isSubmitting = false;
-        // Handle upload error
       }
     } else {
-      // Mark all fields as touched to show validation errors
       this.markFormGroupTouched(this.postForm);
     }
   }
@@ -231,15 +225,24 @@ export class PostSchedulingComponent implements OnInit{
         platform: page.platform
       }));
 
-      this.postData = {
+      const postData: PostData = {
         pagesIds: [...pageIds],
         mediaDetails: formValue.mediaDetails.map((media: any) => ({
           imageUrl: media.imageUrl,
           message: media.message
         })),
         mainMessage: formValue.mainMessage,
-        idProducts: [101, 102, 103] // Static for now
+        idProducts: [101, 102, 103]
       };
+
+      if (formValue.scheduledEnabled && formValue.scheduledAt) {
+        const ms = Date.parse(formValue.scheduledAt);
+        if (!isNaN(ms)) {
+          postData.scheduledUnixTime = Math.floor(ms / 1000);
+        }
+      }
+
+      this.postData = postData;
     } catch (err: any) {
       console.error('Failed to load managed pages', err);
       throw err; // so onSubmit can catch it
@@ -260,32 +263,17 @@ export class PostSchedulingComponent implements OnInit{
         },
       });
   }
-  // updateStatus(page: ManagedPageCPL) {
-  //   const key = page.platformIdentifier;
-  //   if (this.pagesIn.has(key)) {
-  //     this.pagesIn.delete(key);
-  //     console.log(`Removed: ${key}`);
-  //   } else {
-  //     this.pagesIn.set(key, page);
-  //     this.tabTest.push(page);
-  //     console.log(`Added: ${key}`);
-  //   }
-  //   console.log('Current pagesIn:', Array.from(this.pagesIn.entries()));
-  //   console.log('Array:',this.tabTest)
-  // }
+
   updateStatus(page: ManagedPageCPL) {
     const index = this.pagesIn.findIndex(p => p.platformIdentifier === page.platformIdentifier);
     if (index > -1) {
-      // Create a new array without the page
       this.pagesIn = [...this.pagesIn.slice(0, index), ...this.pagesIn.slice(index + 1)];
       console.log(`Removed: ${page.platformIdentifier}`);
     } else {
-      // Create a new array with the page added
       this.pagesIn = [...this.pagesIn, page];
       console.log(`Added: ${page.platformIdentifier}`);
     }
     console.log('Current pagesIn:', this.pagesIn.map(p => p.platformIdentifier));
-    // Force change detection
     this.cdr.detectChanges();
   }
 

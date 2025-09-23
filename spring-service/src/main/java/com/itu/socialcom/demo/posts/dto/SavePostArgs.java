@@ -11,4 +11,5 @@ public class SavePostArgs {
     List<MediaDetails> mediaDetails;
     String mainMessage;
     List<Long> idProducts;
+    Long scheduledUnixTime; // optional, if provided we schedule instead of immediate publish
 }

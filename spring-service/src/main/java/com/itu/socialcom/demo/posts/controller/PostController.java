@@ -102,6 +102,18 @@ public class PostController {
         }
     }
 
+    @PostMapping("/schedule-post")
+    public ResponseEntity<?> schedulePost(@RequestBody SavePostArgs args,@RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {throw new SellerNotLogged("Seller not found");}
+            return ResponseEntity.ok(generalPostSaver.schedule(args,seller));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
     @GetMapping("/fetch-mother")
     public ResponseEntity<List<MotherPostDisplay>> fetchMother(@RequestHeader("Authorization") String token) {
         try {
