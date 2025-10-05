@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -111,7 +113,10 @@ public class GeneralPostSaver {
         }
         Post post = new Post();
         post.setType("scheduled_post");
-        post.setCreateAt(LocalDateTime.now());
+        Instant instant = Instant.ofEpochMilli(savePostArgs.getScheduledUnixTime());
+        // Convert Instant -> LocalDateTime (using system default time zone)
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        post.setCreateAt(dateTime);
         post.setIdSeller(seller.getId());
         post.setPostChildren(posts);
         postRepository.save(post);

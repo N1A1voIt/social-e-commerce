@@ -33,12 +33,6 @@
         [managedPageId]="page.idMp"
         class="flex-1"
       ></app-platform-row>
-      <a
-        class="text-lg text-fotsy cursor-pointer mr-2"
-        href="{{javaHost}}/api/auth/{{page.platform}}/login"
-      >
-        <i class="pi pi-refresh bg-gray rounded-full p-4"></i>
-      </a>
       <span
         class="text-lg text-fotsy cursor-pointer mr-2"
         (click)="onAddShippingPoint(page.idMp)"

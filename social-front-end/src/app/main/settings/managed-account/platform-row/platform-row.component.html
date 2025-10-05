@@ -2,18 +2,12 @@
   <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden">
     <img width="30" [src]="associatedMedia" alt="{{ platform }}">
   </div>
-  <div class="flex flex-col" style="letter-spacing: 1px">
+  <div class="flex flex-col flex-1" style="letter-spacing: 1px">
     <a href="{{linkToPlatform}}" class="text-md font-semibold">&#64;{{ pageTitle }}</a>
-    <p  class="text-sm text-gray">{{ platform }}</p>
+    <p class="text-sm text-gray">{{ platform }}</p>
     <span class="items-center flex gap-2">
-      <app-checkbox [checked]="status"></app-checkbox>
-      <span class="font-medium">Connected</span>
+      <app-checkbox [checked]="isConnected ? 'active' : 'unactive'"></app-checkbox>
+      <span class="font-medium">{{ isConnected ? "Connected" : "Disconnected" }}</span>
     </span>
   </div>
 </div>
-
-<!--<app-shipping-point-form-->
-<!--  *ngIf="showShippingPointForm"-->
-<!--  [managedPageId]="managedPageId"-->
-<!--  [onClose]="closeShippingPointForm"-->
-<!--&gt;</app-shipping-point-form>-->

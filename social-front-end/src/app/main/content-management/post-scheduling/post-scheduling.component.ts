@@ -259,7 +259,7 @@ export class PostSchedulingComponent implements OnInit{
         },
         error: (err) => {
           console.log(err.message);
-          console.error('Failed to load managed pages', err);
+          console.error('Failed to load managed pa/u/0/project/test-firebase-1e6b6/firestore/databases/-default-/datages', err);
         },
       });
   }

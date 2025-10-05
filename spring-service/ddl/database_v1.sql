@@ -94,7 +94,7 @@ CREATE TABLE potential_customers_v2(
 CREATE TABLE likes_history(
                               id_lh SERIAL,
                               created_at TIMESTAMP NOT NULL,
-                              deleted BOOLEAN,
+                              reactions INTEGER,
                               id_child INTEGER,
                               id_pc TEXT NOT NULL,
                               PRIMARY KEY(id_lh),
@@ -598,20 +598,50 @@ SELECT * FROM pat_refresh_tokens;
 
 CREATE VIEW v_managed_accounts AS
 WITH max_accesstoken AS (
-    SELECT id_pat, access_token, expired_at, MAX(created_at), id_prt FROM pat_access_tokens group by id_pat
-), max_refreshtoken AS (
-    SELECT id_prt, token, expired_at, MAX(created_at),revoked,id_mp FROM pat_refresh_tokens group by id_prt
-) , max_tokens AS (
-    SELECT id_pat, access_token, max_accesstoken.expired_at as acctoken_expiration,max_refreshtoken.expired_at as reftoken_expiration, max_refreshtoken.id_prt, token, revoked, id_mp FROM max_accesstoken
-    RIGHT JOIN max_refreshtoken ON max_accesstoken.id_prt = max_refreshtoken.id_prt
-)
-SELECT max_tokens.id_mp,d_status,platform_identifier,page_title,associated_media,link_to_platform,label as platform,email,managed_pages.id_seller as id_seller,username
-,access_token,acctoken_expiration,reftoken_expiration,token, revoked
-FROM managed_pages
-                  JOIN supported_platforms_v2 s on managed_pages.id_sp = s.id_sp
-                  JOIN seller_v2 v on managed_pages.id_seller = v.id_seller
-                  JOIN max_tokens ON managed_pages.id_mp = max_tokens.id_mp
-;
+    SELECT id_pat, access_token, expired_at, id_prt
+    FROM (
+             SELECT *,
+                    ROW_NUMBER() OVER (PARTITION BY id_pat ORDER BY created_at DESC) AS rn
+             FROM pat_access_tokens
+         ) t
+    WHERE rn = 1
+),
+     max_refreshtoken AS (
+         SELECT id_prt, token, expired_at, revoked, id_mp,rn
+         FROM (
+                  SELECT *,
+                         ROW_NUMBER() OVER (PARTITION BY id_mp ORDER BY created_at DESC) AS rn
+                  FROM pat_refresh_tokens
+              ) t
+         WHERE rn = 1
+     ),
+     max_tokens AS (
+         SELECT a.id_pat, a.access_token, a.expired_at as acctoken_expiration,
+                r.expired_at as reftoken_expiration, r.id_prt, r.token, r.revoked, r.id_mp
+         FROM max_refreshtoken r
+                  LEFT JOIN max_accesstoken a ON a.id_prt = r.id_prt
+     )
+SELECT mp.id_mp,
+       d_status,
+       platform_identifier,
+       page_title,
+       associated_media,
+       link_to_platform,
+       label as platform,
+       email,
+       mp.id_seller as id_seller,
+       username,
+       access_token,
+       acctoken_expiration,
+       reftoken_expiration,
+       token,
+       revoked
+FROM managed_pages mp
+         JOIN supported_platforms_v2 s ON mp.id_sp = s.id_sp
+         JOIN seller_v2 v ON mp.id_seller = v.id_seller
+         LEFT JOIN max_tokens ON mp.id_mp = max_tokens.id_mp;
+
+
 
 CREATE VIEW v_refresh_token_holder AS
     SELECT row_number() over (order by 1) as id, managed_pages.*,s.email,pat_refresh_tokens.token FROM seller_v2 as s

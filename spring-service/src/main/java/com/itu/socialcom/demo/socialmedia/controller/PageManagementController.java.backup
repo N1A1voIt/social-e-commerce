@@ -9,7 +9,6 @@ import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
 import com.itu.socialcom.demo.socialmedia.factory.PlatformFactory;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPageCPLRepository;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPageRepository;
-import com.itu.socialcom.demo.socialmedia.repository.ManagedPageRepository;
 import com.itu.socialcom.demo.socialmedia.service.AuthService;
 import com.itu.socialcom.demo.socialmedia.service.CacheV1;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,21 +90,5 @@ public class PageManagementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    @GetMapping("/reconnect/{platform}")
-    public RedirectView reconnectPage(@PathVariable String platform, @RequestHeader("Authorization") String token) {
-        try {
-            Seller seller = tokenV2Repository.findSellerByToken(token).orElse(null);
-            if (seller == null) {
-                return new RedirectView(prefix + "/error?message=unauthorized");
-            }
 
-            AuthService service = platformFactory.getAuthService(platform);
-            String loginUrl = service.getLoginUrl();
-            return new RedirectView(loginUrl);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new RedirectView(prefix + "/error?message=reconnect_failed");
-        }
-    }
 }
-

@@ -100,7 +100,7 @@ public class InstagramAuth implements AuthService{
 
     @Override
     public String getLoginUrl() {
-        String scope = "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
+        String scope = "instagram_business_basic,pages_read_engagement,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights";
         String url = String.format(
                 "https://www.instagram.com/oauth/authorize?force_reauth=true" +
                 "&client_id=%s&redirect_uri=%s&response_type=code&scope=%s",

@@ -1,0 +1,19 @@
+<div class="cont-box w-full flex gap-5 justify-start mt-2">
+  <div class="rounded-full w-[30px] h-[30px] bg-opacity-40 overflow-hidden">
+    <img width="30" [src]="associatedMedia" alt="{{ platform }}">
+  </div>
+  <div class="flex flex-col" style="letter-spacing: 1px">
+    <a href="{{linkToPlatform}}" class="text-md font-semibold">&#64;{{ pageTitle }}</a>
+    <p  class="text-sm text-gray">{{ platform }}</p>
+    <span class="items-center flex gap-2">
+      <app-checkbox [checked]="status"></app-checkbox>
+      <span class="font-medium">Connected</span>
+    </span>
+  </div>
+</div>
+
+<!--<app-shipping-point-form-->
+<!--  *ngIf="showShippingPointForm"-->
+<!--  [managedPageId]="managedPageId"-->
+<!--  [onClose]="closeShippingPointForm"-->
+<!--&gt;</app-shipping-point-form>-->

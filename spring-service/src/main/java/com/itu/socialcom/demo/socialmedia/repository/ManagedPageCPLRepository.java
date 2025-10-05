@@ -11,4 +11,6 @@ public interface ManagedPageCPLRepository extends JpaRepository<ManagedPageCPL,L
     List<ManagedPageCPL> findByIdSeller(Long idSeller);
     ManagedPageCPL findByIdMp(Long idMp);
     ManagedPageCPL findByPlatformIdentifierAndPlatform(String platformIdentifier, String platform);
+
+    List<ManagedPageCPL> findByIdSellerAndPlatform(Long idSeller, String platform);
 }
