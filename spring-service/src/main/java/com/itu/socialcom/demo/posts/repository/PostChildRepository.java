@@ -13,4 +13,5 @@ public interface PostChildRepository extends JpaRepository<PostChild, Integer> {
     @Query("SELECT DISTINCT p.platformIdentifier FROM PostChild p WHERE p.idSp = :idSp")
     Set<String> findDistinctPlatformIdentifierByIdSp(@Param("idSp") Long idSp);
     List<PostChild> findByIdSp(Long idSp);
+    List<PostChild> findByIdPost(Integer idPost);
 }

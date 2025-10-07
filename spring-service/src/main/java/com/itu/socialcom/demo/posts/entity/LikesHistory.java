@@ -27,13 +27,17 @@ public class LikesHistory {
     @Column(name = "id_child")
     private Integer idChild;
 
+    @NotNull
+    @Column(name = "id_pc", nullable = false)
+    private String idPc;
 
     // Constructors
     public LikesHistory() {}
 
-    public LikesHistory(LocalDateTime createdAt, Integer reactions, Integer idChild) {
+    public LikesHistory(LocalDateTime createdAt, Integer reactions, Integer idChild, String idPc) {
         this.createdAt = createdAt;
         this.reactions = reactions;
         this.idChild = idChild;
+        this.idPc = idPc;
     }
 }

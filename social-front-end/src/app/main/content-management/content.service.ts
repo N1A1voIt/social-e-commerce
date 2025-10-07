@@ -14,6 +14,49 @@ export interface MotherPostDisplay {
   creationDate : Date
 }
 
+export interface Media {
+  id: number,
+  mediaUrl: string,
+  idChild: number
+}
+
+export interface PostChild {
+  id: number,
+  postUrl: string,
+  mediaUrl?: string,
+  description?: string,
+  platformIdentifier: string,
+  type?: string,
+  idSp: number,
+  idChild1?: number,
+  idPost: number,
+  mediaList: Media[],
+  attachments?: PostChild[]
+}
+
+export interface PostStatistics {
+  platformReactions: PlatformReactionDistribution[],
+  likesTimeSeries: LikesTimeSeries[],
+  totalLikes: number,
+  totalViews: number,
+  totalComments: number,
+  totalShares: number
+}
+
+export interface PlatformReactionDistribution {
+  platformName: string,
+  platformId: number,
+  likesCount: number,
+  percentage: number
+}
+
+export interface LikesTimeSeries {
+  date: string,
+  likesCount: number,
+  platformName: string,
+  platformId: number
+}
+
 export interface PostUtilities {
   managedPages: ManagedPageCPL[],
   products: Product[]
@@ -38,5 +81,17 @@ export class ContentService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
     return this.http.get<ManagedPage[]>(javaHost + '/api/posts/fetch-page-ids', { headers });
+  }
+
+  fetchPostChildren(postId: number): Observable<PostChild[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return this.http.get<PostChild[]>(`${javaHost}/api/posts/${postId}/children`, { headers });
+  }
+
+  fetchPostStatistics(postId: number): Observable<PostStatistics> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return this.http.get<PostStatistics>(`${javaHost}/api/posts/${postId}/statistics`, { headers });
   }
 }

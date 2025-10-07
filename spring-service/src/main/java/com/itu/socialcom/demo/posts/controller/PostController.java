@@ -11,6 +11,9 @@ import com.itu.socialcom.demo.posts.services.etl.PostRetriever;
 import com.itu.socialcom.demo.posts.services.get.PostGetter;
 import com.itu.socialcom.demo.posts.services.save.FacebookPostSaver;
 import com.itu.socialcom.demo.posts.services.save.GeneralPostSaver;
+import com.itu.socialcom.demo.posts.services.statistics.PostStatisticsService;
+import com.itu.socialcom.demo.posts.services.children.PostChildrenService;
+import com.itu.socialcom.demo.posts.dto.PostChildDisplay;
 import com.itu.socialcom.demo.products.model.Product;
 import com.itu.socialcom.demo.products.repository.ProductRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
@@ -44,6 +47,10 @@ public class PostController {
     ProductRepository productRepository;
     @Autowired
     ManagedPageCPLRepository managedPageCPLRepository;
+    @Autowired
+    PostStatisticsService postStatisticsService;
+    @Autowired
+    PostChildrenService postChildrenService;
 
     @GetMapping("/fetch-page-ids")
     public ResponseEntity<List<ManagedPageCPL>> fetchPageIds(@RequestHeader(name = "Authorization") String token) {
@@ -136,6 +143,58 @@ public class PostController {
             postSaverUtilities.setManagedPages(managedPageCPLS);
             postSaverUtilities.setProducts(products.getContent());
             return ResponseEntity.ok(postSaverUtilities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/{postId}/statistics")
+    public ResponseEntity<PostStatisticsDto> getPostStatistics(
+            @PathVariable Integer postId, 
+            @RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                throw new SellerNotLogged("Seller not found");
+            }
+            
+            // Verify that the post belongs to the seller
+            Post post = postRepository.findById(postId).orElse(null);
+            if (post == null || !post.getIdSeller().equals(seller.getId())) {
+                return ResponseEntity.status(404).body(null);
+            }
+            
+            PostStatisticsDto statistics = postStatisticsService.getPostStatistics(postId);
+            return ResponseEntity.ok(statistics);
+        } catch (SellerNotLogged e) {
+            return ResponseEntity.status(401).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/{postId}/children")
+    public ResponseEntity<List<PostChildDisplay>> getPostChildren(
+            @PathVariable Integer postId, 
+            @RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                throw new SellerNotLogged("Seller not found");
+            }
+            
+            // Verify that the post belongs to the seller
+            Post post = postRepository.findById(postId).orElse(null);
+            if (post == null || !post.getIdSeller().equals(seller.getId())) {
+                return ResponseEntity.status(404).body(null);
+            }
+            
+            List<PostChildDisplay> children = postChildrenService.getPostChildren(postId);
+            return ResponseEntity.ok(children);
+        } catch (SellerNotLogged e) {
+            return ResponseEntity.status(401).body(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
