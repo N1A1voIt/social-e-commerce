@@ -751,7 +751,7 @@ SELECT  row_number() over () as dummy_id,sum(d_total)/total_revenue.total_revenu
 FROM v_order_mother_cpl
     CROSS JOIN total_revenue
 WHERE v_order_mother_cpl.id_seller = 1
-GROUP BY id_managed_pages,id_sp,page_title,total_revenue.total_revenue ;
+GROUP BY id_managed_pages,id_sp,page_title,total_revenue.total_revenue;
 
 
 --

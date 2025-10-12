@@ -1,10 +1,13 @@
 package com.itu.socialcom.demo.analytics.service;
 
 import com.itu.socialcom.demo.analytics.dto.DashboardStatsDto;
+import com.itu.socialcom.demo.analytics.dto.PagesRepartitionDto;
 import com.itu.socialcom.demo.analytics.dto.PlatformRepartitionDto;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.repository.OrderMotherCplRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ public class DashboardService {
     private OrderParentRepository orderParentRepository;
     @Autowired
     private OrderMotherCplRepository orderMotherCplRepository;
+    @Autowired
+    private EntityManager entityManager;
 
 
     public DashboardStatsDto getDashboardStats(Integer sellerId) {
@@ -55,29 +60,75 @@ public class DashboardService {
         LocalDateTime thirtyDaysAgo = now.minusDays(30);
         String dateRange = thirtyDaysAgo.format(DateTimeFormatter.ofPattern("MMM d")) + 
                           " to " + now.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
-        
-        return new DashboardStatsDto(totalRevenue, revenuePerUser, bestDeal, totalSales, dateRange);
+        DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, revenuePerUser, bestDeal, totalSales, dateRange);
+        PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId);
+        PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId);
+        dashboardStatsDto.setPlatformRepartition(platformRepartitionDtos);
+        dashboardStatsDto.setPagesRepartition(pagesRepartitionDtos);
+        return dashboardStatsDto;
     }
     public PlatformRepartitionDto[] platformRepartitionDtos(Integer sellerId) {
-        HashMap<Integer, String> platformMap = new HashMap<>();
-        platformMap.put(1, "Facebook");
-        platformMap.put(2, "Instagram");
-        List<OrderParent> completedOrders = orderParentRepository.findByDStatusGreaterThanEqualAndIdSeller(25, sellerId);
-        long facebookCount = completedOrders.stream()
-                .filter(order -> order.getIdPc() != null && order.getIdPc().startsWith("FB"))
-                .count();
-        long instagramCount = completedOrders.stream()
-                .filter(order -> order.getIdPc() != null && order.getIdPc().startsWith("IG"))
-                .count();
-        long whatsappCount = completedOrders.stream()
-                .filter(order -> order.getIdPc() != null && order.getIdPc().startsWith("WA"))
-                .count();
-        long otherCount = completedOrders.size() - (facebookCount + instagramCount + whatsappCount);
-        PlatformRepartitionDto facebookDto = new PlatformRepartitionDto("Facebook", facebookCount);
-        PlatformRepartitionDto instagramDto = new PlatformRepartitionDto("Instagram", instagramCount);
-        PlatformRepartitionDto whatsappDto = new PlatformRepartitionDto("WhatsApp", whatsappCount);
-        PlatformRepartitionDto otherDto = new PlatformRepartitionDto("Other", otherCount);
-        return new PlatformRepartitionDto[]{facebookDto, instagramDto, whatsappDto, otherDto};
+        List<Object[]> results = entityManager.createNativeQuery(
+                        "WITH total_revenue AS ( " +
+                                "    SELECT SUM(d_total) AS total_revenue " +
+                                "    FROM order_mother " +
+                                "    WHERE id_seller = :sellerId  " +
+                                ") " +
+                                "SELECT row_number() over () as dummy_id, " +
+                                "       sum(d_total)/total_revenue.total_revenue * 100 as total_percentage, " +
+                                "       sum(d_total) as total, id_sp " +
+                                "FROM v_order_mother_cpl " +
+                                "CROSS JOIN total_revenue " +
+                                "WHERE v_order_mother_cpl.id_seller = :sellerId " +
+                                "GROUP BY id_sp,total_revenue.total_revenue"
+                ).setParameter("sellerId", sellerId)
+                .getResultList();
 
+        List<PlatformRepartitionDto> dtos = results.stream()
+                .map(r -> new PlatformRepartitionDto(
+                        ((Number) r[0]).intValue(),    // dummy_id
+                        ((Number) r[1]).doubleValue(), // total_percentage
+                        ((Number) r[2]).doubleValue(), // total
+                        ((Number) r[3]).intValue()   // idSp
+                ))
+                .toList();
+
+        return dtos.toArray(new PlatformRepartitionDto[0]);
     }
+
+    public PagesRepartitionDto[] pagesRepartitionDtos(Integer sellerId) {
+        List<Object[]> results = entityManager.createNativeQuery(
+                        "WITH total_revenue AS ( " +
+                                "    SELECT SUM(d_total) AS total_revenue " +
+                                "    FROM order_mother " +
+                                "    WHERE id_seller = :sellerId " +
+                                ") " +
+                                "SELECT row_number() over () as dummy_id, " +
+                                "       sum(d_total)/total_revenue.total_revenue * 100 as total_percentage, " +
+                                "       sum(d_total) as total, " +
+                                "       page_title, " +
+                                "       id_managed_pages, " +
+                                "       id_sp " +
+                                "FROM v_order_mother_cpl " +
+                                "CROSS JOIN total_revenue " +
+                                "WHERE v_order_mother_cpl.id_seller = :sellerId " +
+                                "GROUP BY id_managed_pages, id_sp, page_title, total_revenue.total_revenue"
+                )
+                .setParameter("sellerId", sellerId)
+                .getResultList();
+
+        List<PagesRepartitionDto> dtos = results.stream()
+                .map(r -> new PagesRepartitionDto(
+                        ((Number) r[0]).intValue(),   // dummy_id
+                        ((Number) r[1]).doubleValue(),// total_percentage
+                        ((Number) r[2]).doubleValue(),// total
+                        (String) r[3],                // page_title
+                        ((Number) r[5]).intValue(),   // id_sp
+                        ((Number) r[4]).intValue()    // id_managed_pages
+                ))
+                .toList();
+
+        return dtos.toArray(new PagesRepartitionDto[0]);
+    }
+
 }

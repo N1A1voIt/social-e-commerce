@@ -326,7 +326,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                !Objects.equals(existing.getPostUrl(), newChild.getPostUrl()) ||
                !Objects.equals(existing.getType(), newChild.getType()) ||
                !Objects.equals(existing.getMediaUrl(), newChild.getMediaUrl());
-    }idSeller
+    }
 
     private Post createPostFromNode(JsonNode postNode, Long sellerId) {
         Post post = new Post();
