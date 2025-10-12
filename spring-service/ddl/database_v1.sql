@@ -230,7 +230,9 @@ CREATE TABLE order_mother(
                              shipping_address TEXT,
                              customer_number VARCHAR(50) ,
                              id_pc TEXT NOT NULL,
+                             id_managed_pages INTEGER NOT NULL,
                              PRIMARY KEY(id_order_m),
+                             FOREIGN KEY(id_managed_pages) REFERENCES managed_pages(id_mp),
                              FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
 
@@ -726,6 +728,30 @@ CREATE view v_pending_request AS
         JOIN delivery_driver_v2 dd on dl.id_dd = dd.id_dd
         JOIN shipping_points sp on delivery_v2.id_shp = sp.id_shp
              WHERE d_status='CALL_FOR_TENDERED';
+
+CREATE VIEW v_order_mother_cpl AS
+    SELECT order_mother.*,managed_pages.id_sp,page_title FROM order_mother JOIN managed_pages ON managed_pages.id_mp = order_mother.id_managed_pages;
+-- Revenue per platform for a specific seller (id_seller = 1)
+WITH total_revenue AS (
+    SELECT SUM(d_total) AS total_revenue
+    FROM order_mother
+    WHERE id_seller = 1
+)
+SELECT row_number() over () as dummy_id,sum(d_total)/total_revenue.total_revenue * 100 as total_percentage,sum(d_total) as total,id_sp
+FROM v_order_mother_cpl
+    CROSS JOIN total_revenue
+WHERE v_order_mother_cpl.id_seller = 1 GROUP BY id_sp,total_revenue.total_revenue ;
+-- Revenue per pages for a specific seller (id_seller = 1)
+WITH total_revenue AS (
+    SELECT SUM(d_total) AS total_revenue
+    FROM order_mother
+    WHERE id_seller = 1
+)
+SELECT  row_number() over () as dummy_id,sum(d_total)/total_revenue.total_revenue * 100 as total_percentage,page_title,sum(d_total) as total,id_managed_pages,id_sp
+FROM v_order_mother_cpl
+    CROSS JOIN total_revenue
+WHERE v_order_mother_cpl.id_seller = 1
+GROUP BY id_managed_pages,id_sp,page_title,total_revenue.total_revenue ;
 
 
 --
