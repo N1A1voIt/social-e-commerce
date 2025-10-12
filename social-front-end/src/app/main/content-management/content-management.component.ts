@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {SelectResearchComponent} from "./select-research/select-research.component";
 import {PostCardComponent} from "./post-card/post-card.component";
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
-import {ContentService, MotherPostDisplay} from "./content.service";
+import {ContentService, MotherPostDisplay, PostChild} from "./content.service";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {NgForOf, NgIf} from "@angular/common";
 import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.component";
@@ -24,7 +25,11 @@ import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.compone
 export class ContentManagementComponent implements OnInit{
   posts : MotherPostDisplay[] = [];
   showForm = false;
-  constructor(private contentService: ContentService) { }
+  
+  constructor(
+    private contentService: ContentService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.fetchPosts();
@@ -39,5 +44,9 @@ export class ContentManagementComponent implements OnInit{
         console.log(err);
       }
     })
+  }
+
+  onViewPostDetails(post: MotherPostDisplay) {
+    this.router.navigate(['/basic/content/post', post.idPost]);
   }
 }

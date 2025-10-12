@@ -34,4 +34,7 @@ public class Post {
 
     @Transient
     List<PostChild> postChildren;
+    
+    @Transient
+    Boolean isExisting;
 }

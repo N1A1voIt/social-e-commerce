@@ -40,7 +40,6 @@ export class LoginComponent implements OnInit {
       .then(userCredential => userCredential.user.getIdToken())
       .then(idToken => this.http.post(`${javaHost}/api/auth/signin`, { idToken }).toPromise())
       .then((response: any) => {
-        // Store token in localStorage
         localStorage.setItem('token',"Bearer " +  response.token);
         this.errorMessage = ''; // Clear any previous error
         this.router.navigate(['/basic/dashboard']);

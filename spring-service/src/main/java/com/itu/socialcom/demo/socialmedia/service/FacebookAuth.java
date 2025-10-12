@@ -201,15 +201,20 @@ public class FacebookAuth implements AuthService {
             throw new IllegalArgumentException("User not found");
         }
         List<ManagedPage> actualPages = managedPageRepository.findBySellerAndPlatform(seller.getId(),1L);
+        List<ManagedPage> actualLinkedToFacebookPages = managedPageRepository.findBySellerAndPlatform(seller.getId(),2L);
+        actualPages.addAll(actualLinkedToFacebookPages);
         List<ManagedPageWithToken> managedPageWithTokens = cacheV1.getManagedPages(tempUUID);
         HashMap<String,ManagedPage> hashMap = new HashMap<>();
         for (int i = 0; i < actualPages.size(); i++) {
+            System.out.println(actualPages.get(i).getPlatformIdentifier()+"-"+actualPages.get(i).getSellerId());
             hashMap.put(actualPages.get(i).getPlatformIdentifier()+"-"+actualPages.get(i).getSellerId(),actualPages.get(i));
         }
         List<ManagedPage> managedPages = new ArrayList<>();
         for (ManagedPageWithToken managedPageWithToken : managedPageWithTokens) {
             ManagedPage managedPage = managedPageWithToken.getManagedPage();
             Long managedPageId;
+            System.out.println("-------------");
+            System.out.println(managedPage.getPlatformIdentifier()+"-"+seller.getId());
             if (!hashMap.containsKey(managedPage.getPlatformIdentifier()+"-"+seller.getId())) {
                 managedPage.setSellerId(seller.getId());
                 managedPages.add(managedPage);

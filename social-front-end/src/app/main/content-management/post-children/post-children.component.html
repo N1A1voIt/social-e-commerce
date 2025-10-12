@@ -1,0 +1,141 @@
+<div class="w-full mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+  <h3 class="text-lg font-semibold mb-3 text-gray-800">
+    Post Children for: {{post.title}}
+  </h3>
+
+  <div *ngIf="children.length === 0" class="text-gray-500 text-center py-4">
+    No children posts found for this post.
+  </div>
+
+  <div *ngIf="children.length > 0" class="space-y-6">
+    <!-- Facebook Posts Display (Single Frame with Attachments) -->
+    <div *ngFor="let child of children" class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+      
+      <!-- Facebook Post Frame -->
+      <div *ngIf="isFacebookPost(child)" class="p-4">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-xs px-2 py-1 rounded-full" [ngClass]="getPlatformColor(child.idSp)">
+            {{getPlatformName(child.idSp)}}
+          </span>
+          <span *ngIf="child.type" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            {{child.type}}
+          </span>
+        </div>
+
+        <!-- Main Post Content -->
+        <div class="mb-4">
+          <div *ngIf="child.description" class="mb-3">
+            <p class="text-sm text-gray-700">{{child.description}}</p>
+          </div>
+          
+          <div *ngIf="child.mediaUrl" class="mb-3">
+            <img
+              [src]="child.mediaUrl"
+              [alt]="child.description || 'Main post media'"
+              class="w-full h-64 object-cover rounded-lg">
+          </div>
+        </div>
+
+        <!-- Attachments (Facebook-style single frame) -->
+        <div *ngIf="child.attachments && child.attachments.length > 0" class="border-t pt-4">
+          <h4 class="text-sm font-semibold text-gray-600 mb-3">Attachments</h4>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div *ngFor="let attachment of child.attachments" class="relative group">
+              <img
+                *ngIf="attachment.mediaUrl"
+                [src]="attachment.mediaUrl"
+                [alt]="attachment.description || 'Attachment'"
+                class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                (click)="openPostUrl(attachment.postUrl)">
+              <div *ngIf="attachment.description" class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                {{attachment.description}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          (click)="openPostUrl(child.postUrl)"
+          class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 px-3 rounded-lg transition-colors">
+          View Original Facebook Post
+        </button>
+      </div>
+
+      <!-- Instagram Posts Display (Individual Cards with Media) -->
+      <div *ngIf="isInstagramPost(child)" class="p-4">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-xs px-2 py-1 rounded-full" [ngClass]="getPlatformColor(child.idSp)">
+            {{getPlatformName(child.idSp)}}
+          </span>
+          <span *ngIf="child.type" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            {{child.type}}
+          </span>
+        </div>
+
+        <div *ngIf="child.description" class="mb-3">
+          <p class="text-sm text-gray-700 line-clamp-3">{{child.description}}</p>
+        </div>
+
+        <!-- Instagram Media Display -->
+        <div *ngIf="child.mediaList && child.mediaList.length > 0" class="mb-3">
+          <div *ngIf="child.mediaList.length === 1" class="w-full">
+            <img
+              [src]="child.mediaList[0].mediaUrl"
+              [alt]="child.description || 'Instagram media'"
+              class="w-full h-64 object-cover rounded-lg">
+          </div>
+          <div *ngIf="child.mediaList.length > 1" class="grid grid-cols-2 gap-2">
+            <img
+              *ngFor="let media of child.mediaList"
+              [src]="media.mediaUrl"
+              [alt]="child.description || 'Instagram media'"
+              class="w-full h-32 object-cover rounded-lg">
+          </div>
+        </div>
+
+        <!-- Fallback to mediaUrl if no mediaList -->
+        <div *ngIf="(!child.mediaList || child.mediaList.length === 0) && child.mediaUrl" class="mb-3">
+          <img
+            [src]="child.mediaUrl"
+            [alt]="child.description || 'Instagram media'"
+            class="w-full h-64 object-cover rounded-lg">
+        </div>
+
+        <button
+          (click)="openPostUrl(child.postUrl)"
+          class="w-full bg-pink-500 hover:bg-pink-600 text-white text-sm py-2 px-3 rounded-lg transition-colors">
+          View Original Instagram Post
+        </button>
+      </div>
+
+      <!-- Unknown Platform Display -->
+      <div *ngIf="!isFacebookPost(child) && !isInstagramPost(child)" class="p-4">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-xs px-2 py-1 rounded-full" [ngClass]="getPlatformColor(child.idSp)">
+            {{getPlatformName(child.idSp)}}
+          </span>
+          <span *ngIf="child.type" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            {{child.type}}
+          </span>
+        </div>
+
+        <div *ngIf="child.description" class="mb-3">
+          <p class="text-sm text-gray-700 line-clamp-3">{{child.description}}</p>
+        </div>
+
+        <div *ngIf="child.mediaUrl" class="mb-3">
+          <img
+            [src]="child.mediaUrl"
+            [alt]="child.description || 'Post media'"
+            class="w-full h-32 object-cover rounded-lg">
+        </div>
+
+        <button
+          (click)="openPostUrl(child.postUrl)"
+          class="w-full bg-gray-500 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded-lg transition-colors">
+          View Original Post
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

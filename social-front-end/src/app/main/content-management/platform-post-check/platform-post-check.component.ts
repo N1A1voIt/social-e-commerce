@@ -1,12 +1,15 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CheckboxComponent} from "../../../shared/checkbox/checkbox.component";
+import {NgClass, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-platform-post-check',
   standalone: true,
-    imports: [
-        CheckboxComponent
-    ],
+  imports: [
+    CheckboxComponent,
+    NgClass,
+    NgIf
+  ],
   templateUrl: './platform-post-check.component.html',
   styleUrl: './platform-post-check.component.css'
 })

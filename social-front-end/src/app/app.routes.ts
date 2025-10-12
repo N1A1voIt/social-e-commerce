@@ -7,6 +7,7 @@ import {FeedComponent} from "./main/feed/feed.component";
 import {InboxComponent} from "./main/inbox/inbox.component";
 import {ProductsComponent} from "./main/products/products.component";
 import {ContentManagementComponent} from "./main/content-management/content-management.component";
+import {PostDetailsComponent} from "./main/content-management/post-details/post-details.component";
 import {AuthGuard} from "./shared/guards/auth.guard";
 import {NoAuthGuard} from "./shared/guards/no-auth.guard";
 import {MenuClientComponent} from "./client/menu-client/menu-client.component";
@@ -45,6 +46,7 @@ const homeRoutes: Routes = [
       { path: 'variants/:idProduct', component: VariantsComponent },
       { path: 'stocks', component: StockListComponent },
       { path: 'content', component: ContentManagementComponent },
+      { path: 'content/post/:id', component: PostDetailsComponent },
       { path: 'orders', component: OrdersComponent },
     ]
   },

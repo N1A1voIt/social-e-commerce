@@ -5,6 +5,7 @@ import {javaHost} from "../../../../environments/environment";
 
 export interface ManagedPage {
   idMp: number;
+  platformIdentifier: string;
   pageTitle: string;
   platform: string;
 }

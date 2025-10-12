@@ -21,7 +21,7 @@
     <div class="flex flex-col gap-2 rounded-3xl font-mono" style="letter-spacing: 1px">
       <h1>Revenue</h1>
       <div class="flex flex-col sm:flex-row gap-3 items-center justify-center w-full ">
-        <span class="text-3xl font-bold">$<span>523,000.82</span></span>
+        <span class="text-3xl font-bold">$<span>{{dashboardStats?.totalRevenue | number:'1.0-2'}}</span></span>
         <div class="flex gap-2 items-center justify-center">
           <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>
           <app-revenue-badge class="w-auto" [showIcon]="false" text="27,335"></app-revenue-badge>
@@ -30,10 +30,11 @@
       <div>
         <span>From Sep 1 to Aug 31 2025</span>
       </div>
+
     </div>
     <div class="flex flex-col sm:flex-row justify-end gap-2 w-full">
-      <app-top-sales-card ></app-top-sales-card>
-      <app-best-deals-card></app-best-deals-card>
+      <app-top-sales-card [dashboardStats]="dashboardStats"></app-top-sales-card>
+      <app-best-deals-card [dashboardStats]="dashboardStats"></app-best-deals-card>
       <div class="flex gap-2 md:w-auto w-full ">
         <app-descriptive-card class="flex-1" [isActive]="true"></app-descriptive-card>
         <app-descriptive-card class="flex-1"></app-descriptive-card>
@@ -61,3 +62,4 @@
     </div>
   </div>
 </div>
+

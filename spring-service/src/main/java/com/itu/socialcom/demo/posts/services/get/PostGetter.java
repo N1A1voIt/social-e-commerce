@@ -26,6 +26,7 @@ public class PostGetter {
         HashMap<Integer, List<String>> mediaMap = new HashMap<>();
         List<Media> media = mediaRepository.findAll();
         for (Media m : media) {
+            System.out.println("media:"+m.toString());
             if (m.getIdChild() != null) {
                 mediaMap.computeIfAbsent(m.getIdChild(), k -> new ArrayList<>()).add(m.getMediaUrl());
             }
@@ -80,7 +81,7 @@ public class PostGetter {
                             child.setPlatform(baseChild.getSupportedPlatform());
                             child.setUsername(baseChild.getPageTitle());
                             child.setMessage(baseChild.getDescription());
-
+                            
                             List<Media> childMedia = children.stream()
                                     .filter(m -> m.getMainMediaUrl() != null)
                                     .map(m -> new Media(m.getMainMediaUrl(), m.getType()))

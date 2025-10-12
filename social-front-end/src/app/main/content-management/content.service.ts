@@ -4,12 +4,57 @@ import {javaHost} from "../../../environments/environment";
 import {Observable} from "rxjs";
 import {ManagedPageCPL} from "../settings/account-details/account-details.component";
 import {Product} from "../products/products.types";
+import {ApiResponse} from "../inbox/inbox.service";
+import {ManagedPage} from "../authentication/validate-pages/page.service";
 
 export interface MotherPostDisplay {
   idPost:number,
   scheduled: boolean,
   title: string,
   creationDate : Date
+}
+
+export interface Media {
+  id: number,
+  mediaUrl: string,
+  idChild: number
+}
+
+export interface PostChild {
+  id: number,
+  postUrl: string,
+  mediaUrl?: string,
+  description?: string,
+  platformIdentifier: string,
+  type?: string,
+  idSp: number,
+  idChild1?: number,
+  idPost: number,
+  mediaList: Media[],
+  attachments?: PostChild[]
+}
+
+export interface PostStatistics {
+  platformReactions: PlatformReactionDistribution[],
+  likesTimeSeries: LikesTimeSeries[],
+  totalLikes: number,
+  totalViews: number,
+  totalComments: number,
+  totalShares: number
+}
+
+export interface PlatformReactionDistribution {
+  platformName: string,
+  platformId: number,
+  likesCount: number,
+  percentage: number
+}
+
+export interface LikesTimeSeries {
+  date: string,
+  likesCount: number,
+  platformName: string,
+  platformId: number
 }
 
 export interface PostUtilities {
@@ -31,5 +76,22 @@ export class ContentService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
     return this.http.get<PostUtilities>(javaHost + '/api/posts/fetch-utilities?page=0&size=10', { headers });
+  }
+  fetchPageIds() : Observable<ManagedPage[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return this.http.get<ManagedPage[]>(javaHost + '/api/posts/fetch-page-ids', { headers });
+  }
+
+  fetchPostChildren(postId: number): Observable<PostChild[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return this.http.get<PostChild[]>(`${javaHost}/api/posts/${postId}/children`, { headers });
+  }
+
+  fetchPostStatistics(postId: number): Observable<PostStatistics> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
+    return this.http.get<PostStatistics>(`${javaHost}/api/posts/${postId}/statistics`, { headers });
   }
 }

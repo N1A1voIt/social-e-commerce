@@ -7,7 +7,10 @@ import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Media;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
+import com.itu.socialcom.demo.posts.entity.LikesHistory;
 import com.itu.socialcom.demo.posts.entity.VRefreshTokenHolder;
+import com.itu.socialcom.demo.posts.repository.LikesHistoryRepository;
+import com.itu.socialcom.demo.potentialCustomers.repository.PotentialCustomerV2Repository;
 import com.itu.socialcom.demo.posts.repository.MediaRepository;
 import com.itu.socialcom.demo.posts.repository.PostChildRepository;
 import com.itu.socialcom.demo.posts.repository.VRefreshTokenHolderRepository;
@@ -22,6 +25,8 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class InstagramPostRetrieval extends PostRetrievalSignature{
@@ -57,7 +62,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
                 URI uri = UriComponentsBuilder
                         .fromHttpUrl("https://graph.facebook.com/v23.0")
                         .pathSegment(instagramUserId, "media")
-                        .queryParam("fields", "id,caption,media_type,media_url,permalink,timestamp,children{media_type,media_url,timestamp}")
+                        .queryParam("fields", "id,caption,media_type,media_url,permalink,timestamp,children{media_type,media_url,timestamp},like_count")
                         .queryParam("access_token", accessToken)
                         .build()
                         .toUri();
@@ -70,16 +75,17 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
                     if (dataNode != null && dataNode.isArray()) {
                         for (JsonNode postNode : dataNode) {
-                            if (postIdentifiers.contains(postNode.get("id").asText())) continue;
+                            String instagramPostId = postNode.get("id").asText();
                             Map<String, Object> postData = new HashMap<>();
 
                             postData.put("sellerId", seller.getId());
                             postData.put("instagramUserId", instagramUserId);
-                            postData.put("postId", postNode.path("id").asText());
+                            postData.put("postId", instagramPostId);
                             postData.put("caption", postNode.path("caption").asText(""));
                             postData.put("mediaType", postNode.path("media_type").asText());
                             postData.put("permalink", postNode.path("permalink").asText());
                             postData.put("timestamp", postNode.path("timestamp").asText());
+                            postData.put("isExisting", postIdentifiers.contains(instagramPostId));
 
                             // Single media (image/video)
                             if (!postNode.has("children")) {
@@ -127,7 +133,6 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
             Post post = new Post();
             post.setIdSeller(args.getSeller().getId());
 
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ENGLISH);
 
             ZonedDateTime zonedDateTime = ZonedDateTime.parse((String) rawPost.get("timestamp"), formatter);
@@ -135,6 +140,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
             post.setCreateAt(createdDateTime);
             post.setType("instagram_post");
+            post.setIsExisting((Boolean) rawPost.get("isExisting"));
 
             PostChild postChild = new PostChild();
             postChild.setIdSp(2L);
@@ -173,18 +179,91 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
     public List<Post> loadPost(ExtractorArgs args) {
         List<Post> posts = this.transformPost(args);
         if (posts != null && !posts.isEmpty()) {
+            List<PostChild> postChildren = postChildRepository.findByIdSp(2L);
+            List<Post> existingPosts = postRepository.findAll();
             for (Post post : posts) {
-                postRepository.save(post);
-                for (PostChild child : post.getPostChildren()) {
-                    child.setIdPost(post.getId());
-                    postChildRepository.save(child);
-                    for (Media media : child.getMediaList()) {
-                        media.setIdChild(child.getId());
-                        mediaRepository.save(media);
-                    }
+                if (post.getIsExisting() != null && post.getIsExisting()) {
+                    // Update existing Instagram post
+                    updateExistingInstagramPost(existingPosts,post,postChildren);
+                } else {
+                    // Create new Instagram post
+                    createNewInstagramPost(post);
                 }
             }
         }
         return posts;
+    }
+    
+    private void createNewInstagramPost(Post post) {
+        postRepository.save(post);
+        for (PostChild child : post.getPostChildren()) {
+            child.setIdPost(post.getId());
+            postChildRepository.save(child);
+            for (Media media : child.getMediaList()) {
+                media.setIdChild(child.getId());
+                mediaRepository.save(media);
+            }
+        }
+        System.out.println("Created new Instagram post: " + post.getId());
+    }
+    
+    private void updateExistingInstagramPost(List<Post> existingPosts,Post post,List<PostChild> postChildren) {
+        // Find existing post by platform_identifier (Instagram post ID) and id_sp (2 for Instagram)
+        String instagramPostId = post.getPostChildren().get(0).getPlatformIdentifier();
+
+        PostChild existingPostChild = null;
+        for (PostChild pc: postChildren) {
+            if (instagramPostId.equals(pc.getPlatformIdentifier())) existingPostChild = pc;
+        }
+        if (existingPostChild != null) {
+            PostChild mainPostChild = existingPostChild;
+            Integer existingPostId = mainPostChild.getIdPost();
+            
+            // Update the main post
+            Optional<Post> existingPost = existingPosts.stream().filter(ep -> ep.getId() == (existingPostId.longValue())).findFirst();
+            if (existingPost.isPresent()) {
+                Post postToUpdate = existingPost.get();
+                postToUpdate.setCreateAt(post.getCreateAt());
+                postRepository.save(postToUpdate);
+
+                // Update post child
+                PostChild newChild = post.getPostChildren().get(0);
+                if (hasInstagramPostChanged(mainPostChild, newChild)) {
+                    System.out.println("Detected changes in Instagram post: " + instagramPostId);
+
+                    mainPostChild.setDescription(newChild.getDescription());
+                    mainPostChild.setPostUrl(newChild.getPostUrl());
+                    mainPostChild.setType(newChild.getType());
+                    postChildRepository.save(mainPostChild);
+
+                    // Update media
+                    updateInstagramMedia(mainPostChild, newChild);
+                }
+
+                System.out.println("Updated existing Instagram post: " + existingPostId + " (platform_identifier: " + instagramPostId + ")");
+            }
+        } else {
+            System.err.println("Could not find existing Instagram post with platform_identifier: " + instagramPostId);
+        }
+    }
+    
+    private void updateInstagramMedia(PostChild existingChild, PostChild newChild) {
+        // Delete existing media
+        List<Media> existingMedia = mediaRepository.findByIdChild(existingChild.getId());
+        for (Media media : existingMedia) {
+            mediaRepository.delete(media);
+        }
+        
+        // Add new media
+        for (Media media : newChild.getMediaList()) {
+            media.setIdChild(existingChild.getId());
+            mediaRepository.save(media);
+        }
+    }
+    
+    private boolean hasInstagramPostChanged(PostChild existing, PostChild newChild) {
+        return !Objects.equals(existing.getDescription(), newChild.getDescription()) ||
+               !Objects.equals(existing.getPostUrl(), newChild.getPostUrl()) ||
+               !Objects.equals(existing.getType(), newChild.getType());
     }
 }

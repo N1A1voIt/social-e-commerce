@@ -28,4 +28,13 @@ public class Media {
     public Media(String mainMediaUrl, String type) {
         this.setMediaUrl(mainMediaUrl);
     }
+
+    @Override
+    public String toString() {
+        return "Media{" +
+                "id=" + id +
+                ", mediaUrl='" + mediaUrl + '\'' +
+                ", idChild=" + idChild +
+                '}';
+    }
 }
