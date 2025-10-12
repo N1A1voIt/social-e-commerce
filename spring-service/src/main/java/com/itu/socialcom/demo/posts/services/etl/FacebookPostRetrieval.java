@@ -7,9 +7,6 @@ import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import com.itu.socialcom.demo.posts.entity.LikesHistory;
-import com.itu.socialcom.demo.posts.entity.Media;
-import com.itu.socialcom.demo.posts.repository.MediaRepository;
-import com.itu.socialcom.demo.posts.entity.VRefreshTokenHolder;
 import com.itu.socialcom.demo.posts.repository.LikesHistoryRepository;
 
 import com.itu.socialcom.demo.posts.repository.VRefreshTokenHolderRepository;
@@ -230,15 +227,13 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         if (postM != null) {
             PostChild mainPostChild = postM;
             Integer existingPostId = mainPostChild.getIdPost();
-            
-            // Update the main post
+
             Optional<Post> existingPost = existingPosts.stream().filter(ep -> ep.getId().equals(existingPostId)).findFirst();
             if (existingPost.isPresent()) {
                 Post postToUpdate = existingPost.get();
                 postToUpdate.setCreateAt(post.getCreateAt());
                 postRepository.save(postToUpdate);
-                
-                // Update post children
+
                 updatePostChildren(existingPostChild,post.getPostChildren(), existingPostId, seller, managedPageCPLS);
                 
                 System.out.println("Updated existing Facebook post: " + existingPostId + " (platform_identifier: " + facebookPostId + ")");
@@ -391,7 +386,6 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         String attachmentUrl = attachment.has("url") ? attachment.get("url").asText() : "";
 
         if ("album".equals(mediaType)) {
-            // Handle album with multiple photos
             if (attachment.has("subattachments") && attachment.get("subattachments").has("data")) {
                 JsonNode subAttachments = attachment.get("subattachments").get("data");
 
@@ -403,13 +397,11 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 }
             }
         } else if ("photo".equals(mediaType)) {
-            // Handle single photo
             PostChild photoChild = createSinglePhotoChild(attachment, pageId, postId);
             if (photoChild != null) {
                 postChildren.add(photoChild);
             }
         } else {
-            // Handle other media types
             PostChild mediaChild = new PostChild();
             mediaChild.setPostUrl(attachmentUrl);
 //            mediaChild.setPlatformIdentifier(postId);
@@ -439,7 +431,6 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
 
         PostChild photoChild = new PostChild();
 
-        // Set URLs
         if (subAttachment.has("url")) {
             photoChild.setPostUrl(subAttachment.get("url").asText());
         }
@@ -451,12 +442,8 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
             }
         }
 
-        // Set identifiers
         String photoId = "";
-        if (subAttachment.has("target") && subAttachment.get("target").has("id")) {
-//            System.out.println("The id of the subattachment target is: " + subAttachment.toString());
-//            photoId = subAttachment.get("id").asText();
-        }
+        if (subAttachment.has("target") && subAttachment.get("target").has("id")) {}
 
         photoChild.setPlatformIdentifier(photoId.isEmpty() ? "" : photoId);
         photoChild.setType("photo");
