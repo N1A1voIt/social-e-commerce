@@ -14,7 +14,10 @@ public interface OrderParentRepository extends JpaRepository<OrderParent, Long> 
     int countByIdSeller(Integer idSeller);
 
     List<OrderParent> findByIdOrderM(Long idOrderM);
-    @Query("SELECT o FROM OrderParent o WHERE o.idSeller = :idSeller AND o.dStatus>=:dStatus ORDER BY o.createdAt DESC")
-    List<OrderParent> findByDStatusGreaterThanEqualAndIdSeller(@Param("dStatus") Integer dStatus,@Param("idSeller") Integer idSeller);
+    @Query("SELECT o FROM OrderParent o WHERE o.idSeller = :idSeller AND o.dStatus>=:dStatus AND o.createdAt >= :startDate AND o.createdAt <= :endDate ORDER BY o.createdAt DESC")
+    List<OrderParent> findByDStatusGreaterThanEqualAndIdSeller(@Param("dStatus") Integer dStatus,
+                                                               @Param("idSeller") Integer idSeller,
+                                                               @Param("startDate") java.time.LocalDateTime startDate,
+                                                               @Param("endDate") java.time.LocalDateTime endDate);
 
 }

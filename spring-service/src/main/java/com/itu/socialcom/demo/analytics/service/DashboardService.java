@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.analytics.service;
 
+import com.itu.socialcom.demo.analytics.dto.DashboardRequestDto;
 import com.itu.socialcom.demo.analytics.dto.DashboardStatsDto;
 import com.itu.socialcom.demo.analytics.dto.PagesRepartitionDto;
 import com.itu.socialcom.demo.analytics.dto.PlatformRepartitionDto;
@@ -27,9 +28,10 @@ public class DashboardService {
     private EntityManager entityManager;
 
 
-    public DashboardStatsDto getDashboardStats(Integer sellerId) {
+    public DashboardStatsDto getDashboardStats(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
         // Get orders with status >= 25 for the seller
-        List<OrderParent> completedOrders = orderParentRepository.findByDStatusGreaterThanEqualAndIdSeller(25, sellerId);
+        List<OrderParent> completedOrders = orderParentRepository.findByDStatusGreaterThanEqualAndIdSeller(25, sellerId,
+                dashboardRequestDto.getStartDate(), dashboardRequestDto.getEndDate());
         
         // Calculate total revenue
         Double totalRevenue = completedOrders.stream()
@@ -61,13 +63,13 @@ public class DashboardService {
         String dateRange = thirtyDaysAgo.format(DateTimeFormatter.ofPattern("MMM d")) + 
                           " to " + now.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
         DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, revenuePerUser, bestDeal, totalSales, dateRange);
-        PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId);
-        PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId);
+        PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId,dashboardRequestDto);
+        PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId,dashboardRequestDto);
         dashboardStatsDto.setPlatformRepartition(platformRepartitionDtos);
         dashboardStatsDto.setPagesRepartition(pagesRepartitionDtos);
         return dashboardStatsDto;
     }
-    public PlatformRepartitionDto[] platformRepartitionDtos(Integer sellerId) {
+    public PlatformRepartitionDto[] platformRepartitionDtos(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
         List<Object[]> results = entityManager.createNativeQuery(
                         "WITH total_revenue AS ( " +
                                 "    SELECT SUM(d_total) AS total_revenue " +
@@ -79,9 +81,11 @@ public class DashboardService {
                                 "       sum(d_total) as total, id_sp " +
                                 "FROM v_order_mother_cpl " +
                                 "CROSS JOIN total_revenue " +
-                                "WHERE v_order_mother_cpl.id_seller = :sellerId " +
+                                "WHERE v_order_mother_cpl.id_seller = :sellerId AND v_order_mother_cpl.created_at >= :startDate AND v_order_mother_cpl.created_at <= :endDate " +
                                 "GROUP BY id_sp,total_revenue.total_revenue"
                 ).setParameter("sellerId", sellerId)
+                .setParameter("startDate", dashboardRequestDto.getStartDate())
+                .setParameter("endDate", dashboardRequestDto.getEndDate())
                 .getResultList();
 
         List<PlatformRepartitionDto> dtos = results.stream()
@@ -96,7 +100,7 @@ public class DashboardService {
         return dtos.toArray(new PlatformRepartitionDto[0]);
     }
 
-    public PagesRepartitionDto[] pagesRepartitionDtos(Integer sellerId) {
+    public PagesRepartitionDto[] pagesRepartitionDtos(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
         List<Object[]> results = entityManager.createNativeQuery(
                         "WITH total_revenue AS ( " +
                                 "    SELECT SUM(d_total) AS total_revenue " +
@@ -114,10 +118,12 @@ public class DashboardService {
                                 "FROM v_order_mother_cpl " +
                                 "RIGHT JOIN managed_pages mp on v_order_mother_cpl.id_managed_pages = mp.id_mp " +
                                 "CROSS JOIN total_revenue " +
-                                "WHERE v_order_mother_cpl.id_seller = :sellerId " +
+                                "WHERE v_order_mother_cpl.id_seller = :sellerId AND v_order_mother_cpl.created_at >= :startDate AND v_order_mother_cpl.created_at <= :endDate " +
                                 "GROUP BY mp.id_mp, mp.id_sp, mp.page_title, mp.associated_media, total_revenue.total_revenue"
                 )
                 .setParameter("sellerId", sellerId)
+                .setParameter("startDate", dashboardRequestDto.getStartDate())
+                .setParameter("endDate", dashboardRequestDto.getEndDate())
                 .getResultList();
 
         List<PagesRepartitionDto> dtos = results.stream()

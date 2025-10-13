@@ -31,6 +31,10 @@ export interface DashboardStats {
   pagesRepartition: PagesRepartitionDto[];
 
 }
+export interface DashboardRequest {
+  startDate: Date;
+  endDate: Date;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -39,10 +43,10 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
-  getDashboardStats(): Observable<ApiResponse> {
+  getDashboardStats(dashboardRequest: DashboardRequest): Observable<ApiResponse> {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
-    return this.http.get<ApiResponse>(javaHost + '/api/dashboard/stats', { headers: header });
+    return this.http.post<ApiResponse>(javaHost + '/api/dashboard/stats', dashboardRequest , { headers: header });
   }
 }
