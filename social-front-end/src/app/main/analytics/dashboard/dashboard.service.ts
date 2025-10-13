@@ -4,12 +4,30 @@ import { Observable } from 'rxjs';
 import { ApiResponse } from '../../inbox/inbox.service';
 import { javaHost } from '../../../../environments/environment';
 
+export interface PlatformRepartitionDto {
+  dummyId: number;           // dummy_id
+  totalPercentage: number;   // total_percentage
+  total: number;
+  idSp: number;              // id_sp
+}
+
+export interface PagesRepartitionDto {
+  dummyId: number;           // dummy_id
+  totalPercentage: number;   // total_percentage
+  total: number;
+  pageTitle: string;         // page_title
+  idSp: number;              // id_sp
+  idManagedPages: number;    // id_managed_pages
+}
+
 export interface DashboardStats {
   totalRevenue: number;
   revenuePerUser: number;
   bestDeal: number;
   totalSales: number;
   dateRange: string;
+  platformRepartition: PlatformRepartitionDto[];
+  pagesRepartition: PagesRepartitionDto[];
 }
 
 @Injectable({

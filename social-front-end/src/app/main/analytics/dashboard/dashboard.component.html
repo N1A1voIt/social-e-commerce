@@ -43,9 +43,7 @@
   </div>
   <div class="w-full py-6 ">
     <div class="w-full h-[50px] rounded-full bg-fotsy sm:flex hidden flex-row items-center justify-center p-1 gap-1 ">
-      <app-account-performances class="w-[19.20%]" [percentage]="19.20" [amount]="12000"></app-account-performances>
-      <app-account-performances class="w-[30.80%]" [percentage]="30.80" [amount]="30000"></app-account-performances>
-      <app-account-performances class="w-[50%]" [percentage]="50" [amount]="40000"></app-account-performances>
+      <app-account-performances *ngFor="let d of dashboardStats?.platformRepartition" [platformId]="d.idSp" class="w-[{{d.totalPercentage}}%]" [percentage]="d.totalPercentage" [amount]="d.total"></app-account-performances>
     </div>
   </div>
   <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">

@@ -5,13 +5,9 @@ import lombok.Data;
 
 @Data
 public class PlatformRepartitionDto {
-    @JsonProperty("dummy_id")
     Integer dummyId;
-    @JsonProperty("total_percentage")
     Double totalPercentage;
-    @JsonProperty("total")
     Double total;
-    @JsonProperty("id_sp")
     Integer idSp;
     
     public PlatformRepartitionDto() {}
