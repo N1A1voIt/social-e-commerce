@@ -11,6 +11,7 @@ import {DescriptiveCardComponent} from "./descriptive-card/descriptive-card.comp
 import {AccountPerformancesComponent} from "./account-performances/account-performances.component";
 import {BarChartComponent} from "./bar-chart/bar-chart.component";
 import {DashboardService, DashboardStats} from "./dashboard.service";
+import {AccountChartComponent} from "./account-chart/account-chart.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -26,7 +27,8 @@ import {DashboardService, DashboardStats} from "./dashboard.service";
     BestDealsCardComponent,
     DescriptiveCardComponent,
     AccountPerformancesComponent,
-    BarChartComponent
+    BarChartComponent,
+    AccountChartComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

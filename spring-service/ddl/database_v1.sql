@@ -747,11 +747,12 @@ WITH total_revenue AS (
     FROM order_mother
     WHERE id_seller = 1
 )
-SELECT  row_number() over () as dummy_id,sum(d_total)/total_revenue.total_revenue * 100 as total_percentage,page_title,sum(d_total) as total,id_managed_pages,id_sp
+SELECT  row_number() over () as dummy_id,COALESCE(sum(d_total)/total_revenue.total_revenue * 100,0) as total_percentage,mp.page_title,mp.associated_media,COALESCE(sum(d_total),0) as total,mp.id_mp as id_managed_pages,mp.id_sp
 FROM v_order_mother_cpl
+    RIGHT JOIN managed_pages mp on v_order_mother_cpl.id_managed_pages = mp.id_mp
     CROSS JOIN total_revenue
-WHERE v_order_mother_cpl.id_seller = 1
-GROUP BY id_managed_pages,id_sp,page_title,total_revenue.total_revenue;
+WHERE mp.id_seller = 1
+GROUP BY mp.id_mp,mp.id_sp,mp.page_title,total_revenue.total_revenue;
 
 
 --

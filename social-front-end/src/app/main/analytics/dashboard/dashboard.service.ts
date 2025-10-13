@@ -18,6 +18,7 @@ export interface PagesRepartitionDto {
   pageTitle: string;         // page_title
   idSp: number;              // id_sp
   idManagedPages: number;    // id_managed_pages
+  associatedMedia: string;
 }
 
 export interface DashboardStats {
@@ -28,6 +29,7 @@ export interface DashboardStats {
   dateRange: string;
   platformRepartition: PlatformRepartitionDto[];
   pagesRepartition: PagesRepartitionDto[];
+
 }
 
 @Injectable({

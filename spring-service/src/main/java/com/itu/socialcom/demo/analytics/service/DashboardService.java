@@ -103,16 +103,19 @@ public class DashboardService {
                                 "    FROM order_mother " +
                                 "    WHERE id_seller = :sellerId " +
                                 ") " +
-                                "SELECT row_number() over () as dummy_id, " +
-                                "       sum(d_total)/total_revenue.total_revenue * 100 as total_percentage, " +
-                                "       sum(d_total) as total, " +
-                                "       page_title, " +
-                                "       id_managed_pages, " +
-                                "       id_sp " +
+                                "SELECT  " +
+                                "   row_number() over () as dummy_id, " +
+                                "   COALESCE(sum(d_total)/total_revenue.total_revenue * 100,0) as total_percentage, " +
+                                "   mp.page_title, " +
+                                "   mp.associated_media, " + // 4th column
+                                "   COALESCE(sum(d_total),0) as total, " +
+                                "   mp.id_mp as id_managed_pages, " +
+                                "   mp.id_sp " +
                                 "FROM v_order_mother_cpl " +
+                                "RIGHT JOIN managed_pages mp on v_order_mother_cpl.id_managed_pages = mp.id_mp " +
                                 "CROSS JOIN total_revenue " +
                                 "WHERE v_order_mother_cpl.id_seller = :sellerId " +
-                                "GROUP BY id_managed_pages, id_sp, page_title, total_revenue.total_revenue"
+                                "GROUP BY mp.id_mp, mp.id_sp, mp.page_title, mp.associated_media, total_revenue.total_revenue"
                 )
                 .setParameter("sellerId", sellerId)
                 .getResultList();
@@ -121,14 +124,16 @@ public class DashboardService {
                 .map(r -> new PagesRepartitionDto(
                         ((Number) r[0]).intValue(),   // dummy_id
                         ((Number) r[1]).doubleValue(),// total_percentage
-                        ((Number) r[2]).doubleValue(),// total
-                        (String) r[3],                // page_title
-                        ((Number) r[5]).intValue(),   // id_sp
-                        ((Number) r[4]).intValue()    // id_managed_pages
+                        ((Number) r[4]).doubleValue(),// total
+                        (String) r[2],                // page_title
+                        ((Number) r[6]).intValue(),   // id_sp
+                        ((Number) r[5]).intValue(),   // id_managed_pages
+                        (String) r[3]                 // associated_media
                 ))
                 .toList();
 
         return dtos.toArray(new PagesRepartitionDto[0]);
     }
+
 
 }
