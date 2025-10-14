@@ -28,11 +28,8 @@
           <app-revenue-badge class="w-auto" [showIcon]="false" text="27,335"></app-revenue-badge>
         </div>
       </div>
-      <div>
-        <span>From Sep 1 to Aug 31 2025</span>
-      </div>
-     <app-date-selector 
-       [startDate]="dashboardRequest.startDate" 
+     <app-date-selector
+       [startDate]="dashboardRequest.startDate"
        [endDate]="dashboardRequest.endDate"
        (dateRangeChange)="onDateRangeChange($event)">
      </app-date-selector>
@@ -62,7 +59,8 @@
       </div>
     </div>
     <div class="w-full 2xl:w-1/2 h-[350px] 2xl:h-[400px]">
-      <app-bar-chart></app-bar-chart>
+<!--      <app-bar-chart></app-bar-chart>-->
+      <app-line-chart [data]="dashboardStats?.salesProgressionDto || {labels:[],data:[]}" ></app-line-chart>
     </div>
   </div>
 </div>

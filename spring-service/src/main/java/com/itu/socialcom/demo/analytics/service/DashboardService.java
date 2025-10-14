@@ -1,21 +1,20 @@
 package com.itu.socialcom.demo.analytics.service;
 
-import com.itu.socialcom.demo.analytics.dto.DashboardRequestDto;
-import com.itu.socialcom.demo.analytics.dto.DashboardStatsDto;
-import com.itu.socialcom.demo.analytics.dto.PagesRepartitionDto;
-import com.itu.socialcom.demo.analytics.dto.PlatformRepartitionDto;
+import com.itu.socialcom.demo.analytics.dto.*;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.repository.OrderMotherCplRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DashboardService {
@@ -67,6 +66,7 @@ public class DashboardService {
         PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId,dashboardRequestDto);
         dashboardStatsDto.setPlatformRepartition(platformRepartitionDtos);
         dashboardStatsDto.setPagesRepartition(pagesRepartitionDtos);
+        dashboardStatsDto.setSalesProgressionDto(getSalesProgression(dashboardRequestDto,sellerId));
         return dashboardStatsDto;
     }
     public PlatformRepartitionDto[] platformRepartitionDtos(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
@@ -140,6 +140,51 @@ public class DashboardService {
 
         return dtos.toArray(new PagesRepartitionDto[0]);
     }
+
+    public SalesProgressionDto getSalesProgression(DashboardRequestDto dashboardRequestDto, Integer sellerId) {
+
+        // Determine if we should apply the date filter
+        boolean applyDateFilter = !(dashboardRequestDto.getStartDate().toLocalDate().equals(LocalDate.of(1990,1,1))
+                && dashboardRequestDto.getEndDate().toLocalDate().equals(LocalDate.of(3000,1,1)));
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT DATE(created_at) AS sale_date, SUM(d_total) AS total_sales " +
+                        "FROM order_mother " +
+                        "WHERE id_seller = :sellerId "
+        );
+
+        if (applyDateFilter) {
+            sql.append("AND (created_at >= :startDate) AND (created_at <= :endDate) ");
+        }
+
+        sql.append("GROUP BY sale_date ORDER BY sale_date");
+
+        var query = entityManager.createNativeQuery(sql.toString())
+                .setParameter("sellerId", sellerId);
+
+        if (applyDateFilter) {
+            query.setParameter("startDate", dashboardRequestDto.getStartDate())
+                    .setParameter("endDate", dashboardRequestDto.getEndDate());
+        }
+
+        List<Object[]> results = query.getResultList();
+
+        // Step 1: map query results and generate labels & data only for dates that have sales
+        List<String> labels = new ArrayList<>();
+        List<Double> data = new ArrayList<>();
+
+        for (Object[] row : results) {
+            java.sql.Date sqlDate = (java.sql.Date) row[0];
+            LocalDate date = sqlDate.toLocalDate();
+            Double total = ((Number) row[1]).doubleValue();
+
+            labels.add(date.toString()); // or format to "10 Oct" if you want
+            data.add(total);
+        }
+
+        return new SalesProgressionDto(labels, data);
+    }
+
 
 
 }

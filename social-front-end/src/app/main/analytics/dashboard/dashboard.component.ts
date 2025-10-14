@@ -15,6 +15,7 @@ import {AccountChartComponent} from "./account-chart/account-chart.component";
 import {BasicInputComponent} from "../../../shared/basic-input/basic-input.component";
 import {FormsModule} from "@angular/forms";
 import {DateSelectorComponent} from "../../../shared/date-selector/date-selector.component";
+import {LineChartComponent} from "./line-chart/line-chart.component";
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -33,7 +34,8 @@ import {DateSelectorComponent} from "../../../shared/date-selector/date-selector
     AccountChartComponent,
     BasicInputComponent,
     FormsModule,
-    DateSelectorComponent
+    DateSelectorComponent,
+    LineChartComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -102,7 +104,7 @@ export class DashboardComponent implements OnInit {
     // Update the dashboard request with new date range
     this.dashboardRequest.startDate = dateRange.startDate;
     this.dashboardRequest.endDate = dateRange.endDate;
-    
+
     // Filter dashboard data with the new date range
     this.filterDashboardData();
   }

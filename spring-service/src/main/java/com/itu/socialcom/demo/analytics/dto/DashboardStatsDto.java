@@ -15,6 +15,8 @@ public class DashboardStatsDto {
     private String dateRange;
     private PlatformRepartitionDto[] platformRepartition;
     private PagesRepartitionDto[] pagesRepartition;
+    private SalesProgressionDto salesProgressionDto;
+
     public DashboardStatsDto() {}
     
     public DashboardStatsDto(Double totalRevenue, Double revenuePerUser, Double bestDeal, Long totalSales, String dateRange) {

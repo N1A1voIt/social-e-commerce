@@ -20,7 +20,10 @@ export interface PagesRepartitionDto {
   idManagedPages: number;    // id_managed_pages
   associatedMedia: string;
 }
-
+export interface SalesProgressionDto {
+  labels: string[];
+  data: number[];
+}
 export interface DashboardStats {
   totalRevenue: number;
   revenuePerUser: number;
@@ -29,7 +32,7 @@ export interface DashboardStats {
   dateRange: string;
   platformRepartition: PlatformRepartitionDto[];
   pagesRepartition: PagesRepartitionDto[];
-
+  salesProgressionDto: SalesProgressionDto;
 }
 export interface DashboardRequest {
   startDate: Date;

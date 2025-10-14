@@ -43,7 +43,7 @@ export class AccountChartComponent implements OnChanges {
   };
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && this.data.length > 0) {
+    if (changes['data']) {
       this.updateChart();
     }
   }
