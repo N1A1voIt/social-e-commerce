@@ -45,6 +45,9 @@ public class PostChild {
     @Column(name = "id_post", nullable = false)
     private Integer idPost;
 
+    @Column(name = "id_mp")
+    private Integer idMp;
+
     @Transient
     List<Media> mediaList;
 

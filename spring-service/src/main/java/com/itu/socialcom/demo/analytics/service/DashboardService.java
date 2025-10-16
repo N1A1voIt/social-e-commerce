@@ -184,7 +184,4 @@ public class DashboardService {
 
         return new SalesProgressionDto(labels, data);
     }
-
-
-
 }
