@@ -20,7 +20,7 @@ public class RefillService {
 
     public List<String> generateRefillMessages(LocalDateTime fromDate) {
 
-        List<StockChild> sales = stockChildRepository.findByActionAtAfterOrderByIdProductAscActionAtAsc((fromDate);
+        List<StockChild> sales = stockChildRepository.findByActionAtAfterOrderByIdProductAscActionAtAsc(fromDate);
 //        findByActionAtAfterOrderByIdProductAscActionAtAsc
         // Group by product
         Map<Long, List<StockChild>> productSalesMap = sales.stream()

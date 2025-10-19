@@ -9,6 +9,7 @@ import com.itu.socialcom.demo.stocks.StockChild;
 import com.itu.socialcom.demo.stocks.StockParent;
 import com.itu.socialcom.demo.stocks.dto.StockUtilities;
 import com.itu.socialcom.demo.stocks.repository.StockChildRepository;
+import com.itu.socialcom.demo.stocks.services.RefillService;
 import com.itu.socialcom.demo.stocks.services.StockServiceImpl;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import org.checkerframework.checker.units.qual.A;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,7 +28,8 @@ public class StockController {
     StockServiceImpl stockService;
     @Autowired
     StockChildRepository stockChildRepository;
-
+    @Autowired
+    RefillService refillService;
     @Autowired
     TokenV2Service tokenV2Service;
     @GetMapping("/api/stocks/utils")
@@ -100,5 +103,10 @@ public class StockController {
             apiResponse.setErrors(List.of(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
         }
+    }
+    @GetMapping("/api/stocks/refill-messages")
+    public List<String> getRefillMessages(@RequestParam(required = false) String fromDate) {
+        LocalDateTime startDate = (fromDate != null) ? LocalDateTime.parse(fromDate) : LocalDateTime.now().minusMonths(6);
+        return refillService.generateRefillMessages(startDate);
     }
 }
