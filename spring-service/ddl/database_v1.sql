@@ -572,6 +572,21 @@ CREATE TABLE deliverer_token(
 );
 
 
+CREATE TABLE likes_state_log (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    username varchar(250) NOT NULL,
+    id_user_platform varchar(250) NOT NULL,
+    id_sp INTEGER NOT NULL,
+    reaction varchar(250),
+    id_child INTEGER NOT NULL,
+    id_mp INTEGER NOT NULL,
+    happened_at TIMESTAMP NOT NULL DEFAULT now(),
+    FOREIGN KEY (id_sp) REFERENCES supported_platforms_v2(id_sp),
+    FOREIGN KEY (id_child) REFERENCES post_childs(id_child),
+    FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
+);
+
 
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$

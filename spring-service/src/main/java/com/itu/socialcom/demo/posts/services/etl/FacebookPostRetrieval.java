@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
+import com.itu.socialcom.demo.posts.entity.LikesStateLog;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import com.itu.socialcom.demo.posts.entity.LikesHistory;
@@ -508,19 +509,30 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 JsonNode reactionsData = reactionsJson.get("data");
                 
                 if (reactionsData != null && reactionsData.isArray()) {
+                    System.out.println("Fetching reactions for post: " + postChild.getIdMp());
+                    LikesHistory likesHistory = new LikesHistory();
+                    likesHistory.setIdChild(postChild.getId());
+                    likesHistory.setReactions(reactionsData.size()); // Each reaction counts as 1
+                    likesHistory.setCreatedAt(LocalDateTime.now());
+
+                    likesHistoryRepository.save(likesHistory);
+
                     for (JsonNode reaction : reactionsData) {
                         String userId = reaction.get("id").asText();
                         String userName = reaction.get("name").asText();
                         String reactionType = reaction.get("type").asText();
-//                        String createdTime = reaction.get("created_time").asText();
-
-                        // Create likes history entry
-                        LikesHistory likesHistory = new LikesHistory();
-                        likesHistory.setIdChild(postChild.getId());
-                        likesHistory.setReactions(1); // Each reaction counts as 1
-                        likesHistory.setCreatedAt(LocalDateTime.now());
-                        
-                        likesHistoryRepository.save(likesHistory);
+                        LocalDateTime createdTime = LocalDateTime.now();
+                        LikesStateLog likesStateLog = new LikesStateLog();
+                        likesStateLog.setReaction(reactionType);
+                        likesStateLog.setIdChild(postChild.getId());
+                        likesStateLog.setIdUserPlatform(userId);
+                        likesStateLog.setUsername(userName);
+                        likesStateLog.setCreatedAt(createdTime);
+                        likesStateLog.setHappenedAt(createdTime);
+                        likesStateLog.setIdSp(1);
+                        likesStateLog.setIdMp(postChild.getIdMp());
+                        likesStateLogRepository.save(likesStateLog);
+                        System.out.println("Reaction from user: " + userName + " (ID: " + userId + ") - Type: " + reactionType);
                     }
                 }
             }
