@@ -16,6 +16,7 @@ import {BasicInputComponent} from "../../../shared/basic-input/basic-input.compo
 import {FormsModule} from "@angular/forms";
 import {DateSelectorComponent} from "../../../shared/date-selector/date-selector.component";
 import {LineChartComponent} from "./line-chart/line-chart.component";
+import {HeatmapComponent} from "./heatmap/heatmap.component";
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -35,7 +36,8 @@ import {LineChartComponent} from "./line-chart/line-chart.component";
     BasicInputComponent,
     FormsModule,
     DateSelectorComponent,
-    LineChartComponent
+    LineChartComponent,
+    HeatmapComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -69,7 +71,7 @@ export class DashboardComponent implements OnInit {
           this.error = 'Failed to load dashboard data';
         }
         this.loading = false;
-        console.log(this.dashboardStats)
+        console.log(this.dashboardStats?.heatmapData)
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);

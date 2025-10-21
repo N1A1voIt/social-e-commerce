@@ -942,6 +942,38 @@ ORDER BY
     hour;
 
 
+SELECT
+    CONCAT('Week ', EXTRACT(WEEK FROM created_at)) AS y_axis,
+    CASE EXTRACT(DOW FROM created_at)
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS x_axis
+        ,
+    COUNT(*) AS post_count,
+    ROUND(AVG(reactions), 2) AS avg_reactions,
+    MIN(EXTRACT(DOW FROM created_at)) AS dow_order,
+    MIN(EXTRACT(HOUR FROM created_at)) AS hour_order,
+    MIN(EXTRACT(WEEK FROM created_at)) AS week_order,
+    MIN(EXTRACT(MONTH FROM created_at)) AS month_order
+FROM likes_history
+WHERE reactions IS NOT NULL
+GROUP BY y_axis, x_axis
+ORDER BY
+    CASE
+        WHEN y_axis ~ '^[0-9]' THEN CAST(REGEXP_REPLACE(y_axis, '[^0-9]', '', 'g') AS INTEGER)
+        ELSE dow_order
+        END,
+    CASE
+        WHEN x_axis ~ '^[0-9]' THEN CAST(REGEXP_REPLACE(x_axis, '[^0-9]', '', 'g') AS INTEGER)
+        ELSE hour_order
+    END;
+
+
 
 -- Electronics & Technology
 INSERT INTO category (val, desc_) VALUES ('Electronics', 'Consumer electronics, gadgets, and electronic devices');

@@ -34,6 +34,20 @@ export interface DashboardStats {
   pagesRepartition: PagesRepartitionDto[];
   salesProgressionDto: SalesProgressionDto;
   bestTimeToPost: BestTimeToPost;
+  heatmapData: HeatmapData;
+}
+export interface HeatmapCell {
+  x: string;
+  y: string;
+  postCount: number;
+  avgReactions: number;
+}
+
+export interface HeatmapData {
+  xlabels: string[];
+  ylabels: string[];
+  cells: HeatmapCell[];
+  timeFrame: 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 }
 export interface BestTimeToPost {
   day:string;

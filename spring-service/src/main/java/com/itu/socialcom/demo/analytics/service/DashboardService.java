@@ -25,6 +25,8 @@ public class DashboardService {
     private OrderMotherCplRepository orderMotherCplRepository;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    HeatmapService heatmapService;
 
 
     public DashboardStatsDto getDashboardStats(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
@@ -61,12 +63,14 @@ public class DashboardService {
         LocalDateTime thirtyDaysAgo = now.minusDays(30);
         String dateRange = thirtyDaysAgo.format(DateTimeFormatter.ofPattern("MMM d")) + 
                           " to " + now.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+        HeatmapData heatmapData = heatmapService.getHeatmapData("MONTHLY",dashboardRequestDto.getStartDate(),dashboardRequestDto.getEndDate());
         BestTimeToPost bestTimeToPost = bestPostTimeForBetterAttendance(sellerId,dashboardRequestDto);
         DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, revenuePerUser, bestDeal, totalSales, dateRange);
         PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId,dashboardRequestDto);
         PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId,dashboardRequestDto);
         dashboardStatsDto.setPlatformRepartition(platformRepartitionDtos);
         dashboardStatsDto.setPagesRepartition(pagesRepartitionDtos);
+        dashboardStatsDto.setHeatmapData(heatmapData);
         dashboardStatsDto.setBestTimeToPost(bestTimeToPost);
         dashboardStatsDto.setSalesProgressionDto(getSalesProgression(dashboardRequestDto,sellerId));
         return dashboardStatsDto;
@@ -239,4 +243,10 @@ public class DashboardService {
 
         return new SalesProgressionDto(labels, data);
     }
+
+
+
+
+
+
 }
