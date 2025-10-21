@@ -3,6 +3,7 @@ import {HttpClient} from "@angular/common/http";
 import {ProductCpl} from "./products.types";
 import {javaHost} from "../../../environments/environment";
 import {Observable} from "rxjs";
+import {ApiResponse} from "../inbox/inbox.service";
 
 @Injectable({
   providedIn: 'root'
@@ -16,4 +17,5 @@ export class ProductServiceService {
     };
     return this.http.get<ProductCpl[]>(javaHost + '/api/products/cpl',{headers:header});
   }
+
 }

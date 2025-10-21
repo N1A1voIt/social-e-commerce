@@ -383,12 +383,12 @@ CREATE TABLE medias(
 CREATE TABLE likes_history(
       id_lh SERIAL,
       created_at TIMESTAMP NOT NULL,
-      deleted BOOLEAN,
-      id_post INTEGER NOT NULL,
-      id_pc TEXT NOT NULL,
+      id_child INTEGER NOT NULL,
+      reactions INTEGER,
       PRIMARY KEY(id_lh),
-      FOREIGN KEY(id_post) REFERENCES posts(id_post),
-      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+      FOREIGN KEY (id_child) REFERENCES post_childs(id_child)
+--       FOREIGN KEY(id_post) REFERENCES posts(id_post),
+--       FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
 
 CREATE TABLE sales(
