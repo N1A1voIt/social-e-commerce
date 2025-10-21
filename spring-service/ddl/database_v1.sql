@@ -827,6 +827,11 @@ GROUP BY mp.id_mp,mp.id_sp,mp.page_title,total_revenue.total_revenue;
 --     FOR EACH ROW
 -- EXECUTE FUNCTION update_stocks_child_denormalized_fields_function();
 
+
+CREATE VIEW v_likes_history_post_child AS (
+    SELECT likes_history.*,pc.id_mp,p.id_seller FROM likes_history JOIN post_childs pc on pc.id_child = likes_history.id_child JOIN posts p on pc.id_post = p.id_post
+);
+
 WITH engagement_by_datetime AS (
     SELECT
         EXTRACT(DOW FROM created_at) AS day_of_week,
@@ -835,8 +840,8 @@ WITH engagement_by_datetime AS (
         SUM(reactions) AS total_reactions,
         AVG(reactions) AS avg_reactions,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY reactions) AS median_reactions
-    FROM likes_history
-    WHERE reactions IS NOT NULL
+    FROM v_likes_history_post_child
+    WHERE reactions IS NOT NULL AND id_seller = 1
     GROUP BY
         EXTRACT(DOW FROM created_at),
         EXTRACT(HOUR FROM created_at)
@@ -857,7 +862,7 @@ SELECT
     ROUND(avg_reactions, 2) AS avg_reactions,
     median_reactions AS median_reactions
 FROM engagement_by_datetime
-WHERE total_posts >= 5  -- Filter out combinations with too few posts
+WHERE total_posts >= 5 -- Filter out combinations with too few posts
 ORDER BY avg_reactions DESC
 LIMIT 10;
 

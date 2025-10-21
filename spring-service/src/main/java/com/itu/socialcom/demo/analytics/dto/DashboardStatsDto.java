@@ -16,7 +16,7 @@ public class DashboardStatsDto {
     private PlatformRepartitionDto[] platformRepartition;
     private PagesRepartitionDto[] pagesRepartition;
     private SalesProgressionDto salesProgressionDto;
-
+    private BestTimeToPost bestTimeToPost;
     public DashboardStatsDto() {}
     
     public DashboardStatsDto(Double totalRevenue, Double revenuePerUser, Double bestDeal, Long totalSales, String dateRange) {

@@ -61,11 +61,13 @@ public class DashboardService {
         LocalDateTime thirtyDaysAgo = now.minusDays(30);
         String dateRange = thirtyDaysAgo.format(DateTimeFormatter.ofPattern("MMM d")) + 
                           " to " + now.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+        BestTimeToPost bestTimeToPost = bestPostTimeForBetterAttendance(sellerId,dashboardRequestDto);
         DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, revenuePerUser, bestDeal, totalSales, dateRange);
         PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId,dashboardRequestDto);
         PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId,dashboardRequestDto);
         dashboardStatsDto.setPlatformRepartition(platformRepartitionDtos);
         dashboardStatsDto.setPagesRepartition(pagesRepartitionDtos);
+        dashboardStatsDto.setBestTimeToPost(bestTimeToPost);
         dashboardStatsDto.setSalesProgressionDto(getSalesProgression(dashboardRequestDto,sellerId));
         return dashboardStatsDto;
     }
@@ -98,6 +100,59 @@ public class DashboardService {
                 .toList();
 
         return dtos.toArray(new PlatformRepartitionDto[0]);
+    }
+
+    public BestTimeToPost bestPostTimeForBetterAttendance(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
+        // Implementation pending
+        List<Object[]> results = entityManager.createNativeQuery(
+                        "WITH engagement_by_datetime AS ( " +
+                                "    SELECT " +
+                                "        EXTRACT(DOW FROM created_at) AS day_of_week, " +
+                                "        EXTRACT(HOUR FROM created_at) AS hour_of_day, " +
+                                "        COUNT(*) AS total_posts, " +
+                                "        SUM(reactions) AS total_reactions, " +
+                                "        AVG(reactions) AS avg_reactions, " +
+                                "        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY reactions) AS median_reactions " +
+                                "    FROM v_likes_history_post_child " +
+                                "    WHERE reactions IS NOT NULL AND id_seller = :sellerId AND created_at <= :endDate AND created_at >= :startDate" +
+                                "    GROUP BY " +
+                                "        EXTRACT(DOW FROM created_at), " +
+                                "        EXTRACT(HOUR FROM created_at) " +
+                                ") " +
+                                "SELECT " +
+                                "    CASE day_of_week " +
+                                "        WHEN 0 THEN 'Sunday' " +
+                                "        WHEN 1 THEN 'Monday' " +
+                                "        WHEN 2 THEN 'Tuesday' " +
+                                "        WHEN 3 THEN 'Wednesday' " +
+                                "        WHEN 4 THEN 'Thursday' " +
+                                "        WHEN 5 THEN 'Friday' " +
+                                "        WHEN 6 THEN 'Saturday' " +
+                                "        END AS best_day, " +
+                                "    hour_of_day AS best_hour, " +
+                                "    total_posts, " +
+                                "    total_reactions, " +
+                                "    ROUND(avg_reactions, 2) AS avg_reactions, " +
+                                "    median_reactions AS median_reactions " +
+                                "FROM engagement_by_datetime " +
+                                "WHERE total_posts >= 5 " +
+                                "ORDER BY avg_reactions DESC " +
+                                "LIMIT 1"
+                ).setParameter("sellerId", sellerId)
+                .setParameter("startDate", dashboardRequestDto.getStartDate())
+                .setParameter("endDate", dashboardRequestDto.getEndDate())
+                .getResultList();
+        List<BestTimeToPost> dtos = results.stream()
+                .map(r -> new BestTimeToPost(
+                        ((String) r[0]),
+                        ((Number) r[1]).intValue()
+                ))
+                .toList();
+        if (!dtos.isEmpty()) {
+            BestTimeToPost bestTimeToPost = dtos.get(0);
+            return bestTimeToPost;
+        }
+        return new BestTimeToPost();
     }
 
     public PagesRepartitionDto[] pagesRepartitionDtos(Integer sellerId, DashboardRequestDto dashboardRequestDto) {

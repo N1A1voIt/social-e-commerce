@@ -38,8 +38,8 @@
       <app-top-sales-card [dashboardStats]="dashboardStats"></app-top-sales-card>
       <app-best-deals-card [dashboardStats]="dashboardStats"></app-best-deals-card>
       <div class="flex gap-2 md:w-auto w-full ">
-        <app-descriptive-card class="flex-1" [isActive]="true"></app-descriptive-card>
-        <app-descriptive-card class="flex-1"></app-descriptive-card>
+        <app-descriptive-card class="flex-1" [bestTimeToPost]="dashboardStats?.bestTimeToPost || {day:'',hour:0}" [isActive]="true"></app-descriptive-card>
+<!--        <app-descriptive-card class="flex-1"></app-descriptive-card>-->
       </div>
     </div>
   </div>
@@ -62,6 +62,10 @@
 <!--      <app-bar-chart></app-bar-chart>-->
       <app-line-chart [data]="dashboardStats?.salesProgressionDto || {labels:[],data:[]}" ></app-line-chart>
     </div>
+  </div>
+  <div class="">
+    <p>{{dashboardStats?.bestTimeToPost?.day}}</p>
+    <p>{{dashboardStats?.bestTimeToPost?.hour}}</p>
   </div>
 </div>
 

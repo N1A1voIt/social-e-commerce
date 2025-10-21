@@ -33,7 +33,13 @@ export interface DashboardStats {
   platformRepartition: PlatformRepartitionDto[];
   pagesRepartition: PagesRepartitionDto[];
   salesProgressionDto: SalesProgressionDto;
+  bestTimeToPost: BestTimeToPost;
 }
+export interface BestTimeToPost {
+  day:string;
+  hour:number;
+}
+
 export interface DashboardRequest {
   startDate: Date;
   endDate: Date;
