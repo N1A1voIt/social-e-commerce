@@ -827,6 +827,114 @@ GROUP BY mp.id_mp,mp.id_sp,mp.page_title,total_revenue.total_revenue;
 --     FOR EACH ROW
 -- EXECUTE FUNCTION update_stocks_child_denormalized_fields_function();
 
+WITH engagement_by_datetime AS (
+    SELECT
+        EXTRACT(DOW FROM created_at) AS day_of_week,
+        EXTRACT(HOUR FROM created_at) AS hour_of_day,
+        COUNT(*) AS total_posts,
+        SUM(reactions) AS total_reactions,
+        AVG(reactions) AS avg_reactions,
+        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY reactions) AS median_reactions
+    FROM likes_history
+    WHERE reactions IS NOT NULL
+    GROUP BY
+        EXTRACT(DOW FROM created_at),
+        EXTRACT(HOUR FROM created_at)
+)
+SELECT
+    CASE day_of_week
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS best_day,
+    hour_of_day AS best_hour,
+    total_posts,
+    total_reactions,
+    ROUND(avg_reactions, 2) AS avg_reactions,
+    median_reactions AS median_reactions
+FROM engagement_by_datetime
+WHERE total_posts >= 5  -- Filter out combinations with too few posts
+ORDER BY avg_reactions DESC
+LIMIT 10;
+
+-- Analysis 2: Best Day of Week (aggregated across all hours)
+WITH daily_engagement AS (
+    SELECT
+        EXTRACT(DOW FROM created_at) AS day_of_week,
+        COUNT(*) AS total_posts,
+        SUM(reactions) AS total_reactions,
+        AVG(reactions) AS avg_reactions
+    FROM likes_history
+    WHERE reactions IS NOT NULL
+    GROUP BY EXTRACT(DOW FROM created_at)
+)
+SELECT
+    CASE day_of_week
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS day_name,
+    total_posts,
+    total_reactions,
+    ROUND(avg_reactions, 2) AS avg_reactions
+FROM daily_engagement
+ORDER BY avg_reactions DESC;
+
+-- Analysis 3: Best Hour of Day (aggregated across all days)
+WITH hourly_engagement AS (
+    SELECT
+        EXTRACT(HOUR FROM created_at) AS hour_of_day,
+        COUNT(*) AS total_posts,
+        SUM(reactions) AS total_reactions,
+        AVG(reactions) AS avg_reactions
+    FROM likes_history
+    WHERE reactions IS NOT NULL
+    GROUP BY EXTRACT(HOUR FROM created_at)
+)
+SELECT
+    hour_of_day,
+    CASE
+        WHEN hour_of_day = 0 THEN '12:00 AM'
+        WHEN hour_of_day < 12 THEN hour_of_day || ':00 AM'
+        WHEN hour_of_day = 12 THEN '12:00 PM'
+        ELSE (hour_of_day - 12) || ':00 PM'
+        END AS time_formatted,
+    total_posts,
+    total_reactions,
+    ROUND(avg_reactions, 2) AS avg_reactions
+FROM hourly_engagement
+ORDER BY avg_reactions DESC;
+
+-- Analysis 4: Heatmap data (for visualization)
+SELECT
+    CASE EXTRACT(DOW FROM created_at)
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS day_name,
+    EXTRACT(HOUR FROM created_at) AS hour,
+    COUNT(*) AS post_count,
+    ROUND(AVG(reactions), 2) AS avg_reactions
+FROM likes_history
+WHERE reactions IS NOT NULL
+GROUP BY
+    EXTRACT(DOW FROM created_at),
+    EXTRACT(HOUR FROM created_at)
+ORDER BY
+    EXTRACT(DOW FROM created_at),
+    hour;
 
 
 

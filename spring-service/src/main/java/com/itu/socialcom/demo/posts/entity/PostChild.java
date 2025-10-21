@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -47,6 +48,9 @@ public class PostChild {
 
     @Column(name = "id_mp")
     private Integer idMp;
+
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
 
     @Transient
     List<Media> mediaList;

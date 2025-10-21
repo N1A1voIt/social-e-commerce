@@ -23,6 +23,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Objects;
@@ -363,16 +364,16 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
 
         String postId = postNode.has("id") ? postNode.get("id").asText() : "";
         String message = postNode.has("message") ? postNode.get("message").asText() : "";
-
+        String createdTime = postNode.get("created_time").asText();
         PostChild mainChild = new PostChild();
         mainChild.setPostUrl(postNode.has("permalink_url") ? postNode.get("permalink_url").asText() : "");
         mainChild.setDescription(message);
         mainChild.setPlatformIdentifier(postId);
         mainChild.setType("main_post");
         mainChild.setIdSp(1L);
+        mainChild.setCreatedTime(LocalDateTime.parse(createdTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")));
         int managedPageId = managedPageCPLHashMap.get(postId.split("_")[0]).getIdMp().intValue();
         mainChild.setIdMp(managedPageId);
-
         postChildren.add(mainChild);
 
         // Process attachments
