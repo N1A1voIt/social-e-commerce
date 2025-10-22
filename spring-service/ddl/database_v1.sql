@@ -230,10 +230,14 @@ CREATE TABLE order_mother(
                              shipping_address TEXT,
                              customer_number VARCHAR(50) ,
                              id_pc TEXT NOT NULL,
+                             id_cart INTEGER,
+                             id_customer INTEGER,
                              id_managed_pages INTEGER NOT NULL,
                              PRIMARY KEY(id_order_m),
                              FOREIGN KEY(id_managed_pages) REFERENCES managed_pages(id_mp),
-                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                             FOREIGN KEY(id_cart) REFERENCES cart(id_cart),
+                             FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
 );
 
 CREATE TABLE order_status_v2(
@@ -586,6 +590,40 @@ CREATE TABLE likes_state_log (
     FOREIGN KEY (id_child) REFERENCES post_childs(id_child),
     FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
 );
+
+
+CREATE TABLE customer (
+    id_customer SERIAL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE ,
+    phone_number TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    firebase_uid TEXT NOT NULL UNIQUE ,
+    PRIMARY KEY(id_customer)
+);
+
+CREATE TABLE cart (
+    id_cart SERIAL,
+    id_customer INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    state BOOLEAN DEFAULT TRUE NOT NULL,
+    PRIMARY KEY(id_cart),
+    FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
+);
+
+CREATE TABLE cart_details (
+    id_cd SERIAL,
+    id_cart INTEGER NOT NULL,
+    id_product INTEGER NOT NULL,
+    id_variant INTEGER NOT NULL,
+    quantity NUMERIC(15,2)  NOT NULL,
+    added_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY(id_cd),
+    FOREIGN KEY(id_cart) REFERENCES cart(id_cart),
+    FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+    FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant)
+);
+
 
 
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()

@@ -37,6 +37,10 @@ public class OrderParent {
     private Integer idSeller;
     @Column(name = "id_managed_pages")
     private Integer idManagedPages;
+    @Column(name = "id_cart")
+    private Integer idCart;
+    @Column (name = "id_customer")
+    private Integer idCustomer;
     @Transient
     private Double downPPercent;
     @Transient
