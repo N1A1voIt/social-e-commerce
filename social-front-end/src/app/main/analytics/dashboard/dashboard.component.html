@@ -49,20 +49,20 @@
     </div>
   </div>
   <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">
-    <div class="w-full 2xl:w-1/2 flex flex-col sm:flex-row items-center gap-4">
-      <div class="w-full sm:w-1/2 h-[350px] 2xl:h-[400px]">
-<!--        <app-bar-chart></app-bar-chart>-->
+    <div class="w-full  h-[350px] 2xl:h-[400px]">
+      <app-heatmap-chart [data]="dashboardStats?.heatmapData || {xlabels:[],ylabels:[],cells:[],timeFrame:'WEEKLY'}"></app-heatmap-chart>
+    </div>
+  </div>
+  <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">
+    <div class="w-full  flex flex-col sm:flex-row items-center gap-4">
+      <div class="w-full h-full 2xl:h-[400px]">
         <app-account-chart [data]="dashboardStats?.pagesRepartition || []" ></app-account-chart>
-      </div>
-      <div class="w-full sm:w-1/2 h-[350px] 2xl:h-[400px]">
-<!--        <app-bar-chart></app-bar-chart>-->
-        <app-heatmap-chart [data]="dashboardStats?.heatmapData || {xlabels:[],ylabels:[],cells:[],timeFrame:'WEEKLY'}"></app-heatmap-chart>
       </div>
     </div>
     <div class="w-full 2xl:w-1/2 h-[350px] 2xl:h-[400px]">
-<!--      <app-bar-chart></app-bar-chart>-->
       <app-line-chart [data]="dashboardStats?.salesProgressionDto || {labels:[],data:[]}" ></app-line-chart>
     </div>
   </div>
+
 </div>
 

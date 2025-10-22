@@ -5,55 +5,57 @@ import { MatrixController, MatrixElement } from 'chartjs-chart-matrix';
 import { Chart } from 'chart.js';
 import {HeatmapData} from "../dashboard.service";
 
-// Register the matrix chart type
 Chart.register(MatrixController, MatrixElement);
-
 
 @Component({
   selector: 'app-heatmap-chart',
   standalone: true,
   imports: [NgChartsModule],
+  // The component's HTML must be *just* the canvas
   templateUrl: 'heatmap.component.html',
-  styleUrls: ['./heatmap.component.css']
+  // Add styles for the canvas to fill its parent
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  `]
 })
 export class HeatmapComponent implements OnInit, OnChanges {
   public heatmapChartType: 'matrix' = 'matrix';
   @Input() data!: HeatmapData;
-  @Input() metricType: 'postCount' | 'avgReactions' = 'postCount'; // Choose which metric to display
+  @Input() metricType: 'postCount' | 'avgReactions' = 'postCount';
 
   public heatmapChartData: ChartConfiguration<'matrix'>['data'] = { datasets: [] };
   public heatmapChartOptions: ChartConfiguration<'matrix'>['options'] = {};
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['data'] && this.data) {
-      this.updateHeatmap();
-    }
-    if (changes['metricType']) {
-      this.updateHeatmap();
-    }
+    if (changes['data'] && this.data) this.updateHeatmap();
+    if (changes['metricType']) this.updateHeatmap();
   }
 
   ngOnInit(): void {
-    if (this.data) {
-      this.updateHeatmap();
-    }
+    if (this.data) this.updateHeatmap();
   }
 
   private updateHeatmap() {
     if (!this.data || !this.data.cells || this.data.cells.length === 0) {
+      this.heatmapChartData = { datasets: [] };
       return;
     }
 
-    const { xlabels, ylabels, cells } = this.data;
+    const { xlabels, ylabels, cells, timeFrame } = this.data;
 
-    // Extract values based on selected metric
+    // --- Min/Max calculation remains the same ---
     const values = cells.map(cell =>
       this.metricType === 'postCount' ? cell.postCount : cell.avgReactions
     );
-    const maxValue = Math.max(...values, 1); // Ensure at least 1 to avoid division by zero
-    const minValue = Math.min(...values);
+    const nonZeroValues = values.filter(v => v > 0);
+    const maxValue = nonZeroValues.length > 0 ? Math.max(...nonZeroValues) : 1;
+    const minValue = nonZeroValues.length > 0 ? Math.min(...nonZeroValues) : 0;
+    // --- End Min/Max ---
 
-    // Transform cells to matrix format
     const matrixData = cells.map(cell => ({
       x: cell.x,
       y: cell.y,
@@ -65,27 +67,33 @@ export class HeatmapComponent implements OnInit, OnChanges {
     this.heatmapChartData = {
       datasets: [
         {
-          label: this.getChartLabel(),
+          label: 'Activity',
           data: matrixData as any,
+          // --- GITHUB COLOR SCALE ---
           backgroundColor: (ctx: any) => {
             const value = ctx.dataset.data[ctx.dataIndex]?.v || 0;
+            if (value === 0) return '#EBEDF0'; // Level 0 (None)
+
             const normalized = maxValue > minValue
               ? (value - minValue) / (maxValue - minValue)
-              : 0;
+              : (value > 0 ? 1 : 0);
 
-            // Color scheme based on timeframe
-            return this.getColorForValue(normalized);
+            // GitHub 4-level green scale
+            if (normalized < 0.25) return '#9BE9A8'; // Level 1
+            if (normalized < 0.5) return '#40C463';  // Level 2
+            if (normalized < 0.75) return '#30A14E'; // Level 3
+            return '#216E39';                       // Level 4
           },
-          borderWidth: 1,
-          borderColor: 'rgba(255, 255, 255, 0.2)',
+          borderWidth: 1.5, // Thinner, white borders
+          borderColor: '#FFFFFF',
           width: ({ chart }: any) => {
             const chartArea = chart.chartArea;
-            if (!chartArea) return 40;
+            if (!chartArea || xlabels.length === 0) return 10;
             return (chartArea.right - chartArea.left) / xlabels.length - 2;
           },
           height: ({ chart }: any) => {
             const chartArea = chart.chartArea;
-            if (!chartArea) return 40;
+            if (!chartArea || ylabels.length === 0) return 10;
             return (chartArea.bottom - chartArea.top) / ylabels.length - 2;
           },
         } as any
@@ -100,73 +108,61 @@ export class HeatmapComponent implements OnInit, OnChanges {
           type: 'category',
           labels: xlabels,
           offset: true,
-          grid: { display: false },
+          grid: { display: false, drawBorder: false }, // No grid/border
           ticks: {
+            // --- HIDE X-AXIS LABELS for YEARLY ---
+            display: timeFrame !== 'YEARLY',
             color: '#9ca3af',
-            autoSkip: false,
-            maxRotation: this.data.timeFrame === 'WEEKLY' ? 0 : 45,
-            minRotation: this.data.timeFrame === 'WEEKLY' ? 0 : 45,
-            font: {
-              size: 11
-            }
+            autoSkip: timeFrame !== 'WEEKLY',
+            maxRotation: timeFrame === 'MONTHLY' ? 45 : 0,
+            minRotation: timeFrame === 'MONTHLY' ? 45 : 0,
+            font: { size: 11 }
           },
         },
         y: {
           type: 'category',
           labels: ylabels,
           offset: true,
-          grid: { display: false },
+          grid: { display: false, drawBorder: false }, // No grid/border
           ticks: {
-            color: '#9ca3af',
-            font: {
-              size: 11
-            }
+            color: '#57606a', // GitHub label color
+            font: { size: 11 },
+            // --- GITHUB Y-AXIS LABELS ---
+            callback: (value: any, index: number, ticks: any) => {
+              const label = ylabels[index];
+              if (timeFrame === 'YEARLY') {
+                // Show only Mon, Wed, Fri
+                if (label === 'Monday' || label === 'Wednesday' || label === 'Friday') {
+                  return label.substring(0, 3);
+                }
+                return null; // Hide other labels
+              }
+              return label; // Show all labels for Weekly/Monthly
+            },
+            padding: 5,
           },
         }
       },
       plugins: {
         legend: { display: false },
         tooltip: {
+          displayColors: false,
           callbacks: {
             title: () => '',
             label: (ctx: any) => {
               const dataPoint = ctx.raw;
-              return [
-                `${dataPoint.y} - ${dataPoint.x}`,
-                `Posts: ${dataPoint.postCount}`,
-                `Avg Reactions: ${dataPoint.avgReactions.toFixed(2)}`
-              ];
+              // We'd need to pass the *actual date* for a perfect tooltip
+              // But for now, we use the labels
+              const dateLabel = `${dataPoint.y}, ${dataPoint.x}`;
+              if (dataPoint.v === 0) return `No activity on ${dateLabel}`;
+
+              const metricLabel = this.metricType === 'postCount' ? 'posts' : 'avg reactions';
+              const value = this.metricType === 'postCount' ? dataPoint.postCount : dataPoint.avgReactions.toFixed(2);
+              return `${value} ${metricLabel} on ${dateLabel}`;
             }
-          },
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: 12,
-          displayColors: false
+          }
         }
       }
     } as any;
-  }
-
-  private getColorForValue(normalized: number): string {
-    // Use different color schemes based on timeframe or preference
-    // Option 1: Gray scale (original)
-    // return `rgba(107, 114, 128, ${normalized})`;
-
-    // Option 2: Blue gradient (more engaging)
-    const r = Math.round(59 + (99 - 59) * (1 - normalized));
-    const g = Math.round(130 + (179 - 130) * (1 - normalized));
-    const b = Math.round(246 + (255 - 246) * (1 - normalized));
-    return `rgba(${r}, ${g}, ${b}, ${0.3 + normalized * 0.7})`;
-
-    // Option 3: Heat map (red-yellow gradient)
-    // const r = Math.round(255);
-    // const g = Math.round(255 * (1 - normalized));
-    // const b = Math.round(0);
-    // return `rgba(${r}, ${g}, ${b}, ${0.3 + normalized * 0.7})`;
-  }
-
-  private getChartLabel(): string {
-    const metric = this.metricType === 'postCount' ? 'Post Count' : 'Average Reactions';
-    const timeFrame = this.data.timeFrame.charAt(0) + this.data.timeFrame.slice(1).toLowerCase();
-    return `${timeFrame} ${metric} Heatmap`;
   }
 }
