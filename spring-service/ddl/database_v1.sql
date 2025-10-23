@@ -625,6 +625,14 @@ CREATE TABLE cart_details (
 );
 
 
+CREATE TABLE customer_token(
+  id_token SERIAL,
+  token TEXT NOT NULL,
+  expired_at TIMESTAMP,
+  id_customer INTEGER NOT NULL,
+  PRIMARY KEY(id_token),
+  FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
+);
 
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
