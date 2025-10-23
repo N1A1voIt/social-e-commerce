@@ -19,7 +19,7 @@ public interface CustomerTokenRepository extends JpaRepository<CustomerToken,Lon
         WHERE t.token = :token AND 
               t.expiryDate > CURRENT_TIMESTAMP
     """)
-    Optional<Long> findUserIdByToken(String token);
+    Optional<Long> findCustomerIdByToken(String token);
 
     List<CustomerToken> findAllValidTokensByIdCustomer(Long idCustomer);
 

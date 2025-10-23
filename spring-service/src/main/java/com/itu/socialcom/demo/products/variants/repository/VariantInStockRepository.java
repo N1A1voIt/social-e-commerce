@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface VariantInStockRepository extends JpaRepository<VariantInStock, Long> {
     List<VariantInStock> findVariantInStockByIdProduct(Long idProduct);
+    List<VariantInStock> findByIdProductAndIdVariantIn(Long idProduct, List<Long> variantIds);
 }

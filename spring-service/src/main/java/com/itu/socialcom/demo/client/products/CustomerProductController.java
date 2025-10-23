@@ -21,10 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,10 +43,12 @@ public class CustomerProductController {
     @GetMapping
     public ResponseEntity<List<ProductCPL>> productsCpl(@RequestHeader("Authorization") String token, Pageable pageable) {
         try {
-            Customer customer = customerRepository.findCustomerByToken(token).orElse(null);
+            System.out.println("Token received: " + token);
+            Customer customer = customerRepository.findCustomerByToken(token.replace("Bearer ","")).orElse(null);
             if (customer == null) throw new Exception("Not logged in");
             return ResponseEntity.ok(productCplRepository.findByProductNumberGreaterThan(0.0,pageable));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(401).body(null);
         }
     }
@@ -58,7 +57,7 @@ public class CustomerProductController {
     public ResponseEntity<?> getProductOptions(@PathVariable Long productId, @RequestHeader("Authorization") String token) {
         try {
             // Verify customer is logged in
-            Customer customer = customerRepository.findCustomerByToken(token).orElse(null);
+            Customer customer = customerRepository.findCustomerByToken(token.replace("Bearer ","")).orElse(null);
             if (customer == null) throw new Exception("Not logged in");
 
             // Get all options for the product
@@ -88,49 +87,53 @@ public class CustomerProductController {
     }
 
     @PostMapping("/variants")
-    public ResponseEntity<?> getVariantByOptionValues(@RequestBody SelectedOptionValuesRequest request, 
-                                                     @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getVariantByOptionValues(@RequestBody SelectedOptionValuesRequest request,
+                                                      @RequestHeader("Authorization") String token) {
         try {
             // Verify customer is logged in
-            Customer customer = customerRepository.findCustomerByToken(token).orElse(null);
-            if (customer == null) throw new Exception("Not logged in");
+            Customer customer = customerRepository.findCustomerByToken(token.replace("Bearer ", ""))
+                    .orElseThrow(() -> new Exception("Not logged in"));
 
             Long productId = request.getProductId();
             List<Long> selectedOptionValueIds = request.getOptionValueIds();
 
+            // Validate input
             if (productId == null || selectedOptionValueIds == null || selectedOptionValueIds.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Product ID and at least one option value ID are required"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Product ID and at least one option value ID are required"));
             }
 
-            // Get all variants for the product
-            List<VariantInStock> variants = variantInStockRepository.findVariantInStockByIdProduct(productId);
+            // Find variant matching all selected option values using a single optimized query
+            Optional<VariantInStock> matchingVariant = findVariantWithAllOptionValues(
+                    productId,
+                    selectedOptionValueIds
+            );
 
-            // Find variants that have all the selected option values
-            for (Long optionValueId : selectedOptionValueIds) {
-                // Get all variants that have this option value
-                List<Long> variantIdsWithOptionValue = variantOptionValueRepository.findByIdOv(optionValueId)
-                    .stream()
-                    .map(vov -> vov.getIdVariant())
-                    .collect(Collectors.toList());
+            return matchingVariant
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.ok(new VariantInStock()));
 
-                // Filter variants to only include those that have this option value
-                variants = variants.stream()
-                    .filter(v -> variantIdsWithOptionValue.contains(v.getIdVariant()))
-                    .collect(Collectors.toList());
-
-                if (variants.isEmpty()) {
-                    break; // No variants match all selected option values
-                }
-            }
-
-            if (variants.isEmpty()) {
-                return ResponseEntity.ok(Map.of("message", "No variant found with the selected option values"));
-            }
-
-            // Return the first matching variant (there should be only one if option values are properly set up)
-            return ResponseEntity.ok(variants.get(0));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    private Optional<VariantInStock> findVariantWithAllOptionValues(Long productId, List<Long> optionValueIds) {
+        int requiredMatches = optionValueIds.size();
+
+        // Single query approach: Find variants that have ALL the specified option values
+        // This uses a GROUP BY with HAVING COUNT to ensure all option values match
+        List<Long> matchingVariantIds = variantOptionValueRepository
+                .findVariantIdsWithAllOptionValues(optionValueIds, requiredMatches);
+
+        if (matchingVariantIds.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Get the full variant data for the matching variant
+        return variantInStockRepository
+                .findByIdProductAndIdVariantIn(productId, matchingVariantIds)
+                .stream()
+                .findFirst();
     }
 }

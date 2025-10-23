@@ -1,25 +1,53 @@
-<div class="w-full h-full flex flex-col  bg-fotsy p-2 ">
-  <div class="">
-
-  </div>
-  <div class="w-full  flex gap-3 items-center py-2 justify-between ">
-    <div class="flex items-center w-5/6  bg-white px-4 gap-2 py-3 rounded-xl border border-white
-    text-black shadow-sm overflow-hidden  ">
+<div class="w-full h-full flex flex-col bg-fotsy p-2">
+  <div class="w-full flex gap-3 items-center py-2 justify-between">
+    <div class="flex items-center w-5/6 bg-white px-4 gap-2 py-3 rounded-xl border border-white
+    text-black shadow-sm overflow-hidden">
       <i class="pi pi-search text-blackt"></i>
       <input type="email" placeholder="Search Something..." class="w-full outline-none bg-transparent text-black text-sm" />
     </div>
-    <div class="rounded-xl  w-[50px] h-[50px]  text-blackt bg-white flex justify-center items-center">
-      <ng-icon name="heroAdjustmentsHorizontal"  size="25"></ng-icon>
+    <div class="rounded-xl w-[50px] h-[50px] text-blackt bg-white flex justify-center items-center">
+      <ng-icon name="heroAdjustmentsHorizontal" size="25"></ng-icon>
     </div>
   </div>
-  <div class="flex-1 flex flex-col gap-4 mt-2 px-2 bg-fotsy rounded-2xl overflow-y-scroll">
-    <h1 class="text-xl font-bold font-mono" style="letter-spacing: 1px ">Our products</h1>
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-      <app-shop-card class="col-span-1" *ngFor="let product of products; let i = index" [product]="product" [productId]="i"></app-shop-card>
-<!--      <app-shop-card class="col-span-1" [productId]="1"></app-shop-card>-->
-    </div>
-    <div class="h-[200px]">
 
+  <div class="flex-1 flex flex-col gap-4 mt-2 px-2 bg-fotsy rounded-2xl overflow-y-scroll">
+    <h1 class="text-xl font-bold font-mono" style="letter-spacing: 1px">Our products</h1>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="loading" class="flex justify-center items-center py-8">
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading products...</p>
+      </div>
     </div>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="flex justify-center items-center py-8">
+      <div class="text-center text-red-500">
+        <p>{{ error }}</p>
+        <button class="mt-2 px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="fetchProducts()">Retry</button>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div *ngIf="!loading && !error" class="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <app-shop-card
+        class="col-span-1"
+        *ngFor="let product of products"
+        [product]="product"
+        [productId]="product.idPc">
+      </app-shop-card>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && products.length === 0" class="flex justify-center items-center py-8">
+      <div class="text-center text-gray-500">
+        <p>No products found.</p>
+      </div>
+    </div>
+
+    <div class="h-[200px]"></div>
   </div>
 </div>

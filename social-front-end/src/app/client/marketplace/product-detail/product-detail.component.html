@@ -1,30 +1,110 @@
-<div class="w-full max-w-5xl md:h-[60vh] h-screen mx-auto  flex flex-col md:flex-row gap-4 rounded-2xl shadow-lg p-4 ">
+<div class="w-full max-w-5xl md:h-auto h-screen mx-auto flex flex-col md:flex-row gap-4 rounded-2xl shadow-lg p-4">
+  <!-- Loading Indicator -->
+  <div *ngIf="loading.options || loading.variant" class="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading product information...</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+    <div class="text-center text-red-500">
+      <p>{{ error }}</p>
+      <button class="mt-2 px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="fetchProductOptions()">Retry</button>
+    </div>
+  </div>
+
   <!-- Images Section -->
   <div class="md:hidden w-full flex justify-start items-center">
     <div class="bg-white rounded-xl flex items-center justify-center gap-1 px-2 h-[40px] w-[40px] text-blackt">
       <i class="pi pi-arrow-left"></i>
     </div>
   </div>
-  <div class="flex flex-col gap-4 md:w-1/2 bg-red-50">
+  <div class="flex flex-col gap-4 md:w-1/2">
     <div class="w-full h-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
-      <img [src]="selectedImage" alt="Product image" class="object-cover w-full h-full" />
+      <img *ngIf="variant" [src]="product?.media" alt="Product image" class="object-cover w-full h-full" />
     </div>
+    <!-- Thumbnail Images -->
+<!--    <div class="flex gap-2 overflow-x-auto">-->
+<!--      <div *ngFor="let img of fallbackProduct.images"-->
+<!--           class="w-16 h-16 rounded-lg overflow-hidden cursor-pointer"-->
+<!--           [class.border-2]="selectedImage === img"-->
+<!--           [class.border-yellow]="selectedImage === img"-->
+<!--           (click)="selectImage(img)">-->
+<!--        <img [src]="img" alt="Thumbnail" class="object-cover w-full h-full" />-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 
   <!-- Product Info Section -->
-  <div class="flex-1 flex flex-col gap-1 font-mono">
-    <h1 class="text-xl md:text-3xl font-bold text-gray-900">{{product.name}}</h1>
-    <div class="text-xl text-yellow-500 font-bold">${{product.price}}</div>
-    <div class="text-gray-700 text-sm">{{product.description}}</div>
+  <div class="flex-1 flex flex-col gap-3 font-mono">
+
+    <!-- Variant Price and Stock -->
+    <div *ngIf="variant" class="flex flex-col gap-1">
+      <h1 class="text-xl md:text-3xl font-bold text-gray-900">{{variant.title}}</h1>
+      <div class="text-xl text-yellow-500 font-bold">${{variant.price}}</div>
+      <div class="text-sm" [ngClass]="{
+        'text-green-500': variant.stockStatus === 'In Stock',
+        'text-yellow-500': variant.stockStatus === 'Low Stock',
+        'text-red-500': variant.stockStatus === 'Out of Stock'
+      }">
+        {{variant.stockStatus}} ({{variant.variantNumber}} available)
+      </div>
+    </div>
+
+    <div class="text-gray-700 text-sm">{{fallbackProduct.description}}</div>
+
+    <!-- Product Options -->
+    <div *ngIf="productOptions.length > 0" class="mt-4">
+      <div *ngFor="let option of productOptions" class="mb-4">
+        <h3 class="font-semibold mb-2">{{option.label}}</h3>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let value of option.optionValues"
+                  class="px-3 py-1 rounded-full border"
+                  [class.bg-yellow]="isOptionValueSelected(option.idOption, value.idOv)"
+                  [class.text-fotsy]="isOptionValueSelected(option.idOption, value.idOv)"
+                  [class.border-yellow]="isOptionValueSelected(option.idOption, value.idOv)"
+                  [class.border-gray-300]="!isOptionValueSelected(option.idOption, value.idOv)"
+                  (click)="selectOptionValue(option.idOption, value.idOv)">
+            {{value.value}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quantity Selector -->
+    <div class="mt-2 flex items-center gap-2">
+      <label for="quantity" class="font-semibold">Quantity:</label>
+      <div class="flex items-center border rounded-lg">
+        <button class="px-2 py-1 bg-gray-100" (click)="quantity = quantity > 1 ? quantity - 1 : 1">-</button>
+        <input type="number" id="quantity" [(ngModel)]="quantity" min="1" max="99" class="w-12 text-center border-0 outline-none" />
+        <button class="px-2 py-1 bg-gray-100" (click)="quantity = quantity + 1">+</button>
+      </div>
+    </div>
+
+    <!-- Seller Info -->
     <div class="mt-2 flex flex-col items-start gap-2">
-        <div class="font-semibold text-gray-800">Seller: {{product.seller.name}}</div>
-        <div class="flex items-center gap-2 text-sm text-gray-500">
-          <span>Rating: {{product.seller.rating}} ★</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2 w-full">
-          <button class="rounded-full col-span-1 border border-yellow text-yellow px-4 py-2"> Add to Cart </button>
-          <button class="rounded-full col-span-1 border bg-yellow text-fotsy px-4 py-2"> Contact seller</button>
-        </div>
+      <div class="font-semibold text-gray-800">Seller: {{fallbackProduct.seller.name}}</div>
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <span>Rating: {{fallbackProduct.seller.rating}} ★</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-2 w-full mt-4">
+        <button
+          class="rounded-full col-span-1 border border-yellow text-yellow px-4 py-2"
+          [disabled]="!variant || variant.stockStatus === 'Out of Stock'"
+          [class.opacity-50]="!variant || variant.stockStatus === 'Out of Stock'"
+          (click)="addToCart()">
+          Add to Cart
+        </button>
+        <button class="rounded-full col-span-1 border bg-yellow text-fotsy px-4 py-2">
+          Contact seller
+        </button>
+      </div>
     </div>
   </div>
 </div>

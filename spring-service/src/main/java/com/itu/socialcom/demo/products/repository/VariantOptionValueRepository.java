@@ -163,4 +163,16 @@ public interface VariantOptionValueRepository extends JpaRepository<VariantOptio
     @Transactional
     @Query("DELETE FROM VariantOptionValue vov WHERE vov.idOv IN (SELECT ov.idOv FROM OptionValue ov WHERE ov.idOption = :idOption)")
     void deleteByOptionId(@Param("idOption") Long idOption);
+
+    @Query("""
+    SELECT vov.idVariant 
+    FROM VariantOptionValue vov 
+    WHERE vov.idOv IN :optionValueIds 
+    GROUP BY vov.idVariant 
+    HAVING COUNT(DISTINCT vov.idOv) = :requiredMatches
+    """)
+    List<Long> findVariantIdsWithAllOptionValues(
+            @Param("optionValueIds") List<Long> optionValueIds,
+            @Param("requiredMatches") int requiredMatches
+    );
 }

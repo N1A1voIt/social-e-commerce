@@ -48,7 +48,7 @@ public class CustomerTokenServiceImpl implements CustomerTokenService {
 
     @Override
     public Optional<Long> findCustomerIdByToken(String token) {
-        return customerTokenRepository.findUserIdByToken(token);
+        return customerTokenRepository.findCustomerIdByToken(token);
     }
 
     @Override

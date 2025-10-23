@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { ProductCPL } from '../services/customer-product.service';
 
 @Component({
   selector: 'app-shop-card',
@@ -9,12 +10,15 @@ import { Router } from '@angular/router';
   styleUrls: ['./shop-card.component.css']
 })
 export class ShopCardComponent {
-  @Input() product: any;
+  @Input() product!: ProductCPL;
   @Input() productId!: number;
 
   constructor(private router: Router) {}
 
   goToDetail() {
-    this.router.navigateByUrl('/client/marketplace/product/'+this.productId);
+    console.log(this.product)
+    // Use the actual product ID from the product object if available
+    const id = this.product?.idPc || this.productId;
+    this.router.navigateByUrl('/client/marketplace/product/' + id);
   }
 }
