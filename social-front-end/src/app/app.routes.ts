@@ -26,12 +26,15 @@ import {DdashboardComponent} from "./deliverer/main/ddashboard/ddashboard.compon
 import {DeliveryAuthGuard} from "./shared/guards/delivery-auth.guard";
 import {PreviousMissionComponent} from "./deliverer/main/previous-mission/previous-mission.component";
 import {PendingRequestComponent} from "./deliverer/main/pending-request/pending-request.component";
+import {ClientLoginComponent} from "./client/authentication/client-login/client-login.component";
+import {ClientSignupComponent} from "./client/authentication/client-signup/client-signup.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
   { path: 'auth/signup', component: SignupComponent, canActivate: [NoAuthGuard] },
   { path: 'auth/:platform', component: ValidatePagesComponent },
 ]
+
 const homeRoutes: Routes = [
   {
     path: 'basic',
@@ -58,12 +61,14 @@ const homeRoutes: Routes = [
       {path: 'marketplace',component: MarketplaceComponent},
       { path: 'marketplace/product/:id', component: ProductDetailComponent }
     ]
-  }
+  },
 ]
+
 const freeRoutes:Routes = [
   {path:'transactions',component:TransactionComponent},
   {path:'success-redirection',component:SuccessRedirectionComponent}
 ]
+
 const deliveryRoutes = [
   {
     path:'delivery/signup',
@@ -84,7 +89,15 @@ const deliveryRoutes = [
     ]
   }
 ]
-
+export const clientAuthRoutes : Routes = [
+  {
+    path: 'client/auth',
+    children: [
+      { path: 'login',component: ClientLoginComponent },
+      { path: 'signup', component: ClientSignupComponent }
+    ]
+  },
+]
 export const routes: Routes = [
   {
     path: '',
@@ -94,5 +107,6 @@ export const routes: Routes = [
   ...authRoutes,
   ...homeRoutes,
   ...freeRoutes,
-  ...deliveryRoutes
+  ...deliveryRoutes,
+  ...clientAuthRoutes
 ];

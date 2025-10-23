@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {NgClass} from "@angular/common";
+import {BestTimeToPost} from "../dashboard.service";
 
 @Component({
   selector: 'app-descriptive-card',
@@ -12,4 +13,5 @@ import {NgClass} from "@angular/common";
 })
 export class DescriptiveCardComponent {
   @Input() isActive:boolean = false;
+  @Input() bestTimeToPost:BestTimeToPost = {day:'',hour:0};
 }

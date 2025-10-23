@@ -25,6 +25,7 @@ export class VariantsComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
   showCreateForm: boolean = false;
+  refillMessage:string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -39,9 +40,23 @@ export class VariantsComponent implements OnInit {
     this.productId = Number(this.route.snapshot.paramMap.get('idProduct'));
     if (this.productId) {
       this.fetchVariants();
+      this.fetchRefill();
     } else {
       this.errorMessage = 'Invalid product ID';
     }
+  }
+
+  fetchRefill() {
+    this.variantService.fetchForecasting(this.productId).subscribe({
+      next: (data: ApiResponse) => {
+        console.log(data)
+        this.refillMessage = data.data
+        // this.variants = data;
+      },
+      error: (error) => {
+        alert("Error fetching products: " + error.message);
+      }
+    })
   }
 
   fetchVariants(): void {

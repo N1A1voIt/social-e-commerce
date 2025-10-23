@@ -14,6 +14,7 @@
       <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
     </div>
   </div>
+
 <!--  <div class="flex justify-between items-center w-full py-6">-->
 <!--&lt;!&ndash;    <h1 class="text-3xl text-zinc-500" style="letter-spacing: 1px">New Report</h1>&ndash;&gt;-->
 <!--  </div>-->
@@ -27,39 +28,41 @@
           <app-revenue-badge class="w-auto" [showIcon]="false" text="27,335"></app-revenue-badge>
         </div>
       </div>
-      <div>
-        <span>From Sep 1 to Aug 31 2025</span>
-      </div>
-
+     <app-date-selector
+       [startDate]="dashboardRequest.startDate"
+       [endDate]="dashboardRequest.endDate"
+       (dateRangeChange)="onDateRangeChange($event)">
+     </app-date-selector>
     </div>
     <div class="flex flex-col sm:flex-row justify-end gap-2 w-full">
       <app-top-sales-card [dashboardStats]="dashboardStats"></app-top-sales-card>
       <app-best-deals-card [dashboardStats]="dashboardStats"></app-best-deals-card>
       <div class="flex gap-2 md:w-auto w-full ">
-        <app-descriptive-card class="flex-1" [isActive]="true"></app-descriptive-card>
-        <app-descriptive-card class="flex-1"></app-descriptive-card>
+        <app-descriptive-card class="flex-1" [bestTimeToPost]="dashboardStats?.bestTimeToPost || {day:'',hour:0}" [isActive]="true"></app-descriptive-card>
+<!--        <app-descriptive-card class="flex-1"></app-descriptive-card>-->
       </div>
     </div>
   </div>
   <div class="w-full py-6 ">
     <div class="w-full h-[50px] rounded-full bg-fotsy sm:flex hidden flex-row items-center justify-center p-1 gap-1 ">
-      <app-account-performances class="w-[19.20%]" [percentage]="19.20" [amount]="12000"></app-account-performances>
-      <app-account-performances class="w-[30.80%]" [percentage]="30.80" [amount]="30000"></app-account-performances>
-      <app-account-performances class="w-[50%]" [percentage]="50" [amount]="40000"></app-account-performances>
+      <app-account-performances *ngFor="let d of dashboardStats?.platformRepartition" [platformId]="d.idSp" class="w-[{{d.totalPercentage}}%]" [percentage]="d.totalPercentage" [amount]="d.total"></app-account-performances>
     </div>
   </div>
   <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">
-    <div class="w-full 2xl:w-1/2 flex flex-col sm:flex-row items-center gap-4">
-      <div class="w-full sm:w-1/2 h-[350px] 2xl:h-[400px]">
-        <app-bar-chart></app-bar-chart>
-      </div>
-      <div class="w-full sm:w-1/2 h-[350px] 2xl:h-[400px]">
-        <app-bar-chart></app-bar-chart>
+    <div class="w-full  h-[350px] 2xl:h-[400px]">
+      <app-heatmap-chart [data]="dashboardStats?.heatmapData || {xlabels:[],ylabels:[],cells:[],timeFrame:'WEEKLY'}"></app-heatmap-chart>
+    </div>
+  </div>
+  <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">
+    <div class="w-full  flex flex-col sm:flex-row items-center gap-4">
+      <div class="w-full h-full 2xl:h-[400px]">
+        <app-account-chart [data]="dashboardStats?.pagesRepartition || []" ></app-account-chart>
       </div>
     </div>
     <div class="w-full 2xl:w-1/2 h-[350px] 2xl:h-[400px]">
-      <app-bar-chart></app-bar-chart>
+      <app-line-chart [data]="dashboardStats?.salesProgressionDto || {labels:[],data:[]}" ></app-line-chart>
     </div>
   </div>
+
 </div>
 

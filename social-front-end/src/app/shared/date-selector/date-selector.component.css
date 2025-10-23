@@ -1,0 +1,37 @@
+/* Date selector component styles */
+#dateRangeDisplay {
+  user-select: none;
+}
+
+#dateRangeDisplay:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Flatpickr customization */
+:host ::ng-deep .flatpickr-calendar {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+:host ::ng-deep .flatpickr-day.selected {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+:host ::ng-deep .flatpickr-day.selected.startRange,
+:host ::ng-deep .flatpickr-day.selected.endRange {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+:host ::ng-deep .flatpickr-day.inRange {
+  background: #dbeafe;
+  border-color: #dbeafe;
+  color: #1e40af;
+}
+
+:host ::ng-deep .flatpickr-day:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}

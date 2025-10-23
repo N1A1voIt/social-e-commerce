@@ -152,6 +152,7 @@ public class FacebookAuth implements AuthService {
                     String pageLink = pageNode.has("link") ? pageNode.get("link").asText() : "";
                     String pageAccessToken = pageNode.get("access_token").asText();
                     String profilePictureUrl = "";
+
                     if (pageNode.has("picture") && pageNode.get("picture").has("data") && pageNode.get("picture").get("data").has("url")) {
                         profilePictureUrl = pageNode.get("picture").get("data").get("url").asText();
                     }

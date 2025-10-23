@@ -230,8 +230,14 @@ CREATE TABLE order_mother(
                              shipping_address TEXT,
                              customer_number VARCHAR(50) ,
                              id_pc TEXT NOT NULL,
+                             id_cart INTEGER,
+                             id_customer INTEGER,
+                             id_managed_pages INTEGER NOT NULL,
                              PRIMARY KEY(id_order_m),
-                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+                             FOREIGN KEY(id_managed_pages) REFERENCES managed_pages(id_mp),
+                             FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                             FOREIGN KEY(id_cart) REFERENCES cart(id_cart),
+                             FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
 );
 
 CREATE TABLE order_status_v2(
@@ -381,12 +387,12 @@ CREATE TABLE medias(
 CREATE TABLE likes_history(
       id_lh SERIAL,
       created_at TIMESTAMP NOT NULL,
-      deleted BOOLEAN,
-      id_post INTEGER NOT NULL,
-      id_pc TEXT NOT NULL,
+      id_child INTEGER NOT NULL,
+      reactions INTEGER,
       PRIMARY KEY(id_lh),
-      FOREIGN KEY(id_post) REFERENCES posts(id_post),
-      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+      FOREIGN KEY (id_child) REFERENCES post_childs(id_child)
+--       FOREIGN KEY(id_post) REFERENCES posts(id_post),
+--       FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
 
 CREATE TABLE sales(
@@ -570,6 +576,63 @@ CREATE TABLE deliverer_token(
 );
 
 
+CREATE TABLE likes_state_log (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    username varchar(250) NOT NULL,
+    id_user_platform varchar(250) NOT NULL,
+    id_sp INTEGER NOT NULL,
+    reaction varchar(250),
+    id_child INTEGER NOT NULL,
+    id_mp INTEGER NOT NULL,
+    happened_at TIMESTAMP NOT NULL DEFAULT now(),
+    FOREIGN KEY (id_sp) REFERENCES supported_platforms_v2(id_sp),
+    FOREIGN KEY (id_child) REFERENCES post_childs(id_child),
+    FOREIGN KEY (id_mp) REFERENCES managed_pages(id_mp)
+);
+
+
+CREATE TABLE customer (
+    id_customer SERIAL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE ,
+    phone_number TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    firebase_uid TEXT NOT NULL UNIQUE ,
+    PRIMARY KEY(id_customer)
+);
+
+CREATE TABLE cart (
+    id_cart SERIAL,
+    id_customer INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    state BOOLEAN DEFAULT TRUE NOT NULL,
+    PRIMARY KEY(id_cart),
+    FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
+);
+
+CREATE TABLE cart_details (
+    id_cd SERIAL,
+    id_cart INTEGER NOT NULL,
+    id_product INTEGER NOT NULL,
+    id_variant INTEGER NOT NULL,
+    quantity NUMERIC(15,2)  NOT NULL,
+    added_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY(id_cd),
+    FOREIGN KEY(id_cart) REFERENCES cart(id_cart),
+    FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+    FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant)
+);
+
+
+CREATE TABLE customer_token(
+  id_token SERIAL,
+  token TEXT NOT NULL,
+  expired_at TIMESTAMP,
+  id_customer INTEGER NOT NULL,
+  PRIMARY KEY(id_token),
+  FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
+);
 
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
@@ -727,6 +790,31 @@ CREATE view v_pending_request AS
         JOIN shipping_points sp on delivery_v2.id_shp = sp.id_shp
              WHERE d_status='CALL_FOR_TENDERED';
 
+CREATE VIEW v_order_mother_cpl AS
+    SELECT order_mother.*,managed_pages.id_sp,page_title FROM order_mother JOIN managed_pages ON managed_pages.id_mp = order_mother.id_managed_pages;
+-- Revenue per platform for a specific seller (id_seller = 1)
+WITH total_revenue AS (
+    SELECT SUM(d_total) AS total_revenue
+    FROM order_mother
+    WHERE id_seller = 1
+)
+SELECT row_number() over () as dummy_id,sum(d_total)/total_revenue.total_revenue * 100 as total_percentage,sum(d_total) as total,id_sp
+FROM v_order_mother_cpl
+    CROSS JOIN total_revenue
+WHERE v_order_mother_cpl.id_seller = 1 GROUP BY id_sp,total_revenue.total_revenue ;
+-- Revenue per pages for a specific seller (id_seller = 1)
+WITH total_revenue AS (
+    SELECT SUM(d_total) AS total_revenue
+    FROM order_mother
+    WHERE id_seller = 1
+)
+SELECT  row_number() over () as dummy_id,COALESCE(sum(d_total)/total_revenue.total_revenue * 100,0) as total_percentage,mp.page_title,mp.associated_media,COALESCE(sum(d_total),0) as total,mp.id_mp as id_managed_pages,mp.id_sp
+FROM v_order_mother_cpl
+    RIGHT JOIN managed_pages mp on v_order_mother_cpl.id_managed_pages = mp.id_mp
+    CROSS JOIN total_revenue
+WHERE mp.id_seller = 1
+GROUP BY mp.id_mp,mp.id_sp,mp.page_title,total_revenue.total_revenue;
+
 
 --
 -- CREATE OR REPLACE FUNCTION update_stocks_child_denormalized_fields_function()
@@ -785,6 +873,151 @@ CREATE view v_pending_request AS
 --     FOR EACH ROW
 -- EXECUTE FUNCTION update_stocks_child_denormalized_fields_function();
 
+
+CREATE VIEW v_likes_history_post_child AS (
+    SELECT likes_history.*,pc.id_mp,p.id_seller FROM likes_history JOIN post_childs pc on pc.id_child = likes_history.id_child JOIN posts p on pc.id_post = p.id_post
+);
+
+WITH engagement_by_datetime AS (
+    SELECT
+        EXTRACT(DOW FROM created_at) AS day_of_week,
+        EXTRACT(HOUR FROM created_at) AS hour_of_day,
+        COUNT(*) AS total_posts,
+        SUM(reactions) AS total_reactions,
+        AVG(reactions) AS avg_reactions,
+        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY reactions) AS median_reactions
+    FROM v_likes_history_post_child
+    WHERE reactions IS NOT NULL AND id_seller = 1
+    GROUP BY
+        EXTRACT(DOW FROM created_at),
+        EXTRACT(HOUR FROM created_at)
+)
+SELECT
+    CASE day_of_week
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS best_day,
+    hour_of_day AS best_hour,
+    total_posts,
+    total_reactions,
+    ROUND(avg_reactions, 2) AS avg_reactions,
+    median_reactions AS median_reactions
+FROM engagement_by_datetime
+WHERE total_posts >= 5 -- Filter out combinations with too few posts
+ORDER BY avg_reactions DESC
+LIMIT 10;
+
+-- Analysis 2: Best Day of Week (aggregated across all hours)
+WITH daily_engagement AS (
+    SELECT
+        EXTRACT(DOW FROM created_at) AS day_of_week,
+        COUNT(*) AS total_posts,
+        SUM(reactions) AS total_reactions,
+        AVG(reactions) AS avg_reactions
+    FROM likes_history
+    WHERE reactions IS NOT NULL
+    GROUP BY EXTRACT(DOW FROM created_at)
+)
+SELECT
+    CASE day_of_week
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS day_name,
+    total_posts,
+    total_reactions,
+    ROUND(avg_reactions, 2) AS avg_reactions
+FROM daily_engagement
+ORDER BY avg_reactions DESC;
+
+-- Analysis 3: Best Hour of Day (aggregated across all days)
+WITH hourly_engagement AS (
+    SELECT
+        EXTRACT(HOUR FROM created_at) AS hour_of_day,
+        COUNT(*) AS total_posts,
+        SUM(reactions) AS total_reactions,
+        AVG(reactions) AS avg_reactions
+    FROM likes_history
+    WHERE reactions IS NOT NULL
+    GROUP BY EXTRACT(HOUR FROM created_at)
+)
+SELECT
+    hour_of_day,
+    CASE
+        WHEN hour_of_day = 0 THEN '12:00 AM'
+        WHEN hour_of_day < 12 THEN hour_of_day || ':00 AM'
+        WHEN hour_of_day = 12 THEN '12:00 PM'
+        ELSE (hour_of_day - 12) || ':00 PM'
+        END AS time_formatted,
+    total_posts,
+    total_reactions,
+    ROUND(avg_reactions, 2) AS avg_reactions
+FROM hourly_engagement
+ORDER BY avg_reactions DESC;
+
+-- Analysis 4: Heatmap data (for visualization)
+SELECT
+    CASE EXTRACT(DOW FROM created_at)
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS day_name,
+    EXTRACT(HOUR FROM created_at) AS hour,
+    COUNT(*) AS post_count,
+    ROUND(AVG(reactions), 2) AS avg_reactions
+FROM likes_history
+WHERE reactions IS NOT NULL
+GROUP BY
+    EXTRACT(DOW FROM created_at),
+    EXTRACT(HOUR FROM created_at)
+ORDER BY
+    EXTRACT(DOW FROM created_at),
+    hour;
+
+
+SELECT
+    CONCAT('Week ', EXTRACT(WEEK FROM created_at)) AS y_axis,
+    CASE EXTRACT(DOW FROM created_at)
+        WHEN 0 THEN 'Sunday'
+        WHEN 1 THEN 'Monday'
+        WHEN 2 THEN 'Tuesday'
+        WHEN 3 THEN 'Wednesday'
+        WHEN 4 THEN 'Thursday'
+        WHEN 5 THEN 'Friday'
+        WHEN 6 THEN 'Saturday'
+        END AS x_axis
+        ,
+    COUNT(*) AS post_count,
+    ROUND(AVG(reactions), 2) AS avg_reactions,
+    MIN(EXTRACT(DOW FROM created_at)) AS dow_order,
+    MIN(EXTRACT(HOUR FROM created_at)) AS hour_order,
+    MIN(EXTRACT(WEEK FROM created_at)) AS week_order,
+    MIN(EXTRACT(MONTH FROM created_at)) AS month_order
+FROM likes_history
+WHERE reactions IS NOT NULL
+GROUP BY y_axis, x_axis
+ORDER BY
+    CASE
+        WHEN y_axis ~ '^[0-9]' THEN CAST(REGEXP_REPLACE(y_axis, '[^0-9]', '', 'g') AS INTEGER)
+        ELSE dow_order
+        END,
+    CASE
+        WHEN x_axis ~ '^[0-9]' THEN CAST(REGEXP_REPLACE(x_axis, '[^0-9]', '', 'g') AS INTEGER)
+        ELSE hour_order
+    END;
 
 
 

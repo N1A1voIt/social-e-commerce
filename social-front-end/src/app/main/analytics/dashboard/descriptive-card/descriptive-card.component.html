@@ -1,7 +1,7 @@
 <div class="w-full min-w-[80px] sm:min-w-[100px] h-[120px] rounded-xl shadow-xl bg-fotsy flex flex-col justify-between items-center gap-2 p-2 px-4 font-mono" [class.border]="isActive"
      [class.border-yellow]="isActive"
      style="letter-spacing: 0px">
-  <span>Deals</span>
-  <span class="px-2 text-sm rounded-full w-[50px] text-center text-fotsy " [class.bg-yellow]="isActive" [class.bg-zinc-500]="!isActive">42</span>
-  <span><i class="pi text-gray-500 text-xs pi-chevron-right"></i> 10%</span>
+  <span>Best time to post</span>
+  <span class="px-2 text-sm rounded-full  text-center text-fotsy " [class.bg-yellow]="isActive" [class.bg-zinc-500]="!isActive">{{bestTimeToPost.day}} at {{bestTimeToPost.hour}}h</span>
+  <span><i class="pi text-gray-500 text-xs pi-chevron-right"></i> </span>
 </div>

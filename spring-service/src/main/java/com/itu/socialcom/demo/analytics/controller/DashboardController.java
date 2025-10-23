@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.analytics.controller;
 
+import com.itu.socialcom.demo.analytics.dto.DashboardRequestDto;
 import com.itu.socialcom.demo.analytics.dto.DashboardStatsDto;
 import com.itu.socialcom.demo.analytics.service.DashboardService;
 import com.itu.socialcom.demo.authentication.token.TokenV2Service;
@@ -21,8 +22,8 @@ public class DashboardController {
     @Autowired
     private TokenV2Service tokenV2Service;
     
-    @GetMapping("/stats")
-    public ResponseEntity<ApiResponse> getDashboardStats(@RequestHeader(name = "Authorization") String token) {
+    @PostMapping("/stats")
+    public ResponseEntity<ApiResponse> getDashboardStats(@RequestBody() DashboardRequestDto dashboardRequestDto, @RequestHeader(name = "Authorization") String token) {
         try {
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
@@ -33,7 +34,7 @@ public class DashboardController {
                 return ResponseEntity.status(401).body(apiResponse);
             }
             
-            DashboardStatsDto stats = dashboardService.getDashboardStats(seller.getId().intValue());
+            DashboardStatsDto stats = dashboardService.getDashboardStats(seller.getId().intValue(),dashboardRequestDto);
             
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);

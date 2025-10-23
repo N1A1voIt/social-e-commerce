@@ -13,4 +13,12 @@ import {DecimalPipe} from "@angular/common";
 export class AccountPerformancesComponent {
   @Input() percentage!:number;
   @Input() amount!:number;
+  @Input() platformId!: number;
+  get platformUrl() {
+    switch (this.platformId) {
+      case 1: return "assets/logos/facebook_logo.png";
+      case 2: return "assets/logos/facebook_logo.png";
+      default: return "";
+    }
+  }
 }

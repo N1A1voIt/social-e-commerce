@@ -13,7 +13,11 @@ public class DashboardStatsDto {
     private Double bestDeal;
     private Long totalSales;
     private String dateRange;
-    
+    private PlatformRepartitionDto[] platformRepartition;
+    private PagesRepartitionDto[] pagesRepartition;
+    private SalesProgressionDto salesProgressionDto;
+    private BestTimeToPost bestTimeToPost;
+    private HeatmapData heatmapData;
     public DashboardStatsDto() {}
     
     public DashboardStatsDto(Double totalRevenue, Double revenuePerUser, Double bestDeal, Long totalSales, String dateRange) {

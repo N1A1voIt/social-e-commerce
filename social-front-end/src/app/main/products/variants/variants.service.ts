@@ -27,7 +27,12 @@ export class VariantsService {
       'Content-Type': 'application/json'
     });
   }
-
+  fetchForecasting(idProduct:number,):Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.get<ApiResponse>(javaHost + '/api/stocks/refill-per-product-message',{params : {idProduct:idProduct},headers:header});
+  }
   /**
    * Fetch variants with their option details for a product
    */

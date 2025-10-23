@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
+import com.itu.socialcom.demo.posts.entity.LikesStateLog;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import com.itu.socialcom.demo.posts.entity.LikesHistory;
@@ -22,6 +23,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Objects;
@@ -42,7 +44,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
     @Autowired
     private ManagedPageCPLRepository managedPageCPLRepository;
 
-    private static final String FACEBOOK_API_BASE_URL = "https://graph.facebook.com/v20.0";
+    private static final String FACEBOOK_API_BASE_URL = "https://graph.facebook.com/v23.0";
     private static final String POSTS_ENDPOINT = "/posts";
     private static final String FIELDS = "id,message,permalink_url,attachments{media_type,url,media,subattachments},created_time,reactions.summary(total_count)";
     private static final String REACTIONS_FIELDS = "id,name,type,created_time";
@@ -100,7 +102,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         return extractedData;
     }
     @Override
-    public List<Post> transformPost(ExtractorArgs args) {
+    public List<Post> transformPost(ExtractorArgs args,HashMap<String,ManagedPageCPL> managedPageCPLHashMap) {
         Map<String,Object> extractedData = this.extractPostData(args);
         if (extractedData == null || extractedData.isEmpty()) {
             throw new IllegalArgumentException("extracted data is null or empty");
@@ -122,7 +124,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 Boolean isExisting = (Boolean) postData.get("isExisting");
 
                 Post post = createPostFromNode(postNode, sellerId);
-                List<PostChild> postChildren = createPostChildrenFromNode(postNode, pageId);
+                List<PostChild> postChildren = createPostChildrenFromNode(postNode, pageId,managedPageCPLHashMap);
 
                 post.setPostChildren(postChildren);
                 post.setIsExisting(isExisting);
@@ -139,8 +141,12 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
     @Override
     @Transactional
     public List<Post> loadPost(ExtractorArgs args) {
-        List<Post> posts = this.transformPost(args);
         List<ManagedPageCPL> managedPageCPLS = managedPageCPLRepository.findByIdSellerAndPlatform(args.getSeller().getId(), "facebook");
+        HashMap<String,ManagedPageCPL> managedPageCPLHashMap = new HashMap<>();
+        for (int i = 0; i < managedPageCPLS.size(); i++) {
+            managedPageCPLHashMap.put(managedPageCPLS.get(i).getPlatformIdentifier(),managedPageCPLS.get(i));
+        }
+        List<Post> posts = this.transformPost(args,managedPageCPLHashMap);
 
         // Fetch all existing Facebook posts once to avoid multiple database queries
         Map<String, List<PostChild>> existingPostsMap = new HashMap<>();
@@ -157,16 +163,16 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         for (Post post : posts) {
             if (post.getIsExisting() != null && post.getIsExisting()) {
                 // Update existing post using pre-fetched data
-                updateExistingPost(allExistingPosts,existingPosts,post, args.getSeller(), managedPageCPLS, existingPostsMap);
+                updateExistingPost(allExistingPosts,existingPosts,post, args.getSeller(), managedPageCPLHashMap, existingPostsMap);
             } else {
                 // Create new post
-                createNewPost(post, args.getSeller(), managedPageCPLS);
+                createNewPost(post, args.getSeller(), managedPageCPLHashMap);
             }
         }
         return posts;
     }
     
-    private void createNewPost(Post post, Seller seller, List<ManagedPageCPL> managedPageCPLS) {
+    private void createNewPost(Post post, Seller seller, HashMap<String,ManagedPageCPL> managedPageCPLS) {
         postRepository.save(post);
         
         // First, save all post children to get their IDs
@@ -194,7 +200,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         System.out.println("Created new Facebook post: " + post.getId() + " with " + post.getPostChildren().size() + " children");
     }
     
-    private void updateExistingPost(List<PostChild> existingPostChild,List<Post> existingPosts,Post post, Seller seller, List<ManagedPageCPL> managedPageCPLS, Map<String, List<PostChild>> existingPostsMap) {
+    private void updateExistingPost(List<PostChild> existingPostChild,List<Post> existingPosts,Post post, Seller seller, HashMap<String,ManagedPageCPL> managedPageCPLS, Map<String, List<PostChild>> existingPostsMap) {
         // Find the main_post child to get the platform_identifier (Facebook post ID)
         String facebookPostId = post.getPostChildren().stream()
             .filter(child -> "main_post".equals(child.getType()))
@@ -243,7 +249,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         }
     }
     
-    private void updatePostChildren(List<PostChild> existingPostChilds,List<PostChild> newPostChildren, Integer postId, Seller seller, List<ManagedPageCPL> managedPageCPLS) {
+    private void updatePostChildren(List<PostChild> existingPostChilds,List<PostChild> newPostChildren, Integer postId, Seller seller, HashMap<String,ManagedPageCPL> managedPageCPLS) {
         // Get existing post children for this post
         List<PostChild> existingChildren = existingPostChilds.stream()
             .filter(child -> child.getIdPost().equals(postId))
@@ -353,20 +359,21 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         return post;
     }
 
-    private List<PostChild> createPostChildrenFromNode(JsonNode postNode, String pageId) {
+    private List<PostChild> createPostChildrenFromNode(JsonNode postNode, String pageId,HashMap<String,ManagedPageCPL> managedPageCPLHashMap) {
         List<PostChild> postChildren = new ArrayList<>();
 
         String postId = postNode.has("id") ? postNode.get("id").asText() : "";
         String message = postNode.has("message") ? postNode.get("message").asText() : "";
-
-        // Create main post child with message
+        String createdTime = postNode.get("created_time").asText();
         PostChild mainChild = new PostChild();
         mainChild.setPostUrl(postNode.has("permalink_url") ? postNode.get("permalink_url").asText() : "");
         mainChild.setDescription(message);
         mainChild.setPlatformIdentifier(postId);
         mainChild.setType("main_post");
         mainChild.setIdSp(1L);
-
+        mainChild.setCreatedTime(LocalDateTime.parse(createdTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")));
+        int managedPageId = managedPageCPLHashMap.get(postId.split("_")[0]).getIdMp().intValue();
+        mainChild.setIdMp(managedPageId);
         postChildren.add(mainChild);
 
         // Process attachments
@@ -374,14 +381,14 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
             JsonNode attachmentsData = postNode.get("attachments").get("data");
 
             for (JsonNode attachment : attachmentsData) {
-                processAttachment(attachment, postChildren, pageId, postId);
+                processAttachment(attachment, postChildren, pageId, postId,managedPageId);
             }
         }
 
         return postChildren;
     }
 
-    private void processAttachment(JsonNode attachment, List<PostChild> postChildren, String pageId, String postId) {
+    private void processAttachment(JsonNode attachment, List<PostChild> postChildren, String pageId, String postId,int managedPageId) {
         String mediaType = attachment.has("media_type") ? attachment.get("media_type").asText() : "";
         String attachmentUrl = attachment.has("url") ? attachment.get("url").asText() : "";
 
@@ -392,6 +399,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 for (JsonNode subAttachment : subAttachments) {
                     PostChild photoChild = createPhotoChild(subAttachment, pageId, postId);
                     if (photoChild != null) {
+                        photoChild.setIdMp(managedPageId);
                         postChildren.add(photoChild);
                     }
                 }
@@ -399,6 +407,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         } else if ("photo".equals(mediaType)) {
             PostChild photoChild = createSinglePhotoChild(attachment, pageId, postId);
             if (photoChild != null) {
+                photoChild.setIdMp(managedPageId);
                 postChildren.add(photoChild);
             }
         } else {
@@ -407,7 +416,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
 //            mediaChild.setPlatformIdentifier(postId);
             mediaChild.setType(mediaType);
             mediaChild.setIdSp(1L);
-
+            mediaChild.setIdMp(managedPageId);
             if (attachment.has("media")) {
                 JsonNode media = attachment.get("media");
                 if (media.has("image") && media.get("image").has("src")) {
@@ -475,14 +484,14 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
     }
 
 
-    private void fetchAndSaveReactions(PostChild postChild, Seller seller,List<ManagedPageCPL> managedPageCPLS) {
+    private void fetchAndSaveReactions(PostChild postChild, Seller seller,HashMap<String,ManagedPageCPL> managedPageCPLS) {
         try {
 
             if (managedPageCPLS.isEmpty()) {
                 return;
             }
-            
-            String accessToken = managedPageCPLS.get(0).getRefreshToken();
+
+            String accessToken = managedPageCPLS.get(postChild.getPlatformIdentifier().split("_")[0]).getRefreshToken();
             System.out.println("Access Token: " + accessToken);
             String postId = postChild.getPlatformIdentifier();
             
@@ -501,19 +510,30 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 JsonNode reactionsData = reactionsJson.get("data");
                 
                 if (reactionsData != null && reactionsData.isArray()) {
+                    System.out.println("Fetching reactions for post: " + postChild.getIdMp());
+                    LikesHistory likesHistory = new LikesHistory();
+                    likesHistory.setIdChild(postChild.getId());
+                    likesHistory.setReactions(reactionsData.size()); // Each reaction counts as 1
+                    likesHistory.setCreatedAt(LocalDateTime.now());
+
+                    likesHistoryRepository.save(likesHistory);
+
                     for (JsonNode reaction : reactionsData) {
                         String userId = reaction.get("id").asText();
                         String userName = reaction.get("name").asText();
                         String reactionType = reaction.get("type").asText();
-//                        String createdTime = reaction.get("created_time").asText();
-
-                        // Create likes history entry
-                        LikesHistory likesHistory = new LikesHistory();
-                        likesHistory.setIdChild(postChild.getId());
-                        likesHistory.setReactions(1); // Each reaction counts as 1
-                        likesHistory.setCreatedAt(LocalDateTime.now());
-                        
-                        likesHistoryRepository.save(likesHistory);
+                        LocalDateTime createdTime = LocalDateTime.now();
+                        LikesStateLog likesStateLog = new LikesStateLog();
+                        likesStateLog.setReaction(reactionType);
+                        likesStateLog.setIdChild(postChild.getId());
+                        likesStateLog.setIdUserPlatform(userId);
+                        likesStateLog.setUsername(userName);
+                        likesStateLog.setCreatedAt(createdTime);
+                        likesStateLog.setHappenedAt(createdTime);
+                        likesStateLog.setIdSp(1);
+                        likesStateLog.setIdMp(postChild.getIdMp());
+                        likesStateLogRepository.save(likesStateLog);
+                        System.out.println("Reaction from user: " + userName + " (ID: " + userId + ") - Type: " + reactionType);
                     }
                 }
             }

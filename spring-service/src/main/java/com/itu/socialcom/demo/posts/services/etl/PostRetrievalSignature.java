@@ -3,8 +3,10 @@ package com.itu.socialcom.demo.posts.services.etl;
 import com.itu.socialcom.demo.posts.dto.ExtractorArgs;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
+import com.itu.socialcom.demo.posts.repository.LikesStateLogRepository;
 import com.itu.socialcom.demo.posts.repository.PostChildRepository;
 import com.itu.socialcom.demo.posts.repository.PostRepository;
+import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ public abstract class PostRetrievalSignature {
     PostRepository postRepository;
     @Autowired
     PostChildRepository postChildRepository;
+    @Autowired
+    LikesStateLogRepository likesStateLogRepository;
     public Set<String> retrievePostIdentifiers(Long platformId) {
         List<PostChild> postChildren = postChildRepository.findByIdSp(platformId);
         Set<String> postIdentifiers = new HashSet<>();
@@ -25,6 +29,6 @@ public abstract class PostRetrievalSignature {
         return postIdentifiers;
     }
     public abstract Map<String, Object> extractPostData(ExtractorArgs args);
-    public abstract List<Post> transformPost(ExtractorArgs args);
+    public abstract List<Post> transformPost(ExtractorArgs args,HashMap<String, ManagedPageCPL> managedPageCPLHashMap);
     public abstract List<Post> loadPost(ExtractorArgs args);
 }

@@ -54,4 +54,8 @@ public interface StockChildRepository extends JpaRepository<StockChild,Long> {
     List<StockChild> findRecordsForVariantFromDate(Long variantId, LocalDateTime date);
 
     List<StockChild> findByIdMv(Long idMv);
+
+    List<StockChild> findByActionAtAfterOrderByIdProductAscActionAtAsc(LocalDateTime actionAtAfter);
+
+    List<StockChild> findByIdProductAndActionAtAfterOrderByActionAtAsc(Long idProduct, LocalDateTime actionAtAfter);
 }

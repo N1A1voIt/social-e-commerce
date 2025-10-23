@@ -14,6 +14,8 @@ import com.itu.socialcom.demo.potentialCustomers.repository.PotentialCustomerV2R
 import com.itu.socialcom.demo.posts.repository.MediaRepository;
 import com.itu.socialcom.demo.posts.repository.PostChildRepository;
 import com.itu.socialcom.demo.posts.repository.VRefreshTokenHolderRepository;
+import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
+import com.itu.socialcom.demo.socialmedia.repository.ManagedPageCPLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,8 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
     private MediaRepository mediaRepository;
     @Autowired
     PostChildRepository postChildRepository;
+    @Autowired
+    ManagedPageCPLRepository managedPageCPLRepository;
 
 
     @Override
@@ -123,7 +127,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
 
 
     @Override
-    public List<Post> transformPost(ExtractorArgs args) {
+    public List<Post> transformPost(ExtractorArgs args,HashMap<String, ManagedPageCPL> managedPageCPLHashMap) {
         List<Post> posts = new ArrayList<>();
 
         Map<String, Object> rawData = extractPostData(args);
@@ -177,7 +181,12 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
     @Override
     @Transactional
     public List<Post> loadPost(ExtractorArgs args) {
-        List<Post> posts = this.transformPost(args);
+        List<ManagedPageCPL> managedPageCPLS = managedPageCPLRepository.findByIdSellerAndPlatform(args.getSeller().getId(), "facebook");
+        HashMap<String,ManagedPageCPL> managedPageCPLHashMap = new HashMap<>();
+        for (int i = 0; i < managedPageCPLS.size(); i++) {
+            managedPageCPLHashMap.put(managedPageCPLS.get(i).getPlatformIdentifier(),managedPageCPLS.get(i));
+        }
+        List<Post> posts = this.transformPost(args,managedPageCPLHashMap);
         if (posts != null && !posts.isEmpty()) {
             List<PostChild> postChildren = postChildRepository.findByIdSp(2L);
             List<Post> existingPosts = postRepository.findAll();
