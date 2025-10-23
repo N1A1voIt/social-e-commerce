@@ -12,24 +12,24 @@ import java.util.Optional;
 @Service
 public class CustomerTokenServiceImpl implements CustomerTokenService {
     @Autowired
-    private CustomerTokenRepository tokenV2Repository;
+    private CustomerTokenRepository customerTokenRepository;
     @Autowired
     private CustomerRepository customerRepository;
 
     @Override
     @Transactional
     public CustomerToken saveToken(CustomerToken token) {
-        return tokenV2Repository.save(token);
+        return customerTokenRepository.save(token);
     }
 
     @Override
     public Optional<CustomerToken> getToken(String token) {
-        return tokenV2Repository.findByToken(token);
+        return customerTokenRepository.findByToken(token);
     }
 
     @Override
     public boolean isTokenValid(String token) {
-        return tokenV2Repository.findValidToken(token)
+        return customerTokenRepository.findValidToken(token)
                 .map(t ->  t.getExpiryDate().isAfter(LocalDateTime.now()))
                 .orElse(false);
     }
@@ -48,7 +48,7 @@ public class CustomerTokenServiceImpl implements CustomerTokenService {
 
     @Override
     public Optional<Long> findCustomerIdByToken(String token) {
-        return tokenV2Repository.findUserIdByToken(token);
+        return customerTokenRepository.findUserIdByToken(token);
     }
 
     @Override

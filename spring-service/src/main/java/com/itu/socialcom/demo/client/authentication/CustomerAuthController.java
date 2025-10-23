@@ -24,8 +24,6 @@ public class CustomerAuthController {
 
     private final FirebaseAuth firebaseAuth;
     @Autowired
-    private CustomerServiceImpl customerService;
-    @Autowired
     private CustomerServiceImpl customerServiceImpl;
     @Autowired
     private CustomerTokenServiceImpl customerTokenServiceImpl;

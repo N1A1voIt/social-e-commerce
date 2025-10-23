@@ -40,11 +40,11 @@ export class ClientLoginComponent implements OnInit{
 
     signInWithEmailAndPassword(this.auth, email, password)
       .then(userCredential => userCredential.user.getIdToken())
-      .then(idToken => this.http.post(`${javaHost}/api/auth/signin`, { idToken }).toPromise())
+      .then(idToken => this.http.post(`${javaHost}/api/customer/auth/signin`, { idToken }).toPromise())
       .then((response: any) => {
         localStorage.setItem('token',"Bearer " +  response.token);
         this.errorMessage = ''; // Clear any previous error
-        this.router.navigate(['/basic/dashboard']);
+        this.router.navigate(['/client/marketplace']);
       })
       .catch(error => {
         if (error.error) {
@@ -83,12 +83,12 @@ export class ClientLoginComponent implements OnInit{
   loginWithGoogle() {
     signInWithPopup(this.auth, new GoogleAuthProvider())
       .then(userCredential => userCredential.user.getIdToken())
-      .then(idToken => this.http.post(`${javaHost}/api/client/auth/signin`, { idToken }).toPromise())
+      .then(idToken => this.http.post(`${javaHost}/api/customer/auth/signin`, { idToken }).toPromise())
       .then((response: any) => {
         // Store token in localStorage
         localStorage.setItem('token',"Bearer " +  response.token);
         this.errorMessage = ''; // Clear any previous error
-        this.router.navigate(['/basic/dashboard']);
+        this.router.navigate(['/client/marketplace']);
       })
       .catch(error => {
         if (error.error) {
