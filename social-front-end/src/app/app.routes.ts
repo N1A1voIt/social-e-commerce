@@ -13,6 +13,7 @@ import {NoAuthGuard} from "./shared/guards/no-auth.guard";
 import {MenuClientComponent} from "./client/menu-client/menu-client.component";
 import {MarketplaceComponent} from "./client/marketplace/marketplace.component";
 import {ProductDetailComponent} from "./client/marketplace/product-detail/product-detail.component";
+import {CartComponent} from "./client/cart/cart.component";
 import {StockListComponent} from "./main/products/stock-list/stock-list.component";
 import {ValidatePagesComponent} from "./main/authentication/validate-pages/validate-pages.component";
 import {VariantsComponent} from "./main/products/variants/variants.component";
@@ -59,7 +60,8 @@ const homeRoutes: Routes = [
     component: MenuClientComponent,
     children: [
       {path: 'marketplace',component: MarketplaceComponent},
-      { path: 'marketplace/product/:id', component: ProductDetailComponent }
+      { path: 'marketplace/product/:id', component: ProductDetailComponent },
+      { path: 'cart', component: CartComponent }
     ]
   },
 ]

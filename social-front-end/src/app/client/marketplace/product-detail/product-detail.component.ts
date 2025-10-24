@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerProductService, ProductCPL, ProductOptionDTO, OptionValueDTO, VariantInStock, SelectedOptionValues } from '../services/customer-product.service';
+import { CartService, AddToCartRequest } from '../services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -51,7 +52,9 @@ export class ProductDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private productService: CustomerProductService
+    private router: Router,
+    private productService: CustomerProductService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -166,7 +169,28 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart() {
     if (this.variant && this.variant.stockStatus !== 'Out of Stock') {
-      alert(`Added ${this.quantity} of ${this.variant.title} to cart!`);
+      this.loading.variant = true;
+
+      const request: AddToCartRequest = {
+        productId: this.productId,
+        variantId: this.variant.idVariant,
+        quantity: this.quantity
+      };
+
+      this.cartService.addToCart(request).subscribe({
+        next: (cart) => {
+          this.loading.variant = false;
+          // Show success message
+          alert(`Added ${this.quantity} of ${this.variant?.title} to cart!`);
+          // Navigate to cart page
+          this.router.navigate(['/client/cart']);
+        },
+        error: (err) => {
+          this.loading.variant = false;
+          console.error('Error adding to cart:', err);
+          this.error = 'Failed to add item to cart. Please try again later.';
+        }
+      });
     } else {
       alert('This product is out of stock.');
     }

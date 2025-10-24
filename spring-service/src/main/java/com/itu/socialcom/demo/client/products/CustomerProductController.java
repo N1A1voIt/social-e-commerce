@@ -56,21 +56,17 @@ public class CustomerProductController {
     @GetMapping("/{productId}/options")
     public ResponseEntity<?> getProductOptions(@PathVariable Long productId, @RequestHeader("Authorization") String token) {
         try {
-            // Verify customer is logged in
             Customer customer = customerRepository.findCustomerByToken(token.replace("Bearer ","")).orElse(null);
             if (customer == null) throw new Exception("Not logged in");
 
-            // Get all options for the product
             List<Option> options = optionRepository.findByIdProduct(productId);
 
-            // Convert to DTOs
             List<ProductOptionDTO> optionDTOs = new ArrayList<>();
             for (Option option : options) {
                 ProductOptionDTO optionDTO = new ProductOptionDTO();
                 optionDTO.setIdOption(option.getIdOption());
                 optionDTO.setLabel(option.getLabel());
 
-                // Get option values for this option
                 List<OptionValue> optionValues = optionValueRepository.findByIdOption(option.getIdOption());
                 List<OptionValueDTO> optionValueDTOs = optionValues.stream()
                     .map(ov -> new OptionValueDTO(ov.getIdOv(), ov.getValue()))
