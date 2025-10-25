@@ -42,6 +42,12 @@ public class Cart {
     @Column(name = "state", nullable = false)
     private Boolean state;
     
+    /**
+     * Foreign key reference to seller_v2 table
+     */
+    @Column(name = "id_seller", nullable = false)
+    private Long idSeller;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

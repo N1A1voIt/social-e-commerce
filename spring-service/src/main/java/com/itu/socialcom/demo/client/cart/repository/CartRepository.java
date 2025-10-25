@@ -48,6 +48,15 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Optional<Cart> findByIdCartAndCustomer(Long idCart, Customer customer);
     
     /**
+     * Find a cart by customer, seller, and state
+     * @param customer the customer
+     * @param sellerId the seller id
+     * @param state the state of the cart (true for active)
+     * @return optional containing the cart if found
+     */
+    Optional<Cart> findByCustomerAndIdSellerAndState(Customer customer, Long sellerId, Boolean state);
+    
+    /**
      * Check if a customer has an active cart
      * @param idCustomer the customer id
      * @return true if the customer has an active cart, false otherwise

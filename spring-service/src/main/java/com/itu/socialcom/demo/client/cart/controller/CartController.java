@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for cart operations.
@@ -42,24 +44,32 @@ public class CartController {
         this.customerTokenService = customerTokenService;
         this.cartMapper = cartMapper;
     }
-
     /**
-     * Get the current customer's active cart
-     * @return the cart DTO
+     * Get the current customer's active carts
+     * @return the cart DTOs
      */
     @GetMapping
-    public ResponseEntity<CartDTO> getActiveCart(@RequestHeader("Authorization") String authHeader) {
-        System.out.println("Cart ID: " + authHeader);
+    public ResponseEntity<List<CartDTO>> getActiveCarts(@RequestHeader("Authorization") String authHeader) {
         Customer customer = getCurrentCustomer(authHeader);
-        Cart cart = cartService.getActiveCart(customer);
-
-        if (cart == null) {
-            cart = cartService.getOrCreateActiveCart(customer);
+        
+        // Get all active carts for the customer (grouped by seller)
+        List<Cart> carts = cartService.getCartsByCustomer(customer);
+                
+        if (carts.isEmpty()) {
+            // Return empty list if no active carts
+            return ResponseEntity.ok(Collections.emptyList());
         }
-        List<CartDetails> cartItems = cartService.getCartItems(cart);
-        BigDecimal totalPrice = cartService.calculateCartTotal(cart);
+        
+        // Convert each cart to DTO
+        List<CartDTO> cartDTOs = carts.stream()
+                .map(cart -> {
+                    List<CartDetails> cartItems = cartService.getCartItems(cart);
+                    BigDecimal totalPrice = cartService.calculateCartTotal(cart);
+                    return cartMapper.toCartDTO(cart, cartItems, totalPrice);
+                })
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(cartMapper.toCartDTO(cart, cartItems, totalPrice));
+        return ResponseEntity.ok(cartDTOs);
     }
 
     /**
@@ -90,10 +100,12 @@ public class CartController {
     @PostMapping("/items")
     public ResponseEntity<CartDTO> addToCart(@Valid @RequestBody AddToCartRequest request, @RequestHeader("Authorization") String authHeader) {
         Customer customer = getCurrentCustomer(authHeader);
-        Cart cart = cartService.getOrCreateActiveCart(customer);
-//        System.out.println("Cartaaaa");
-        cartService.addToCart(cart, request.getProductId(), request.getVariantId(), request.getQuantity());
-
+        
+        // This will automatically handle getting or creating a cart for the product's seller
+        CartDetails cartDetails = cartService.addToCart(customer, request.getProductId(), request.getVariantId(), request.getQuantity());
+        
+        // Get the cart that the item was added to
+        Cart cart = cartDetails.getCart();
         List<CartDetails> cartItems = cartService.getCartItems(cart);
         BigDecimal totalPrice = cartService.calculateCartTotal(cart);
 

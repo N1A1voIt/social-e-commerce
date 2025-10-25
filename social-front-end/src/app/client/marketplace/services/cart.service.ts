@@ -2,28 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { javaHost } from '../../../../environments/environment';
+import { Cart } from '../../cart/cart.models';
 
 // Interfaces based on the backend DTOs
-export interface CartDTO {
-  cartId: number;
-  customerId: number;
-  createdAt: string;
-  active: boolean;
-  items: CartItemDTO[];
-  itemCount: number;
-  totalPrice: number;
-}
-
-export interface CartItemDTO {
-  productId: number;
-  variantId: number;
-  productName: string;
-  variantTitle: string;
-  price: number;
-  quantity: number;
-  subtotal: number;
-  imageUrl?: string;
-}
 
 export interface AddToCartRequest {
   productId: number;
@@ -53,11 +34,11 @@ export class CartService {
   }
 
   /**
-   * Get the active cart for the current customer
+   * Get all active carts for the current customer
    */
-  getActiveCart(): Observable<CartDTO> {
+  getActiveCarts(): Observable<Cart[]> {
     const headers = this.getAuthHeaders();
-    return this.http.get<CartDTO>(
+    return this.http.get<Cart[]>(
       `${this.baseUrl}`,
       { headers }
     );
@@ -66,9 +47,9 @@ export class CartService {
   /**
    * Get a specific cart by ID
    */
-  getCartById(cartId: number): Observable<CartDTO> {
+  getCartById(cartId: number): Observable<Cart> {
     const headers = this.getAuthHeaders();
-    return this.http.get<CartDTO>(
+    return this.http.get<Cart>(
       `${this.baseUrl}/${cartId}`,
       { headers }
     );
@@ -77,9 +58,9 @@ export class CartService {
   /**
    * Add an item to the cart
    */
-  addToCart(request: AddToCartRequest): Observable<CartDTO> {
+  addToCart(request: AddToCartRequest): Observable<Cart> {
     const headers = this.getAuthHeaders();
-    return this.http.post<CartDTO>(
+    return this.http.post<Cart>(
       `${this.baseUrl}/items`,
       request,
       { headers }
@@ -89,9 +70,9 @@ export class CartService {
   /**
    * Update the quantity of an item in the cart
    */
-  updateCartItem(request: UpdateCartItemRequest): Observable<CartDTO> {
+  updateCartItem(request: UpdateCartItemRequest): Observable<Cart> {
     const headers = this.getAuthHeaders();
-    return this.http.put<CartDTO>(
+    return this.http.put<Cart>(
       `${this.baseUrl}/items`,
       request,
       { headers }
@@ -101,9 +82,9 @@ export class CartService {
   /**
    * Remove an item from the cart
    */
-  removeFromCart(variantId: number): Observable<CartDTO> {
+  removeFromCart(variantId: number): Observable<Cart> {
     const headers = this.getAuthHeaders();
-    return this.http.delete<CartDTO>(
+    return this.http.delete<Cart>(
       `${this.baseUrl}/items/${variantId}`,
       { headers }
     );
@@ -112,10 +93,10 @@ export class CartService {
   /**
    * Clear all items from the cart
    */
-  clearCart(): Observable<CartDTO> {
+  clearCart(cartId: number): Observable<Cart> {
     const headers = this.getAuthHeaders();
-    return this.http.delete<CartDTO>(
-      `${this.baseUrl}/items`,
+    return this.http.delete<Cart>(
+      `${this.baseUrl}/${cartId}/items`,
       { headers }
     );
   }

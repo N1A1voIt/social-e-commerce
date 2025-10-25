@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CartService, CartDTO, CartItemDTO, UpdateCartItemRequest } from '../marketplace/services/cart.service';
+import { CartService, UpdateCartItemRequest } from '../marketplace/services/cart.service';
+import { Cart, CartItem } from './cart.models';
 
 @Component({
   selector: 'app-cart',
@@ -12,11 +13,12 @@ import { CartService, CartDTO, CartItemDTO, UpdateCartItemRequest } from '../mar
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
-  cart: CartDTO | null = null;
+  carts: Cart[] = [];
   loading = false;
   error: string | null = null;
-  isStockError = false;
-  errorItem: CartItemDTO | null = null;
+
+  // To keep track of which item in which cart has an error
+  errorContext: { cartId: number, variantId: number } | null = null;
 
   constructor(
     private cartService: CartService,
@@ -24,43 +26,33 @@ export class CartComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadCart();
+    this.loadCarts();
   }
 
-  loadCart(): void {
+  loadCarts(): void {
     this.loading = true;
     this.error = null;
-    this.isStockError = false;
-    this.errorItem = null;
+    this.errorContext = null;
 
-    this.cartService.getActiveCart().subscribe({
-      next: (cart) => {
-        this.cart = cart;
+    this.cartService.getActiveCarts().subscribe({
+      next: (carts) => {
+        this.carts = carts;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading cart:', err);
-        this.error = 'Failed to load cart. Please try again later.';
+        console.error('Error loading carts:', err);
+        this.error = 'Failed to load carts. Please try again later.';
         this.loading = false;
       }
     });
   }
 
-  tryWithUpdatedQuantity(item: CartItemDTO): void {
-    if (item && item.quantity > 0) {
-      this.updateQuantity(item, item.quantity);
-    }
-  }
-
-  updateQuantity(item: CartItemDTO, newQuantity: number): void {
+  updateQuantity(item: CartItem, newQuantity: number): void {
     if (newQuantity < 1) {
       return;
     }
 
     this.loading = true;
-    this.error = null;
-    this.isStockError = false;
-    this.errorItem = null;
 
     const request: UpdateCartItemRequest = {
       variantId: item.variantId,
@@ -68,37 +60,17 @@ export class CartComponent implements OnInit {
     };
 
     this.cartService.updateCartItem(request).subscribe({
-      next: (cart) => {
-        this.cart = cart;
+      next: (updatedCart) => {
+        this.updateCartInList(updatedCart);
         this.loading = false;
+        this.error = null;
+        this.errorContext = null;
       },
       error: (err) => {
         console.error('Error updating cart item:', err);
-
-        // Check if the error is related to insufficient stock
-        if (err.error && err.error.message && err.error.message.includes('Cannot update cart') && err.error.message.includes('items available in stock')) {
-          this.error = err.error.message;
-          this.isStockError = true;
-          this.errorItem = item; // Store the item that had the error
-
-          // Extract available stock from error message if possible
-          const stockMatch = err.error.message.match(/Only ([0-9.]+) items available in stock/);
-          if (stockMatch && stockMatch[1]) {
-            const availableStock = parseFloat(stockMatch[1]);
-            if (availableStock > 0) {
-              // Update the item's quantity in the UI to match available stock
-              item.quantity = Math.floor(availableStock);
-            }
-          }
-        } else {
-          this.error = 'Failed to update cart item. Please try again later.';
-          this.isStockError = false;
-          this.errorItem = null;
-        }
-
-        // Reset the cart to its previous state
-        this.loadCart();
-        this.loading = false;
+        this.error = err.error?.message || 'Failed to update item quantity.';
+        // Reload all carts to ensure data consistency
+        this.loadCarts();
       }
     });
   }
@@ -107,8 +79,8 @@ export class CartComponent implements OnInit {
     if (confirm('Are you sure you want to remove this item from your cart?')) {
       this.loading = true;
       this.cartService.removeFromCart(variantId).subscribe({
-        next: (cart) => {
-          this.cart = cart;
+        next: (updatedCart) => {
+          this.updateCartInList(updatedCart);
           this.loading = false;
         },
         error: (err) => {
@@ -120,12 +92,13 @@ export class CartComponent implements OnInit {
     }
   }
 
-  clearCart(): void {
-    if (confirm('Are you sure you want to clear your cart? This will remove all items.')) {
+  clearCart(cartId: number): void {
+    if (confirm('Are you sure you want to clear this cart? This will remove all items from this seller.')) {
       this.loading = true;
-      this.cartService.clearCart().subscribe({
-        next: (cart) => {
-          this.cart = cart;
+      this.cartService.clearCart(cartId).subscribe({
+        next: (updatedCart) => {
+          // Backend might return an empty cart or just success, so we handle it by removing the cart from the list
+          this.carts = this.carts.filter(c => c.cartId !== cartId);
           this.loading = false;
         },
         error: (err) => {
@@ -137,12 +110,32 @@ export class CartComponent implements OnInit {
     }
   }
 
+  private updateCartInList(updatedCart: Cart): void {
+    const index = this.carts.findIndex(c => c.cartId === updatedCart.cartId);
+    if (index !== -1) {
+      if (updatedCart.items.length > 0) {
+        this.carts[index] = updatedCart;
+      } else {
+        // If the cart has no items left, remove it from the list
+        this.carts.splice(index, 1);
+      }
+    }
+  }
+
+  get grandTotal(): number {
+    return this.carts.reduce((total, cart) => total + Number(cart.totalPrice), 0);
+  }
+
+  get totalItemCount(): number {
+    return this.carts.reduce((total, cart) => total + cart.itemCount, 0);
+  }
+
   continueShopping(): void {
     this.router.navigate(['/client/marketplace']);
   }
 
   checkout(): void {
-    // Navigate to checkout page (to be implemented)
+    // This would eventually handle checkout for multiple carts
     alert('Checkout functionality will be implemented in the future.');
     // this.router.navigate(['/client/checkout']);
   }

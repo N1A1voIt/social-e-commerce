@@ -15,10 +15,7 @@
   <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
     <p>{{ error }}</p>
     <div class="mt-2 flex flex-wrap gap-2">
-      <button *ngIf="isStockError && errorItem" class="px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="tryWithUpdatedQuantity(errorItem)">
-        Try with Updated Quantity
-      </button>
-      <button *ngIf="!isStockError || !errorItem" class="px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="loadCart()">
+      <button class="px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="loadCarts()">
         Retry
       </button>
       <button class="px-4 py-2 border border-yellow text-yellow rounded-full" (click)="error = null">
@@ -28,21 +25,21 @@
   </div>
 
   <!-- Empty Cart -->
-  <div *ngIf="!loading && (!cart || cart.items.length === 0)" class="text-center py-8">
+  <div *ngIf="!loading && carts.length === 0" class="text-center py-8">
     <p class="text-gray-500 mb-4">Your cart is empty</p>
     <button class="px-6 py-2 bg-yellow text-fotsy rounded-full" (click)="continueShopping()">
       Continue Shopping
     </button>
   </div>
 
-  <!-- Cart Items -->
-  <div *ngIf="!loading && cart && cart.items.length > 0" class="flex flex-col md:flex-row gap-6">
-    <!-- Items List -->
+  <!-- Carts -->
+  <div *ngIf="!loading && carts.length > 0" class="flex flex-col md:flex-row gap-6">
+    <!-- Carts List -->
     <div class="md:w-2/3">
-      <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+      <div *ngFor="let cart of carts" class="bg-white rounded-lg shadow-md p-4 mb-4">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">Items ({{ cart.itemCount }})</h2>
-          <button class="text-red-500 text-sm" (click)="clearCart()">Clear Cart</button>
+          <h2 class="text-lg font-semibold">Items from Seller #{{ cart.cartId }}</h2>
+          <button class="text-red-500 text-sm" (click)="clearCart(cart.cartId)">Clear Cart</button>
         </div>
 
         <!-- Cart Item -->
@@ -50,8 +47,8 @@
           <div class="flex flex-col md:flex-row gap-4">
             <!-- Product Image -->
             <div class="w-24 h-24 bg-gray-100 rounded-md overflow-hidden">
-              <img *ngIf="item.imageUrl" [src]="item.imageUrl" alt="Product image" class="w-full h-full object-cover" />
-              <div *ngIf="!item.imageUrl" class="w-full h-full flex items-center justify-center text-gray-400">
+              <img *ngIf="item.productMedia" [src]="item.productMedia" alt="Product image" class="w-full h-full object-cover" />
+              <div *ngIf="!item.productMedia" class="w-full h-full flex items-center justify-center text-gray-400">
                 No Image
               </div>
             </div>
@@ -66,14 +63,9 @@
               <div class="flex items-center mt-2">
                 <span class="mr-2">Qty:</span>
                 <div class="flex items-center border rounded-lg">
-                  <button class="px-2 py-1 bg-gray-100"
-                          (click)="updateQuantity(item, item.quantity - 1)"
-                          [disabled]="item.quantity <= 1">-</button>
-                  <input type="number" [(ngModel)]="item.quantity" min="1" max="99"
-                         class="w-12 text-center border-0 outline-none"
-                         (change)="updateQuantity(item, item.quantity)" />
-                  <button class="px-2 py-1 bg-gray-100"
-                          (click)="updateQuantity(item, item.quantity + 1)">+</button>
+                  <button class="px-2 py-1 bg-gray-100" (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">-</button>
+                  <input type="number" [(ngModel)]="item.quantity" min="1" max="99" class="w-12 text-center border-0 outline-none" (change)="updateQuantity(item, item.quantity)" />
+                  <button class="px-2 py-1 bg-gray-100" (click)="updateQuantity(item, item.quantity + 1)">+</button>
                 </div>
                 <button class="ml-4 text-red-500 text-sm" (click)="removeItem(item.variantId)">Remove</button>
               </div>
@@ -81,7 +73,7 @@
 
             <!-- Subtotal -->
             <div class="text-right">
-              <p class="font-semibold">${{ item.subtotal }}</p>
+              <p class="font-semibold">${{ item.totalPrice }}</p>
             </div>
           </div>
         </div>
@@ -94,15 +86,15 @@
         <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
 
         <div class="flex justify-between mb-2">
-          <span>Items ({{ cart.itemCount }}):</span>
-          <span>${{ cart.totalPrice }}</span>
+          <span>Total Items ({{ totalItemCount }}):</span>
+          <span>${{ grandTotal | number:'1.2-2' }}</span>
         </div>
 
         <div class="border-t border-gray-200 my-4"></div>
 
         <div class="flex justify-between font-semibold text-lg">
           <span>Total:</span>
-          <span>${{ cart.totalPrice }}</span>
+          <span>${{ grandTotal | number:'1.2-2' }}</span>
         </div>
 
         <button class="w-full mt-4 py-2 bg-yellow text-fotsy rounded-full" (click)="checkout()">

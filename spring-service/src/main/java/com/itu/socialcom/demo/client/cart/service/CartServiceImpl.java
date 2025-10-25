@@ -48,11 +48,33 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getOrCreateActiveCart(Customer customer) {
+        // Get the most recent active cart (for backward compatibility)
+        // Note: This method is now deprecated in favor of getOrCreateCartForSeller
         Optional<Cart> activeCart = cartRepository.findFirstByCustomerAndStateOrderByCreatedAtDesc(customer, true);
         return activeCart.orElseGet(() -> {
-            Cart newCart = new Cart(customer);
+            Cart newCart = new Cart();
+            newCart.setCustomer(customer);
+            newCart.setState(true);
             return cartRepository.save(newCart);
         });
+    }
+    
+    @Override
+    public Cart getOrCreateCartForSeller(Customer customer, Long sellerId) {
+        // First try to find an existing active cart for this customer and seller
+        Optional<Cart> existingCart = cartRepository.findByCustomerAndIdSellerAndState(customer, sellerId, true);
+        
+        if (existingCart.isPresent()) {
+            return existingCart.get();
+        }
+        
+        // If no active cart exists for this seller, create a new one
+        Cart newCart = new Cart();
+        newCart.setCustomer(customer);
+        newCart.setIdSeller(sellerId);
+        newCart.setState(true);
+        
+        return cartRepository.save(newCart);
     }
 
     @Override
@@ -67,18 +89,22 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<Cart> getCartsByCustomer(Customer customer) {
-        return cartRepository.findByCustomer(customer);
+        return cartRepository.findByCustomerAndState(customer,true );
     }
 
     @Override
     @Transactional
-    public CartDetails addToCart(Cart cart, Long productId, Long variantId, BigDecimal quantity) {
+    public CartDetails addToCart(Customer customer, Long productId, Long variantId, BigDecimal quantity) {
+        // Get the product to find the seller
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + productId));
+                
+        // Get or create a cart for this seller
+        Cart cart = getOrCreateCartForSeller(customer, product.getIdSeller());
+        
         if (!cart.isActive()) {
             throw new IllegalStateException("Cannot add items to an inactive cart");
         }
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + productId));
 
         Variant variant = variantRepository.findById(variantId)
                 .orElseThrow(() -> new EntityNotFoundException("Variant not found with id: " + variantId));

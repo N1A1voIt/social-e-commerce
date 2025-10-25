@@ -42,14 +42,22 @@ public interface CartService {
     List<Cart> getCartsByCustomer(Customer customer);
     
     /**
-     * Add a product variant to the cart
-     * @param cart the cart
-     * @param productId the product id
-     * @param variantId the variant id
-     * @param quantity the quantity
-     * @return the cart details
+     * Add a product variant to the cart, creating a new cart for the seller if needed
+     * @param customer the customer
+     * @param productId the product ID
+     * @param variantId the variant ID
+     * @param quantity the quantity to add
+     * @return the updated cart details
      */
-    CartDetails addToCart(Cart cart, Long productId, Long variantId, BigDecimal quantity);
+    CartDetails addToCart(Customer customer, Long productId, Long variantId, BigDecimal quantity);
+    
+    /**
+     * Get or create an active cart for a specific seller
+     * @param customer the customer
+     * @param sellerId the seller ID
+     * @return the cart (active or newly created for the seller)
+     */
+    Cart getOrCreateCartForSeller(Customer customer, Long sellerId);
     
     /**
      * Update the quantity of a product variant in the cart
