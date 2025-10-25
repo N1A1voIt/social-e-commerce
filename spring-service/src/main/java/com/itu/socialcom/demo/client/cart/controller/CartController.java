@@ -49,13 +49,13 @@ public class CartController {
      */
     @GetMapping
     public ResponseEntity<CartDTO> getActiveCart(@RequestHeader("Authorization") String authHeader) {
+        System.out.println("Cart ID: " + authHeader);
         Customer customer = getCurrentCustomer(authHeader);
         Cart cart = cartService.getActiveCart(customer);
 
         if (cart == null) {
             cart = cartService.getOrCreateActiveCart(customer);
         }
-
         List<CartDetails> cartItems = cartService.getCartItems(cart);
         BigDecimal totalPrice = cartService.calculateCartTotal(cart);
 
@@ -91,7 +91,7 @@ public class CartController {
     public ResponseEntity<CartDTO> addToCart(@Valid @RequestBody AddToCartRequest request, @RequestHeader("Authorization") String authHeader) {
         Customer customer = getCurrentCustomer(authHeader);
         Cart cart = cartService.getOrCreateActiveCart(customer);
-
+//        System.out.println("Cartaaaa");
         cartService.addToCart(cart, request.getProductId(), request.getVariantId(), request.getQuantity());
 
         List<CartDetails> cartItems = cartService.getCartItems(cart);
@@ -164,7 +164,7 @@ public class CartController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or missing Authorization header");
         }
 
-        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        String token = authHeader.substring(7);
 
         return customerTokenService.findCustomerByToken(token)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token"));

@@ -14,7 +14,17 @@
   <!-- Error Message -->
   <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
     <p>{{ error }}</p>
-    <button class="mt-2 px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="loadCart()">Retry</button>
+    <div class="mt-2 flex flex-wrap gap-2">
+      <button *ngIf="isStockError && errorItem" class="px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="tryWithUpdatedQuantity(errorItem)">
+        Try with Updated Quantity
+      </button>
+      <button *ngIf="!isStockError || !errorItem" class="px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="loadCart()">
+        Retry
+      </button>
+      <button class="px-4 py-2 border border-yellow text-yellow rounded-full" (click)="error = null">
+        Dismiss
+      </button>
+    </div>
   </div>
 
   <!-- Empty Cart -->

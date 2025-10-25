@@ -266,6 +266,7 @@ export class OrdersComponent implements OnInit{
      if (order.idOrderM != null) {
        this.orderService.fetchApplicants(order.idOrderM).subscribe({
          next: (response: ApiResponse) => {
+           console.log(response);
           this.showApplicants = true;
           this.applicants = response.data;
          }, error: (err: ApiResponse) => {

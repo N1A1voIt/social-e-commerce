@@ -6,12 +6,14 @@ import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service
+@Service("createOrderFromMessage")
+@Primary
 public class CreateOrderFromMessage extends OrderCreationService {
     @Override
     @Transactional

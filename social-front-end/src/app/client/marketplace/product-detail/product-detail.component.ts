@@ -26,6 +26,7 @@ export class ProductDetailComponent implements OnInit {
   };
 
   error: string | null = null;
+  isStockError: boolean = false;
 
   // Fallback data for development
   fallbackProduct = {
@@ -170,6 +171,8 @@ export class ProductDetailComponent implements OnInit {
   addToCart() {
     if (this.variant && this.variant.stockStatus !== 'Out of Stock') {
       this.loading.variant = true;
+      this.error = null;
+      this.isStockError = false;
 
       const request: AddToCartRequest = {
         productId: this.productId,
@@ -188,7 +191,24 @@ export class ProductDetailComponent implements OnInit {
         error: (err) => {
           this.loading.variant = false;
           console.error('Error adding to cart:', err);
-          this.error = 'Failed to add item to cart. Please try again later.';
+
+          // Check if the error is related to insufficient stock
+          if (err.error && err.error.message && err.error.message.includes('Cannot add') && err.error.message.includes('items available in stock')) {
+            this.error = err.error.message;
+            this.isStockError = true;
+
+            // Update quantity to match available stock if possible
+            const stockMatch = err.error.message.match(/Only ([0-9.]+) items available in stock/);
+            if (stockMatch && stockMatch[1]) {
+              const availableStock = parseFloat(stockMatch[1]);
+              if (availableStock > 0) {
+                this.quantity = Math.floor(availableStock);
+              }
+            }
+          } else {
+            this.error = 'Failed to add item to cart. Please try again later.';
+            this.isStockError = false;
+          }
         }
       });
     } else {

@@ -607,8 +607,10 @@ CREATE TABLE cart (
     id_customer INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     state BOOLEAN DEFAULT TRUE NOT NULL,
+    id_seller INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY(id_cart),
-    FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
+    FOREIGN KEY(id_customer) REFERENCES customer(id_customer),
+    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
 
 CREATE TABLE cart_details (

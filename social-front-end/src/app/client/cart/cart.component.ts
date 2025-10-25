@@ -15,6 +15,8 @@ export class CartComponent implements OnInit {
   cart: CartDTO | null = null;
   loading = false;
   error: string | null = null;
+  isStockError = false;
+  errorItem: CartItemDTO | null = null;
 
   constructor(
     private cartService: CartService,
@@ -28,6 +30,8 @@ export class CartComponent implements OnInit {
   loadCart(): void {
     this.loading = true;
     this.error = null;
+    this.isStockError = false;
+    this.errorItem = null;
 
     this.cartService.getActiveCart().subscribe({
       next: (cart) => {
@@ -42,12 +46,22 @@ export class CartComponent implements OnInit {
     });
   }
 
+  tryWithUpdatedQuantity(item: CartItemDTO): void {
+    if (item && item.quantity > 0) {
+      this.updateQuantity(item, item.quantity);
+    }
+  }
+
   updateQuantity(item: CartItemDTO, newQuantity: number): void {
     if (newQuantity < 1) {
       return;
     }
 
     this.loading = true;
+    this.error = null;
+    this.isStockError = false;
+    this.errorItem = null;
+
     const request: UpdateCartItemRequest = {
       variantId: item.variantId,
       quantity: newQuantity
@@ -60,7 +74,30 @@ export class CartComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error updating cart item:', err);
-        this.error = 'Failed to update cart item. Please try again later.';
+
+        // Check if the error is related to insufficient stock
+        if (err.error && err.error.message && err.error.message.includes('Cannot update cart') && err.error.message.includes('items available in stock')) {
+          this.error = err.error.message;
+          this.isStockError = true;
+          this.errorItem = item; // Store the item that had the error
+
+          // Extract available stock from error message if possible
+          const stockMatch = err.error.message.match(/Only ([0-9.]+) items available in stock/);
+          if (stockMatch && stockMatch[1]) {
+            const availableStock = parseFloat(stockMatch[1]);
+            if (availableStock > 0) {
+              // Update the item's quantity in the UI to match available stock
+              item.quantity = Math.floor(availableStock);
+            }
+          }
+        } else {
+          this.error = 'Failed to update cart item. Please try again later.';
+          this.isStockError = false;
+          this.errorItem = null;
+        }
+
+        // Reset the cart to its previous state
+        this.loadCart();
         this.loading = false;
       }
     });

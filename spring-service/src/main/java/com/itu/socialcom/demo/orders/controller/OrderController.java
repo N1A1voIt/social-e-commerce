@@ -305,6 +305,7 @@ public class OrderController {
             apiResponse.setData(applicants);
             return ResponseEntity.status(apiResponse.getStatus()).body(apiResponse);
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(500);
             apiResponse.setData(null);
