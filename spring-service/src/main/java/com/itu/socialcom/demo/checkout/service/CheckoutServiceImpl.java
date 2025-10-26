@@ -51,9 +51,9 @@ public class CheckoutServiceImpl implements CheckoutService {
         order.setIdSeller(cart.getIdSeller().intValue());
         order.setIdCart(cart.getIdCart().intValue());
         order.setDCustomerName(cart.getCustomer().getUsername());
-        order.setDescription("Order from marketplace checkout for customer: " + cart.getCustomer().getUsername());
         order.setShippingAddress(checkoutRequest.getShippingAddress());
         order.setCustomerNumber(checkoutRequest.getPhoneNumber());
+        order.setDescription("Order from marketplace checkout for customer: " + cart.getCustomer().getUsername());
         // Set required fields for marketplace orders (not from social media)
         // For marketplace orders, id_pc can be the customer ID and id_managed_pages can be null or a default
 //        order.setIdPc("CUSTOMER_" + cart.getCustomer().getIdCustomer());
