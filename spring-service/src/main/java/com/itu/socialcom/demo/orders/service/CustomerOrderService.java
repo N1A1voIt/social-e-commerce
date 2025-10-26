@@ -7,6 +7,7 @@ import com.itu.socialcom.demo.orders.dto.CustomerOrderDTO;
 import com.itu.socialcom.demo.orders.dto.OrderItemDTO;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
+import com.itu.socialcom.demo.orders.tempLink.TempLinkRepository;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.authentication.user.SellerRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class CustomerOrderService {
     private final OrderParentRepository orderParentRepository;
     private final OrderChildRepository orderChildRepository;
     private final SellerRepository sellerRepository;
+    private final TempLinkRepository tempLinkRepository;
 
     public List<CustomerOrderDTO> getCustomerOrders(Long customerId) {
         List<OrderParent> orders = orderParentRepository.findAll().stream()
@@ -62,6 +64,18 @@ public class CustomerOrderService {
         dto.setItems(orderChildren.stream()
                 .map(this::mapToItemDTO)
                 .collect(Collectors.toList()));
+
+        // Get payment link if status is 5 (payment pending)
+        if (order.getDStatus() != null && order.getDStatus() == 5) {
+            List<com.itu.socialcom.demo.orders.tempLink.TempLink> tempLinks = tempLinkRepository.findByIdOrderM(order.getIdOrderM().intValue());
+            if (!tempLinks.isEmpty()) {
+                // Get the most recent non-expired and non-used link
+                tempLinks.stream()
+                        .filter(link -> !link.getUsed() && link.getExpiredAt().isAfter(java.time.LocalDateTime.now()))
+                        .findFirst()
+                        .ifPresent(link -> dto.setPaymentLink(link.getTempLink()));
+            }
+        }
 
         return dto;
     }

@@ -28,6 +28,7 @@ export class ClientOrdersComponent implements OnInit {
     this.ordersService.getOrders().subscribe({
       next: (response) => {
         if (response.status === 200) {
+          // console.log(response)
           this.orders = response.data || [];
         } else {
           this.error = response.errors?.[0]?.message || 'Failed to load orders.';

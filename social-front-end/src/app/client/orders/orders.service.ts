@@ -10,13 +10,14 @@ export interface CustomerOrder {
   createdAt: string;
   dTotal: number;
   dCustomerName: string;
-  dStatus: number;
+  dstatus: number;
   statusLabel: string;
   shippingAddress: string;
   customerNumber: string;
   idSeller: number;
   sellerName: string;
   items: OrderItem[];
+  paymentLink?: string;
 }
 
 export interface OrderItem {

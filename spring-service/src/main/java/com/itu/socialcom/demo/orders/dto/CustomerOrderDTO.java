@@ -18,5 +18,6 @@ public class CustomerOrderDTO {
     private Integer idSeller;
     private String sellerName;
     private List<OrderItemDTO> items;
+    private String paymentLink;
 }
 

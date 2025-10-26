@@ -48,7 +48,9 @@ public class OrderPaymentLink implements OrderPaymentLinkService{
         if (orderParent == null) {
             throw new IllegalArgumentException("Order parent or its children cannot be null or empty");
         }
-        PotentialCustomerV2 potentialCustomerV2 = potentialCustomerV2Service.findById(orderParent.getIdPc()).orElse(null);
+        PotentialCustomerV2 potentialCustomerV2 = null;
+        if (orderParent.getIdPc() != null) potentialCustomerV2 = potentialCustomerV2Service.findById(orderParent.getIdPc()).orElse(null);
+        if (orderParent.getIdPc() == null) potentialCustomerV2 = new PotentialCustomerV2();
         if (potentialCustomerV2 == null) {
             throw new IllegalArgumentException("Potential customer not found for the given ID");
         }
@@ -59,19 +61,22 @@ public class OrderPaymentLink implements OrderPaymentLinkService{
 
         String message = "Please pay for your order using the following link: " +
                 tempLink.getTempLink() + " just know that this link will expire in 1 hour and you won't be able to claim a new link , the down payment amount is " + downPaymentAmount +" Ariary ";
+        if (orderParent.getIdManagedPages() == null) {
 
-        MessageMother messageMother = messageMotherRepository.findByIdPcAndIdMp(potentialCustomerV2.getId(), orderParent.getIdManagedPages());
-        MessageChild messageChild = new MessageChild();
-        messageChild.setIdMm(messageMother.getId());
-        messageChild.setFromPlatform(false);
-        messageChild.setMessage(message);
-        messageChild.setCreatedAt(LocalDateTime.now());
-        this.messageChildRepository.save(messageChild);
-        MessageService messageService1 = messageService.getMessageService(potentialCustomerV2.getPlatform());
-        ManagedPageCPL managedPageCPL = managedPageCPLRepository.findByIdMp(Long.valueOf(orderParent.getIdManagedPages()));
-        messageService1.sendMessage(potentialCustomerV2.getIdentifierOnPlatform(),
-                message
-                ,managedPageCPL.getRefreshToken());
+        } else {
+            MessageMother messageMother = messageMotherRepository.findByIdPcAndIdMp(potentialCustomerV2.getId(), orderParent.getIdManagedPages());
+            MessageChild messageChild = new MessageChild();
+            messageChild.setIdMm(messageMother.getId());
+            messageChild.setFromPlatform(false);
+            messageChild.setMessage(message);
+            messageChild.setCreatedAt(LocalDateTime.now());
+            this.messageChildRepository.save(messageChild);
+            MessageService messageService1 = messageService.getMessageService(potentialCustomerV2.getPlatform());
+            ManagedPageCPL managedPageCPL = managedPageCPLRepository.findByIdMp(Long.valueOf(orderParent.getIdManagedPages()));
+            messageService1.sendMessage(potentialCustomerV2.getIdentifierOnPlatform(),
+                    message
+                    ,managedPageCPL.getRefreshToken());
+        }
         orderParent.setDStatus(5);
         orderParentRepository.save(orderParent);
         return orderParent;
