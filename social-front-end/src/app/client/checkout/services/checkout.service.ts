@@ -6,6 +6,8 @@ import {ApiResponse} from "../../../main/inbox/inbox.service";
 
 export interface CheckoutRequest {
   sellerId: number;
+  shippingAddress:string;
+  phoneNumber:string;
 }
 
 @Injectable({

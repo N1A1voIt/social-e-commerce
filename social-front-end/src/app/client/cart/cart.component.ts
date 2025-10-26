@@ -181,7 +181,9 @@ export class CartComponent implements OnInit {
     this.loading = true;
     this.error = null;
     this.checkoutService.checkout({
-      sellerId: this.selectedCart.idSeller
+      sellerId: this.selectedCart.idSeller,
+      shippingAddress: this.checkoutForm.shippingAddress,
+      phoneNumber: this.checkoutForm.phoneNumber
     }).subscribe({
       next: (response) => {
         this.loading = false;
