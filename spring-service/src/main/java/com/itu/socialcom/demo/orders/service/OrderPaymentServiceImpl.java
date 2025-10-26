@@ -30,7 +30,6 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     private MVolaProvider mVolaProvider;
     @Autowired
     private OrderParentRepository orderParentRepository;
-
     @Override
     @Transactional
     public PaymentResponse processOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception {
@@ -41,9 +40,15 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             if (tempLink.getUsed()) throw new Exception("This payment link has already been used.");
             OrderParent orderParent = parentRepository.findById(tempLink.getIdOrderM().longValue())
                     .orElseThrow(() -> new Exception("Order not found."));
-            ManagedPagesNumber managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
-            SellerPhoneNumber sellerPhoneNumber = sellerPhoneNumberRepository.findById(managedPagesNumber.getIdSpn())
+
+            ManagedPagesNumber managedPagesNumber = new ManagedPagesNumber();
+            if (orderParent.getIdManagedPages() != null) managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
+            SellerPhoneNumber sellerPhoneNumber = new SellerPhoneNumber();
+            if (orderParent.getIdManagedPages() != null) sellerPhoneNumber = sellerPhoneNumberRepository.findById(managedPagesNumber.getIdSpn())
                     .orElseThrow(() -> new Exception("Seller phone number not found."));
+            if (orderParent.getIdManagedPages() == null) sellerPhoneNumber = sellerPhoneNumberRepository.findByIdSellerAndIdPm(orderParent.getIdSeller().longValue(),1L)
+                    .orElseThrow(() -> new Exception("Seller phone number not found."));
+
             PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);
             PaymentResponse paymentResponse = mVolaProvider.initiateTransaction(paymentRequest);
             orderParent.setDStatus(11); //Ordered
