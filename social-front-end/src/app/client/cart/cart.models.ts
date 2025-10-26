@@ -11,6 +11,8 @@ export interface CartItem {
 
 export interface Cart {
     cartId: number;
+    idSeller: number;
+    sellerName: string;
     customerId: number;
     createdAt: string; // Using string for LocalDateTime, can be converted to Date object if needed
     active: boolean;

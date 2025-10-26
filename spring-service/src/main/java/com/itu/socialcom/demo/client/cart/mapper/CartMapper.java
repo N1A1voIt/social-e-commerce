@@ -29,6 +29,7 @@ public class CartMapper {
         cartDTO.setCustomerId(cart.getCustomer().getIdCustomer());
         cartDTO.setCreatedAt(cart.getCreatedAt());
         cartDTO.setActive(cart.isActive());
+        cartDTO.setIdSeller(cart.getIdSeller());
         
         List<CartItemDTO> itemDTOs = cartDetails.stream()
                 .map(this::toCartItemDTO)

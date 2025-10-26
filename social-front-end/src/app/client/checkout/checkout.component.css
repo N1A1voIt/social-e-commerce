@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 800px;
+}
+
+.bg-yellow {
+  background-color: #f59e0b;
+}
+
+.bg-yellow-dark:hover {
+  background-color: #d97706;
+}
+
+.text-fotsy {
+  color: #ffffff;
+}
