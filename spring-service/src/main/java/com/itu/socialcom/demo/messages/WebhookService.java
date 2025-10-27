@@ -38,8 +38,6 @@ public abstract class WebhookService {
     @Autowired
     PotentialCustomerV2Repository potentialCustomerV2Repository;
     @Autowired
-    MessageService messageService;
-    @Autowired
     InboxRepository inboxRepository;
     @Autowired
     ManagedPageRepository managedPageRepository;

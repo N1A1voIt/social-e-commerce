@@ -18,6 +18,8 @@ import java.util.List;
 public class InstagramWebhookService extends WebhookService {
 
     public PotentialCustomerV2 getSenderInfo(String senderId, String receiverId) {
+        System.out.println("senderId: " + senderId);
+        System.out.println("receiverId: " + receiverId);
         ManagedPageCPL managedPageCPL = managedPageCPLRepository.findByPlatformIdentifierAndPlatform(receiverId, "instagram");
         String url = UriComponentsBuilder
                 .fromUriString("https://graph.facebook.com/v18.0/" + senderId)

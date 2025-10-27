@@ -185,7 +185,9 @@ public class WebhookController {
                     if (messagingEvents != null && messagingEvents.isArray()) {
                         for (JsonNode event : messagingEvents) {
                             System.out.println(event.toString());
-                            instagramWebhookService.handleCustomerMessage(event);
+                            if(!event.has("is_echo")) {
+                                instagramWebhookService.handleCustomerMessage(event);
+                            }
                         }
                     }
                 }
