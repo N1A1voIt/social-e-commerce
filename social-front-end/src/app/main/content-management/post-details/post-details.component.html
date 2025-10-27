@@ -44,16 +44,16 @@
   <div *ngIf="post && !loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Post Header -->
-    <div class="bg-white rounded-lg shadow-sm border mb-6">
+    <div class="bg-white rounded-lg shadow-sm border mb-6 post-header">
       <div class="p-6">
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <div class="flex items-center mb-3">
-              <span class="bg-orange text-orange text-sm bg-opacity-20 rounded-md p-1 px-2 mr-3"
+              <span class="bg-orange text-orange text-sm bg-opacity-20 rounded-md p-1 px-2 mr-3 status-badge"
                     style="letter-spacing: 1px" *ngIf="post.scheduled">
                 Scheduled
               </span>
-              <span class="bg-green-500 text-green-500 text-sm bg-opacity-20 rounded-md p-1 px-2 mr-3"
+              <span class="bg-green-500 text-green-500 text-sm bg-opacity-20 rounded-md p-1 px-2 mr-3 status-badge"
                     style="letter-spacing: 1px" *ngIf="!post.scheduled">
                 Posted
               </span>
@@ -74,36 +74,44 @@
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Post Statistics</h2>
 
         <!-- Loading state for statistics -->
-        <div *ngIf="loadingStats" class="flex items-center justify-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-3"></div>
+        <div *ngIf="loadingStats" class="flex items-center justify-center py-8 loader-container">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-3 loader-spinner"></div>
           <span class="text-gray-600">Loading statistics...</span>
         </div>
 
         <!-- Statistics cards -->
-        <div *ngIf="!loadingStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div class="text-center p-4 bg-blue-50 rounded-lg">
-            <div class="text-2xl font-bold text-blue-600">{{getPostStats().views}}</div>
-            <div class="text-sm text-gray-600">Views</div>
+        <div *ngIf="!loadingStats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-8 border border-blue-200 shadow-sm stat-card">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-blue-600 font-semibold mb-2 uppercase tracking-wider">Total Views</div>
+                <div class="text-5xl font-bold text-blue-700">{{getPostStats().views}}</div>
+              </div>
+              <div class="text-blue-300 text-6xl opacity-50 stat-card-icon">
+                <i class="pi pi-eye"></i>
+              </div>
+            </div>
+            <p class="text-blue-600 text-sm mt-4">Total number of times your post was viewed</p>
           </div>
-          <div class="text-center p-4 bg-green-50 rounded-lg">
-            <div class="text-2xl font-bold text-green-600">{{getPostStats().likes}}</div>
-            <div class="text-sm text-gray-600">Likes</div>
-          </div>
-          <div class="text-center p-4 bg-yellow-50 rounded-lg">
-            <div class="text-2xl font-bold text-yellow-600">{{getPostStats().comments}}</div>
-            <div class="text-sm text-gray-600">Comments</div>
-          </div>
-          <div class="text-center p-4 bg-purple-50 rounded-lg">
-            <div class="text-2xl font-bold text-purple-600">{{getPostStats().shares}}</div>
-            <div class="text-sm text-gray-600">Shares</div>
+          <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-8 border border-green-200 shadow-sm stat-card">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-green-600 font-semibold mb-2 uppercase tracking-wider">Total Likes</div>
+                <div class="text-5xl font-bold text-green-700">{{getPostStats().likes}}</div>
+              </div>
+              <div class="text-green-300 text-6xl opacity-50 stat-card-icon">
+                <i class="pi pi-heart-fill"></i>
+              </div>
+            </div>
+            <p class="text-green-600 text-sm mt-4">Total number of likes received on this post</p>
           </div>
         </div>
 
         <!-- Charts Section -->
         <div *ngIf="!loadingStats && statistics" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Platform Distribution Chart -->
-          <div class="bg-gray-50 rounded-lg p-4">
-            <div >
+          <div class="chart-container">
+            <div>
               <canvas baseChart
                       [data]="pieChartData"
                       [type]="pieChartType"
@@ -113,7 +121,7 @@
           </div>
 
           <!-- Likes Over Time Chart -->
-          <div class="bg-gray-50 rounded-lg p-4">
+          <div class="chart-container">
             <div class="h-80">
               <canvas baseChart
                       [data]="lineChartData"
@@ -125,15 +133,15 @@
         </div>
 
         <!-- No data message -->
-        <div *ngIf="!loadingStats && (!statistics || statistics.totalLikes === 0)" class="text-center py-8">
-          <i class="pi pi-chart-bar text-gray-400 text-4xl mb-4"></i>
+        <div *ngIf="!loadingStats && (!statistics || statistics.totalLikes === 0)" class="text-center py-8 empty-state">
+          <i class="pi pi-chart-bar text-gray-400 text-4xl mb-4 empty-state-icon"></i>
           <p class="text-gray-500">No statistics available yet. Data will appear as users interact with your posts.</p>
         </div>
       </div>
     </div>
 
     <!-- Post Children Section -->
-    <div class="bg-white rounded-lg shadow-sm border">
+    <div class="bg-white rounded-lg shadow-sm border post-children-container">
       <div class="p-6">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-lg font-semibold text-gray-900">Post Content</h2>
@@ -141,15 +149,15 @@
         </div>
 
         <!-- No children message -->
-        <div *ngIf="children.length === 0" class="text-center py-8">
-          <i class="pi pi-image text-gray-400 text-4xl mb-4"></i>
+        <div *ngIf="children.length === 0" class="text-center py-8 empty-state">
+          <i class="pi pi-image text-gray-400 text-4xl mb-4 empty-state-icon"></i>
           <p class="text-gray-500">No post content found for this post.</p>
         </div>
 
         <!-- Children Display -->
         <div *ngIf="children.length > 0" class="space-y-6">
           <!-- Facebook Posts Display (Single Frame with Attachments) -->
-          <div *ngFor="let child of children" class="border border-gray-200 rounded-lg overflow-hidden">
+          <div *ngFor="let child of children" class="border border-gray-200 rounded-lg overflow-hidden post-children-item">
 
             <!-- Facebook Post Frame -->
             <div *ngIf="isFacebookPost(child)">
@@ -173,22 +181,22 @@
                     <img
                       [src]="child.mediaUrl"
                       [alt]="child.description || 'Main post media'"
-                      class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg">
+                      class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg media-image">
                   </div>
                 </div>
 
                 <!-- Attachments (Facebook-style single frame) -->
                 <div *ngIf="child.attachments && child.attachments.length > 0" class="border-t pt-6">
                   <h4 class="text-base font-semibold text-gray-700 mb-4">Attachments</h4>
-                  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div *ngFor="let attachment of child.attachments" class="relative group cursor-pointer">
+                  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 attachment-grid">
+                    <div *ngFor="let attachment of child.attachments" class="relative group cursor-pointer attachment-item">
                       <img
                         *ngIf="attachment.mediaUrl"
                         [src]="attachment.mediaUrl"
                         [alt]="attachment.description || 'Attachment'"
-                        class="w-full h-32 object-cover rounded-lg hover:opacity-80 transition-opacity"
+                        class="w-full h-32 object-cover rounded-lg media-image"
                         (click)="openPostUrl(attachment.postUrl)">
-                      <div *ngIf="attachment.description" class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div *ngIf="attachment.description" class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity attachment-overlay">
                         {{attachment.description}}
                       </div>
                     </div>
@@ -198,7 +206,7 @@
                 <div class="mt-6 pt-4 border-t">
                   <button
                     (click)="openPostUrl(child.postUrl)"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg btn-view-post">
                     View Original Facebook Post
                   </button>
                 </div>
@@ -227,14 +235,14 @@
                     <img
                       [src]="child.mediaList[0].mediaUrl"
                       [alt]="child.description || 'Instagram media'"
-                      class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg">
+                      class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg media-image">
                   </div>
                   <div *ngIf="child.mediaList.length > 1" class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <img
                       *ngFor="let media of child.mediaList"
                       [src]="media.mediaUrl"
                       [alt]="child.description || 'Instagram media'"
-                      class="w-full h-48 object-cover rounded-lg">
+                      class="w-full h-48 object-cover rounded-lg media-image">
                   </div>
                 </div>
 
@@ -243,13 +251,13 @@
                   <img
                     [src]="child.mediaUrl"
                     [alt]="child.description || 'Instagram media'"
-                    class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg">
+                    class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg media-image">
                 </div>
 
                 <div class="pt-4 border-t">
                   <button
                     (click)="openPostUrl(child.postUrl)"
-                    class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg btn-view-post">
                     View Original Instagram Post
                   </button>
                 </div>
@@ -276,13 +284,13 @@
                   <img
                     [src]="child.mediaUrl"
                     [alt]="child.description || 'Post media'"
-                    class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg">
+                    class="w-full max-w-2xl mx-auto h-80 object-cover rounded-lg media-image">
                 </div>
 
                 <div class="pt-4 border-t">
                   <button
                     (click)="openPostUrl(child.postUrl)"
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg btn-view-post">
                     View Original Post
                   </button>
                 </div>

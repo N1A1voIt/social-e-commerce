@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ContentService, MotherPostDisplay, PostChild, PostStatistics} from "../content.service";
-import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
+import {CommonModule, DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {ChartConfiguration, ChartData, ChartType} from 'chart.js';
 import {BaseChartDirective, NgChartsModule} from 'ng2-charts';
 
@@ -17,6 +17,7 @@ import {BaseChartDirective, NgChartsModule} from 'ng2-charts';
     NgClass,
     DatePipe,
     NgChartsModule,
+    CommonModule,
   ],
   templateUrl: './post-details.component.html',
   styleUrl: './post-details.component.css'
@@ -164,7 +165,7 @@ export class PostDetailsComponent implements OnInit {
     };
 
     // Update line chart data for time series
-    const platformGroups = this.groupTimeSeriesByPlatform(statistics.likesTimeSeries);
+    // const platformGroups = this.groupTimeSeriesByPlatform(statistics.likesTimeSeries);
     // const datasets = Object.keys(platformGroups).map((platform, index) => ({
     //   label: platform,
     //   data: platformGroups[platform].map(item => item.likesCount),
@@ -178,22 +179,6 @@ export class PostDetailsComponent implements OnInit {
     //   labels: this.getUniqueDates(statistics.likesTimeSeries),
     //   datasets: datasets
     // };
-  }
-
-  groupTimeSeriesByPlatform(timeSeries: any[]) {
-    return timeSeries.reduce((groups, item) => {
-      const platform = item.platformName;
-      if (!groups[platform]) {
-        groups[platform] = [];
-      }
-      groups[platform].push(item);
-      return groups;
-    }, {});
-  }
-
-  getUniqueDates(timeSeries: any[]) {
-    const dates = [...new Set(timeSeries.map(item => item.date))];
-    return dates.sort();
   }
 
   goBack() {
@@ -233,16 +218,12 @@ export class PostDetailsComponent implements OnInit {
     if (this.statistics) {
       return {
         views: this.statistics.totalViews,
-        likes: this.statistics.totalLikes,
-        comments: this.statistics.totalComments,
-        shares: this.statistics.totalShares
+        likes: this.statistics.totalLikes
       };
     }
     return {
       views: 0,
-      likes: 0,
-      comments: 0,
-      shares: 0
+      likes: 0
     };
   }
 }
