@@ -5,8 +5,9 @@ import com.itu.socialcom.demo.posts.entity.Media;
 import com.itu.socialcom.demo.posts.entity.PostChildMedia;
 import com.itu.socialcom.demo.posts.repository.MediaRepository;
 import com.itu.socialcom.demo.posts.repository.PostChildMediaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostGetter {
+    private static final Logger log = LoggerFactory.getLogger(PostGetter.class);
+
     @Autowired
     PostChildMediaRepository postChildMediaRepository;
     @Autowired
@@ -26,7 +29,7 @@ public class PostGetter {
         HashMap<Integer, List<String>> mediaMap = new HashMap<>();
         List<Media> media = mediaRepository.findAll();
         for (Media m : media) {
-            System.out.println("media:"+m.toString());
+            log.debug("media: {}", m.toString());
             if (m.getIdChild() != null) {
                 mediaMap.computeIfAbsent(m.getIdChild(), k -> new ArrayList<>()).add(m.getMediaUrl());
             }
@@ -56,12 +59,15 @@ public class PostGetter {
             if (!"facebook".equalsIgnoreCase(base.getSupportedPlatform())) {
                 // Map medias
                 List<Media> mediaObjects = new ArrayList<>();
-                mediaMap.get(base.getIdChild().intValue()).forEach(mediaUrl -> {;
-                    Media media = new Media();
-                    media.setMediaUrl(mediaUrl);
-                    media.setIdChild(base.getIdChild().intValue());
-                    mediaObjects.add(media);
-                });
+                List<String> mediaUrls = mediaMap.get(base.getIdChild().intValue());
+                if (mediaUrls != null) {
+                    mediaUrls.forEach(mediaUrl -> {
+                        Media media = new Media();
+                        media.setMediaUrl(mediaUrl);
+                        media.setIdChild(base.getIdChild().intValue());
+                        mediaObjects.add(media);
+                    });
+                }
                 displayPost.setMedias(mediaObjects);
             }
 

@@ -114,24 +114,39 @@ public class ShippingPointController {
 
     /**
      * Get shipping points for a specific managed page
+     * If managedPageId is -1, returns all shipping points for the user
      */
     @GetMapping("/managed-page/{managedPageId}")
     public ResponseEntity<List<ShippingPoint>> getShippingPointsByManagedPage(@PathVariable Long managedPageId, @RequestHeader("Authorization") String token) {
         Seller seller = getCurrentSeller(token);
 
-        // Verify that the managed page belongs to the seller
-        List<ShippingPoint> shippingPoints = shippingPointService.getShippingPointsByManagedPageId(managedPageId);
+        List<ShippingPoint> shippingPoints;
 
-        // Filter to only include shipping points for managed pages owned by the seller
-        List<ShippingPoint> sellerShippingPoints = shippingPointService.getShippingPointsBySellerId(seller.getId());
-        boolean managedPageBelongsToSeller = sellerShippingPoints.stream()
-            .anyMatch(sp -> sp.getManagedPageId().equals(managedPageId));
-
-        if (managedPageBelongsToSeller) {
-            return ResponseEntity.ok(shippingPoints);
+        // Special case: if managedPageId is -1, return all shipping points for the seller
+        if (managedPageId == -1) {
+            shippingPoints = shippingPointService.getShippingPointsBySellerId(seller.getId());
         } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            // Verify that the managed page belongs to the seller
+            shippingPoints = shippingPointService.getShippingPointsByManagedPageId(managedPageId);
+
+            // Filter to only include shipping points for managed pages owned by the seller
+            List<ShippingPoint> sellerShippingPoints = shippingPointService.getShippingPointsBySellerId(seller.getId());
+            boolean managedPageBelongsToSeller = sellerShippingPoints.stream()
+                .anyMatch(sp -> sp.getManagedPageId().equals(managedPageId));
+
+            if (!managedPageBelongsToSeller) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
         }
+
+        // Format place names as "{origin} -> {place_name}"
+        shippingPoints.forEach(sp -> {
+            if (sp.getOrigin() != null && !sp.getOrigin().isEmpty()) {
+                sp.setPlaceName(sp.getOrigin() + " -> " + sp.getPlaceName());
+            }
+        });
+
+        return ResponseEntity.ok(shippingPoints);
     }
 
     /**

@@ -58,8 +58,17 @@ public class CallForTenderServiceImpl implements CallForTenderService{
         delivery.setShippingPointId(request.getShippingPointId());
         delivery.setStatus("CALL_FOR_TENDERED");
         delivery.setStartedAt(LocalDateTime.now());
-        AmountDistance amountDistance = amountDistanceRepository.findByManagedPageId(request.getOrderParent().getIdManagedPages().longValue()).get(0);
         ShippingPoint shippingPoint = shippingPointService.getShippingPointById(request.getShippingPointId()).orElse(null);
+
+        /**
+         * This part is kinda weird bc when order.getIdManagedPages() is null it returns the first managed page of the seller
+         * */
+        Integer mp = orderParent.getIdManagedPages();
+        if (mp == null) {
+            mp = managedPageCPLRepository.findByIdSeller(orderParent.getIdSeller().longValue()).get(0).getIdMp().intValue();
+        }
+
+        AmountDistance amountDistance = amountDistanceRepository.findByManagedPageId(mp.longValue()).get(0);
 
         if(amountDistance!=null){
             delivery.setAmount(BigDecimal.valueOf(amountDistance.getPricePerDistance().doubleValue() * shippingPoint.getDistance().doubleValue()));
@@ -191,6 +200,13 @@ public class CallForTenderServiceImpl implements CallForTenderService{
             String message = "";
             OrderParent order = orderParentRepository.findById(delivery.getOrderMotherId()).orElse(null);
             assert order != null;
+            /**
+             * This part is kinda weird bc when order.getIdManagedPages() is null it returns the first managed page of the seller
+             * */
+            if (order.getIdManagedPages() == null) {
+                order.setIdManagedPages(managedPageCPLRepository.findByIdSeller(order.getIdSeller().longValue()).get(0).getIdMp().intValue());
+            }
+
             ManagedPageCPL managedPageCPL = managedPageCPLRepository.findByIdMp(order.getIdManagedPages().longValue());
             for (int i = 0; i < deliveryDrivers.size(); i++) {
                 String phoneNumber = formatPhoneNumber(deliveryDrivers.get(i).getPhoneNumber());

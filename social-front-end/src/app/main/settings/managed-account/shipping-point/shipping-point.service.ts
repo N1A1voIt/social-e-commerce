@@ -22,6 +22,7 @@ export class ShippingPointService {
   }
 
   getShippingPointsByManagedPageId(managedPageId: number): Observable<ShippingPoint[]> {
+
     return this.http.get<ShippingPoint[]>(`${this.apiUrl}/managed-page/${managedPageId}`, { headers: this.getHeaders() });
   }
 }

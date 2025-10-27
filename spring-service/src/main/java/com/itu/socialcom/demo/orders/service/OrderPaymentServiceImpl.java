@@ -58,6 +58,9 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             if (tempLink.getUsed()) throw new Exception("This payment link has already been used.");
             OrderParent orderParent = parentRepository.findById(tempLink.getIdOrderM().longValue())
                     .orElseThrow(() -> new Exception("Order not found."));
+            if (tempLink.getAmount() > Double.parseDouble(paymentDTO.getAmount())) {
+                throw new Exception("Amount is too low.");
+            }
 
             ManagedPagesNumber managedPagesNumber = new ManagedPagesNumber();
             if (orderParent.getIdManagedPages() != null) managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());

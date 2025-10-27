@@ -14,6 +14,10 @@ import com.itu.socialcom.demo.posts.services.save.GeneralPostSaver;
 import com.itu.socialcom.demo.posts.services.statistics.PostStatisticsService;
 import com.itu.socialcom.demo.posts.services.children.PostChildrenService;
 import com.itu.socialcom.demo.posts.dto.PostChildDisplay;
+import com.itu.socialcom.demo.posts.services.repost.RepostService;
+import com.itu.socialcom.demo.posts.dto.RepostArgs;
+import com.itu.socialcom.demo.posts.dto.RepostResponse;
+import com.itu.socialcom.demo.posts.dto.RepostPreview;
 import com.itu.socialcom.demo.products.model.Product;
 import com.itu.socialcom.demo.products.repository.ProductRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
@@ -51,6 +55,8 @@ public class PostController {
     PostStatisticsService postStatisticsService;
     @Autowired
     PostChildrenService postChildrenService;
+    @Autowired
+    RepostService repostService;
 
     @GetMapping("/fetch-page-ids")
     public ResponseEntity<List<ManagedPageCPL>> fetchPageIds(@RequestHeader(name = "Authorization") String token) {
@@ -195,6 +201,56 @@ public class PostController {
             return ResponseEntity.ok(children);
         } catch (SellerNotLogged e) {
             return ResponseEntity.status(401).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    /**
+     * Get a preview of a post before reposting it
+     */
+    @GetMapping("/{postId}/repost-preview")
+    public ResponseEntity<RepostPreview> getRepostPreview(
+            @PathVariable Integer postId,
+            @RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                throw new SellerNotLogged("Seller not found");
+            }
+
+            RepostPreview preview = repostService.getRepostPreview(postId, seller);
+            return ResponseEntity.ok(preview);
+        } catch (SellerNotLogged e) {
+            return ResponseEntity.status(401).body(null);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    /**
+     * Repost/share an existing post to new platforms
+     */
+    @PostMapping("/repost")
+    public ResponseEntity<RepostResponse> repost(
+            @RequestBody RepostArgs repostArgs,
+            @RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                throw new SellerNotLogged("Seller not found");
+            }
+
+            RepostResponse response = repostService.repost(repostArgs, seller);
+            return ResponseEntity.ok(response);
+        } catch (SellerNotLogged e) {
+            return ResponseEntity.status(401).body(null);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
