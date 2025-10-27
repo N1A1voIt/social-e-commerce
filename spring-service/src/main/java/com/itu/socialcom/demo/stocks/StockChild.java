@@ -33,4 +33,8 @@ public class StockChild {
     Long idVariant;
     @Column(name = "created_at")
     LocalDateTime createdAt;
+    @Column(name = "product_name")
+    String productName;
+    @Column(name = "variant_name")
+    String variantName;
 }

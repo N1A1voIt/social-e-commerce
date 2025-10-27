@@ -657,7 +657,9 @@ CREATE TRIGGER trg_amount_distance_log
     FOR EACH ROW
 EXECUTE FUNCTION log_amount_distance_changes();
 
-
+WITH ranked_variant AS (
+    SELECT *,row_number() over (partition by id_variant order by action_at) as ranking_action FROM stocks_child WHERE id_variant IN (10,11)  ORDER BY action_at
+) SELECT id_st_ch,price,action_at,input,output,d_product_number,d_variant_number,product_name,variant_name,id_product,id_variant,id_mv,created_at FROM ranked_variant WHERE ranking_action = 1;
 
 SELECT * FROM pat_refresh_tokens;
 

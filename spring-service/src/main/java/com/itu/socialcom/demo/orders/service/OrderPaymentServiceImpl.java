@@ -5,16 +5,29 @@ import com.itu.socialcom.demo.authentication.user.phonenumber.SellerPhoneNumberR
 import com.itu.socialcom.demo.moneytransactions.PaymentRequest;
 import com.itu.socialcom.demo.moneytransactions.PaymentResponse;
 import com.itu.socialcom.demo.moneytransactions.mvola.MVolaProvider;
+import com.itu.socialcom.demo.orders.OrderChild;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.dto.PaymentDTO;
+import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.tempLink.TempLink;
 import com.itu.socialcom.demo.orders.tempLink.TempLinkRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPagesNumber;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPagesNumberRepository;
+import com.itu.socialcom.demo.stocks.StockChild;
+import com.itu.socialcom.demo.stocks.StockParent;
+import com.itu.socialcom.demo.stocks.repository.StockChildRepository;
+import com.itu.socialcom.demo.stocks.repository.StockParentRepository;
+import com.itu.socialcom.demo.stocks.services.StockPersistanceService;
+import com.itu.socialcom.demo.stocks.services.StockUpdatingService;
 import jakarta.transaction.Transactional;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class OrderPaymentServiceImpl implements OrderPaymentService{
@@ -23,6 +36,8 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     @Autowired
     private OrderParentRepository parentRepository;
     @Autowired
+    private OrderChildRepository orderChildRepository;
+    @Autowired
     private ManagedPagesNumberRepository managedPagesNumberRepository;
     @Autowired
     private SellerPhoneNumberRepository sellerPhoneNumberRepository;
@@ -30,6 +45,9 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     private MVolaProvider mVolaProvider;
     @Autowired
     private OrderParentRepository orderParentRepository;
+
+    @Autowired
+    private StockPersistanceService stockPersistanceService;
     @Override
     @Transactional
     public PaymentResponse processOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception {
@@ -54,11 +72,40 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             orderParent.setDStatus(11); //Ordered
             tempLink.setUsed(true);
             orderParentRepository.save(orderParent);
+            moveStock(orderParent);
             tempLinkRepository.save(tempLink);
+
             return paymentResponse;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("Payment processing failed: " + e.getMessage());
         }
+    }
+    private StockParent moveStock(OrderParent parent) {
+        List<OrderChild> orderChildren = orderChildRepository.findByIdOrderM(parent.getIdOrderM().longValue());
+        List<StockChild> stockChildren = new ArrayList<>();
+        for (OrderChild orderChild : orderChildren) {
+            StockChild stockChild = new StockChild();
+            stockChild.setPrice(orderChild.getPrice());
+            stockChild.setProductName(orderChild.getProductName());
+            stockChild.setVariantName(orderChild.getProductName());
+//            stockChild.setDVariantNumber(orderChild.getQuantity());
+            stockChild.setIdProduct(orderChild.getIdProduct());
+            stockChild.setIdVariant(orderChild.getIdVariant());
+            stockChild.setOutput(orderChild.getQuantity());
+            stockChild.setInput(0.0);
+            stockChild.setActionAt(LocalDateTime.now());
+            stockChild.setCreatedAt(LocalDateTime.now());
+            stockChildren.add(stockChild);
+        }
+        StockParent s = new StockParent();
+        s.setCreatedAt(LocalDateTime.now());
+        s.setDescription("Move of order "+parent.getDescription());
+        s.setItems(stockChildren);
+        s.setIdSeller(parent.getIdSeller().longValue());
+        s.setIdOrderM(parent.getIdOrderM());
+        s = stockPersistanceService.saveStock(s);
+        return s;
     }
     private PaymentRequest createPaymentRequest(PaymentDTO paymentDTO,OrderParent parent, SellerPhoneNumber sellerPhoneNumber) {
         PaymentRequest paymentRequest = new PaymentRequest();

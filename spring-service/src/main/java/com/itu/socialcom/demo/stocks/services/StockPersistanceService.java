@@ -3,61 +3,121 @@ package com.itu.socialcom.demo.stocks.services;
 import com.itu.socialcom.demo.stocks.InsufficientStockException;
 import com.itu.socialcom.demo.stocks.StockChild;
 import com.itu.socialcom.demo.stocks.StockParent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StockPersistanceService extends StockSavingService {
+    private static final Logger log = LoggerFactory.getLogger(StockPersistanceService.class);
+
     @Override
     @Transactional
     public StockParent saveStock(StockParent stockParent) throws InsufficientStockException {
-        super.stockParentRepository.save(stockParent);
-        List<Long> variantsIds = new ArrayList<>();
-        Set<Long> productRecords = new HashSet<>();
-        for (StockChild stockChild : stockParent.getItems()) {
-            variantsIds.add(stockChild.getIdVariant());
-            productRecords.add(stockChild.getIdProduct());
-        }
-        List<StockChild> stockChildren = super.stockChildRepository.findMostRecentVariantsByVariantIds(variantsIds);
-        List<StockChild> productChildRecords = super.stockChildRepository.findByLastProductRecords(productRecords.stream().toList());
+        stockParentRepository.save(stockParent);
 
-        HashMap<Long, StockChild> stockChildMap = new HashMap<>();
-        HashMap<Long, StockChild> productChildMap = new HashMap<>();
-        for (StockChild sc : stockChildren) {
-            stockChildMap.put(sc.getIdVariant(), sc);
+        List<StockChild> items = stockParent.getItems();
+        if (items == null || items.isEmpty()) {
+            return stockParent;
         }
-        for (StockChild sc : productChildRecords) {
-            productChildMap.put(sc.getIdProduct(), sc);
+
+        // Extract IDs in a single pass (ignore nulls)
+        Set<Long> variantIds = new HashSet<>();
+        Set<Long> productIds = new HashSet<>();
+        for (StockChild item : items) {
+            if (item.getIdVariant() != null) variantIds.add(item.getIdVariant());
+            if (item.getIdProduct() != null) productIds.add(item.getIdProduct());
         }
-        for (StockChild currentChild : stockParent.getItems()) {
-            StockChild correspondingVariantChild = stockChildMap.get(currentChild.getIdVariant());
-            StockChild productStockRecord = productChildMap.get(currentChild.getIdProduct());
-            if (correspondingVariantChild != null && productStockRecord != null) {
-                System.out.println("Going right here");
-                double newProductNumber = (currentChild.getInput() > 0) ?
-                        (productStockRecord.getDProductNumber() + currentChild.getInput()) :
-                        (productStockRecord.getDProductNumber() - currentChild.getOutput());
-                productStockRecord.setDProductNumber(newProductNumber);
-                double newVariantNumber = (currentChild.getInput() > 0) ?
-                        (correspondingVariantChild.getDVariantNumber() + currentChild.getInput()) :
-                        (correspondingVariantChild.getDVariantNumber() - currentChild.getOutput());
-                correspondingVariantChild.setDVariantNumber(newVariantNumber);
-                currentChild.setDProductNumber(newProductNumber);
-                currentChild.setDVariantNumber(newVariantNumber);
-            } else {
-                currentChild.setDVariantNumber(currentChild.getInput() - currentChild.getOutput());
-                currentChild.setDProductNumber(currentChild.getInput() - currentChild.getOutput());
+
+        // Fetch last known stock records for referenced variants/products
+        Map<Long, StockChild> variantLastRecords = variantIds.isEmpty() ? Collections.emptyMap() :
+                stockChildRepository
+                        .findMostRecentVariantsByVariantIds(new ArrayList<>(variantIds))
+                        .stream()
+                        .collect(Collectors.toMap(StockChild::getIdVariant, sc -> sc));
+
+        Map<Long, StockChild> productLastRecords = productIds.isEmpty() ? Collections.emptyMap() :
+                stockChildRepository
+                        .findByLastProductRecords(new ArrayList<>(productIds))
+                        .stream()
+                        .collect(Collectors.toMap(StockChild::getIdProduct, sc -> sc));
+
+        // Seed running totals
+        Map<Long, Double> variantTotals = new HashMap<>();
+        for (Map.Entry<Long, StockChild> e : variantLastRecords.entrySet()) {
+            variantTotals.put(e.getKey(), safeNumber(e.getValue().getDVariantNumber()));
+        }
+        Map<Long, Double> productTotals = new HashMap<>();
+        for (Map.Entry<Long, StockChild> e : productLastRecords.entrySet()) {
+            productTotals.put(e.getKey(), safeNumber(e.getValue().getDProductNumber()));
+        }
+
+        // Process each item and validate stock levels
+        List<StockChild> itemsToSave = new ArrayList<>(items.size());
+        for (StockChild currentChild : items) {
+            processStockChild(currentChild, variantTotals, productTotals, stockParent.getId());
+            validateStockLevels(currentChild);
+            itemsToSave.add(currentChild);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Stock after movement - Product[{}:{}] = {}, Variant[{}:{}] = {}",
+                        currentChild.getIdProduct(), currentChild.getProductName(), currentChild.getDProductNumber(),
+                        currentChild.getIdVariant(), currentChild.getVariantName(), currentChild.getDVariantNumber());
             }
-            if (currentChild.getDVariantNumber() < 0 || currentChild.getDProductNumber() < 0) {
-                throw new InsufficientStockException("Stock cannot be negative for product or variant."+currentChild.getDVariantNumber()+","+currentChild.getDProductNumber());
-            }
-            currentChild.setIdMv(stockParent.getId());
-            currentChild.setCreatedAt(LocalDateTime.now());
-            super.stockChildRepository.save(currentChild);
         }
+
+        // Batch save all items
+        stockChildRepository.saveAll(itemsToSave);
+
         return stockParent;
+    }
+
+    private void processStockChild(StockChild currentChild,
+                                   Map<Long, Double> variantTotals,
+                                   Map<Long, Double> productTotals,
+                                   Long parentId) {
+        Long variantId = currentChild.getIdVariant();
+        Long productId = currentChild.getIdProduct();
+
+        double delta = safeNumber(currentChild.getInput()) - safeNumber(currentChild.getOutput());
+
+        // Determine previous totals (default 0 if new)
+        double prevVariant = variantId == null ? 0.0 : safeNumber(variantTotals.getOrDefault(variantId, 0.0));
+        double prevProduct = productId == null ? 0.0 : safeNumber(productTotals.getOrDefault(productId, 0.0));
+
+        double newVariant = prevVariant + delta;
+        double newProduct = prevProduct + delta;
+
+        // Update running totals
+        if (variantId != null) variantTotals.put(variantId, newVariant);
+        if (productId != null) productTotals.put(productId, newProduct);
+
+        // Apply computed balances to current movement row
+        currentChild.setDVariantNumber(newVariant);
+        currentChild.setDProductNumber(newProduct);
+
+        currentChild.setIdMv(parentId);
+        currentChild.setCreatedAt(LocalDateTime.now());
+    }
+
+    private void validateStockLevels(StockChild stockChild) throws InsufficientStockException {
+        if (stockChild.getDVariantNumber() < 0 || stockChild.getDProductNumber() < 0) {
+            String errorMsg = String.format(
+                    "Insufficient stock for variant '%s'. Variant stock: %.2f, Product stock: %.2f",
+                    stockChild.getVariantName(),
+                    stockChild.getDVariantNumber(),
+                    stockChild.getDProductNumber()
+            );
+            throw new InsufficientStockException(errorMsg);
+        }
+    }
+
+    private double safeNumber(Double v) {
+        return v == null ? 0.0 : v;
     }
 }
