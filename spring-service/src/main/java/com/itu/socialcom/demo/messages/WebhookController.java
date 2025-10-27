@@ -36,6 +36,11 @@ public class WebhookController {
 
     @Value("${facebook.secret}")
     private String appSecret;
+    // Instagram-specific beans and secrets
+    @Autowired
+    private InstagramWebhookService instagramWebhookService;
+    @Value("${instagram.secret}")
+    private String instagramSecret;
 
     // Webhook verification (GET request from Facebook)
     @GetMapping("/webhook")
@@ -145,6 +150,52 @@ public class WebhookController {
 
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
+    // Instagram webhook verification (GET)
+    @GetMapping("/instagram/webhook")
+    public ResponseEntity<String> verifyInstagramWebhook(
+            @RequestParam("hub.mode") String mode,
+            @RequestParam("hub.verify_token") String token,
+            @RequestParam("hub.challenge") String challenge) {
+        logger.info("Instagram webhook verification - Mode: {}, Token: {}", mode, token);
+        if ("subscribe".equals(mode) && verifyToken.equals(token)) {
+            return ResponseEntity.ok(challenge);
+        }
+        return ResponseEntity.status(403).body("Forbidden");
+    }
+
+    // Instagram webhook handler (POST)
+    @PostMapping("/instagram/webhook")
+    public ResponseEntity<String> handleInstagramWebhook(
+            @RequestBody String body,
+            HttpServletRequest request) {
+        logger.info("Received Instagram webhook POST request");
+
+//        if (!verifyInstagramRequestSignature(request, body)) {
+//            logger.warn("Invalid Instagram request signature");
+//            return ResponseEntity.status(403).body("Invalid signature");
+//        }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(body);
+            JsonNode entries = jsonNode.get("entry");
+            if (entries != null && entries.isArray()) {
+                for (JsonNode entry : entries) {
+                    JsonNode messagingEvents = entry.get("messaging");
+                    if (messagingEvents != null && messagingEvents.isArray()) {
+                        for (JsonNode event : messagingEvents) {
+                            System.out.println(event.toString());
+                            instagramWebhookService.handleCustomerMessage(event);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error parsing Instagram webhook payload", e);
+        }
+
+        return ResponseEntity.ok("EVENT_RECEIVED");
+    }
     private void processMessageEvent(JsonNode event) {
         JsonNode sender = event.get("sender");
         JsonNode recipient = event.get("recipient");
@@ -198,4 +249,48 @@ public class WebhookController {
             return false;
         }
     }
+
+    private boolean verifyInstagramRequestSignature(HttpServletRequest request, String body) {
+        // Prefer the new SHA256 header if present
+        String signature256 = request.getHeader("X-Hub-Signature-256");
+        try {
+            if (signature256 != null) {
+                String[] parts = signature256.split("=");
+                if (parts.length == 2 && "sha256".equals(parts[0])) {
+                    Mac mac = Mac.getInstance("HmacSHA256");
+                    mac.init(new SecretKeySpec(instagramSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+                    byte[] digest = mac.doFinal(body.getBytes(StandardCharsets.UTF_8));
+                    StringBuilder expected = new StringBuilder();
+                    for (byte b : digest) expected.append(String.format("%02x", b));
+                    return parts[1].equals(expected.toString());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error verifying Instagram SHA256 signature", e);
+            return false;
+        }
+        // Fallback to legacy SHA1 if 256 header not present
+        String signature = request.getHeader("X-Hub-Signature");
+        if (signature == null) {
+            logger.warn("No X-Hub-Signature header found (Instagram)");
+            return true; // Skip if no signature (testing)
+        }
+        try {
+            String[] elements = signature.split("=");
+            if (elements.length != 2 || !"sha1".equals(elements[0])) {
+                return false;
+            }
+            String signatureHash = elements[1];
+            Mac mac = Mac.getInstance("HmacSHA1");
+            mac.init(new SecretKeySpec(instagramSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA1"));
+            byte[] digest = mac.doFinal(body.getBytes(StandardCharsets.UTF_8));
+            StringBuilder expectedHash = new StringBuilder();
+            for (byte b : digest) expectedHash.append(String.format("%02x", b));
+            return signatureHash.equals(expectedHash.toString());
+        } catch (Exception e) {
+            logger.error("Error verifying Instagram SHA1 signature", e);
+            return false;
+        }
+    }
 }
+
