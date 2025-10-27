@@ -3,6 +3,7 @@ import {NgForOf, NgIf, CurrencyPipe, DatePipe} from "@angular/common";
 import {VariantWithOptionsDTO} from "../../products.types";
 import {VariantFormComponent} from "../variant-form/variant-form.component";
 import {VariantUpdateComponent} from "../variant-update/variant-update.component";
+import {StockRefillFormComponent} from "../stock-refill-form/stock-refill-form.component";
 
 @Component({
   selector: 'app-variant-list',
@@ -13,7 +14,8 @@ import {VariantUpdateComponent} from "../variant-update/variant-update.component
     CurrencyPipe,
     DatePipe,
     VariantFormComponent,
-    VariantUpdateComponent
+    VariantUpdateComponent,
+    StockRefillFormComponent
   ],
   templateUrl: './variant-list.component.html',
   styleUrl: './variant-list.component.css'
@@ -27,10 +29,17 @@ export class VariantListComponent {
   @Output() generateAllVariants = new EventEmitter<void>();
   @Output() navigateToVariants = new EventEmitter<number>();
   @Input() productId: number = -1;
+  // New: notify parent after a successful refill
+  @Output() stockRefilled = new EventEmitter<void>();
+
   isFormVisible: boolean = false;
   isUpdateFormVisible:boolean = false;
   variantId: number = -1;
   actualVariant !: VariantWithOptionsDTO;
+  // New: refill modal state
+  isRefillVisible: boolean = false;
+  selectedVariant!: VariantWithOptionsDTO;
+
   onEditVariant(variant: VariantWithOptionsDTO) {
     this.variantId = variant.idVariant;
     this.actualVariant = variant;
@@ -51,6 +60,13 @@ export class VariantListComponent {
 
   onGenerateAllVariants() {
     this.generateAllVariants.emit();
+  }
+
+  // New: open refill modal
+  onRefillVariant(variant: VariantWithOptionsDTO, event?: Event) {
+    event?.stopPropagation();
+    this.selectedVariant = variant;
+    this.isRefillVisible = true;
   }
 
   getOptionsDisplay(variant: VariantWithOptionsDTO): string {

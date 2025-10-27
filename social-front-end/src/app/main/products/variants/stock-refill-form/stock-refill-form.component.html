@@ -1,0 +1,39 @@
+<app-form-container (closeForm)="close.emit()" [label]="label" [isVisible]="true">
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="p-6 space-y-6 w-full">
+
+    <div class="text-sm text-slate-600">
+      <div class="font-semibold text-slate-800">Variant</div>
+      <div class="mt-1">
+        <div class="text-slate-700">{{ variant?.title }} <span class="text-slate-400">#{{ variant?.idVariant }}</span></div>
+        <div class="text-slate-500 text-xs">Price: {{ variant?.price }}</div>
+      </div>
+    </div>
+
+    <div>
+      <app-basic-input
+        label="Description"
+        placeholder="e.g., Refill after delivery"
+        [formControl]="$any(formGroup.get('description'))"
+        [error]="!!getFieldError('description')"
+        [errorMessage]="getFieldError('description')">
+      </app-basic-input>
+    </div>
+
+    <div>
+      <app-basic-input
+        label="Quantity to add"
+        type="number"
+        min="1"
+        [formControl]="$any(formGroup.get('quantity'))"
+        [error]="!!getFieldError('quantity')"
+        [errorMessage]="getFieldError('quantity')">
+      </app-basic-input>
+    </div>
+
+    <div class="flex justify-end pt-4">
+      <app-basic-button type="submit" [disabled]="saving || formGroup.invalid">
+        {{ saving ? 'Saving...' : 'Refill' }}
+      </app-basic-button>
+    </div>
+  </form>
+</app-form-container>

@@ -43,6 +43,7 @@
     (generateAllVariants)="onGenerateAllVariants()"
     (editVariant)="onEditVariant($event)"
     (deleteVariant)="onDeleteVariant($event)"
+    (stockRefilled)="fetchVariants()"
   >
   </app-variant-list>
   <div class="absolute bottom-1 left-1 px-4 py-2  bg-fotsy rounded-xl">{{refillMessage}}</div>
