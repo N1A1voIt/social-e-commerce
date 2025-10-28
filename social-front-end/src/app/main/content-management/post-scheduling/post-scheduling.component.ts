@@ -183,40 +183,51 @@ export class PostSchedulingComponent implements OnInit{
 
     if (this.postForm.valid) {
       this.isSubmitting = true;
-      const header = {
-        'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
-      };
       try {
+        // Upload all media first
         await this.uploadAllMedia();
-        await this.buildPostData();
-        console.log('Pages In',this.pagesIn)
-        this.postData.pagesIds = [];
-        for(let page of this.pagesIn){
-          this.postData.pagesIds.push({
-            pageId: page.platformIdentifier,
-            platform: page.platform
-          })
+
+        // Parse form data and create preview
+        const formValue = this.postForm.value;
+        const mainMessage = formValue.mainMessage || '';
+        const mediaDetails = (formValue.mediaDetails || []).map((media: any) => ({
+          imageUrl: media.imageUrl,
+          message: media.message || ''
+        }));
+
+        // Create preview data for each selected platform
+        if (this.pagesIn.length > 0) {
+          this.previewData = this.pagesIn.map(page => ({
+            platform: page.platform,
+            mainMessage: mainMessage,
+            mediaDetails: mediaDetails
+          }));
+        } else {
+          // If no platforms selected, show generic preview
+          this.previewData = [
+            {
+              platform: 'facebook',
+              mainMessage: structuredClone(mainMessage),
+              mediaDetails: structuredClone(mediaDetails)
+            },
+            {
+              platform: 'instagram',
+              mainMessage: structuredClone(mainMessage),
+              mediaDetails: structuredClone(mediaDetails)
+            }
+          ];
+
         }
 
-        console.log('Post Data:', this.postData);
+        // Show the preview modal
+        this.previewVisible = true;
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
 
-        const endpoint = (this.postData.scheduledUnixTime && this.postData.scheduledUnixTime > 0)
-          ? '/api/posts/schedule-post'
-          : '/api/posts/make-post';
-
-        this.http.post(javaHost + endpoint, this.postData,{headers:header}).subscribe({
-          next: (response) => {
-            console.log('Post created successfully:', response);
-            this.isSubmitting = false;
-          },
-          error: (error) => {
-            console.error('Failed to create post:', error);
-            this.isSubmitting = false;
-          }
-        });
       } catch (error) {
         console.error('Error uploading media:', error);
         this.isSubmitting = false;
+        alert('Failed to upload media. Please try again.');
       }
     } else {
       this.markFormGroupTouched(this.postForm);
