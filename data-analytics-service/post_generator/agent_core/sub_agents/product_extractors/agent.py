@@ -60,20 +60,25 @@ product_formatter_agent = LlmAgent(
             Final Output Format:
             Return your message as a JSON object structured exactly like below. Replace placeholders with real values (using the product media and your generated message for each):
             
-            {
-              "mainMessage": "Your persuasive promotional message goes here.",
-              "mediaDetails": [
+            [
                 {
-                  "imageUrl": "media for product 1",
-                  "message": "Short engaging message for product 1"
-                },
-                {
-                  "imageUrl": "media for product 2",
-                  "message": "Short engaging message for product 2"
-                }
-                // ...and so on for each product
-              ]
-            }
+                  "platform":"facebook",
+                  "mainMessage": "Your persuasive promotional message goes here.",
+                  "mediaDetails": [
+                    {
+                      "imageUrl": "media for product 1",
+                      "message": "Short engaging message for product 1"
+                    },
+                    {
+                      "imageUrl": "media for product 2",
+                      "message": "Short engaging message for product 2"
+                    }
+                    // ...and so on for each product
+                  ]
+                },...
+            ]
+            
+            Available platforms are : facebook,instagram.
             Important:
             
             Focus on selling the products in a natural way.

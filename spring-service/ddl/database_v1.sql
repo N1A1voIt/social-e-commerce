@@ -636,6 +636,20 @@ CREATE TABLE customer_token(
   FOREIGN KEY(id_customer) REFERENCES customer(id_customer)
 );
 
+
+CREATE TABLE prompt_saver (
+    id_prompt SERIAL,
+    prompt TEXT NOT NULL,
+    id_seller INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    id_platform INTEGER NOT NULL,
+    PRIMARY KEY(id_prompt),
+    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
+    FOREIGN KEY(id_platform) REFERENCES supported_platforms_v2(id_sp),
+    UNIQUE (id_seller,id_platform)
+);
+
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

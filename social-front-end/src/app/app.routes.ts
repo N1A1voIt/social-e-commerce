@@ -30,6 +30,9 @@ import {PreviousMissionComponent} from "./deliverer/main/previous-mission/previo
 import {PendingRequestComponent} from "./deliverer/main/pending-request/pending-request.component";
 import {ClientLoginComponent} from "./client/authentication/client-login/client-login.component";
 import {ClientSignupComponent} from "./client/authentication/client-signup/client-signup.component";
+import {
+  PromptParameterComponent
+} from "./main/content-management/post-scheduling/prompt-parameter/prompt-parameter.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -52,6 +55,7 @@ const homeRoutes: Routes = [
       { path: 'stocks', component: StockListComponent },
       { path: 'content', component: ContentManagementComponent },
       { path: 'content/post/:id', component: PostDetailsComponent },
+      { path: 'content/prompt-parameter', component: PromptParameterComponent },
       { path: 'orders', component: OrdersComponent },
     ]
   },

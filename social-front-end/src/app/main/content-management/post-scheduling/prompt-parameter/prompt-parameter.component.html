@@ -1,0 +1,55 @@
+
+
+<div class="w-full h-full bg-white p-6 rounded-3xl overflow-y-auto hide-scrollbar">
+  <h2 class="text-xl font-semibold mb-4">AI Prompt Manager</h2>
+
+  <form [formGroup]="form" class="space-y-4 w-full flex flex-col gap-1" (ngSubmit)="savePrompt()">
+    <div class="w-full">
+      <label class="block text-sm font-mono text-black mb-1" for="platformId">Platform</label>
+      <select id="platformId" class="w-full border-b border-fotsy bg-transparent text-black outline-none py-1 font-thin"
+              [formControl]="$any(form.get('platformId'))">
+        <option [ngValue]="null" disabled>Select Platform</option>
+        <option *ngFor="let p of platforms" [ngValue]="p.id">{{ p.label }}</option>
+      </select>
+      <div class="text-xs text-red-500" *ngIf="form.get('platformId')?.invalid && form.get('platformId')?.touched">
+        Please select a platform
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-mono text-black mb-1">Prompt</label>
+      <textarea
+        class="w-full border-b border-fotsy bg-transparent text-black outline-none py-1 font-thin"
+        rows="4"
+        placeholder="Enter your AI prompt..."
+        formControlName="prompt"></textarea>
+      <div class="text-xs text-red-500" *ngIf="form.get('prompt')?.invalid && form.get('prompt')?.touched">
+        Prompt is required (min 10 characters)
+      </div>
+    </div>
+
+    <button type="submit" class="bg-yellow py-2 px-4 rounded-md w-full text-black font-bold font-mono" [disabled]="form.invalid || saving">
+      {{ saving ? 'Saving...' : 'Save Prompt' }}
+    </button>
+  </form>
+
+  <div *ngIf="error" class="text-red-600 text-sm mt-2">{{ error }}</div>
+
+  <div class="mt-6">
+    <h3 class="text-lg font-medium mb-2">Your Prompts</h3>
+
+    <div *ngFor="let prompt of prompts" class="border border-gray-200 rounded-lg p-4 mb-3">
+      <div class="flex justify-between items-center mb-2">
+        <strong class="capitalize">{{ prompt.platformLabel || platformLabel(prompt.platformId) }}</strong>
+        <button type="button" class="text-red-600 text-sm" (click)="deletePrompt(prompt.platformId)">
+          Delete
+        </button>
+      </div>
+      <p class="text-sm text-gray-800 whitespace-pre-line">{{ prompt.prompt }}</p>
+      <small class="text-gray-500">Created: {{ formatDate(prompt.createdAt) }}</small>
+    </div>
+
+    <div *ngIf="!prompts?.length && !loading" class="text-sm text-gray-500">No prompts yet.</div>
+  </div>
+</div>
+
