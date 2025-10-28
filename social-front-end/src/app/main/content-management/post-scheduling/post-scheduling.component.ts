@@ -86,6 +86,55 @@ export class PostSchedulingComponent implements OnInit{
     this.showFormChange.emit(this.showForm);
   }
 
+  publish(scheduleData?: { scheduledAt?: string }) {
+    let scheduledUnixTime: number | undefined = undefined;
+
+    // Convert datetime-local string to Unix timestamp if scheduled
+    if (scheduleData?.scheduledAt) {
+      const ms = Date.parse(scheduleData.scheduledAt);
+      if (!isNaN(ms)) {
+        scheduledUnixTime = Math.floor(ms / 1000);
+      }
+    }
+
+    let item = {
+      platformPreviews: this.previewData,
+      pageDetails: this.pagesIn.map(page => ({
+        pageId: page.platformIdentifier,
+        platform: page.platform
+      })),
+      idProducts: [],
+      scheduledUnixTime: scheduledUnixTime
+    };
+
+    console.log(item)
+
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+
+    this.isSubmitting = true;
+    const endpoint = scheduledUnixTime
+      ? '/api/posts/schedule-post-from-preview'
+      : '/api/posts/create-post-from-preview';
+
+    this.http.post(javaHost + endpoint, item, {headers: header}).subscribe({
+      next: (response) => {
+        console.log('Post created successfully:', response);
+        this.isSubmitting = false;
+        this.previewVisible = false;
+        this.onShowFormChange(false);
+        alert(scheduledUnixTime ? 'Post scheduled successfully!' : 'Post published successfully!');
+      },
+      error: (error) => {
+        console.error('Failed to create post:', error);
+        this.isSubmitting = false;
+        alert('Failed to publish post. Please try again.');
+      }
+    });
+  }
+
+
   constructor(private postService: ContentService ,private fb: FormBuilder,
               private http: HttpClient,private supabaseService:SupabaseService,private cdr: ChangeDetectorRef
   ) {

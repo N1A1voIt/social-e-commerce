@@ -103,5 +103,6 @@
   <app-post-preview
     [visible]="previewVisible"
     [data]="previewData"
-    (close)="onClosePreview()"></app-post-preview>
+    (close)="onClosePreview()"
+    (publish)="publish($event)"></app-post-preview>
 </div>
