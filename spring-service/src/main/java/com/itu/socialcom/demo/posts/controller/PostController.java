@@ -11,6 +11,7 @@ import com.itu.socialcom.demo.posts.services.etl.PostRetriever;
 import com.itu.socialcom.demo.posts.services.get.PostGetter;
 import com.itu.socialcom.demo.posts.services.save.FacebookPostSaver;
 import com.itu.socialcom.demo.posts.services.save.GeneralPostSaver;
+import com.itu.socialcom.demo.posts.services.save.PostFromPreviewSaver;
 import com.itu.socialcom.demo.posts.services.statistics.PostStatisticsService;
 import com.itu.socialcom.demo.posts.services.children.PostChildrenService;
 import com.itu.socialcom.demo.posts.dto.PostChildDisplay;
@@ -18,6 +19,7 @@ import com.itu.socialcom.demo.posts.services.repost.RepostService;
 import com.itu.socialcom.demo.posts.dto.RepostArgs;
 import com.itu.socialcom.demo.posts.dto.RepostResponse;
 import com.itu.socialcom.demo.posts.dto.RepostPreview;
+import com.itu.socialcom.demo.posts.dto.CreatePostFromPreviewArgs;
 import com.itu.socialcom.demo.products.model.Product;
 import com.itu.socialcom.demo.products.repository.ProductRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
@@ -57,6 +59,8 @@ public class PostController {
     PostChildrenService postChildrenService;
     @Autowired
     RepostService repostService;
+    @Autowired
+    PostFromPreviewSaver postFromPreviewSaver;
 
     @GetMapping("/fetch-page-ids")
     public ResponseEntity<List<ManagedPageCPL>> fetchPageIds(@RequestHeader(name = "Authorization") String token) {
@@ -114,6 +118,21 @@ public class PostController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+
+    @PostMapping("/create-post-from-preview")
+    public ResponseEntity<?> createPostFromPreview(@RequestBody CreatePostFromPreviewArgs args, @RequestHeader("Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {throw new SellerNotLogged("Seller not found");}
+            return ResponseEntity.ok(postFromPreviewSaver.createPostsFromPreview(args, seller));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+
 
 
 
