@@ -86,7 +86,7 @@ export class PostSchedulingComponent implements OnInit{
     this.showFormChange.emit(this.showForm);
   }
 
-  publish(scheduleData?: { scheduledAt?: string }) {
+  publish(scheduleData?: { scheduledAt?: string, data?: any[] }) {
     let scheduledUnixTime: number | undefined = undefined;
 
     // Convert datetime-local string to Unix timestamp if scheduled
@@ -97,8 +97,11 @@ export class PostSchedulingComponent implements OnInit{
       }
     }
 
+    // Use edited data if provided, otherwise use original preview data
+    const platformPreviews = scheduleData?.data || this.previewData;
+
     let item = {
-      platformPreviews: this.previewData,
+      platformPreviews: platformPreviews,
       pageDetails: this.pagesIn.map(page => ({
         pageId: page.platformIdentifier,
         platform: page.platform

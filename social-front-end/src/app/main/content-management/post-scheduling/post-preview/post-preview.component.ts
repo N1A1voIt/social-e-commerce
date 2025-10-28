@@ -25,10 +25,11 @@ export class PostPreviewComponent {
   @Input() visible = false;
   @Input() data: PlatformPreviewItem[] = [];
   @Output() close = new EventEmitter<void>();
-  @Output() publish = new EventEmitter<{ scheduledAt?: string }>();
+  @Output() publish = new EventEmitter<{ scheduledAt?: string, data?: PlatformPreviewItem[] }>();
 
   scheduleEnabled = false;
   scheduledAt = '';
+  editingStates: Map<number, boolean> = new Map();
 
   onClose() {
     this.close.emit();
@@ -36,8 +37,23 @@ export class PostPreviewComponent {
 
   onPublish() {
     this.publish.emit({
-      scheduledAt: this.scheduleEnabled ? this.scheduledAt : undefined
+      scheduledAt: this.scheduleEnabled ? this.scheduledAt : undefined,
+      data: this.data
     });
+  }
+
+  toggleEdit(index: number) {
+    this.editingStates.set(index, !this.editingStates.get(index));
+  }
+
+  isEditing(index: number): boolean {
+    return this.editingStates.get(index) || false;
+  }
+
+  autoResize(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
   }
 
   getMinDateTime(): string {

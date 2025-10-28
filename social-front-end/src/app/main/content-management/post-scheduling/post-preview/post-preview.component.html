@@ -9,7 +9,7 @@
 
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 overflow-y-auto flex-1">
-      <ng-container *ngFor="let item of data">
+      <ng-container *ngFor="let item of data; let i = index">
         <div class="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow h-fit">
           <div class="px-4 py-2 border-b flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
             <div class="flex items-center gap-2">
@@ -18,17 +18,56 @@
               </div>
               <span class="font-semibold capitalize">{{ item.platform }}</span>
             </div>
+            <!-- Edit Toggle Button -->
+            <button
+              (click)="toggleEdit(i)"
+              class="px-3 py-1 text-xs font-medium rounded-md transition-colors"
+              [ngClass]="isEditing(i) ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+            >
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                {{ isEditing(i) ? 'Done' : 'Edit' }}
+              </span>
+            </button>
           </div>
 
           <div class="p-4 space-y-4">
             <!-- Main message -->
-            <div class="whitespace-pre-line text-sm leading-relaxed">{{ item.mainMessage }}</div>
+            <div class="relative">
+              <textarea
+                *ngIf="isEditing(i)"
+                [(ngModel)]="item.mainMessage"
+                (input)="autoResize($event)"
+                class="w-full text-sm leading-relaxed border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all"
+                placeholder="Write your message here..."
+                rows="3"
+              ></textarea>
+              <div *ngIf="!isEditing(i)" class="whitespace-pre-line text-sm leading-relaxed min-h-[3em]">
+                {{ item.mainMessage || '(No message)' }}
+              </div>
+            </div>
+
             <!-- Media carousel-like grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div *ngFor="let m of item.mediaDetails" class="border rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 <img [src]="m.imageUrl" alt="media" class="w-full aspect-video object-cover bg-gray-100" />
-                <div class="p-2 text-xs text-gray-700" *ngIf="m.message">
-                  {{ m.message }}
+                <div class="p-2">
+                  <textarea
+                    *ngIf="isEditing(i)"
+                    [(ngModel)]="m.message"
+                    (input)="autoResize($event)"
+                    class="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all"
+                    placeholder="Add a caption..."
+                    rows="2"
+                  ></textarea>
+                  <div *ngIf="!isEditing(i) && m.message" class="text-xs text-gray-700">
+                    {{ m.message }}
+                  </div>
+                  <div *ngIf="!isEditing(i) && !m.message" class="text-xs text-gray-400 italic">
+                    No caption
+                  </div>
                 </div>
               </div>
             </div>
