@@ -1,0 +1,39 @@
+
+<div *ngIf="visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur">
+  <div class="relative w-[95%] max-w-6xl h-[90vh] bg-white text-gray-900 rounded-2xl shadow-xl overflow-hidden">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-b bg-gray-50">
+      <h2 class="text-lg sm:text-xl font-semibold">Post preview</h2>
+      <button class="px-3 py-1.5 text-sm rounded-md bg-gray-200 hover:bg-gray-300" (click)="onClose()">Return</button>
+    </div>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 overflow-y-auto h-[calc(90vh-56px)]">
+      <ng-container *ngFor="let item of data">
+        <div class="border rounded-lg overflow-hidden bg-white">
+          <div class="px-4 py-2 border-b flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="h-6 w-6 rounded bg-gray-200 flex items-center justify-center text-xs uppercase">{{ item.platform[0] }}</div>
+              <span class="font-semibold capitalize">{{ item.platform }}</span>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-4">
+            <!-- Main message -->
+            <div class="whitespace-pre-line text-sm">{{ item.mainMessage }}</div>
+            <!-- Media carousel-like grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div *ngFor="let m of item.mediaDetails" class="border rounded-md overflow-hidden">
+                <img [src]="m.imageUrl" alt="media" class="w-full aspect-video object-cover bg-gray-100" />
+
+                <div class="p-2 text-xs text-gray-700">
+                  {{ m.message }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -650,6 +650,9 @@ CREATE TABLE prompt_saver (
 );
 
 
+CREATE VIEW prompt_saver_view AS
+    SELECT prompt_saver.*,s.label as platform FROM prompt_saver JOIN supported_platforms_v2 s on prompt_saver.id_platform = s.id_sp;
+
 CREATE OR REPLACE FUNCTION log_amount_distance_changes()
     RETURNS TRIGGER AS $$
 BEGIN

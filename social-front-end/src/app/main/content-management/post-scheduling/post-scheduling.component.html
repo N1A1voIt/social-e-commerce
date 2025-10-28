@@ -98,4 +98,10 @@
 <!--        </app-form-validation-summary>-->
     </div>
   </div>
+
+  <!-- Post preview overlay -->
+  <app-post-preview
+    [visible]="previewVisible"
+    [data]="previewData"
+    (close)="onClosePreview()"></app-post-preview>
 </div>

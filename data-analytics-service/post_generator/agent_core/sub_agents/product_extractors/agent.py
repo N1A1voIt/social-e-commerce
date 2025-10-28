@@ -78,7 +78,8 @@ product_formatter_agent = LlmAgent(
                 },...
             ]
             
-            Available platforms are : facebook,instagram.
+            Available platforms are : facebook,instagram.(everything should be in lowercase) 
+            Don't forget to include product name,SKU.For facebook you can do it on each media but for instagram it should be in the main message.
             Important:
             
             Focus on selling the products in a natural way.

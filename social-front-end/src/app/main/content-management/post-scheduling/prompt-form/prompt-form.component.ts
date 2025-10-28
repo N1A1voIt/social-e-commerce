@@ -105,6 +105,7 @@ export class PromptFormComponent {
     this.http.post<string>(pythonHost + '/generate-post', { query: this.promptText },{headers:headers}).subscribe({
       next: (response) => {
         try {
+          console.log(response)
           const jsonString = response.replace(/^```json\s*|\s*```$/g, '');
           const parsedResponse = JSON.parse(jsonString);
           this.loading = false;

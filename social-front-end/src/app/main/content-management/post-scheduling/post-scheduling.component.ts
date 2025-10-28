@@ -1,8 +1,7 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ContentService} from "../content.service";
 import {ManagedPageCPL} from "../../settings/account-details/account-details.component";
-import {JsonPipe, NgForOf, NgIf} from "@angular/common";
-import {PlatformRowComponent} from "../../settings/managed-account/platform-row/platform-row.component";
+import {NgForOf, NgIf} from "@angular/common";
 import {PlatformPostCheckComponent} from "../platform-post-check/platform-post-check.component";
 import {Product} from "../../products/products.types";
 import {ProductRowComponent} from "../product-row/product-row.component";
@@ -19,12 +18,12 @@ import {HttpClient} from "@angular/common/http";
 import {MainMessageComponent} from "./main-message/main-message.component";
 import {MediaDetailsContainerComponent} from "./media-details-container/media-details-container.component";
 import {SubmitButtonComponent} from "./submit-button/submit-button.component";
-import {FormValidationSummaryComponent} from "./form-validation-summary/form-validation-summary.component";
 import {SupabaseService} from "../../../shared/supabase.service";
 import {PromptFormComponent} from "./prompt-form/prompt-form.component";
 import {javaHost} from "../../../../environments/environment";
 import {ManagedPage} from "../../authentication/validate-pages/page.service";
 import {firstValueFrom} from "rxjs";
+import {PostPreviewComponent} from './post-preview/post-preview.component';
 interface MediaDetail {
   imageUrl: string;
   message: string;
@@ -42,18 +41,16 @@ interface PostData {
   standalone: true,
   imports: [
     NgForOf,
-    PlatformRowComponent,
     PlatformPostCheckComponent,
     ProductRowComponent,
     NgIf,
     ReactiveFormsModule,
-    JsonPipe,
     MainMessageComponent,
     MediaDetailsContainerComponent,
     SubmitButtonComponent,
-    FormValidationSummaryComponent,
     FormsModule,
-    PromptFormComponent
+    PromptFormComponent,
+    PostPreviewComponent
   ],
   templateUrl: './post-scheduling.component.html',
   styleUrl: './post-scheduling.component.css'
@@ -71,10 +68,15 @@ export class PostSchedulingComponent implements OnInit{
     mainMessage: '',
     idProducts: []
   };
+
   pagesIn: ManagedPageCPL[] = [];
   @Input() showForm: boolean = false;
   @Output() showFormChange = new EventEmitter<boolean>();
   loading = false;
+
+  // Preview state
+  previewVisible = false;
+  previewData: { platform: string; mainMessage: string; mediaDetails: { imageUrl: string; message: string }[] }[] = [];
 
   onLoadingChange(newValue: boolean) {
     this.loading = newValue;
@@ -84,7 +86,6 @@ export class PostSchedulingComponent implements OnInit{
     this.showFormChange.emit(this.showForm);
   }
 
-  uploadError = '';
   constructor(private postService: ContentService ,private fb: FormBuilder,
               private http: HttpClient,private supabaseService:SupabaseService,private cdr: ChangeDetectorRef
   ) {
@@ -280,25 +281,30 @@ export class PostSchedulingComponent implements OnInit{
 
 
   populateForm(parsed: any) {
-    this.mainMessageControl.setValue(parsed.mainMessage);
+    // Instead of filling the form, directly populate the preview and show it.
 
-    // Clear existing mediaDetails
-    this.mediaDetailsArray.clear();
+    if (Array.isArray(parsed)) {
+      // Assume parsed is PlatformPreviewItem[]
+      this.previewData = parsed.map(item => ({
+        platform: item.platform,
+        mainMessage: item.mainMessage,
+        mediaDetails: (item.mediaDetails || []).map((m: any) => ({ imageUrl: m.imageUrl, message: m.message }))
+      }));
+    } else if (parsed && typeof parsed === 'object') {
+      // Backward compatibility: if it's a single object with mainMessage/mediaDetails, replicate across selected platforms
+      const platforms = this.pagesIn.length > 0 ? this.pagesIn.map(p => p.platform) : ['preview'];
+      const mainMessage = parsed.mainMessage || '';
+      const mediaDetails = (parsed.mediaDetails || []).map((m: any) => ({ imageUrl: m.imageUrl, message: m.message }));
+      this.previewData = platforms.map(platform => ({ platform, mainMessage, mediaDetails }));
+    } else {
+      this.previewData = [];
+    }
 
-    // Add media details from response
-    parsed.mediaDetails.forEach((mediaItem: any) => {
-      const mediaGroup = this.fb.group({
-        imageUrl: [mediaItem.imageUrl],
-        message: [mediaItem.message, [Validators.maxLength(200)]],
-        previewUrl: [mediaItem.imageUrl],  // Optional: used for previews
-        selectedFile: [null],              // No file, it's already uploaded
-        isUploading: [false]
-      });
-      this.mediaDetailsArray.push(mediaGroup);
-    });
-    this.cdr.detectChanges()
+    this.previewVisible = true;
+    this.cdr.detectChanges();
   }
 
-
-  protected readonly JSON = JSON;
+  onClosePreview() {
+    this.previewVisible = false;
+  }
 }

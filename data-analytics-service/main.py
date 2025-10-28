@@ -13,6 +13,9 @@ from sympy import content
 
 from nlp_analyzer.agent.nlp_analyzer import nlp_messaging_agent
 from post_generator.agent_core.agent import agent, root_agent
+from prompt_parameter import PromptSaver
+from prompt_parameter.PromptRepository import PromptSaverRepository
+from prompt_parameter.PromptSaverViewRepository import PromptSaverViewRepository
 from tokens.TokenV2Repository import TokenV2Repository
 from utils.query_modifier import QueryPayload
 
@@ -38,6 +41,8 @@ async def create_post(
             detail="Authorization header is missing"
         )
 
+
+
     tokenRepository = TokenV2Repository()
     user_id = tokenRepository.find_user_id_by_token(authorization)
 
@@ -46,6 +51,12 @@ async def create_post(
             status_code=401,
             detail="Invalid authentication token"
         )
+    repo = PromptSaverViewRepository()
+    prompt_views = repo.find_by_id_seller(user_id)
+
+    prompt_texts = "\n".join(f"[{p.platform}] {p.prompt}" for p in prompt_views)
+
+    query_payload.query += prompt_texts
 
     SESSION_ID = str(uuid.uuid4())
     session_service = InMemorySessionService()
