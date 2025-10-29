@@ -269,23 +269,23 @@ CREATE TABLE stocks_v2(
 );
 
 CREATE TABLE stocks_child(
-                             id_st_ch SERIAL,
-                             price NUMERIC(15,2)   NOT NULL,
-                             action_at TIMESTAMP NOT NULL,
-                             input NUMERIC(15,2)  ,
-                             output NUMERIC(15,2)  ,
-                             d_product_number NUMERIC(15,2)  ,
-                             d_variant_number NUMERIC(15,2)  ,
-                             product_name TEXT,
-                             variant_name TEXT,
-                             id_product INTEGER NOT NULL,
-                             id_variant INTEGER NOT NULL,
-                             id_mv INTEGER NOT NULL,
-                             created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
-                             PRIMARY KEY(id_st_ch),
-                             FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
-                             FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant),
-                             FOREIGN KEY(id_mv) REFERENCES stocks_v2(id_mv)
+     id_st_ch SERIAL,
+     price NUMERIC(15,2)   NOT NULL,
+     action_at TIMESTAMP NOT NULL,
+     input NUMERIC(15,2)  ,
+     output NUMERIC(15,2)  ,
+     d_product_number NUMERIC(15,2)  ,
+     d_variant_number NUMERIC(15,2)  ,
+     product_name TEXT,
+     variant_name TEXT,
+     id_product INTEGER NOT NULL,
+     id_variant INTEGER NOT NULL,
+     id_mv INTEGER NOT NULL,
+     created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
+     PRIMARY KEY(id_st_ch),
+     FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+     FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant),
+     FOREIGN KEY(id_mv) REFERENCES stocks_v2(id_mv)
 );
 
 CREATE TABLE payment_method_v2(
