@@ -7,14 +7,10 @@ from fastapi import FastAPI, Header, HTTPException
 from google.adk import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-from sentence_transformers import SentenceTransformer
 from starlette.middleware.cors import CORSMiddleware
-from sympy import content
 
 from nlp_analyzer.agent.nlp_analyzer import nlp_messaging_agent
 from post_generator.agent_core.agent import agent, root_agent
-from prompt_parameter import PromptSaver
-from prompt_parameter.PromptRepository import PromptSaverRepository
 from prompt_parameter.PromptSaverViewRepository import PromptSaverViewRepository
 from tokens.TokenV2Repository import TokenV2Repository
 from utils.query_modifier import QueryPayload

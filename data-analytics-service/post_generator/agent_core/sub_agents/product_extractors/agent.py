@@ -11,15 +11,24 @@ from products.ProductRepository import ProductRepository
 
 import json
 
-def extract_products(db_category_output: str):
+def extract_products(db_category_output: str, user_id: int):
+    """
+    Extract products based on category output and user ID.
+
+    Args:
+        db_category_output: JSON string containing category information
+        user_id: The user ID to filter products by
+    """
     def clean_and_parse_json(markdown_json_str):
         cleaned = re.sub(r"^```json\s*|\s*```$", "", markdown_json_str.strip(), flags=re.MULTILINE)
         return json.loads(cleaned)
     categoriese = clean_and_parse_json(db_category_output)
     print("dazfbne:"+str(categoriese))
     pr = ProductRepository()
-    u_output = 1
-    products = pr.find_by_token_and_categories(u_output, categoriese)
+    print(f'User ID: {user_id}')
+    if user_id is None:
+        raise ValueError("User ID (u_output) not found in session state")
+    products = pr.find_by_token_and_categories(user_id, categoriese['categories'])
     products_dict = [p.model_dump() for p in products]
     return json.dumps(products_dict, default=str)
 
@@ -28,7 +37,9 @@ def extract_products(db_category_output: str):
 product_extractor_agent = LlmAgent (
     name="product_extractor_agent",
     model="gemini-2.0-flash-001",
-    instruction="You're an agent in charge of extracting products from a list of category ids and a user_output.",
+    instruction="""You're an agent in charge of extracting products from a list of category ids and a user_id.
+    Use the extract_products tool with the db_category_output from the previous agent and the user_id from the session state variable u_output.
+    The user_id parameter should be set to {u_output}.""",
     description=PRODUCT_EXTRACTOR_PROMPT,
     output_key="extracted_products_v2",
     tools=[extract_products]

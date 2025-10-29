@@ -246,24 +246,6 @@ CREATE TABLE order_status_v2(
                                 PRIMARY KEY(id_status)
 );
 
-/*
-CREATE TABLE product_creation_sessions (
-   id SERIAL,
-   user_id INTEGER NOT NULL,
-   session_id VARCHAR(100) NOT NULL UNIQUE,
-   redis_key VARCHAR(200) NOT NULL,
-   current_step INTEGER DEFAULT 1,
-   completed_steps JSON, -- [1, 2, 3]
-   form_data JSON, -- Complete form data as backup
-   created_at TIMESTAMP DEFAULT NOW(),
-   updated_at TIMESTAMP DEFAULT NOW() ON UPDATE NOW(),
-   status ENUM('active', 'completed', 'abandoned') DEFAULT 'active',
-   PRIMARY KEY(id),
-   INDEX idx_user_status (user_id, status),
-   INDEX idx_updated (updated_at)
-);*/
-
-
 CREATE TABLE order_details_v2(
                                  id_order_details SERIAL,
                                  price NUMERIC(18,2)   NOT NULL,
