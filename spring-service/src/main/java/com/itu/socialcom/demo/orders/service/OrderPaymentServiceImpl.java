@@ -72,7 +72,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             SellerPhoneNumber sellerPhoneNumber = new SellerPhoneNumber();
             if (orderParent.getIdManagedPages() != null) sellerPhoneNumber = sellerPhoneNumberRepository.findById(managedPagesNumber.getIdSpn())
                     .orElseThrow(() -> new Exception("Seller phone number not found."));
-            if (orderParent.getIdManagedPages() == null) sellerPhoneNumber = sellerPhoneNumberRepository.findByIdSellerAndIdPm(orderParent.getIdSeller().longValue(),1L)
+            if (orderParent.getIdManagedPages() == null) sellerPhoneNumber = sellerPhoneNumberRepository.findBySeller_IdAndPaymentMethod_Id(orderParent.getIdSeller().longValue(),1L)
                     .orElseThrow(() -> new Exception("Seller phone number not found."));
 
             PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);

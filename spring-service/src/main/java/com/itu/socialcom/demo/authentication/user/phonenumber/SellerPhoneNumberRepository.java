@@ -11,4 +11,6 @@ public interface SellerPhoneNumberRepository extends JpaRepository<SellerPhoneNu
     List<SellerPhoneNumber> findBySellerIdOrderByIdAsc(Long sellerId);
     Optional<SellerPhoneNumber> findBySellerIdAndPaymentMethodId(Long sellerId, Long paymentMethodId);
     boolean existsBySellerIdAndPaymentMethodId(Long sellerId, Long paymentMethodId);
+
+    Optional<SellerPhoneNumber> findBySeller_IdAndPaymentMethod_Id(Long sellerId, Long paymentMethodId);
 }

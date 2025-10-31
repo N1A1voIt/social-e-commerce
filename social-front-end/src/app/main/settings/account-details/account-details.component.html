@@ -33,7 +33,7 @@
         </div>
       </div>
     </ng-template>
-    <app-contacts class="w-full"></app-contacts>
+    <app-contacts class="w-full" (editPhoneNumber)="onEditPhoneNumber($event)"></app-contacts>
     <app-managed-account
       [managedPages]="managedPages"
       (editClicked)="onEditClicked()"
@@ -44,15 +44,36 @@
   </div>
   <app-profile-edit-form *ngIf="formApply === 'profile'"></app-profile-edit-form>
   <div *ngIf="formApply === 'contacts'" class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
-    <div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative">
+    <div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative p-0">
       <div class="flex justify-between w-full p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
         <div>
-          <h1 class="text-gray"></h1>
-          <h1>Edit your contacts</h1>
+          <h1 class="text-gray">Contacts</h1>
+          <h1 *ngIf="selectedPhoneNumber; else contactsTitle">{{ selectedPhoneNumber?.id ? 'Edit phone number' : 'New phone number' }}</h1>
+          <ng-template #contactsTitle><h1>Edit your contacts</h1></ng-template>
         </div>
-        <div class="text-xl  flex justify-center items-center">
-          <ng-icon name="heroPlusCircle" size="30" class="cursor-pointer"></ng-icon>
+        <div class="text-xl  flex justify-center items-center gap-3">
+          <button class="bg-primary text-white px-3 py-1 rounded" (click)="openNewPhoneNumber()">New</button>
+          <h1 class="text-gray flex justify-center items-center cursor-pointer" (click)="formApply = 'jean'; selectedPhoneNumber = null"><ng-icon name="heroXMark" size="20"></ng-icon></h1>
         </div>
+      </div>
+
+      <div class="w-full h-full p-4 font-mono overflow-auto">
+        <div *ngIf="selectedPhoneNumber; else chooseOrEmpty">
+          <label class="block text-sm text-gray mb-1">Phone number</label>
+          <input [(ngModel)]="selectedPhoneNumber.phoneNumber" class="w-full p-2 rounded border mb-3" placeholder="+123..." />
+
+          <label class="block text-sm text-gray mb-1">Name</label>
+          <input [(ngModel)]="selectedPhoneNumber.associatedName" class="w-full p-2 rounded border mb-3" placeholder="Home / Work / M-Pesa" />
+
+          <div class="flex justify-end gap-3 mt-4">
+            <button class="bg-gray-200 px-3 py-2 rounded" (click)="formApply = 'jean'; selectedPhoneNumber = null">Cancel</button>
+            <button class="bg-green-600 text-white px-3 py-2 rounded" (click)="savePhoneNumber()">Save</button>
+            <button *ngIf="selectedPhoneNumber?.id" class="bg-red-600 text-white px-3 py-2 rounded" (click)="deletePhoneNumber()">Delete</button>
+          </div>
+        </div>
+        <ng-template #chooseOrEmpty>
+          <p class="text-gray">Select a contact to edit or click "New" to create one.</p>
+        </ng-template>
       </div>
 
     </div>

@@ -2,12 +2,13 @@ import {Component, Output, EventEmitter, OnInit, ChangeDetectorRef} from '@angul
 import { ContactsComponent } from "../contacts/contacts.component";
 import { ManagedAccountComponent } from "../managed-account/managed-account.component";
 import { NgIcon } from "@ng-icons/core";
-import { NgIf, NgFor } from "@angular/common";
+import { NgIf } from "@angular/common";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {environment, javaHost} from "../../../../environments/environment";
+import { javaHost } from "../../../../environments/environment";
 import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.component";
 import {ShippingPointFormComponent} from "../managed-account/shipping-point/shipping-point-form.component";
 import {AmountDistanceFormComponent} from "../managed-account/amount-distance/amount-distance-form.component";
+import { FormsModule } from '@angular/forms';
 
 export interface ManagedPageCPL {
   idMp: number;
@@ -28,6 +29,16 @@ interface Seller {
   profileImage?: string;
 }
 
+// New interface for phone number response
+export interface SellerPhoneNumberResponse {
+  id?: number;
+  phoneNumber: string;
+  associatedName: string;
+  paymentMethodId?: number | null;
+  paymentMethodName?: string;
+  sellerId?: number;
+}
+
 @Component({
   selector: 'app-account-details',
   standalone: true,
@@ -36,13 +47,13 @@ interface Seller {
     ManagedAccountComponent,
     NgIcon,
     NgIf,
-    NgFor,
     ProfileEditFormComponent,
     ShippingPointFormComponent,
-    AmountDistanceFormComponent
+    AmountDistanceFormComponent,
+    FormsModule
   ],
   templateUrl: './account-details.component.html',
-  styleUrl: './account-details.component.css'
+  styleUrls: ['./account-details.component.css']
 })
 export class AccountDetailsComponent implements OnInit {
   formApply: string = 'jean';
@@ -60,6 +71,9 @@ export class AccountDetailsComponent implements OnInit {
   managedPages: ManagedPageCPL[] = [];
   selectedManagedPageId: number | null = null;
   @Output() close = new EventEmitter<void>();
+
+  // Selected phone number for editing
+  selectedPhoneNumber: SellerPhoneNumberResponse | null = null;
 
   onAddShippingPoint(managedPageId: number): void {
     this.selectedManagedPageId = managedPageId;
@@ -86,6 +100,79 @@ export class AccountDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.loadSellerInfo();
     this.loadManagedPages();
+  }
+
+  // Handler called by app-contacts when user clicks edit
+  onEditPhoneNumber(phoneNumber: SellerPhoneNumberResponse) {
+    this.selectedPhoneNumber = { ...phoneNumber };
+    this.formApply = 'contacts';
+  }
+
+  // Open form to create a new phone number
+  openNewPhoneNumber() {
+    this.selectedPhoneNumber = {
+      phoneNumber: '',
+      associatedName: '',
+      paymentMethodId: null
+    };
+    this.formApply = 'contacts';
+  }
+
+  // Save (create or update) phone number
+  savePhoneNumber(): void {
+    if (!this.selectedPhoneNumber) return;
+    const token = localStorage.getItem('token') || '';
+    const authHeader = token.startsWith('Bearer') ? token : `Bearer ${token}`;
+    const headers = new HttpHeaders({ 'Authorization': authHeader, 'Content-Type': 'application/json' });
+
+    const payload = {
+      phoneNumber: this.selectedPhoneNumber.phoneNumber,
+      associatedName: this.selectedPhoneNumber.associatedName,
+      paymentMethodId: this.selectedPhoneNumber.paymentMethodId
+    };
+
+    if (this.selectedPhoneNumber.id) {
+      // update
+      this.http.put(`${javaHost}/api/sellers/phone-numbers/${this.selectedPhoneNumber.id}`, payload, { headers })
+        .subscribe({
+          next: (_res: any) => {
+            this.formApply = 'jean';
+            this.selectedPhoneNumber = null;
+          },
+          error: (err) => {
+            console.error('Failed to update phone number', err);
+          }
+        });
+    } else {
+      // create
+      this.http.post(`${javaHost}/api/sellers/phone-numbers`, payload, { headers })
+        .subscribe({
+          next: (_res: any) => {
+            this.formApply = 'jean';
+            this.selectedPhoneNumber = null;
+          },
+          error: (err) => {
+            console.error('Failed to create phone number', err);
+          }
+        });
+    }
+  }
+
+  deletePhoneNumber(): void {
+    if (!this.selectedPhoneNumber?.id) return;
+    const token = localStorage.getItem('token') || '';
+    const authHeader = token.startsWith('Bearer') ? token : `Bearer ${token}`;
+    const headers = new HttpHeaders({ 'Authorization': authHeader });
+    this.http.delete(`${javaHost}/api/sellers/phone-numbers/${this.selectedPhoneNumber.id}`, { headers })
+      .subscribe({
+        next: () => {
+          this.formApply = 'jean';
+          this.selectedPhoneNumber = null;
+        },
+        error: (err) => {
+          console.error('Failed to delete phone number', err);
+        }
+      });
   }
 
   private loadSellerInfo(): void {

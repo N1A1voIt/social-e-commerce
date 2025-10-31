@@ -4,9 +4,15 @@
     <p class="font-light text-sm flex justify-center items-center gap-2"> <ng-icon name="heroPencilSquare"></ng-icon> Edit</p>
   </div>
   <div class="w-full">
-    <app-contect-row></app-contect-row>
-    <app-contect-row></app-contect-row>
-    <app-contect-row></app-contect-row>
+    <div *ngIf="isLoading" class="py-4">
+      <p class="text-sm text-gray">Loading contacts...</p>
+    </div>
+    <div *ngIf="!isLoading && phoneNumbers.length === 0" class="py-4">
+      <p class="text-sm text-gray">No phone numbers configured yet.</p>
+    </div>
+    <div *ngIf="phoneNumbers.length > 0" class="flex flex-col gap-2">
+      <app-contect-row *ngFor="let phone of phoneNumbers" [phone]="phone" (edit)="onEdit($event)"></app-contect-row>
+    </div>
   </div>
 
 </div>

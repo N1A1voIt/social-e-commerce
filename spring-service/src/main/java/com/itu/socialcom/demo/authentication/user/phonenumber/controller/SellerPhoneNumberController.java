@@ -2,9 +2,11 @@ package com.itu.socialcom.demo.authentication.user.phonenumber.controller;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.itu.socialcom.demo.authentication.token.TokenV2ServiceImpl;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.authentication.user.SellerService;
 import com.itu.socialcom.demo.authentication.user.phonenumber.SellerPhoneNumberService;
+import com.itu.socialcom.demo.authentication.user.phonenumber.SellerPhoneNumberServiceImpl;
 import com.itu.socialcom.demo.authentication.user.phonenumber.dto.SellerPhoneNumberRequest;
 import com.itu.socialcom.demo.authentication.user.phonenumber.dto.SellerPhoneNumberResponse;
 import com.itu.socialcom.demo.utils.ApiResponse;
@@ -22,13 +24,13 @@ import java.util.List;
 public class SellerPhoneNumberController {
 
     @Autowired
-    private SellerPhoneNumberService sellerPhoneNumberService;
+    private SellerPhoneNumberServiceImpl sellerPhoneNumberService;
 
     @Autowired
     private SellerService sellerService;
 
     @Autowired
-    private FirebaseAuth firebaseAuth;
+    TokenV2ServiceImpl tokenV2Service;
 
     /**
      * Helper method to extract seller from Firebase token
@@ -38,12 +40,8 @@ public class SellerPhoneNumberController {
             throw new RuntimeException("Invalid or missing Authorization header");
         }
 
-        String idToken = authHeader.substring(7);
-        FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
-        String firebaseUid = decodedToken.getUid();
-
-        return sellerService.getSellerByFirebaseUid(firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        String idToken = authHeader.replace("Bearer ","");
+        return tokenV2Service.findSellerByToken(idToken).orElseThrow(() -> new RuntimeException("Seller not found"));
     }
 
     /**
