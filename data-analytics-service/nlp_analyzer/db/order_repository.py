@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import func, cast, Date, Integer
+from sqlalchemy import func, cast, Date, Integer, text
 from post_generator.agent_core.engine import SessionLocal
 from nlp_analyzer.db.Order import OrderMother, OrderMotherOut, SalesEvolution
 
@@ -38,36 +38,35 @@ class OrderRepository:
         """
         session = self.Session()
         try:
-            # Build query to get daily aggregated sales
-            query = session.query(
-                cast(OrderMother.created_at, Date).label('date'),
-                func.sum(OrderMother.d_total).label('total_sales'),
-                func.count(OrderMother.id_order_m).label('order_count')
-            ).filter(
-                OrderMother.created_at >= start_date,
-                OrderMother.created_at <= end_date,
-                cast(OrderMother.d_status, Integer) > status_threshold
-            )
+            # Query the view v_order_mother_cpl and aggregate per day
+            sql = """
+            SELECT
+                CAST(created_at AS DATE) AS date,
+                SUM(d_total) AS total_sales,
+                COUNT(id_order_m) AS order_count
+            FROM v_order_mother_cpl
+            WHERE created_at >= :start_date
+              AND created_at <= :end_date
+              AND CAST(d_status AS INTEGER) > :status_threshold
+            """
 
-            # If user_id is provided, filter by seller through managed_pages
+            params = {"start_date": start_date, "end_date": end_date, "status_threshold": status_threshold}
             if user_id is not None:
-                # Assuming managed_pages has id_seller field
-                # You may need to adjust this join based on your actual schema
-                query = query.filter(OrderMother.id_managed_pages == user_id)
+                # keep same user filtering key used in get_sales_summary (id_seller)
+                sql += "\n AND id_seller = :user_id"
+                params["user_id"] = user_id
 
-            # Group by date and order by date
-            query = query.group_by(cast(OrderMother.created_at, Date)).order_by('date')
+            sql += "\n GROUP BY CAST(created_at AS DATE) ORDER BY date"
 
-            results = query.all()
+            rows = session.execute(text(sql), params).mappings().all()
 
-            # Convert results to SalesEvolution objects
             sales_evolution = [
                 SalesEvolution(
-                    date=str(row.date),
-                    total_sales=float(row.total_sales or 0),
-                    order_count=int(row.order_count)
+                    date=str(row['date']),
+                    total_sales=float(row['total_sales'] or 0),
+                    order_count=int(row['order_count'] or 0)
                 )
-                for row in results
+                for row in rows
             ]
 
             return sales_evolution
@@ -80,35 +79,42 @@ class OrderRepository:
         start_date: datetime,
         end_date: datetime,
         user_id: Optional[int] = None,
-        status_threshold: int = 25
+        status_threshold: int = 11
     ) -> dict:
         """
         Get sales summary between two dates.
+
+        Uses the materialized view / view `v_order_mother_cpl` instead of directly
+        querying the `order_mother` table so we can leverage joined data from
+        `managed_pages` (id_sp, page_title, etc.).
 
         Returns:
             Dictionary with total_sales, total_orders, average_order_value
         """
         session = self.Session()
         try:
-            query = session.query(
-                func.sum(OrderMother.d_total).label('total_sales'),
-                func.count(OrderMother.id_order_m).label('total_orders'),
-                func.avg(OrderMother.d_total).label('avg_order_value')
-            ).filter(
-                OrderMother.created_at >= start_date,
-                OrderMother.created_at <= end_date,
-                cast(OrderMother.d_status, Integer) > status_threshold
-            )
+            sql = """
+            SELECT
+                SUM(d_total) AS total_sales,
+                COUNT(id_order_m) AS total_orders,
+                AVG(d_total) AS avg_order_value
+            FROM v_order_mother_cpl
+            WHERE created_at >= :start_date
+              AND created_at <= :end_date
+              AND CAST(d_status AS INTEGER) > :status_threshold
+            """
 
+            params = {"start_date": start_date, "end_date": end_date, "status_threshold": status_threshold}
             if user_id is not None:
-                query = query.filter(OrderMother.id_managed_pages == user_id)
+                sql += "\n AND id_seller = :user_id"
+                params["user_id"] = user_id
 
-            result = query.one()
+            row = session.execute(text(sql), params).mappings().one()
 
             return {
-                'total_sales': float(result.total_sales or 0),
-                'total_orders': int(result.total_orders or 0),
-                'average_order_value': float(result.avg_order_value or 0)
+                'total_sales': float(row['total_sales'] or 0),
+                'total_orders': int(row['total_orders'] or 0),
+                'average_order_value': float(row['avg_order_value'] or 0)
             }
 
         finally:

@@ -288,6 +288,8 @@ CREATE TABLE stocks_child(
      FOREIGN KEY(id_mv) REFERENCES stocks_v2(id_mv)
 );
 
+
+
 CREATE TABLE payment_method_v2(
                                   id_pm SERIAL,
                                   payment_name TEXT,
@@ -318,6 +320,19 @@ CREATE TABLE payment_link(
                              UNIQUE(p_key),
                              FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
                              FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m)
+);
+
+create table delivery_driver_v2
+(
+    id_dd serial primary key,
+    name varchar(250),
+    phone_number text not null constraint delivery_driver_v2_pk unique,
+    id_tt integer references transport_type_v2,
+    id_seller integer references seller_v2,
+    min_range numeric(18, 2),
+    max_range numeric(18, 2),
+    firebase_uid text,
+    email text default 'del@yopmail.com'::text not null
 );
 
 CREATE TABLE delivery_status_v2(
@@ -378,7 +393,7 @@ CREATE TABLE likes_history(
 );
 
 CREATE TABLE sales(
-                      id_sale TIMESTAMP,
+                      id_sale SERIAL,
                       amount NUMERIC(18,2)   NOT NULL,
                       effectued_at TIMESTAMP NOT NULL,
                       from_number TEXT NOT NULL,
@@ -392,6 +407,22 @@ CREATE TABLE sales(
                       FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
                       FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
 );
+
+CREATE TABLE sales_details_v2(
+                                 id_sale_details SERIAL,
+                                 price NUMERIC(18,2)   NOT NULL,
+                                 quantity NUMERIC(15,2)  ,
+                                 product_name TEXT,
+                                 variant_name TEXT,
+                                 id_product INTEGER NOT NULL,
+                                 id_variant INTEGER NOT NULL,
+                                 id_sale_m INTEGER NOT NULL,
+                                 PRIMARY KEY(id_sale_details),
+                                 FOREIGN KEY(id_product) REFERENCES products_v2(id_product),
+                                 FOREIGN KEY(id_variant) REFERENCES variants_v2(id_variant),
+                                 FOREIGN KEY(id_sale_m) REFERENCES sales(id_sale)
+);
+
 
 CREATE TABLE delivery_v2(
     id_delivery SERIAL,

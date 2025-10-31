@@ -12,6 +12,9 @@ import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.tempLink.TempLink;
 import com.itu.socialcom.demo.orders.tempLink.TempLinkRepository;
+import com.itu.socialcom.demo.sales.Sales;
+import com.itu.socialcom.demo.sales.SalesDetails;
+import com.itu.socialcom.demo.sales.SalesRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPagesNumber;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPagesNumberRepository;
 import com.itu.socialcom.demo.stocks.StockChild;
@@ -25,6 +28,7 @@ import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +49,8 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     private MVolaProvider mVolaProvider;
     @Autowired
     private OrderParentRepository orderParentRepository;
-
+    @Autowired
+    private SalesRepository salesRepository;
     @Autowired
     private StockPersistanceService stockPersistanceService;
     @Override
@@ -77,7 +82,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             orderParentRepository.save(orderParent);
             moveStock(orderParent);
             tempLinkRepository.save(tempLink);
-
+            Sales sales = transformOrderToSale(orderParent, orderChildRepository.findByIdOrderM(orderParent.getIdOrderM().longValue()));
             return paymentResponse;
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,5 +124,75 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         paymentRequest.setPayee(sellerPhoneNumber.getPhoneNumber());
         paymentRequest.setCustomerMsisdn(paymentDTO.getPhoneNumber());
         return paymentRequest;
+    }
+
+    @Transactional
+    public Sales transformOrderToSale(OrderParent orderParent, List<OrderChild> orderChildren) throws Exception {
+        if (orderParent == null) {
+            throw new Exception("OrderParent cannot be null");
+        }
+
+        // Create the Sales entity from OrderParent
+        Sales sales = new Sales();
+
+        // Map basic fields
+        sales.setAmount(orderParent.getDTotal() != null
+                ? BigDecimal.valueOf(orderParent.getDTotal())
+                : BigDecimal.ZERO);
+        sales.setEffectuatedAt(orderParent.getCreatedAt() != null
+                ? orderParent.getCreatedAt()
+                : LocalDateTime.now());
+        sales.setFromNumber(orderParent.getCustomerNumber() != null
+                ? orderParent.getCustomerNumber()
+                : "");
+        sales.setFromName(orderParent.getDCustomerName() != null
+                ? orderParent.getDCustomerName()
+                : "");
+
+        sales.setDescription(orderParent.getDescription());
+//        sales.setIdSpn(orderParent.getIdManagedPages() != null
+//                ? orderParent.getIdManagedPages()
+//                : 0);
+        sales.setIdOrderM(orderParent.getIdOrderM() != null
+                ? orderParent.getIdOrderM().intValue()
+                : null);
+        sales.setIdPc(orderParent.getIdPc() != null
+                ? orderParent.getIdPc()
+                : "");
+
+        // Initialize the details list
+        List<SalesDetails> salesDetailsList = new ArrayList<>();
+
+        // Transform OrderChild items to SalesDetails
+        if (orderChildren != null && !orderChildren.isEmpty()) {
+            for (OrderChild orderChild : orderChildren) {
+                SalesDetails salesDetail = new SalesDetails();
+
+                salesDetail.setPrice(orderChild.getPrice() != null
+                        ? BigDecimal.valueOf(orderChild.getPrice())
+                        : BigDecimal.ZERO);
+                salesDetail.setQuantity(orderChild.getQuantity() != null
+                        ? BigDecimal.valueOf(orderChild.getQuantity())
+                        : BigDecimal.ONE);
+                salesDetail.setProductName(orderChild.getProductName());
+                salesDetail.setVariantName(orderChild.getSku()); // Using SKU as variant name
+                salesDetail.setIdProduct(orderChild.getIdProduct() != null
+                        ? orderChild.getIdProduct().intValue()
+                        : 0);
+                salesDetail.setIdVariant(orderChild.getIdVariant() != null
+                        ? orderChild.getIdVariant().intValue()
+                        : 0);
+
+                // Set the parent sales reference
+                salesDetail.setSale(sales);
+                salesDetailsList.add(salesDetail);
+            }
+        }
+
+        // Set the details to the sales entity
+        sales.setDetails(salesDetailsList);
+
+        // Save the sales (cascade will save details automatically)
+        return salesRepository.save(sales);
     }
 }

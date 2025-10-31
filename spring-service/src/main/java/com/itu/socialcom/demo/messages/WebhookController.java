@@ -43,7 +43,7 @@ public class WebhookController {
     private String instagramSecret;
 
     // Webhook verification (GET request from Facebook)
-    @GetMapping("/webhook")
+    @GetMapping("/facebook/webhook")
     public ResponseEntity<String> verifyWebhook(
             @RequestParam("hub.mode") String mode,
             @RequestParam("hub.verify_token") String token,
@@ -117,7 +117,7 @@ public class WebhookController {
 
 
     // Webhook endpoint (POST request from Facebook)
-    @PostMapping("/webhook")
+    @PostMapping("/facebook/webhook")
     public ResponseEntity<String> handleWebhook(
             @RequestBody String body,
             HttpServletRequest request) {

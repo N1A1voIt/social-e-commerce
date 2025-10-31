@@ -1,4 +1,5 @@
 import json
+import re
 import uuid
 from typing import Optional
 
@@ -9,6 +10,8 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from starlette.middleware.cors import CORSMiddleware
 
+from generic_chat.agent import generic_agent
+from generic_chat.generic_orchestrator.agent import generic_orchestrator_agent
 from nlp_analyzer.agent.nlp_analyzer import nlp_messaging_agent
 from post_generator.agent_core.agent import agent, root_agent
 from prompt_parameter.PromptSaverViewRepository import PromptSaverViewRepository
@@ -107,7 +110,43 @@ async def extract_skus_qty(query_payload:QueryPayload,authorization: Optional[st
         return json.loads(returned)
     return call_agent(query=query)
 
+@app.post("/generic-chat")
+async def generic_chat(query_payload: QueryPayload, authorization: Optional[str] = Header(None)):
+    query = query_payload.query
+    if not authorization:
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization header is missing"
+        )
+    tokenRepository = TokenV2Repository()
+    user_id = tokenRepository.find_user_id_by_token(authorization)
+    if not user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid authentication token"
+        )
+    SESSION_ID = str(uuid.uuid4())
+    session_service = InMemorySessionService()
+    session = await session_service.create_session(app_name="GENERICNLP", user_id=str(user_id), session_id=SESSION_ID,
+                                                   state={"u_output": user_id})
 
+    runner = Runner(agent=generic_orchestrator_agent, app_name="GENERICNLP", session_service=session_service)
+
+    def call_agent(query: str):
+        content = types.Content(role="user", parts=[types.Part(text=query)])
+        events = runner.run(user_id=str(user_id), session_id=SESSION_ID, new_message=content)
+        returned = ""
+        for event in events:
+            if event.is_final_response():
+                returned = event.content.parts[0].text
+        print("returned:"+returned)
+        returned = re.sub(r"^```json\s*", "", returned.strip())
+        returned = re.sub(r"\s*```$", "", returned)
+
+        print("Cleaned returned:", returned)
+
+        return json.loads(returned)
+    return call_agent(query=query)
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}

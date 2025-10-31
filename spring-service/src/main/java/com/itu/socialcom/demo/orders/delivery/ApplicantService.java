@@ -37,4 +37,6 @@ public class ApplicantService {
                 "You have been assigned to delivery ID: " + idDelivery + " for order ID: " + delivery.getOrderMotherId());
         return delivery;
     }
+
+
 }
