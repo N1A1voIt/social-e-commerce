@@ -19,6 +19,7 @@ import {StockListComponent} from "./main/products/stock-list/stock-list.componen
 import {ValidatePagesComponent} from "./main/authentication/validate-pages/validate-pages.component";
 import {VariantsComponent} from "./main/products/variants/variants.component";
 import {OrdersComponent} from "./main/orders/orders.component";
+import {SalesComponent} from "./main/sales/sales.component";
 import {TransactionComponent} from "./main/transaction/transaction.component";
 import {SuccessRedirectionComponent} from "./client/success-redirection/success-redirection.component";
 import {DsignupComponent} from "./deliverer/authentication/dsignup/dsignup.component";
@@ -57,6 +58,7 @@ const homeRoutes: Routes = [
       { path: 'content/post/:id', component: PostDetailsComponent },
       { path: 'content/prompt-parameter', component: PromptParameterComponent },
       { path: 'orders', component: OrdersComponent },
+      { path: 'sales', component: SalesComponent },
     ]
   },
 

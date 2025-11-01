@@ -1,5 +1,6 @@
 package com.itu.socialcom.demo.sales;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -31,9 +32,11 @@ public class SalesDetails {
     @Column(name = "id_variant", nullable = false)
     private Integer idVariant;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sale_m", referencedColumnName = "id_sale", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "id_sale_m")
+    @JsonIgnore
     private Sales sale;
+
 
     // Constructors
     public SalesDetails() {

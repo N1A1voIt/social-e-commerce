@@ -1,0 +1,167 @@
+<!-- sales.component.html -->
+<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
+  <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
+    <div class="w-full flex justify-between items-center px-4 font-mono">
+      <h1>Sales</h1>
+    </div>
+
+    <div class="card w-full font-custom-font rounded-3xl border border-gray-200 overflow-y-scroll">
+      <p-toast />
+
+      <p-table
+        [value]="sales"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="totalRecords"
+        [lazy]="true"
+        [loading]="loading"
+        (onLazyLoad)="fetchSales($event)"
+        dataKey="idSale"
+        [tableStyle]="{ 'min-width': '70rem' }"
+        [expandedRowKeys]="expandedRows"
+        (onRowExpand)="onRowExpand($event)"
+        (onRowCollapse)="onRowCollapse($event)"
+        styleClass="p-datatable-rounded p-datatable-hoverable-rows p-datatable-striped p-datatable-gridlines"
+
+        [rowHover]="true"
+        responsiveLayout="stack"
+        [breakpoint]="'960px'">
+
+        <!-- Table Header -->
+        <ng-template pTemplate="header">
+          <tr class="font-mono ">
+            <th style="width: 3rem" class="text-center">#</th>
+            <th pSortableColumn="description">Description</th>
+            <th pSortableColumn="fromName">From</th>
+            <th pSortableColumn="effectuatedAt">Date</th>
+            <th pSortableColumn="amount">Amount</th>
+            <th>Order ID</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-sale let-expanded="expanded">
+          <tr class="font-mono">
+            <td>
+              <p-button type="button" pRipple [pRowToggler]="sale"
+                        [text]="true" severity="secondary" [rounded]="true"
+                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+              </p-button>
+            </td>
+
+            <td>{{ sale.description || 'N/A' }}</td>
+            <td>{{ sale.fromName || sale.fromNumber || 'N/A' }}</td>
+            <td>{{ sale.effectuatedAt | date:'short' }}</td>
+            <td>{{ sale.amount | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ sale.idOrderM || '—' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-button bg-blue-50" (click)="exportSale(sale)" title="Generate Invoice">
+                  <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
+                </button>
+                <button class="action-button bg-green-50" (click)="viewSaleDetails(sale)" title="View details">
+                  <i class="pi pi-search text-green-500 text-xl"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Expanded Row (Sale Details) -->
+        <ng-template pTemplate="rowexpansion" let-sale>
+          <tr>
+            <td colspan="7">
+              <div class="p-4 p-rowexpansion-content">
+                <div class="order-details-header">
+                  <h5 class="m-0 text-lg font-semibold font-mono">Sale Details for {{ sale.description || 'Sale #' + sale.idSale }}</h5>
+                </div>
+
+                <!-- Purchased items table -->
+                <p-table [value]="sale.details" dataKey="id" class="mt-4 child-orders-table p-datatable-sm p-datatable-striped p-datatable-gridlines"
+                         [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="stack" [breakpoint]="'768px'">
+
+                  <ng-template pTemplate="header">
+                    <tr class="font-custom-font">
+                      <th>Item ID</th>
+                      <th>Product</th>
+                      <th>SKU</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                      <th>Image</th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="body" let-item>
+                    <tr class="font-mono">
+                      <td>{{ item.id || item.idDetail || '-' }}</td>
+                      <td>{{ item.productName || item.name || item.label || 'N/A' }}</td>
+                      <td>
+                        <p-tag [value]="item.sku || 'N/A'" severity="secondary"></p-tag>
+                      </td>
+                      <td class="text-center">{{ item.quantity || item.qty || 0 }}</td>
+                      <td>{{ (item.price || item.unitPrice || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>{{ ((item.price || item.unitPrice || 0) * (item.quantity || item.qty || 0)) | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>
+                        <img *ngIf="item.mediaUrl || item.imageUrl"
+                             [src]="item.mediaUrl || item.imageUrl"
+                             [alt]="item.productName || item.name || 'Product image'"
+                             class="product-image"
+                             onerror="this.style.display='none'">
+                        <span *ngIf="!(item.mediaUrl || item.imageUrl)" class="text-gray-400">No image</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="7" class="text-center py-6">
+                        <div class="flex flex-col items-center text-gray-500 p-4 bg-gray-50 rounded-lg">
+                          <i class="pi pi-inbox text-3xl mb-2 text-blue-400"></i>
+                          <span class="font-medium">No items found for this sale</span>
+                          <p class="text-sm mt-1">This sale doesn't have any product details attached.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+
+                <div class="mt-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                      <div class="flex justify-between">
+                        <span class="font-semibold">Amount:</span>
+                        <span>{{ sale.amount | currency:'USD':'symbol':'1.2-2' }}</span>
+                      </div>
+                      <div class="flex justify-between mt-2">
+                        <span class="font-semibold">From:</span>
+                        <span>{{ sale.fromName || sale.fromNumber }}</span>
+                      </div>
+                      <div class="flex justify-between mt-2">
+                        <span class="font-semibold">Date:</span>
+                        <span>{{ sale.effectuatedAt | date:'fullDate' }}</span>
+                      </div>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                      <div class="flex flex-col">
+                        <span class="font-semibold">Description</span>
+                        <p class="text-sm text-gray-600 mt-2">{{ sale.description || 'No description provided' }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <app-beautiful-button [text]="'Download Invoice'" (click)="exportSale(sale)"></app-beautiful-button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+  </div>
+</div>
+
