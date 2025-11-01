@@ -20,4 +20,10 @@ export class SalesService {
     }
     return this.http.get<ApiResponse>(url, { headers: header as any });
   }
+  payFull(idSales:number):Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.get<ApiResponse>(`${javaHost}/api/sales/paid/${idSales}`, { headers: header as any });
+  }
 }

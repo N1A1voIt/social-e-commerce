@@ -35,7 +35,9 @@
             <th pSortableColumn="fromName">From</th>
             <th pSortableColumn="effectuatedAt">Date</th>
             <th pSortableColumn="amount">Amount</th>
+            <th pSortableColumn="paid">Paid amount</th>
             <th>Order ID</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </ng-template>
@@ -53,14 +55,16 @@
             <td>{{ sale.fromName || sale.fromNumber || 'N/A' }}</td>
             <td>{{ sale.effectuatedAt | date:'short' }}</td>
             <td>{{ sale.amount | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ sale.paidAmount | currency:'USD':'symbol':'1.2-2' }}</td>
             <td>{{ sale.idOrderM || '—' }}</td>
+            <td>{{ sale.status == 1 ? 'Partially paid' : 'Paid' || '—' }}</td>
             <td>
               <div class="action-buttons">
                 <button class="action-button bg-blue-50" (click)="exportSale(sale)" title="Generate Invoice">
                   <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
                 </button>
-                <button class="action-button bg-green-50" (click)="viewSaleDetails(sale)" title="View details">
-                  <i class="pi pi-search text-green-500 text-xl"></i>
+                <button *ngIf="sale.status == 1" (click)="updateSaleStatus(sale)" class="action-button bg-green-50"  title="Change status">
+                  <i  class="pi pi-check text-green-500 text-xl"></i>
                 </button>
               </div>
             </td>

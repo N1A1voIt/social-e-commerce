@@ -45,6 +45,12 @@ public class Sales {
     @Column(name = "id_seller")
     private Integer idSeller;
 
+    @Column(name = "paid_amount")
+    private Double paidAmount;
+
+    @Column(name = "status")
+    private Integer status;
+
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SalesDetails> details = new ArrayList<>();
 

@@ -77,12 +77,13 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
 
             PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);
             PaymentResponse paymentResponse = mVolaProvider.initiateTransaction(paymentRequest);
+
             orderParent.setDStatus(11); //Ordered
             tempLink.setUsed(true);
             orderParentRepository.save(orderParent);
             moveStock(orderParent);
             tempLinkRepository.save(tempLink);
-            Sales sales = transformOrderToSale(orderParent, orderChildRepository.findByIdOrderM(orderParent.getIdOrderM().longValue()));
+            Sales sales = transformOrderToSale(paymentDTO,orderParent, orderChildRepository.findByIdOrderM(orderParent.getIdOrderM().longValue()));
             return paymentResponse;
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,7 +128,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     }
 
     @Transactional
-    public Sales transformOrderToSale(OrderParent orderParent, List<OrderChild> orderChildren) throws Exception {
+    public Sales transformOrderToSale(PaymentDTO paymentDTO,OrderParent orderParent, List<OrderChild> orderChildren) throws Exception {
         if (orderParent == null) {
             throw new Exception("OrderParent cannot be null");
         }
@@ -190,8 +191,10 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         }
 
         // Set the details to the sales entity
+        sales.setIdSeller(orderParent.getIdSeller());
         sales.setDetails(salesDetailsList);
-
+        sales.setPaidAmount(Double.parseDouble(paymentDTO.getAmount()));
+        sales.setStatus(1); // Partially paid
         // Save the sales (cascade will save details automatically)
         return salesRepository.save(sales);
     }

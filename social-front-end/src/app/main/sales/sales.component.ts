@@ -61,6 +61,22 @@ export class SalesComponent implements OnInit {
     });
   }
 
+  updateSaleStatus(sale: any) {
+    this.salesService.payFull(sale.idSale).subscribe({
+      next: (response) => {
+        if (response && response.status === 200) {
+          this.messagingService.add({ severity: 'success', summary: 'Success', detail: 'Sale status updated successfully' });
+        } else {
+          this.messagingService.add({ severity: 'warn', summary: 'Warning', detail: 'Failed to update sale status' });
+        }
+      },
+      error: (err) => {
+        console.error('Error updating sale status', err);
+        this.messagingService.add({ severity: 'error', summary: 'Error', detail: 'Could not update sale status' });
+      }
+    });
+  }
+
   onRowExpand(event: any) {
     // optionally load details for sale
   }
