@@ -1,4 +1,6 @@
 package com.itu.socialcom.demo.socialmedia.service;
+import com.itu.socialcom.demo.authentication.user.phonenumber.SellerPhoneNumber;
+import com.itu.socialcom.demo.authentication.user.phonenumber.SellerPhoneNumberRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPagesNumber;
 import com.itu.socialcom.demo.socialmedia.entity.VMpNumbers;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPagesNumberRepository;
@@ -15,6 +17,8 @@ public class VMpNumbersService {
     private final VMpNumbersRepository repository;
     @Autowired
     private ManagedPagesNumberRepository managedPagesNumber;
+    @Autowired
+    private SellerPhoneNumberRepository sellerPhoneNumberRepository;
     public VMpNumbersService(VMpNumbersRepository repository) {
         this.repository = repository;
     }
@@ -28,6 +32,8 @@ public class VMpNumbersService {
     }
 
     public ManagedPagesNumber save(ManagedPagesNumber vMpNumbers) {
+        SellerPhoneNumber sellerPhoneNumber = sellerPhoneNumberRepository.findById(vMpNumbers.getIdSpn()).orElseThrow(() -> new RuntimeException("Seller phone number not found"));
+        vMpNumbers.setIdPm(sellerPhoneNumber.getPaymentMethod().getId());
         managedPagesNumber.save(vMpNumbers);
         return vMpNumbers;
     }

@@ -8,6 +8,7 @@ import { javaHost } from "../../../../environments/environment";
 import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.component";
 import {ShippingPointFormComponent} from "../managed-account/shipping-point/shipping-point-form.component";
 import {AmountDistanceFormComponent} from "../managed-account/amount-distance/amount-distance-form.component";
+import {PhoneNumbersFormComponent} from "../managed-account/phone-numbers/phone-numbers-form.component";
 import { FormsModule } from '@angular/forms';
 import {ApiResponse} from "../../inbox/inbox.service";
 
@@ -59,6 +60,7 @@ export interface SellerPhoneNumberResponse {
     NgIf,
     ProfileEditFormComponent,
     ShippingPointFormComponent,
+    PhoneNumbersFormComponent,
     AmountDistanceFormComponent,
     FormsModule
   ],
@@ -105,6 +107,16 @@ export class AccountDetailsComponent implements OnInit {
     this.formApply = 'jean';
     this.selectedManagedPageId = null;
   }
+  onAddPhoneNumbers(managedPageId: number): void {
+    this.selectedManagedPageId = managedPageId;
+    this.formApply = 'phone-numbers';
+  }
+
+  closePhoneNumbersForm(): void {
+    this.formApply = 'jean';
+    this.selectedManagedPageId = null;
+  }
+
 
   constructor(private http: HttpClient,private cdr:ChangeDetectorRef) {}
 
@@ -171,29 +183,8 @@ export class AccountDetailsComponent implements OnInit {
   pageNumbers:VMpNumbers[] = [];
 
   fetchNumbersForApage(idMp:number) {
-    const token = localStorage.getItem('token') || '';
-    const authHeader = token.startsWith('Bearer') ? token : `Bearer ${token}`;
-    const headers = new HttpHeaders({ 'Authorization': authHeader.replace("Bearer ","") });
-    this.http.get(`${javaHost}/api/vmpnumbers/fetch-numbers/${idMp}`, { headers })
-      .subscribe({
-        next: (res: any) => {
-          if (res && res.status === 200 && Array.isArray(res.data)) {
-            this.pageNumbers = res.data;
-          } else if (Array.isArray(res)) {
-            // fallback if backend returns raw array
-            this.pageNumbers = res;
-          }
-          console.log(this.pageNumbers)
-          this.isLoading = false;
-          this.formApply = 'numbers';
-          this.selectedManagedPageId = idMp;
-
-        },
-        error: (err) => {
-          console.error('Failed to load phone numbers', err);
-          this.isLoading = false;
-        }
-      });
+    // Use the new phone numbers component instead
+    this.onAddPhoneNumbers(idMp);
   }
 
   deletePhoneNumber(): void {
