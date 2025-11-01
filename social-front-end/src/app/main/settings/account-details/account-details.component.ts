@@ -9,6 +9,7 @@ import {ProfileEditFormComponent} from "../profile-edit-form/profile-edit-form.c
 import {ShippingPointFormComponent} from "../managed-account/shipping-point/shipping-point-form.component";
 import {AmountDistanceFormComponent} from "../managed-account/amount-distance/amount-distance-form.component";
 import { FormsModule } from '@angular/forms';
+import {ApiResponse} from "../../inbox/inbox.service";
 
 export interface ManagedPageCPL {
   idMp: number;
@@ -21,6 +22,15 @@ export interface ManagedPageCPL {
   email: string;
   idSeller: number;
   username: string;
+}
+export interface VMpNumbers {
+  id: number;
+  phoneNumber: string;
+  associatedName: string;
+  idPm: number;
+  idMp: number;
+  paymentName: string;
+  idSpn: number;
 }
 
 interface Seller {
@@ -70,6 +80,7 @@ export class AccountDetailsComponent implements OnInit {
   isLoading: boolean = false;
   managedPages: ManagedPageCPL[] = [];
   selectedManagedPageId: number | null = null;
+
   @Output() close = new EventEmitter<void>();
 
   // Selected phone number for editing
@@ -156,6 +167,33 @@ export class AccountDetailsComponent implements OnInit {
           }
         });
     }
+  }
+  pageNumbers:VMpNumbers[] = [];
+
+  fetchNumbersForApage(idMp:number) {
+    const token = localStorage.getItem('token') || '';
+    const authHeader = token.startsWith('Bearer') ? token : `Bearer ${token}`;
+    const headers = new HttpHeaders({ 'Authorization': authHeader.replace("Bearer ","") });
+    this.http.get(`${javaHost}/api/vmpnumbers/fetch-numbers/${idMp}`, { headers })
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.status === 200 && Array.isArray(res.data)) {
+            this.pageNumbers = res.data;
+          } else if (Array.isArray(res)) {
+            // fallback if backend returns raw array
+            this.pageNumbers = res;
+          }
+          console.log(this.pageNumbers)
+          this.isLoading = false;
+          this.formApply = 'numbers';
+          this.selectedManagedPageId = idMp;
+
+        },
+        error: (err) => {
+          console.error('Failed to load phone numbers', err);
+          this.isLoading = false;
+        }
+      });
   }
 
   deletePhoneNumber(): void {

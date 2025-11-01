@@ -28,6 +28,10 @@ export class ShippingPointFormComponent implements OnInit {
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
+  shippingPoints: ShippingPoint[] = [];
+  isLoading = false;
+  selectedShippingPoint: ShippingPoint | null = null;
+  isEditMode = false;
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +40,7 @@ export class ShippingPointFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadShippingPoints();
   }
 
   private initForm(): void {
@@ -46,6 +51,53 @@ export class ShippingPointFormComponent implements OnInit {
       distance: [0, [Validators.required, Validators.min(0)]],
       origin: ['']
     });
+  }
+
+  loadShippingPoints(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.shippingPointService.getShippingPointsByManagedPageId(this.managedPageId).subscribe({
+      next: (points) => {
+        this.shippingPoints = points;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Failed to load shipping points';
+        this.isLoading = false;
+        console.error('Error loading shipping points:', error);
+      }
+    });
+  }
+
+  onNewShippingPoint(): void {
+    this.isEditMode = true;
+    this.selectedShippingPoint = null;
+    this.shippingPointForm.reset({
+      placeName: '',
+      latitude: null,
+      longitude: null,
+      distance: 0,
+      origin: ''
+    });
+  }
+
+  onEditShippingPoint(point: ShippingPoint): void {
+    this.isEditMode = true;
+    this.selectedShippingPoint = point;
+    this.shippingPointForm.patchValue({
+      placeName: point.placeName,
+      latitude: point.latitude,
+      longitude: point.longitude,
+      distance: point.distance,
+      origin: point.origin
+    });
+  }
+
+  onCancelEdit(): void {
+    this.isEditMode = false;
+    this.selectedShippingPoint = null;
+    this.shippingPointForm.reset();
   }
 
   onSubmit(): void {
@@ -63,20 +115,29 @@ export class ShippingPointFormComponent implements OnInit {
       managedPageId: this.managedPageId
     };
 
+    // If editing existing point, include the ID
+    if (this.selectedShippingPoint?.id) {
+      shippingPoint.id = this.selectedShippingPoint.id;
+    }
+
     this.shippingPointService.createShippingPoint(shippingPoint).subscribe({
-      next: (response) => {
+      next: () => {
         this.isSubmitting = false;
-        this.successMessage = 'Shipping point created successfully!';
+        this.successMessage = this.selectedShippingPoint?.id
+          ? 'Shipping point updated successfully!'
+          : 'Shipping point created successfully!';
         this.shippingPointForm.reset();
+        this.isEditMode = false;
+        this.selectedShippingPoint = null;
+        // Reload the shipping points list
+        this.loadShippingPoints();
         setTimeout(() => {
-          if (this.onClose) {
-            this.onClose();
-          }
-        }, 2000);
+          this.successMessage = '';
+        }, 3000);
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = error.message || 'Failed to create shipping point. Please try again.';
+        this.errorMessage = error.message || 'Failed to save shipping point. Please try again.';
       }
     });
   }

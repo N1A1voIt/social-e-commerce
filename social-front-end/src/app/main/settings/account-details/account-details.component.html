@@ -39,6 +39,7 @@
       (editClicked)="onEditClicked()"
       (addShippingPoint)="onAddShippingPoint($event)"
       (addAmountDistance)="onAddAmountDistance($event)"
+      (fetchNumbersForApage)="fetchNumbersForApage($event)"
     ></app-managed-account>
     </div>
   </div>
@@ -104,6 +105,13 @@
   </div>
 
   <div *ngIf="formApply === 'amount-distance' && selectedManagedPageId" class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
+    <app-amount-distance-form
+      [managedPageId]="selectedManagedPageId"
+      [onClose]="closeAmountDistanceForm.bind(this)"
+    ></app-amount-distance-form>
+  </div>
+
+  <div *ngIf="formApply === 'numbers' && selectedManagedPageId" class="w-[30vw] h-full absolute px-2 flex justify-center items-center transform translate-x-full transition-transform duration-300 ease-in-out" >
     <app-amount-distance-form
       [managedPageId]="selectedManagedPageId"
       [onClose]="closeAmountDistanceForm.bind(this)"

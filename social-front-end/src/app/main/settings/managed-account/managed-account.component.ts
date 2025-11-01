@@ -23,7 +23,7 @@ export class ManagedAccountComponent {
    @Output() editClicked = new EventEmitter<void>();
    @Output() addShippingPoint = new EventEmitter<number>();
    @Output() addAmountDistance = new EventEmitter<number>();
-
+   @Output() fetchNumbersForApage = new EventEmitter<number>();
   triggerEdit(): void {
     this.editClicked.emit();
   }
@@ -34,6 +34,9 @@ export class ManagedAccountComponent {
 
   onAddAmountDistance(managedPageId: number): void {
     this.addAmountDistance.emit(managedPageId);
+  }
+  onFetchNumbersForApage(managedPageId: number): void {
+    this.fetchNumbersForApage.emit(managedPageId);
   }
 
   onReconnect(platform: string): void {

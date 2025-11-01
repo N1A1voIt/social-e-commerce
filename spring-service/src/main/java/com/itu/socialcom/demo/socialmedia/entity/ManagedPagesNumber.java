@@ -14,4 +14,6 @@ public class ManagedPagesNumber {
     private Long idSpn;
     @Column(name = "id_mp")
     private Long idMp;
+    @Column(name = "id_pm")
+    private Long idPm;
 }

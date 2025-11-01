@@ -663,6 +663,12 @@ CREATE TABLE prompt_saver (
 );
 
 
+CREATE VIEW v_mp_numbers as
+SELECT id, phone_number, associated_name, sellers_phone_number_e.id_pm, id_mp,p.payment_name,mp_payment_number.id_spn FROM mp_payment_number
+    JOIN sellers_phone_number_e on mp_payment_number.id_spn = sellers_phone_number_e.id_spn
+    JOIN payment_method_v2 p on sellers_phone_number_e.id_pm = p.id_pm;
+
+
 CREATE VIEW prompt_saver_view AS
     SELECT prompt_saver.*,s.label as platform FROM prompt_saver JOIN supported_platforms_v2 s on prompt_saver.id_platform = s.id_sp;
 

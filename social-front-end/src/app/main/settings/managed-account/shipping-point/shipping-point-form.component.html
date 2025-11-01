@@ -1,79 +1,72 @@
-<div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative">
+<div class="bg-cardbg rounded-3xl w-[100%] h-[100%] shadow relative flex flex-col overflow-hidden">
   <div class="flex justify-between w-full p-4 px-6 text-blackt items-center gap-5 font-mono font-bold text-xl border-b border-gray">
     <div>
-      <h1 class="text-gray"></h1>
-      <h1>Edit your account providers</h1>
+      <h1 class="text-gray">Shipping Points</h1>
+      <h1 *ngIf="isEditMode">{{ selectedShippingPoint?.id ? 'Edit Shipping Point' : 'New Shipping Point' }}</h1>
+      <h1 *ngIf="!isEditMode">Manage Shipping Points</h1>
     </div>
-    <div class="text-xl  flex justify-center items-center" (click)="onClose()">
-      <ng-icon name="heroPlusCircle" size="30" class="cursor-pointer"></ng-icon>
+    <div class="text-xl flex justify-center items-center gap-3">
+      <button *ngIf="!isEditMode" class="bg-primary text-white px-3 py-1 rounded" (click)="onNewShippingPoint()">New</button>
+      <ng-icon name="heroXMark" size="30" class="cursor-pointer" (click)="onClose()"></ng-icon>
     </div>
   </div>
 
-  <form [formGroup]="shippingPointForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 p-4">
+  <!-- List View -->
+  <div *ngIf="!isEditMode" class="flex-1 overflow-auto p-4">
+    <div *ngIf="isLoading" class="flex justify-center items-center p-8">
+      <div class="text-gray">Loading shipping points...</div>
+    </div>
+
+    <div *ngIf="!isLoading && shippingPoints.length === 0" class="flex flex-col justify-center items-center p-8 text-gray">
+      <p class="text-center">No shipping points found.</p>
+      <p class="text-sm text-center mt-2">Click "New" to create your first shipping point.</p>
+    </div>
+
+    <div *ngIf="!isLoading && shippingPoints.length > 0" class="flex flex-col gap-3">
+      <div
+        *ngFor="let point of shippingPoints"
+        class="border border-gray rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition"
+        (click)="onEditShippingPoint(point)"
+      >
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h3 class="font-semibold text-lg">{{ point.placeName }}</h3>
+            <p class="text-sm text-gray mt-1">Distance: {{ point.distance }} km</p>
+            <p *ngIf="point.origin" class="text-sm text-gray">Origin: {{ point.origin }}</p>
+            <p *ngIf="point.latitude && point.longitude" class="text-xs text-gray mt-1">
+              Coordinates: {{ point.latitude }}, {{ point.longitude }}
+            </p>
+          </div>
+          <div class="text-primary">
+            <ng-icon name="heroPencil" size="20"></ng-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage && !isEditMode" class="text-red-500 text-sm mt-4 p-3 bg-red-50 rounded">
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Form View -->
+  <form *ngIf="isEditMode" [formGroup]="shippingPointForm" (ngSubmit)="onSubmit()" class="flex-1 overflow-auto flex flex-col gap-4 p-4">
     <div class="form-group">
       <app-basic-input label="Place Name *" placeholder="Place name" formControlName="placeName"></app-basic-input>
-<!--      <label for="placeName" class="block text-sm font-medium mb-1">Place Name *</label>-->
-<!--      <input-->
-<!--        type="text"-->
-<!--        id="placeName"-->
-<!--        formControlName="placeName"-->
-<!--        class="w-full p-2 border border-gray rounded-md"-->
-<!--        [ngClass]="{'border-red-500': shippingPointForm.get('placeName')?.invalid && shippingPointForm.get('placeName')?.touched}"-->
-<!--      >-->
       <div *ngIf="shippingPointForm.get('placeName')?.invalid && shippingPointForm.get('placeName')?.touched" class="text-red-500 text-sm mt-1">
         Place name is required
       </div>
     </div>
 
-<!--    <div class="form-group">-->
-<!--      <label for="latitude" class="block text-sm font-medium mb-1">Latitude</label>-->
-<!--      -->
-<!--      <input-->
-<!--        type="number"-->
-<!--        id="latitude"-->
-<!--        formControlName="latitude"-->
-<!--        class="w-full p-2 border border-gray rounded-md"-->
-<!--        step="0.000001"-->
-<!--      >-->
-<!--    </div>-->
-
-<!--    <div class="form-group">-->
-<!--      <label for="longitude" class="block text-sm font-medium mb-1">Longitude</label>-->
-<!--      <input-->
-<!--        type="number"-->
-<!--        id="longitude"-->
-<!--        formControlName="longitude"-->
-<!--        class="w-full p-2 border border-gray rounded-md"-->
-<!--        step="0.000001"-->
-<!--      >-->
-<!--    </div>-->
-
     <div class="form-group">
-<!--      <label for="distance" class="block text-sm font-medium mb-1">Distance (km) *</label>-->
       <app-basic-input label="Distance (km) *" placeholder="Distance" formControlName="distance"></app-basic-input>
-<!--      <input-->
-<!--        type="number"-->
-<!--        id="distance"-->
-<!--        formControlName="distance"-->
-<!--        class="w-full p-2 border border-gray rounded-md"-->
-<!--        [ngClass]="{'border-red-500': shippingPointForm.get('distance')?.invalid && shippingPointForm.get('distance')?.touched}"-->
-<!--        min="0"-->
-<!--        step="0.01"-->
-<!--      >-->
       <div *ngIf="shippingPointForm.get('distance')?.invalid && shippingPointForm.get('distance')?.touched" class="text-red-500 text-sm mt-1">
         Distance is required and must be a positive number
       </div>
     </div>
 
     <div class="form-group">
-<!--      <label for="origin" class="block text-sm font-medium mb-1">Origin</label>-->
       <app-basic-input label="Origin" formControlName="origin" placeholder="Origin"></app-basic-input>
-<!--      <input-->
-<!--        type="text"-->
-<!--        id="origin"-->
-<!--        formControlName="origin"-->
-<!--        class="w-full p-2 border border-gray rounded-md"-->
-<!--      >-->
     </div>
 
     <div *ngIf="errorMessage" class="text-red-500 text-sm mt-2">
@@ -84,22 +77,15 @@
       {{ successMessage }}
     </div>
 
-    <div class="flex justify-end mt-4">
-<!--      <button-->
-<!--        type="button"-->
-<!--        class="px-4 py-2 mr-2 border border-gray rounded-md"-->
-<!--        (click)="onClose()"-->
-<!--      >-->
-<!--        Cancel-->
-<!--      </button>-->
-      <app-beautiful-button type="submit" [text]="isSubmitting ? 'Creating...' : 'Create Shipping Point'"></app-beautiful-button>
-<!--      <button-->
-<!--        type="submit"-->
-<!--        class="px-4 py-2 bg-blue-600 text-white rounded-md"-->
-<!--        [disabled]="isSubmitting || shippingPointForm.invalid"-->
-<!--      >-->
-<!--        {{ isSubmitting ? 'Creating...' : 'Create Shipping Point' }}-->
-<!--      </button>-->
+    <div class="flex justify-end gap-3 mt-4">
+      <button
+        type="button"
+        class="px-4 py-2 border border-gray rounded-md"
+        (click)="onCancelEdit()"
+      >
+        Cancel
+      </button>
+      <app-beautiful-button type="submit" [text]="isSubmitting ? 'Saving...' : (selectedShippingPoint?.id ? 'Update Shipping Point' : 'Create Shipping Point')"></app-beautiful-button>
     </div>
   </form>
 </div>
