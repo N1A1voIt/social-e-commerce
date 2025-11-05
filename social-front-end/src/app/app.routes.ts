@@ -34,6 +34,7 @@ import {ClientSignupComponent} from "./client/authentication/client-signup/clien
 import {
   PromptParameterComponent
 } from "./main/content-management/post-scheduling/prompt-parameter/prompt-parameter.component";
+import {GenericChatComponent} from "./main/generic-chat/generic-chat.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -51,6 +52,7 @@ const homeRoutes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'feed', component: FeedComponent },
       { path: 'inbox', component: InboxComponent },
+      { path: 'ai-assistant', component: GenericChatComponent },
       { path: 'products', component: ProductsComponent },
       { path: 'variants/:idProduct', component: VariantsComponent },
       { path: 'stocks', component: StockListComponent },

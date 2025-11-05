@@ -22,7 +22,7 @@
            [class.pi-chevron-down]="isExpanded"></i>
       </div>
       <i [class]="node.icon" class="text-gray-500 mr-2"></i>
-      <a href="{{ node.link }}" class="text-gray-800" *ngIf="!node.children">{{ node.label }}</a>
+      <span (click)="router.navigateByUrl(node?.link || '')" class="text-gray-800 cursor-pointer" *ngIf="!node.children">{{ node.label }}</span>
       <span class="text-gray-800" *ngIf="node.children">{{ node.label }}</span>
     </div>
 

@@ -9,4 +9,5 @@ public class MotherPostDisplay {
     boolean scheduled;
     String title;
     LocalDateTime creationDate;
+    String description;
 }

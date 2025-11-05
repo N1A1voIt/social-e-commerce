@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
+import {Router} from "@angular/router";
 // tree-node.interface.ts
 export interface TreeNode {
   key: string;
@@ -25,4 +26,6 @@ export class TreeNodeComponent {
   @Input() depth: number = 0;
   @Input() isLast: boolean = false;
   isExpanded = true;
+  constructor(public router:Router) {
+  }
 }

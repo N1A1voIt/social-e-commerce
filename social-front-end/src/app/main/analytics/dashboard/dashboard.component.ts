@@ -58,6 +58,9 @@ export class DashboardComponent implements OnInit {
     }
     this.loadDashboardData();
   }
+  getWidthClass(d: any) {
+    return `w-[${Math.round(d.totalPercentage)}%]`;
+  }
 
   loadDashboardData() {
     this.loading = true;

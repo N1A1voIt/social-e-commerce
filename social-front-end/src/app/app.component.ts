@@ -9,7 +9,7 @@ import {
   heroChartBarSquare, heroChatBubbleOvalLeftEllipsis,
   heroDocument, heroHeart, heroHome,
   heroPencilSquare,
-  heroPlusCircle, heroShoppingCart, heroUserCircle,
+  heroPlusCircle, heroShoppingBag, heroShoppingCart, heroUserCircle,
   heroXMark
 } from "@ng-icons/heroicons/outline";
 import {MenuComponent} from "./shared/menu/menu.component";
@@ -22,7 +22,7 @@ import {heroDocumentSolid} from "@ng-icons/heroicons/solid";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark,heroDocumentSolid,heroChartBarSquare,heroChatBubbleOvalLeftEllipsis,heroArrowUturnRight,
-  heroHome,heroHeart,heroBellAlert,heroUserCircle,heroShoppingCart,heroAdjustmentsHorizontal})]
+  heroHome,heroHeart,heroBellAlert,heroUserCircle,heroShoppingBag,heroShoppingCart,heroAdjustmentsHorizontal})]
 })
 export class AppComponent implements OnInit {
   title = 'social-front-end';

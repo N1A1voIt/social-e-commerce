@@ -74,7 +74,7 @@
         <!-- Expanded Row (Sale Details) -->
         <ng-template pTemplate="rowexpansion" let-sale>
           <tr>
-            <td colspan="7">
+            <td colspan="9">
               <div class="p-4 p-rowexpansion-content">
                 <div class="order-details-header">
                   <h5 class="m-0 text-lg font-semibold font-mono">Sale Details for {{ sale.description || 'Sale #' + sale.idSale }}</h5>
@@ -101,7 +101,7 @@
                       <td>{{ item.id || item.idDetail || '-' }}</td>
                       <td>{{ item.productName || item.name || item.label || 'N/A' }}</td>
                       <td>
-                        <p-tag [value]="item.sku || 'N/A'" severity="secondary"></p-tag>
+                        <p-tag [value]="item.variantName || 'N/A'" severity="secondary"></p-tag>
                       </td>
                       <td class="text-center">{{ item.quantity || item.qty || 0 }}</td>
                       <td>{{ (item.price || item.unitPrice || 0) | currency:'USD':'symbol':'1.2-2' }}</td>

@@ -77,7 +77,7 @@ public class FacebookPostSaver implements SavePostService{
 
             PostChild mother = new PostChild();
             mother.setPostUrl(postUrl);
-            mother.setPlatformIdentifier("facebook");
+            mother.setPlatformIdentifier(postId);
             mother.setDescription(message);
             mother.setType("main_post");
             mother.setIdSp(1L);

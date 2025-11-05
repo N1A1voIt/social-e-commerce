@@ -1,4 +1,4 @@
-<div class="border border-gray-200 rounded-lg p-6 bg-fotsy mt-2">
+<div class="shadow-md border-gray-200 rounded-lg p-6 bg-fotsy mt-2">
   <div class="flex justify-between items-center mb-4">
     <h3 class="text-lg font-medium text-gray-900 flex items-center">
       <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,7 +18,10 @@
     </button>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+    <app-message-input-ps
+      [formGroup]="formGroup">
+    </app-message-input-ps>
     <!-- File Upload Section -->
     <app-file-upload
       [formGroup]="formGroup"
@@ -27,8 +30,6 @@
     </app-file-upload>
 
     <!-- Message Input -->
-    <app-message-input-ps
-      [formGroup]="formGroup">
-    </app-message-input-ps>
+
   </div>
 </div>

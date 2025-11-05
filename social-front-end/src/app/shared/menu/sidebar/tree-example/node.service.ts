@@ -3,6 +3,95 @@ import {TreeNode} from "../tree-node/tree-node.component";
 
 @Injectable()
 export class NodeService {
+
+  getContentNavigationData(): TreeNode[] {
+    return [
+      {
+        key: '0',
+        label: 'Content & Feed',
+        data: 'Content section',
+        icon: 'pi pi-fw pi-folder',
+        children: [
+          {
+            key: '0-0',
+            label: 'Feed',
+            icon: 'pi pi-fw pi-home',
+            data: 'Social Feed',
+            link: '/basic/feed'
+          },
+          {
+            key: '0-1',
+            label: 'Content Management',
+            icon: 'pi pi-fw pi-file',
+            data: 'Content Management',
+            link: '/basic/content'
+          }
+        ]
+      }
+    ];
+  }
+
+  getProductsNavigationData(): TreeNode[] {
+    return [
+      {
+        key: '0',
+        label: 'Products',
+        data: 'Products section',
+        icon: 'pi pi-fw pi-shopping-bag',
+        children: [
+          {
+            key: '0-0',
+            label: 'All Products',
+            icon: 'pi pi-fw pi-list',
+            data: 'All Products',
+            link: '/basic/products'
+          },
+          {
+            key: '0-1',
+            label: 'Sales',
+            icon: 'pi pi-fw pi-chart-line',
+            data: 'Sales',
+            link: '/basic/sales'
+          },
+          {
+            key: '0-2',
+            label: 'Orders',
+            icon: 'pi pi-fw pi-tags',
+            data: 'Orders',
+            link: '/basic/orders'
+          }
+        ]
+      }
+    ];
+  }
+
+  getDashboardNavigationData(): TreeNode[] {
+    return [
+      {
+        key: '0',
+        label: 'Dashboard',
+        data: 'Dashboard section',
+        icon: 'pi pi-fw pi-chart-bar',
+        children: [
+          {
+            key: '0-0',
+            label: 'Overview',
+            icon: 'pi pi-fw pi-eye',
+            data: 'Dashboard Overview',
+            link: '/basic/dashboard'
+          },
+          {
+            key: '0-1',
+            label: 'Ai assistant',
+            icon: 'pi pi-fw pi-chart-line',
+            data: 'Ai assistant',
+            link: '/basic/ai-assistant'
+          }
+        ]
+      }
+    ];
+  }
+
   getTreeNodesData():TreeNode[]  {
     return [
       {

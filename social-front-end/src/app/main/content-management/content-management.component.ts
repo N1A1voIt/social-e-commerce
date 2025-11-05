@@ -25,7 +25,7 @@ import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.compone
 export class ContentManagementComponent implements OnInit{
   posts : MotherPostDisplay[] = [];
   showForm = false;
-  
+
   constructor(
     private contentService: ContentService,
     private router: Router
@@ -38,6 +38,7 @@ export class ContentManagementComponent implements OnInit{
     this.posts = [];
     this.contentService.fetchContent().subscribe({
       next: (response) => {
+        console.log(response)
         this.posts = response;
       },
       error: (err) => {

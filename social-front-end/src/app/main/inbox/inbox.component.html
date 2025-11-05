@@ -13,9 +13,9 @@
       <app-page-list (selectPage)="changePage($event)"  [pages]="pages" ></app-page-list>
     </div>
     <div class="flex justify-between items-center relative">
-      <h1 class="text-xl md:text-2xl font-bold font-mono" style="letter-spacing: 1px">Inbox</h1>
-      <div class="w-[50px] h-[50px] bg-black rounded-full" (click)="showPageList = true">
-
+      <h1 class="text-xl md:text-xl font-bold font-mono " style="letter-spacing: 1px">Inbox of {{pageInbox?.pageTitle}} </h1>
+      <div class="w-[50px] h-[50px] border flex justify-center items-center font-bold cursor-pointer rounded-full" (click)="showPageList = true">
+        <i class="pi pi-list"></i>
       </div>
     </div>
 

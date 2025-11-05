@@ -1,32 +1,32 @@
 <div class="w-full h-full bg-white rounded-3xl p-4 overflow-y-scroll">
   <div class="flex sm:flex-row flex-col justify-start sm:justify-between sm:items-center items-start w-full">
     <div class="flex gap-2 justify-start sm:justify-center items-center flex-row w-full sm:w-auto sm:overflow-hidden overflow-y-scroll">
-      <app-platform-badge></app-platform-badge>
-      <app-platform-badge></app-platform-badge>
-      <app-platform-badge></app-platform-badge>
+<!--      <app-platform-badge></app-platform-badge>-->
+<!--      <app-platform-badge></app-platform-badge>-->
+<!--      <app-platform-badge></app-platform-badge>-->
       <div class="w-[35px] h-[35px] overflow-hidden rounded-full border-2">
         <img src="assets/imgs/gustavo.jpeg" class="New Reportobject-cover" width="35" alt="">
       </div>
     </div>
     <div class=" gap-2 justify-center items-center flex-row hidden md:flex">
-      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
-      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
-      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>
+<!--      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>-->
+<!--      <app-action-badge icon="heroChartBarSquare" href="" ></app-action-badge>-->
+      <app-action-badge icon="heroDownload" href="" ></app-action-badge>
     </div>
   </div>
 
 <!--  <div class="flex justify-between items-center w-full py-6">-->
 <!--&lt;!&ndash;    <h1 class="text-3xl text-zinc-500" style="letter-spacing: 1px">New Report</h1>&ndash;&gt;-->
 <!--  </div>-->
-  <div class="flex flex-col gap-4 mt-4 md:flex-row  justify-between md:items-end md:overflow-x-scroll items-center   w-full py-2 hide-scrollbar">
-    <div class="flex flex-col gap-2 rounded-3xl font-mono" style="letter-spacing: 1px">
+  <div class="flex flex-col gap-4 mt-4 md:flex-row  justify-between md:items-end md:overflow-x-scroll items-center  w-full py-2 hide-scrollbar">
+    <div class="flex flex-col gap-2  rounded-3xl font-mono" style="letter-spacing: 1px">
       <h1>Revenue</h1>
-      <div class="flex flex-col sm:flex-row gap-3 items-center justify-center w-full ">
-        <span class="text-3xl font-bold">$<span>{{dashboardStats?.totalRevenue | number:'1.0-2'}}</span></span>
-        <div class="flex gap-2 items-center justify-center">
-          <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>
-          <app-revenue-badge class="w-auto" [showIcon]="false" text="27,335"></app-revenue-badge>
-        </div>
+      <div class="flex flex-col  sm:flex-row gap-3 items-center justify-center w-full ">
+        <span class="text-2xl font-bold"><span>{{dashboardStats?.totalRevenue | number:'1.0-2'}}</span> Ar</span>
+<!--        <div class="flex gap-2 items-center justify-center">-->
+<!--          <app-revenue-badge [showIcon]="true" text="7.5%"></app-revenue-badge>-->
+<!--          <app-revenue-badge class="w-auto" [showIcon]="false" text="27,335"></app-revenue-badge>-->
+<!--        </div>-->
       </div>
      <app-date-selector
        [startDate]="dashboardRequest.startDate"
@@ -45,7 +45,13 @@
   </div>
   <div class="w-full py-6 ">
     <div class="w-full h-[50px] rounded-full bg-fotsy sm:flex hidden flex-row items-center justify-center p-1 gap-1 ">
-      <app-account-performances *ngFor="let d of dashboardStats?.platformRepartition" [platformId]="d.idSp" class="w-[{{d.totalPercentage}}%]" [percentage]="d.totalPercentage" [amount]="d.total"></app-account-performances>
+      <app-account-performances
+        *ngFor="let d of dashboardStats?.platformRepartition"
+        [platformId]="d.idSp"
+        class="{{ getWidthClass(d) }}"
+        [percentage]="d.totalPercentage"
+        [amount]="d.total">
+      </app-account-performances>
     </div>
   </div>
   <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">

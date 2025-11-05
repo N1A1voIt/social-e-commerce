@@ -28,20 +28,20 @@ export class TransactionComponent {
       icon: 'fas fa-mobile-alt',
       color: '#ffea06'
     },
-    {
-      id: 'orange-money',
-      name: 'Orange Money',
-      description: 'Pay with Orange Money',
-      icon: 'fas fa-credit-card',
-      color: '#FF7900'
-    },
-    {
-      id: 'airtel-money',
-      name: 'Airtel Money',
-      description: 'Pay with Airtel Money',
-      icon: 'fas fa-wallet',
-      color: '#ED1C24'
-    },
+    // {
+    //   id: 'orange-money',
+    //   name: 'Orange Money',
+    //   description: 'Pay with Orange Money',
+    //   icon: 'fas fa-credit-card',
+    //   color: '#FF7900'
+    // },
+    // {
+    //   id: 'airtel-money',
+    //   name: 'Airtel Money',
+    //   description: 'Pay with Airtel Money',
+    //   icon: 'fas fa-wallet',
+    //   color: '#ED1C24'
+    // },
     // {
     //   id: 'bank-transfer',
     //   name: 'Bank Transfer',

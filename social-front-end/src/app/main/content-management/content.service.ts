@@ -11,7 +11,8 @@ export interface MotherPostDisplay {
   idPost:number,
   scheduled: boolean,
   title: string,
-  creationDate : Date
+  creationDate : Date,
+  description: string,
 }
 
 export interface Media {

@@ -1,24 +1,29 @@
 <aside class="w-64 md:w-72 lg:w-80 h-full text-white flex flex-row items-center">
   <!-- Icon navigation sidebar -->
-  <nav class="w-16 h-full flex flex-col justify-between py-5">
+  <nav class="w-16 h-full flex flex-col justify-between py-5 ">
     <!-- Logo section -->
     <div class="flex flex-col items-center space-y-5">
       <div class="rounded-full w-[40px] h-[40px] bg-black font-mono text-white justify-center flex items-center font-bold text-xl">
-        <span>C</span>
+        <span><img src="assets/imgs/little_cherry.jpg" width="40" alt=""></span>
       </div>
     </div>
 
     <!-- Main navigation links -->
     <div class="flex flex-col items-center space-y-5">
-      <app-link icon="heroChartBarSquare" href="/basic/dashboard"></app-link>
-      <app-link icon="heroHome" href="/basic/feed" [isActive]="true"></app-link>
-      <app-link icon="heroDocumentSolid" href="/basic/content"></app-link>
-<!--      <app-link icon="heroDocumentSolid" href="/alll"></app-link>-->
+      <div (click)="setActiveSection('dashboard')">
+        <app-link icon="heroChartBarSquare"  [isActive]="activeSection === 'dashboard'"></app-link>
+      </div>
+      <div (click)="setActiveSection('products')">
+        <app-link icon="heroShoppingBag"  [isActive]="activeSection === 'products'"></app-link>
+      </div>
+      <div (click)="setActiveSection('content')">
+        <app-link icon="heroDocumentSolid"  [isActive]="activeSection === 'content'"></app-link>
+      </div>
     </div>
 
     <!-- Secondary navigation links -->
     <div class="flex flex-col items-center space-y-5">
-      <app-link icon="heroChatBubbleOvalLeftEllipsis" href="/basic/inbox"></app-link>
+      <app-link icon="heroChatBubbleOvalLeftEllipsis" [isActive]="activeSection === 'inbox'" (click)="router.navigateByUrl('/basic/inbox');setActiveSection('inbox')"></app-link>
       <app-link icon="heroDocumentSolid" href="/alll"></app-link>
     </div>
   </nav>
@@ -29,13 +34,13 @@
       <!-- Logo text -->
       <div class="flex flex-col items-start h-[40px] justify-center font-mono">
         <span class="text-black text-xl font-semibold" style="letter-spacing: 1px">
-          Codename.com
+          Little Cherry
         </span>
       </div>
 
       <!-- Tree navigation -->
       <div class="flex flex-col items-center space-y-5 mt-2">
-        <app-tree-example class="w-full"></app-tree-example>
+        <app-tree-example class="w-full" [activeSection]="activeSection"></app-tree-example>
       </div>
     </div>
   </nav>

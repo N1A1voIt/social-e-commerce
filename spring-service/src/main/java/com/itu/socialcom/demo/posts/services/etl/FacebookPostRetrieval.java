@@ -152,6 +152,9 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         Map<String, List<PostChild>> existingPostsMap = new HashMap<>();
         List<PostChild> allExistingPosts = postChildRepository.findByIdSp(1L);
         List<Post> existingPosts = postRepository.findAll();
+        existingPosts.stream().forEach(post -> {
+           post.setIsExisting(true);
+        });
         // Group existing posts by platform_identifier
         for (PostChild postChild : allExistingPosts) {
             String platformIdentifier = postChild.getPlatformIdentifier();
@@ -159,7 +162,11 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                 existingPostsMap.computeIfAbsent(platformIdentifier, k -> new ArrayList<>()).add(postChild);
             }
         }
-
+        for (Post post : posts) {
+            for (PostChild child : post.getPostChildren()) {
+                if (existingPosts.contains(child.getPlatformIdentifier())) post.setIsExisting(true);
+            }
+        }
         for (Post post : posts) {
             if (post.getIsExisting() != null && post.getIsExisting()) {
                 // Update existing post using pre-fetched data
@@ -171,8 +178,9 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
         }
         return posts;
     }
-    
+
     private void createNewPost(Post post, Seller seller, HashMap<String,ManagedPageCPL> managedPageCPLS) {
+        post.setDescription(post.getPostChildren().get(0).getDescription());
         postRepository.save(post);
         
         // First, save all post children to get their IDs
@@ -207,6 +215,7 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
             .map(PostChild::getPlatformIdentifier)
             .findFirst()
             .orElse(null);
+
             
         if (facebookPostId == null) {
             System.err.println("Could not find main_post child with platform_identifier");
@@ -220,24 +229,25 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
             System.err.println("Could not find existing post with platform_identifier: " + facebookPostId);
             return;
         }
-        
         if (existingMainPost.size() == 2) {
             postM = existingMainPost.stream().filter(p -> p.getType().equals("main_post")).findFirst().orElse(null);
         } else if (existingMainPost.size() == 1) {
             postM = existingMainPost.get(0);
         } else {
-            System.err.println("Could not find unique main_post child for platform_identifier: " + facebookPostId);
+
+            System.err.println("Could not find unique main_post child for platform_identifier: " + facebookPostId + " size "+ existingMainPost.size());
             return;
         }
         
         if (postM != null) {
             PostChild mainPostChild = postM;
             Integer existingPostId = mainPostChild.getIdPost();
-
+            if(existingPostId == 4901) System.out.println("Processing the prodigeous son");
             Optional<Post> existingPost = existingPosts.stream().filter(ep -> ep.getId().equals(existingPostId)).findFirst();
             if (existingPost.isPresent()) {
                 Post postToUpdate = existingPost.get();
                 postToUpdate.setCreateAt(post.getCreateAt());
+                postToUpdate.setDescription(mainPostChild.getDescription());
                 postRepository.save(postToUpdate);
 
                 updatePostChildren(existingPostChild,post.getPostChildren(), existingPostId, seller, managedPageCPLS);
@@ -523,16 +533,16 @@ public class FacebookPostRetrieval extends PostRetrievalSignature{
                         String userName = reaction.get("name").asText();
                         String reactionType = reaction.get("type").asText();
                         LocalDateTime createdTime = LocalDateTime.now();
-                        LikesStateLog likesStateLog = new LikesStateLog();
-                        likesStateLog.setReaction(reactionType);
-                        likesStateLog.setIdChild(postChild.getId());
-                        likesStateLog.setIdUserPlatform(userId);
-                        likesStateLog.setUsername(userName);
-                        likesStateLog.setCreatedAt(createdTime);
-                        likesStateLog.setHappenedAt(createdTime);
-                        likesStateLog.setIdSp(1);
-                        likesStateLog.setIdMp(postChild.getIdMp());
-                        likesStateLogRepository.save(likesStateLog);
+//                        LikesStateLog likesStateLog = new LikesStateLog();
+//                        likesStateLog.setReaction(reactionType);
+//                        likesStateLog.setIdChild(postChild.getId());
+//                        likesStateLog.setIdUserPlatform(userId);
+//                        likesStateLog.setUsername(userName);
+//                        likesStateLog.setCreatedAt(createdTime);
+//                        likesStateLog.setHappenedAt(createdTime);
+//                        likesStateLog.setIdSp(1);
+//                        likesStateLog.setIdMp(postChild.getIdMp());
+//                        likesStateLogRepository.save(likesStateLog);
                         System.out.println("Reaction from user: " + userName + " (ID: " + userId + ") - Type: " + reactionType);
                     }
                 }

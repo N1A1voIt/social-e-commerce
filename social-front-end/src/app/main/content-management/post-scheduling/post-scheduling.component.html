@@ -1,8 +1,8 @@
-<div class="absolute top-0 right-0 bg-opacity-30 flex justify-center items-center backdrop-blur bg-principal w-full h-full overflow-hidden" >
+<div class="absolute top-0 right-0 bg-opacity-30 flex justify-center items-center backdrop-blur bg-fotsy w-full h-full overflow-hidden" >
   <div class="absolute top-3 right-3 font-bold cursor-pointer" (click)="onShowFormChange(false)">
     Close
   </div>
-  <div class=" h-[90%] xl:w-[90%] shadow-xl bg-principal top-0 right-0 rounded-3xl z-20 grid grid-cols-2 gap-2">
+  <div class=" h-[90%] xl:w-[90%] shadow-xl bg-fotsy top-0 right-0 rounded-3xl z-20 grid grid-cols-2 gap-2">
 
     <!-- Parent column: full height + vertical flex layout -->
     <div class="col-span-1 h-full flex flex-col">
@@ -24,10 +24,10 @@
           ></app-platform-post-check>
         </div>
 
-        <div *ngIf="step === 'products'" class="post-form flex flex-col gap-2 w-full p-4">
-          <span class="text-xl font-bold font-mono">If you want to attach some products, you can do it here</span>
-          <app-product-row *ngFor="let product of products" [product]="product"></app-product-row>
-        </div>
+<!--        <div *ngIf="step === 'products'" class="post-form flex flex-col gap-2 w-full p-4">-->
+<!--          <span class="text-xl font-bold font-mono">If you want to attach some products, you can do it here</span>-->
+<!--          <app-product-row *ngFor="let product of products" [product]="product"></app-product-row>-->
+<!--        </div>-->
       </div>
 
       <!-- Prompt bar stays at bottom and resizes -->
@@ -51,7 +51,7 @@
         </div>
       </div>
         <div class="mb-1" *ngIf="!loading">
-          <h1 class="text-2xl font-bold text-gray-900 mb-2">Create Social Media Post</h1>
+          <h1 class="text-xl font-bold text-gray-900 mb-2">Create Social Media Post</h1>
           <p class="text-gray-600">Create your social media post with images and messages.</p>
         </div>
 

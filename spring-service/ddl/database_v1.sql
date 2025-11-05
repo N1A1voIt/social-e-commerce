@@ -194,6 +194,19 @@ CREATE TABLE variants_v2(
                             PRIMARY KEY(id_variant),
                             FOREIGN KEY(id_product) REFERENCES products_v2(id_product)
 );
+CREATE TABLE variants_v2
+(
+    id_variant serial primary key,
+    title text not null,
+    price numeric(18, 2) not null,
+    created_at timestamp not null,
+    updated_at timestamp,
+    id_product integer not null references products_v2,
+    sku text,
+    id_seller  integer references seller_v2,
+    media_url  text,
+    unique (sku, id_seller)
+);
 
 CREATE TABLE options_v2(
                            id_option SERIAL,
@@ -295,6 +308,16 @@ CREATE TABLE payment_method_v2(
                                   payment_name TEXT,
                                   PRIMARY KEY(id_pm),
                                   UNIQUE(payment_name)
+);
+
+CREATE TABLE payments (
+    id_payment SERIAL,
+    id_sales INTEGER references sales(id_sale),
+    amount NUMERIC(15,2) NOT NULL,
+    id_pm INTEGER REFERENCES payment_method_v2(id_pm),
+    d_payment_method text NOT NULL ,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY(id_payment)
 );
 
 CREATE TABLE sellers_phone_number_e(
@@ -665,7 +688,7 @@ CREATE TABLE prompt_saver (
 
 CREATE VIEW v_mp_numbers as
 SELECT id, phone_number, associated_name, sellers_phone_number_e.id_pm, id_mp,p.payment_name,mp_payment_number.id_spn FROM mp_payment_number
-    JOIN sellers_phone_number_e on mp_payment_number.id_spn = sellers_phone_number_e.id_spn
+    JOIN sellers_phone_number_e on mp_payment_number.id_default 'del@yopmail.com'::text spn = sellers_phone_number_e.id_spn
     JOIN payment_method_v2 p on sellers_phone_number_e.id_pm = p.id_pm;
 
 

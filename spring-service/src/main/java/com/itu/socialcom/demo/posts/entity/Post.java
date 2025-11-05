@@ -32,6 +32,9 @@ public class Post {
     @Column(name = "id_seller", nullable = false)
     private Long idSeller;
 
+    @Column(name = "description")
+    private String description;
+
     @Transient
     List<PostChild> postChildren;
     

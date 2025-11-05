@@ -181,7 +181,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
     @Override
     @Transactional
     public List<Post> loadPost(ExtractorArgs args) {
-        List<ManagedPageCPL> managedPageCPLS = managedPageCPLRepository.findByIdSellerAndPlatform(args.getSeller().getId(), "facebook");
+        List<ManagedPageCPL> managedPageCPLS = managedPageCPLRepository.findByIdSellerAndPlatform(args.getSeller().getId(), "instagram");
         HashMap<String,ManagedPageCPL> managedPageCPLHashMap = new HashMap<>();
         for (int i = 0; i < managedPageCPLS.size(); i++) {
             managedPageCPLHashMap.put(managedPageCPLS.get(i).getPlatformIdentifier(),managedPageCPLS.get(i));
@@ -219,7 +219,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
     private void updateExistingInstagramPost(List<Post> existingPosts,Post post,List<PostChild> postChildren) {
         // Find existing post by platform_identifier (Instagram post ID) and id_sp (2 for Instagram)
         String instagramPostId = post.getPostChildren().get(0).getPlatformIdentifier();
-
+        post.setDescription(post.getPostChildren().get(0).getDescription());
         PostChild existingPostChild = null;
         for (PostChild pc: postChildren) {
             if (instagramPostId.equals(pc.getPlatformIdentifier())) existingPostChild = pc;
@@ -232,6 +232,7 @@ public class InstagramPostRetrieval extends PostRetrievalSignature{
             Optional<Post> existingPost = existingPosts.stream().filter(ep -> ep.getId() == (existingPostId.longValue())).findFirst();
             if (existingPost.isPresent()) {
                 Post postToUpdate = existingPost.get();
+                postToUpdate.setDescription(mainPostChild.getDescription());
                 postToUpdate.setCreateAt(post.getCreateAt());
                 postRepository.save(postToUpdate);
 

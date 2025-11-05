@@ -17,7 +17,7 @@ export class AccountPerformancesComponent {
   get platformUrl() {
     switch (this.platformId) {
       case 1: return "assets/logos/facebook_logo.png";
-      case 2: return "assets/logos/facebook_logo.png";
+      case 2: return "assets/logos/instagram.png";
       default: return "";
     }
   }

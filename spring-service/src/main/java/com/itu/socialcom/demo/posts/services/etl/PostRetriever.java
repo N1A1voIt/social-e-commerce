@@ -38,6 +38,7 @@ public class PostRetriever {
             motherPostDisplay.setScheduled(post.getCreateAt().isAfter(LocalDateTime.now()));
             motherPostDisplay.setCreationDate(post.getCreateAt());
             motherPostDisplay.setTitle(post.getType());
+            motherPostDisplay.setDescription(post.getDescription());
             motherPostDisplays.add(motherPostDisplay);
         }
         return motherPostDisplays;

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 import {NodeService} from "./node.service";
 import {TreeNode, TreeNodeComponent} from "../tree-node/tree-node.component";
 import {NgForOf} from "@angular/common";
@@ -10,17 +10,40 @@ import {NgForOf} from "@angular/common";
   imports: [
     NgForOf,
     TreeNodeComponent
-
   ],
   providers: [NodeService],
   standalone: true
 })
-export class TreeExampleComponent implements OnInit {
+export class TreeExampleComponent implements OnInit, OnChanges {
   @Input() treeData: TreeNode[] = [];
+  @Input() activeSection: string = 'content';
 
   constructor(private nodeService: NodeService) {}
 
   ngOnInit() {
-    this.treeData = this.nodeService.getTreeNodesData();
+    this.loadTreeData();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['activeSection']) {
+      this.loadTreeData();
+    }
+  }
+
+  private loadTreeData() {
+    switch(this.activeSection) {
+      case 'content':
+        this.treeData = this.nodeService.getContentNavigationData();
+        break;
+      case 'products':
+        this.treeData = this.nodeService.getProductsNavigationData();
+        break;
+      case 'dashboard':
+        this.treeData = this.nodeService.getDashboardNavigationData();
+        break;
+      default:
+        this.treeData = this.nodeService.getContentNavigationData();
+    }
   }
 }
+

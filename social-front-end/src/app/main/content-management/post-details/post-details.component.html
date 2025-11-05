@@ -58,7 +58,7 @@
                 Posted
               </span>
             </div>
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{post.title}}</h1>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{post.description}}</h1>
             <p class="text-gray-600">
               <span *ngIf="post.scheduled">Scheduled on {{ post.creationDate | date: 'dd/MM/yyyy HH:mm' }}</span>
               <span *ngIf="!post.scheduled">Posted on {{ post.creationDate | date: 'dd/MM/yyyy HH:mm' }}</span>

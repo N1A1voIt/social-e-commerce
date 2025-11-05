@@ -87,6 +87,7 @@ public class PostController {
             extractorArgs.setSeller(seller);
             return ResponseEntity.ok(postRetriever.retrievePosts(extractorArgs));
         } catch (SellerNotLogged e){
+            e.printStackTrace();
             return ResponseEntity.status(400).body(null);
         } catch (Exception e){
             e.printStackTrace();
