@@ -58,3 +58,17 @@ export interface DeliveryApplicant {
   email?: string;
   username?: string;
 }
+
+export interface RefundRequest {
+  orderId: number;
+  amount: number;
+}
+
+export interface Refund {
+  id?: number;
+  orderId: number;
+  amount: number;
+  saleId?: number;
+  createdAt?: Date;
+}
+

@@ -31,6 +31,10 @@
           <tr class="font-mono ">
             <th style="width: 3rem" class="text-center">#</th>
             <th pSortableColumn="description">
+              Order ID
+              <!--              <p-sortIcon field="description" />-->
+            </th>
+            <th pSortableColumn="description">
               Description
 <!--              <p-sortIcon field="description" />-->
             </th>
@@ -64,7 +68,7 @@
                         [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
               </p-button>
             </td>
-
+            <td>ORD {{ order.idOrderM || 'N/A' }}</td>
             <td>{{ order.description || 'N/A' }}</td>
             <td>{{ order.dcustomerName || 'N/A' }}</td>
             <td>
@@ -79,7 +83,7 @@
                 <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 31))" (click)="nextStep(order)" title="Next step">
                   <i class="pi pi-arrow-circle-right text-green-500 text-xl"></i>
                 </button>
-                <button class="action-button bg-red-50" title="Cancel">
+                <button class="action-button bg-red-50" (click)="cancelOrder(order)" title="Cancel">
                   <i class="pi pi-times-circle text-red-500 text-xl"></i>
                 </button>
                 <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
@@ -275,3 +279,66 @@
     </div>
   </div>
 </app-form-container>
+
+<!-- Cancel/Refund Order Modal -->
+<app-form-container (closeForm)="closeRefundModal()" [label]="'Order Cancellation - Refund Processed'" [isVisible]="showCancelModal">
+  <div class="flex flex-col w-full border border-black rounded-xl p-4 bg-gray-50 gap-3 mb-4">
+    <h2 class="text-lg font-bold font-mono">Order Cancellation Confirmation</h2>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Order ID:</span>
+        <span>{{ cancellingOrder?.idOrderM }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Customer:</span>
+        <span>{{ cancellingOrder?.dcustomerName }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Order Total:</span>
+        <span>{{ cancellingOrder?.dtotal | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col w-full border border-green-500 rounded-xl p-4 bg-green-50 gap-3 mb-4">
+    <div class="flex items-center gap-2 mb-2">
+      <i class="pi pi-check-circle text-green-600 text-2xl"></i>
+      <h3 class="text-lg font-bold text-green-800">Refund Processed Successfully</h3>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="flex flex-row justify-between items-center p-3 bg-white rounded-lg">
+        <span class="font-semibold text-gray-700">Refund ID:</span>
+        <span class="font-mono text-lg">{{ refundInfo?.id }}</span>
+      </div>
+
+      <div class="flex flex-row justify-between items-center p-3 bg-white rounded-lg">
+        <span class="font-semibold text-gray-700">Refund Amount:</span>
+        <span class="font-mono text-xl font-bold text-green-600">{{ refundInfo?.amount | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+
+      <div class="flex flex-row justify-between items-center p-3 bg-white rounded-lg" *ngIf="refundInfo?.saleId">
+        <span class="font-semibold text-gray-700">Sale ID:</span>
+        <span class="font-mono">{{ refundInfo?.saleId }}</span>
+      </div>
+
+      <div class="flex flex-row justify-between items-center p-3 bg-white rounded-lg">
+        <span class="font-semibold text-gray-700">Processed At:</span>
+        <span class="font-mono">{{ refundInfo?.createdAt | date:'medium' }}</span>
+      </div>
+    </div>
+
+    <div class="text-sm text-gray-700 mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+      <i class="pi pi-info-circle text-blue-600"></i>
+      <span class="ml-2">The refund has been successfully processed. The customer will receive the refunded amount according to the payment method used.</span>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <app-beautiful-button
+      [text]="'Close'"
+      (click)="closeRefundModal()">
+    </app-beautiful-button>
+  </div>
+</app-form-container>
+

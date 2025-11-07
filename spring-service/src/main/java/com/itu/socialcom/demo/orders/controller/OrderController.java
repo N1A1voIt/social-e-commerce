@@ -5,10 +5,7 @@ import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.delivery.entity.Delivery;
 import com.itu.socialcom.demo.delivery.repository.DeliveryRepository;
 import com.itu.socialcom.demo.moneytransactions.PaymentResponse;
-import com.itu.socialcom.demo.orders.DownPayment;
-import com.itu.socialcom.demo.orders.OrderChild;
-import com.itu.socialcom.demo.orders.OrderParent;
-import com.itu.socialcom.demo.orders.OrdersToDisplay;
+import com.itu.socialcom.demo.orders.*;
 import com.itu.socialcom.demo.orders.delivery.CallForTenderServiceImpl;
 import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicant;
 import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicantRepository;
@@ -19,10 +16,7 @@ import com.itu.socialcom.demo.orders.dto.RefundRequest;
 import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
-import com.itu.socialcom.demo.orders.service.CreateOrderFromMessage;
-import com.itu.socialcom.demo.orders.service.OrderCreationService;
-import com.itu.socialcom.demo.orders.service.OrderPaymentLink;
-import com.itu.socialcom.demo.orders.service.OrderPaymentServiceImpl;
+import com.itu.socialcom.demo.orders.service.*;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -315,7 +309,11 @@ public class OrderController {
         }
     }
 
+    @Autowired
+    OrderRefundService orderRefundService;
+
     @PostMapping("/api/order/cancel")
+    @Transactional
     public ResponseEntity<ApiResponse> refundOrder(@RequestBody RefundRequest refundRequest, @RequestHeader(name = "Authorization") String token) {
         try {
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
@@ -334,11 +332,10 @@ public class OrderController {
                 apiResponse.setErrors(List.of(new Exception("Order not found")));
                 return ResponseEntity.status(404).body(apiResponse);
             }
-            orderParent.setDStatus(21);
-            orderParentRepository.save(orderParent);
+            Refund refund = orderRefundService.cancelOrder(refundRequest);
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
-            apiResponse.setData(orderParent);
+            apiResponse.setData(refund);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

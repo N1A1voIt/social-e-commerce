@@ -1,7 +1,7 @@
 // orders.component.ts
 import {Component, OnInit} from '@angular/core';
 import {OrderService} from "./order.service";
-import {OrderDisplay, OrderParent, OrderChild, DeliveryMission, DeliveryApplicant} from "./order.type";
+import {OrderDisplay, OrderParent, DeliveryMission, DeliveryApplicant, RefundRequest, Refund} from "./order.type";
 import {ApiResponse} from "../inbox/inbox.service";
 import {TableModule, TableRowCollapseEvent, TableRowExpandEvent, TableLazyLoadEvent} from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -18,14 +18,12 @@ import {BasicSelectComponent} from "../../shared/basic-select/basic-select.compo
 import {ShippingPointService} from "../settings/managed-account/shipping-point/shipping-point.service";
 import {ShippingPoint} from "../settings/managed-account/shipping-point/shipping-point.model";
 import {SelectOption} from "../../shared/basic-select/basic-select.component";
-import {CheckboxComponent} from "../../shared/checkbox/checkbox.component";
-import {PhonePipe} from "../../shared/phone.pipe";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, CheckboxComponent, NgForOf, PhonePipe],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -45,6 +43,11 @@ export class OrdersComponent implements OnInit{
   shippingPointOptions: SelectOption[] = [];
   selectedShippingPoint: number | null = null;
   loadingShippingPoints: boolean = false;
+
+  // Cancel order related properties
+  showCancelModal: boolean = false;
+  refundInfo: Refund | null = null;
+  cancellingOrder: OrderParent | null = null;
 
   constructor(
     private orderService: OrderService,
@@ -337,5 +340,77 @@ export class OrdersComponent implements OnInit{
         this.messagingService.add({ severity: 'error', summary: 'An error has occured', detail: `${err.error.errors[0].message}`, life: 3000 })
       },
     })
+  }
+
+  cancelOrder(order: OrderParent) {
+    if (!order.idOrderM) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Invalid order'
+      });
+      return;
+    }
+
+    this.cancellingOrder = order;
+
+    // If status >= 11, call the API to get refund info and show modal
+    if (order.dstatus && order.dstatus >= 11) {
+      const refundRequest: RefundRequest = {
+        orderId: order.idOrderM,
+        amount: order.dtotal || 0
+      };
+
+      this.orderService.cancelOrder(refundRequest).subscribe({
+        next: (response: ApiResponse) => {
+          this.refundInfo = response.data as Refund;
+          this.showCancelModal = true;
+        },
+        error: (err: any) => {
+          console.error('Error getting refund info:', err);
+          const errorMessage = err.error?.errors?.[0]?.message || 'Failed to process cancellation';
+          this.messagingService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: errorMessage
+          });
+        }
+      });
+    } else {
+      // If status < 11, proceed with cancellation directly (no refund needed)
+      const refundRequest: RefundRequest = {
+        orderId: order.idOrderM,
+        amount: 0
+      };
+
+      this.orderService.cancelOrder(refundRequest).subscribe({
+        next: (response: ApiResponse) => {
+          this.messagingService.add({
+            severity: 'success',
+            summary: 'Order Cancelled',
+            detail: 'The order has been successfully cancelled'
+          });
+          this.cancellingOrder = null;
+          this.fetchOrders(); // Refresh the orders list
+        },
+        error: (err: any) => {
+          console.error('Error cancelling order:', err);
+          const errorMessage = err.error?.errors?.[0]?.message || 'Failed to cancel order';
+          this.messagingService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: errorMessage
+          });
+          this.cancellingOrder = null;
+        }
+      });
+    }
+  }
+
+  closeRefundModal() {
+    this.showCancelModal = false;
+    this.cancellingOrder = null;
+    this.refundInfo = null;
+    this.fetchOrders(); // Refresh the orders list
   }
 }

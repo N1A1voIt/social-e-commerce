@@ -14,10 +14,12 @@ import com.itu.socialcom.demo.stocks.repository.StockParentRepository;
 import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderRefundService {
@@ -31,30 +33,42 @@ public class OrderRefundService {
     private StockParentRepository stockParentRepository;
     @Autowired
     private StockChildRepository stockChildRepository;
-
-    public void cancelOrder(RefundRequest refundRequest) {
+    @Transactional
+    public Refund cancelOrder(RefundRequest refundRequest) {
         OrderParent orderParent = orderParentRepository.findById(refundRequest.getOrderId().longValue()).orElseThrow(() -> new RuntimeException("Order not found"));
         boolean isRefunded = orderParent.getDStatus() >= 11;
+        Refund refund = new Refund();
+        refund.setAmount(0.0);
         if (isRefunded) {
             Sales sales = fetchSale(orderParent);
-            Refund refund = createRefund(sales,orderParent);
+            refund = createRefund(sales,orderParent);
             refundRepository.save(refund);
-            sales.setStatus(21);
-            salesRepository.save(sales);
+            if (sales != null) {
+                sales.setStatus(21);
+                salesRepository.save(sales);
+            }
             StockParent stockParent = fetchStockParent(orderParent);
-            stockParentRepository.save(stockParent);
-            stockChildRepository.saveAll(stockParent.getItems());
+            if (stockParent != null) {
+                stockParentRepository.save(stockParent);
+                for (StockChild child:stockParent.getItems()) {
+                    child.setIdMv(stockParent.getId());
+                    stockChildRepository.save(child);
+                }
+            }
         }
         orderParent.setDStatus(21);
         orderParentRepository.save(orderParent);
+        return refund;
     }
 
-    private StockParent fetchStockParent(OrderParent orderParent) {
+    @Transactional
+    StockParent fetchStockParent(OrderParent orderParent) {
         StockParent stockParent = stockParentRepository.findByIdOrderM(orderParent.getIdOrderM());
+        if (stockParent == null) return null;
         List<StockChild> stockChildren = stockChildRepository.findByIdMv(stockParent.getId());
         StockParent stockParent1 = new StockParent();
         stockParent1.setCreatedAt(stockParent.getCreatedAt());
-        stockParent1.setDescription(stockParent.getDescription());
+        stockParent1.setDescription("Refund impact : " + stockParent.getDescription());
         stockParent1.setIdSeller(stockParent.getIdSeller());
         stockParent1.setIdOrderM(stockParent.getIdOrderM());
 
@@ -77,15 +91,18 @@ public class OrderRefundService {
         stockParent1.setItems(stockChildren1);
         return stockParent1;
     }
-    private Sales fetchSale(OrderParent orderParent) {
-        return salesRepository.findByIdOrderM(orderParent.getIdOrderM().intValue()).orElseThrow(() -> new RuntimeException("Sale not found"));
+    @Transactional
+    Sales fetchSale(OrderParent orderParent) {
+        Optional<Sales> salesOptional = salesRepository.findByIdOrderM(orderParent.getIdOrderM().intValue());
+        return salesOptional.orElse(null);
     }
 
-    private Refund createRefund(Sales sales,OrderParent orderParent) {
+    @Transactional
+    Refund createRefund(Sales sales,OrderParent orderParent) {
         Refund refund = new Refund();
         refund.setOrderId(orderParent.getIdOrderM());
-        refund.setSaleId(sales.getIdSale());
-        refund.setAmount(sales.getPaidAmount());
+        refund.setSaleId(sales != null ? sales.getIdSale() : null);
+        refund.setAmount(sales != null ? sales.getPaidAmount() : 0.0);
         refund.setCreatedAt(LocalDateTime.now());
         return refund;
     }
