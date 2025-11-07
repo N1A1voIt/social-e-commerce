@@ -15,6 +15,7 @@ import com.itu.socialcom.demo.orders.deliveryapplicants.DeliveryApplicantReposit
 import com.itu.socialcom.demo.orders.dto.CallForTendersRequest;
 import com.itu.socialcom.demo.orders.dto.MessageOrdering;
 import com.itu.socialcom.demo.orders.dto.PaymentDTO;
+import com.itu.socialcom.demo.orders.dto.RefundRequest;
 import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
@@ -313,4 +314,40 @@ public class OrderController {
             return ResponseEntity.badRequest().body(apiResponse);
         }
     }
+
+    @PostMapping("/api/order/cancel")
+    public ResponseEntity<ApiResponse> refundOrder(@RequestBody RefundRequest refundRequest, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to refund an order")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+            OrderParent orderParent = orderParentRepository.findById(refundRequest.getOrderId().longValue()).orElse(null);
+            if (orderParent == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(404);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Order not found")));
+                return ResponseEntity.status(404).body(apiResponse);
+            }
+            orderParent.setDStatus(21);
+            orderParentRepository.save(orderParent);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
 }

@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface StockParentRepository extends JpaRepository<StockParent, Long> {
 
+    StockParent findByIdOrderM(Long idOrderM);
 }

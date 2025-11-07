@@ -686,6 +686,16 @@ CREATE TABLE prompt_saver (
 );
 
 
+CREATE TABLE refund (
+    id_refund SERIAL,
+    id_sale INTEGER NOT NULL,
+    id_order INTEGER NOT NULL,
+    amount NUMERIC(15,2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY(id_refund),
+    FOREIGN KEY(id_sale) REFERENCES sales(id_sale)
+);
+
 CREATE VIEW v_mp_numbers as
 SELECT id, phone_number, associated_name, sellers_phone_number_e.id_pm, id_mp,p.payment_name,mp_payment_number.id_spn FROM mp_payment_number
     JOIN sellers_phone_number_e on mp_payment_number.id_default 'del@yopmail.com'::text spn = sellers_phone_number_e.id_spn
