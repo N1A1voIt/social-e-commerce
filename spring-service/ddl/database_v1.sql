@@ -806,11 +806,10 @@ CREATE VIEW v_product_stock_cpl AS
         c.val as category,COALESCE(d_product_number,0) as product_number,
         CASE WHEN COALESCE(d_product_number,0) = 0 THEN 'Out of Stock'
                 WHEN COALESCE(d_product_number,0) >= 10 THEN 'In Stock'
-                WHEN COALESCE(d_product_number,0) > 0 AND COALESCE(d_product_number,0) < 10 THEN 'Low Stock' END as stock_status
+                WHEN COALESCE(d_product_number,0) > 0 AND COALESCE(d_product_number,0) < 10 THEN 'Low Stock' END as stock_status,p.sku_prefix
         FROM products_v2 p
         LEFT JOIN stock_details s ON p.id_product = s.id_product
         JOIN category c on c.id_category = p.id_category;
-
 -- CREATE VIEW v_variant_cpl AS
 
 CREATE VIEW v_variant_cpl AS
@@ -822,13 +821,12 @@ CREATE VIEW v_variant_cpl AS
             ORDER BY id_variant, created_at DESC
         )
         SELECT
-            v.id_variant, v.title, v.price, v.created_at, v.updated_at, v.id_product,
+            v.id_variant, v.title, v.price, v.created_at, v.updated_at, v.id_product,v.sku,
             COALESCE(d_variant_number,0) as variant_number,
             CASE WHEN COALESCE(d_variant_number,0) = 0 THEN 'Out of Stock'
                     WHEN COALESCE(d_variant_number,0) >= 10 THEN 'In Stock'
                     WHEN COALESCE(d_variant_number,0) > 0 AND COALESCE(d_variant_number,0) < 10 THEN 'Low Stock' END as stock_status
             FROM variants_v2 v LEFT JOIN stock_details ON v.id_variant = stock_details.id_variant;
-
 
 WITH recent_variants_retriever AS
 (

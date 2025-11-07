@@ -1,0 +1,50 @@
+id_sale,amount,effectued_at,from_number,from_name,description,platform,id_order_m,price,quantity,product_name,variant_name,sku_product,sku_variant
+1,160.89,2025-11-06 16:22,261974652510,"Jane Smith","Sale of products",instagram,,16.07,3,"Product F","Variant 2",PT,PDT3
+1,160.89,2025-11-06 16:22,261974652510,"Jane Smith","Sale of products",instagram,,28.17,4,"Product B","Deluxe",PWD,SMCH-BLACK
+2,1370.58,2025-11-06 15:22,261056208788,"Charlie Brown","Direct sale",facebook,"",146.97,5,"Product E","Premium",PWD,SMCH-BLACK
+2,1370.58,2025-11-06 15:22,261056208788,"Charlie Brown","Direct sale",facebook,"",99.61,5,"Product G","Variant 1",PWD,SMCH-BLACK
+2,1370.58,2025-11-06 15:22,261056208788,"Charlie Brown","Direct sale",facebook,"",44.10,2,"Product A","Variant 2",PT,PDT4
+2,1370.58,2025-11-06 15:22,261056208788,"Charlie Brown","Direct sale",facebook,"",12.37,4,"Product A","Standard",PWD,SMCH-BLACK
+3,423.33,2025-11-06 02:22,261493258781,"Diana Prince","Customer purchase",instagram,,96.81,1,"Product A","Variant 2",PWD,SMCH-BLACK
+3,423.33,2025-11-06 02:22,261493258781,"Diana Prince","Customer purchase",instagram,,34.24,3,"Product D","Deluxe",PWD,SMCH-BLACK
+3,423.33,2025-11-06 02:22,261493258781,"Diana Prince","Customer purchase",instagram,,141.75,1,"Product H","Standard",PT,PDT3
+3,423.33,2025-11-06 02:22,261493258781,"Diana Prince","Customer purchase",instagram,,27.35,3,"Product A","Standard",PWD,SMCH-BLACK
+4,133.20,2025-11-05 17:22,261886070509,"Jane Smith","Customer purchase",facebook,"",66.60,2,"Product B","Variant 2",PT,PDT1
+5,891.83,2025-11-06 11:22,261148045702,"Diana Prince","Customer purchase",facebook,"",36.88,5,"Product F","Deluxe",PWD,SMCH-BLACK
+5,891.83,2025-11-06 11:22,261148045702,"Diana Prince","Customer purchase",facebook,"",128.31,4,"Product G","Basic",PT,PDT3
+5,891.83,2025-11-06 11:22,261148045702,"Diana Prince","Customer purchase",facebook,"",64.73,3,"Product G","Variant 2",PWD,SMCH-BLACK
+6,14.82,2025-11-04 10:22,261398559486,"Bob Johnson","Online order",facebook,,14.82,1,"Product F","Variant 1",PWD,SMCH-BLACK
+7,540.86,2025-11-05 20:22,261215120054,"Alice Williams","Online order",instagram,,17.19,2,"Product A","Variant 1",PWD,SMCH-BLACK
+7,540.86,2025-11-05 20:22,261215120054,"Alice Williams","Online order",instagram,,58.10,5,"Product E","Variant 2",PWD,SMCH-BLACK
+7,540.86,2025-11-05 20:22,261215120054,"Alice Williams","Online order",instagram,,157.40,1,"Product G","Variant 2",PT,PDT5
+7,540.86,2025-11-05 20:22,261215120054,"Alice Williams","Online order",instagram,,29.29,2,"Product H","Variant 3",PWD,SMCH-BLACK
+8,647.81,2025-11-05 17:22,261535909100,"Jane Smith","Online order",facebook,,83.12,5,"Product E","Variant 2",PT,PDT2
+8,647.81,2025-11-05 17:22,261535909100,"Jane Smith","Online order",facebook,,152.47,1,"Product A","Variant 1",PT,PDT1
+8,647.81,2025-11-05 17:22,261535909100,"Jane Smith","Online order",facebook,,79.74,1,"Product B","Premium",PT,PDT2
+9,543.84,2025-11-07 07:22,261797107046,"Bob Johnson","Sale of products",instagram,"",135.96,4,"Product E","Basic",PWD,SMCH-BLACK
+10,290.85,2025-11-06 16:22,261760790013,"Bob Johnson","Online order",facebook,"",96.95,3,"Product F","Variant 2",PT,PDT5
+11,388.68,2025-11-06 06:22,261800912778,"John Doe","Direct sale",instagram,"",129.56,3,"Product C","Standard",PWD,SMCH-BLACK
+12,545.02,2025-11-05 23:22,261565156706,"Jane Smith","Direct sale",facebook,"",35.35,1,"Product F","Variant 2",PWD,SMCH-BLACK
+12,545.02,2025-11-05 23:22,261565156706,"Jane Smith","Direct sale",facebook,"",100.17,4,"Product F","Standard",PT,PDT4
+12,545.02,2025-11-05 23:22,261565156706,"Jane Smith","Direct sale",facebook,"",36.33,3,"Product B","Basic",PT,PDT2
+13,669.67,2025-11-04 11:22,261984872496,"Diana Prince","Online order",facebook,"",154.73,3,"Product A","Basic",PT,PDT4
+13,669.67,2025-11-04 11:22,261984872496,"Diana Prince","Online order",facebook,"",51.37,4,"Product B","Deluxe",PWD,SMCH-BLACK
+14,921.06,2025-11-06 03:22,261637406870,"Alice Williams","Online order",instagram,"",119.43,5,"Product E","Premium",PWD,SMCH-BLACK
+14,921.06,2025-11-06 03:22,261637406870,"Alice Williams","Online order",instagram,"",55.59,1,"Product F","Basic",PT,PDT5
+14,921.06,2025-11-06 03:22,261637406870,"Alice Williams","Online order",instagram,"",33.20,5,"Product B","Variant 3",PWD,SMCH-BLACK
+14,921.06,2025-11-06 03:22,261637406870,"Alice Williams","Online order",instagram,"",51.16,2,"Product H","Variant 2",PT,PDT1
+15,54.55,2025-11-06 11:22,261839189378,"Bob Johnson","Customer purchase",instagram,"",54.55,1,"Product H","Variant 3",PWD,SMCH-BLACK
+16,455.28,2025-11-05 16:22,261999129091,"Diana Prince","Customer purchase",instagram,"",113.82,4,"Product E","Variant 3",PT,PDT2
+17,229.92,2025-11-04 12:22,261387470636,"Alice Williams","Direct sale",facebook,"",76.64,3,"Product B","Basic",PWD,SMCH-BLACK
+18,485.42,2025-11-07 00:22,261221986790,"Diana Prince","Customer purchase",facebook,"",25.83,4,"Product B","Variant 4",PT,PDT4
+18,485.42,2025-11-07 00:22,261221986790,"Diana Prince","Customer purchase",facebook,"",44.85,3,"Product D","Deluxe",PT,PDT3
+18,485.42,2025-11-07 00:22,261221986790,"Diana Prince","Customer purchase",facebook,"",28.65,2,"Product G","Standard",PWD,SMCH-BLACK
+18,485.42,2025-11-07 00:22,261221986790,"Diana Prince","Customer purchase",facebook,"",38.05,5,"Product A","Deluxe",PWD,SMCH-BLACK
+19,1243.64,2025-11-07 05:22,261324882129,"Jane Smith","Online order",instagram,"",141.76,3,"Product A","Deluxe",PT,PDT2
+19,1243.64,2025-11-07 05:22,261324882129,"Jane Smith","Online order",instagram,"",104.77,4,"Product D","Standard",PWD,SMCH-BLACK
+19,1243.64,2025-11-07 05:22,261324882129,"Jane Smith","Online order",instagram,"",50.16,4,"Product F","Standard",PWD,SMCH-BLACK
+19,1243.64,2025-11-07 05:22,261324882129,"Jane Smith","Online order",instagram,"",49.66,4,"Product D","Standard",PWD,SMCH-BLACK
+20,1361.97,2025-11-05 03:22,261460869165,"Alice Williams","Direct sale",facebook,"",85.74,1,"Product H","Deluxe",PT,PDT5
+20,1361.97,2025-11-05 03:22,261460869165,"Alice Williams","Direct sale",facebook,"",139.06,4,"Product A","Variant 1",PT,PDT3
+20,1361.97,2025-11-05 03:22,261460869165,"Alice Williams","Direct sale",facebook,"",70.51,5,"Product H","Premium",PT,PDT2
+20,1361.97,2025-11-05 03:22,261460869165,"Alice Williams","Direct sale",facebook,"",122.48,3,"Product A","Variant 2",PWD,SMCH-BLACK

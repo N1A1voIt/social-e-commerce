@@ -5,6 +5,7 @@ import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.products.dto.*;
 import com.itu.socialcom.demo.products.model.Option;
 import com.itu.socialcom.demo.products.model.OptionValue;
+import com.itu.socialcom.demo.products.model.Product;
 import com.itu.socialcom.demo.products.repository.OptionRepository;
 import com.itu.socialcom.demo.products.repository.OptionValueRepository;
 import com.itu.socialcom.demo.products.repository.ProductRepository;
@@ -69,7 +70,9 @@ public class VariantServiceImpl implements VariantService {
     public List<VariantWithOptionsDTO> generateAllVariantCombinations(Long productId, GenerateVariantsRequest request, Long sellerId) {
         // Validate seller ownership
         validateSellerOwnership(productId, sellerId.intValue());
-        
+        Product product = productRepository.findById(productId).orElseThrow(()->{
+            throw new IllegalStateException("Product not found");
+        });
         // Fetch product options
         List<Option> options = optionRepository.findByIdProduct(productId);
         if (options.isEmpty()) {
@@ -104,8 +107,12 @@ public class VariantServiceImpl implements VariantService {
             
             // Create variant
             Variant variant = new Variant(title, request.getBasePrice(), productId);
+            variant.setIdSeller(sellerId);
+            variant.setPrice(product.getPrice());
             variant = variantRepository.save(variant);
-            
+            variant.setSku(product.getSkuPrefix()+"_"+variant.getIdVariant());
+            variantRepository.save(variant);
+
             // Create option value associations
             for (Long optionValueId : optionValueIds) {
                 VariantOptionValue association = new VariantOptionValue(optionValueId, variant.getIdVariant());
@@ -148,6 +155,7 @@ public class VariantServiceImpl implements VariantService {
             dto.setUpdatedAt(variantInStock.getUpdatedAt());
             dto.setStockQuantity(variantInStock.getVariantNumber() != null ? variantInStock.getVariantNumber().intValue() : 0);
             dto.setStockStatus(variantInStock.getStockStatus());
+            dto.setSku(variantInStock.getSku());
             dto.setOptions(optionDTOs);
             
             result.add(dto);
@@ -373,6 +381,7 @@ public class VariantServiceImpl implements VariantService {
             variant.getUpdatedAt(),
             null, // Stock quantity will be set if available
             null, // Stock status will be set if available
+            variant.getSku(),
             optionDTOs
         );
     }

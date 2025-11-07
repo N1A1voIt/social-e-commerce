@@ -28,6 +28,14 @@
         type="number"
         [error]="step1Form.get('price')?.invalid && step1Form.get('price')?.touched">
       </app-basic-input>
+      <app-basic-input
+        class="w-full"
+        label="SKU Prefix"
+        placeholder="SKU"
+        [formControl]="$any(step1Form.get('sku_prefix'))"
+        type="text"
+        [error]="step1Form.get('sku_prefix')?.invalid && step1Form.get('sku_prefix')?.touched">
+      </app-basic-input>
 
       <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-2">

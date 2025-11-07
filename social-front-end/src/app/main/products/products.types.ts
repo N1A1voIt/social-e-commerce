@@ -7,6 +7,7 @@ export interface TempProduct {
   idSeller: number;
   idCategory: number;
   state?: boolean;
+  skuPrefix: string
 }
 
 export interface OptionValueDTO {
@@ -39,7 +40,8 @@ export interface Product {
   createdAt: Date,
   updatedAt: Date,
   idCategory: number,
-  formattedPrice: number
+  formattedPrice: number,
+  skuPrefix: string
 }
 
 export interface ProductCpl {
@@ -51,8 +53,10 @@ export interface ProductCpl {
   idSeller: number,
   idCategory: number,
   categoryName: string,
-  productNumber: number
-  stockStatus: string
+  productNumber: number,
+  stockStatus: string,
+  skuPrefix: string
+
 }
 
 export interface Variant {
@@ -81,6 +85,7 @@ export interface VariantWithOptionsDTO {
   updatedAt: Date;
   stockQuantity?: number;
   stockStatus?: string;
+  sku:string;
   options: VariantOptionDTO[];
 }
 

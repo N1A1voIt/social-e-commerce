@@ -91,7 +91,8 @@ export class ProductsComponent implements OnInit {
       media: [''],
       idSeller: [1], // Set from current user context
       idCategory: [1, [Validators.required, Validators.min(1)]],
-      state: [true]
+      state: [true],
+      sku_prefix: ['',[Validators.required]],
     });
 
     this.step2Form = this.fb.group({

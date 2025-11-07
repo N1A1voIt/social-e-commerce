@@ -36,6 +36,9 @@ public class VariantWithOptionsDTO {
     
     @JsonProperty("stockStatus")
     private String stockStatus;
+
+    @JsonProperty("sku")
+    private String sku;
     
     @JsonProperty("options")
     private List<VariantOptionDTO> options;
@@ -60,7 +63,7 @@ public class VariantWithOptionsDTO {
      */
     public VariantWithOptionsDTO(Long idVariant, String title, BigDecimal price, Long idProduct,
                                 LocalDateTime createdAt, LocalDateTime updatedAt, 
-                                Integer stockQuantity, String stockStatus, 
+                                Integer stockQuantity, String stockStatus, String sku,
                                 List<VariantOptionDTO> options) {
         this.idVariant = idVariant;
         this.title = title;
@@ -70,6 +73,7 @@ public class VariantWithOptionsDTO {
         this.updatedAt = updatedAt;
         this.stockQuantity = stockQuantity;
         this.stockStatus = stockStatus;
+        this.sku = sku;
         this.options = options;
     }
 }

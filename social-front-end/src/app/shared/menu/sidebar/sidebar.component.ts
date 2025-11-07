@@ -16,7 +16,7 @@ import {Router} from "@angular/router";
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements OnDestroy {
-  activeSection: string = 'content'; // default to content section
+  activeSection: string = 'dashboard'; // default to content section
 
   constructor(public router:Router) {}
 

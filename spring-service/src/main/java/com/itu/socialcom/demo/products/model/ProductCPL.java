@@ -33,4 +33,6 @@ public class ProductCPL {
     private Double productNumber;
     @Column(name = "stock_status")
     private String stockStatus;
+    @Column(name = "sku_prefix")
+    private String skuPrefix;
 }

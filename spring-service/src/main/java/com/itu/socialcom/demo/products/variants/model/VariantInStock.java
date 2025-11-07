@@ -36,4 +36,7 @@ public class VariantInStock {
 
     @Column(name = "stock_status")
     private String stockStatus;
+
+    @Column(name = "sku")
+    private String sku;
 }

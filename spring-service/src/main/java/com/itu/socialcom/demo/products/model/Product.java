@@ -64,6 +64,9 @@ public class Product {
     @Column(name = "id_category", nullable = false)
     private Integer idCategory;
 
+    @Column(name = "sku_prefix")
+    private String skuPrefix;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

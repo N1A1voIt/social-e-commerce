@@ -21,6 +21,7 @@
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Quantity</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Price</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Status</th>
+      <th class="p-4 text-sm font-normal leading-none text-slate-500">SKU Prefix</th>
       <th class="p-4 text-sm font-normal leading-none text-slate-500">Actions</th>
     </tr>
     </thead>
@@ -49,6 +50,9 @@
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">{{ product.stockStatus }}</span>
+      </td>
+      <td class="p-4 border-b border-slate-200 py-5">
+        <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">{{ product.skuPrefix }}</span>
       </td>
       <td class="p-4 border-b border-slate-200 py-5">
         <div class="flex space-x-2">
