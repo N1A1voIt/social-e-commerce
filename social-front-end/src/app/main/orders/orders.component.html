@@ -77,7 +77,7 @@
             <td>{{ order.shippingAddress || 'N/A' }}</td>
             <td>{{ order.customerNumber || 'N/A' }}</td>
             <td>{{ order.createdAt | date:'short' }}</td>
-            <td>{{ order.dtotal | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ order.dtotal | number:'1.2-2' }} Ar</td>
             <td>
               <div class="action-buttons">
                 <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 31))" (click)="nextStep(order)" title="Next step">
@@ -142,8 +142,8 @@
                         <p-tag [value]="child.sku || 'N/A'" severity="secondary" />
                       </td>
                       <td class="text-center">{{ child.quantity || 0 }}</td>
-                      <td>{{ child.price | currency:'USD':'symbol':'1.2-2' }}</td>
-                      <td>{{ (child.price || 0) * (child.quantity || 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>{{ child.price | number:'1.2-2' }} Ar</td>
+                      <td>{{ (child.price || 0) * (child.quantity || 0) | number:'1.2-2' }} Ar</td>
                       <td>
                         <img *ngIf="child.mediaUrl"
                              [src]="child.mediaUrl"
@@ -295,7 +295,7 @@
       </div>
       <div class="flex flex-row justify-between">
         <span class="font-semibold">Order Total:</span>
-        <span>{{ cancellingOrder?.dtotal | currency:'USD':'symbol':'1.2-2' }}</span>
+        <span>{{ cancellingOrder?.dtotal | number:'1.2-2' }} Ar</span>
       </div>
     </div>
   </div>
@@ -314,7 +314,7 @@
 
       <div class="flex flex-row justify-between items-center p-3 bg-white rounded-lg">
         <span class="font-semibold text-gray-700">Refund Amount:</span>
-        <span class="font-mono text-xl font-bold text-green-600">{{ refundInfo?.amount | currency:'USD':'symbol':'1.2-2' }}</span>
+        <span class="font-mono text-xl font-bold text-green-600">{{ refundInfo?.amount | number:'1.2-2' }} Ar</span>
       </div>
 
       <div class="flex flex-row justify-between items-center p-3 bg-white rounded-lg" *ngIf="refundInfo?.saleId">

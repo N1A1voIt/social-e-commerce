@@ -57,7 +57,7 @@
             <div class="flex-1">
               <h3 class="font-semibold">{{ item.productName }}</h3>
               <p class="text-sm text-gray-600">{{ item.variantTitle }}</p>
-              <p class="text-yellow-500 font-semibold mt-1">${{ item.price }}</p>
+              <p class="text-yellow-500 font-semibold mt-1">{{ item.price }} Ar</p>
 
               <!-- Quantity Controls -->
               <div class="flex items-center mt-2">
@@ -73,7 +73,7 @@
 
             <!-- Subtotal -->
             <div class="text-right">
-              <p class="font-semibold">${{ item.totalPrice }}</p>
+              <p class="font-semibold">{{ item.totalPrice }} Ar</p>
             </div>
           </div>
         </div>
@@ -96,14 +96,14 @@
 
         <div class="flex justify-between mb-2">
           <span>Total Items ({{ totalItemCount }}):</span>
-          <span>${{ grandTotal | number:'1.2-2' }}</span>
+          <span>{{ grandTotal | number:'1.2-2' }} Ar</span>
         </div>
 
         <div class="border-t border-gray-200 my-4"></div>
 
         <div class="flex justify-between font-semibold text-lg">
           <span>Total:</span>
-          <span>${{ grandTotal | number:'1.2-2' }}</span>
+          <span>{{ grandTotal | number:'1.2-2' }} Ar</span>
         </div>
 
         <button class="w-full mt-4 py-2 bg-yellow text-fotsy rounded-full" (click)="checkout()">
@@ -141,7 +141,7 @@
         <h3 class="font-semibold mb-2">Order Summary</h3>
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm text-gray-600">Total Items: {{ selectedCart.itemCount }}</p>
-          <p class="text-lg font-semibold mt-2">Total: ${{ selectedCart.totalPrice | number:'1.2-2' }}</p>
+          <p class="text-lg font-semibold mt-2">Total: {{ selectedCart.totalPrice | number:'1.2-2' }} Ar</p>
         </div>
       </div>
 

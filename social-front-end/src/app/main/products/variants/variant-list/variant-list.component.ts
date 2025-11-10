@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {NgForOf, NgIf, CurrencyPipe, DatePipe} from "@angular/common";
+import {NgForOf, NgIf, DecimalPipe, DatePipe} from "@angular/common";
 import {VariantWithOptionsDTO} from "../../products.types";
 import {VariantFormComponent} from "../variant-form/variant-form.component";
 import {VariantUpdateComponent} from "../variant-update/variant-update.component";
@@ -11,7 +11,7 @@ import {StockRefillFormComponent} from "../stock-refill-form/stock-refill-form.c
   imports: [
     NgForOf,
     NgIf,
-    CurrencyPipe,
+    DecimalPipe,
     DatePipe,
     VariantFormComponent,
     VariantUpdateComponent,

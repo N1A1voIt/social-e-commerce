@@ -5,7 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
-import {CurrencyPipe, DatePipe, NgIf} from '@angular/common';
+import {DecimalPipe, DatePipe, NgIf} from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { BeautifulButtonComponent } from '../../shared/beautiful-button/beautiful-button.component';
 import { SalesService } from './sales.service';
@@ -16,7 +16,7 @@ import autoTable from 'jspdf-autotable';
   selector: 'app-sales',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, BeautifulButtonComponent, NgIf],
+  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
@@ -28,6 +28,9 @@ export class SalesComponent implements OnInit {
 
   // Placeholder for selected sale / details
   activeSale: any = null;
+
+  // CSV import state
+  importLoading = false;
 
   constructor(private messagingService: MessageService, private salesService: SalesService) { }
 
@@ -124,5 +127,61 @@ export class SalesComponent implements OnInit {
   viewSaleDetails(sale: any) {
     this.activeSale = sale;
     // open modal or route to details page
+  }
+
+  onImportCsvClick() {
+    // Trigger file input click
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv';
+    fileInput.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        this.importCsv(file);
+      }
+    };
+    fileInput.click();
+  }
+
+  importCsv(file: File) {
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Invalid File',
+        detail: 'Please select a CSV file'
+      });
+      return;
+    }
+
+    this.importLoading = true;
+    this.salesService.importCsv(file).subscribe({
+      next: (response) => {
+        if (response && response.status === 200) {
+          this.messagingService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'CSV imported successfully'
+          });
+          // Refresh the sales list after import
+          this.fetchSales({ first: 0, rows: 10 });
+        } else {
+          this.messagingService.add({
+            severity: 'warn',
+            summary: 'Warning',
+            detail: 'Failed to import CSV'
+          });
+        }
+        this.importLoading = false;
+      },
+      error: (err) => {
+        console.error('Error importing CSV', err);
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error?.errors?.[0] || 'Could not import CSV file'
+        });
+        this.importLoading = false;
+      }
+    });
   }
 }

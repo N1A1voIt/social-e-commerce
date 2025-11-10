@@ -55,7 +55,7 @@
     <!-- Variant Price and Stock -->
     <div *ngIf="variant" class="flex flex-col gap-1">
       <h1 class="text-xl md:text-3xl font-bold text-gray-900">{{variant.title}}</h1>
-      <div class="text-xl text-yellow-500 font-bold">${{variant.price}}</div>
+      <div class="text-xl text-yellow-500 font-bold">{{variant.price}} Ar</div>
       <div class="text-sm" [ngClass]="{
         'text-green-500': variant.stockStatus === 'In Stock',
         'text-yellow-500': variant.stockStatus === 'Low Stock',

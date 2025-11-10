@@ -10,7 +10,7 @@ import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import {FormsModule} from "@angular/forms";
-import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
+import {DecimalPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
 import { MessageService } from 'primeng/api';
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {BeautifulButtonComponent} from "../../shared/beautiful-button/beautiful-button.component";
@@ -23,7 +23,7 @@ import {SelectOption} from "../../shared/basic-select/basic-select.component";
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, CurrencyPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })

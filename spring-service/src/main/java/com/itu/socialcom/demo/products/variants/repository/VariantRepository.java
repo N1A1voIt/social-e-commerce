@@ -83,6 +83,16 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
     long countByIdProduct(Long idProduct);
     
     /**
+     * Find variant by seller ID and SKU.
+     * Used for CSV import to match variants by SKU.
+     *
+     * @param sellerId the ID of the seller
+     * @param sku the SKU to search for
+     * @return Optional containing the variant if found
+     */
+    Optional<Variant> findByIdSellerAndSku(Long sellerId, String sku);
+
+    /**
      * Find variants by product ID ordered by creation date.
      * Provides consistent ordering for variant listings.
      * 
@@ -111,4 +121,6 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
     List<Variant> findByIdProductIn(Collection<Long> idProducts);
 
     List<Variant> findByIdSellerAndSkuIn(Long idSeller, Collection<String> skus);
+
+    List<Variant> findByIdSeller(Long idSeller);
 }

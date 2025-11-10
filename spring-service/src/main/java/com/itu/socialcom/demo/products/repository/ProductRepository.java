@@ -98,6 +98,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     long countByIdSeller(Integer sellerId);
     
     /**
+     * Find product by seller ID and SKU prefix.
+     * Used for CSV import to match products by SKU.
+     *
+     * @param sellerId the ID of the seller
+     * @param skuPrefix the SKU prefix to search for
+     * @return Optional containing the product if found
+     */
+    Optional<Product> findByIdSellerAndSkuPrefix(Integer sellerId, String skuPrefix);
+
+    /**
      * Find products by seller ID with combined name search and price range filtering.
      * This method supports complex search scenarios where both name and price filters are applied.
      * 

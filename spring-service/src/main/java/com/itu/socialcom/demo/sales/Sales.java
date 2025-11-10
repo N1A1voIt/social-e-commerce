@@ -36,7 +36,7 @@ public class Sales {
     @Column(name = "id_spn")
     private Integer idSpn;
 
-    @Column(name = "id_order_m", nullable = false)
+    @Column(name = "id_order_m")
     private Integer idOrderM;
 
     @Column(name = "id_pc", nullable = false)
