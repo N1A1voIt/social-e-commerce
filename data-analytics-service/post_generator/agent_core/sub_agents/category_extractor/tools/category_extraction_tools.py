@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from sentence_transformers import SentenceTransformer
+
 from sqlalchemy import create_engine, Column, Integer, Text, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
 from pgvector.sqlalchemy import Vector
