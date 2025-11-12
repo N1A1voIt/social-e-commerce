@@ -255,24 +255,76 @@ export class OrdersComponent implements OnInit{
       return;
     }
 
-    // Call API to confirm payment with selected method
-    this.orderService.confirmFullPayment(this.activeOrder.idOrderM, this.selectedPaymentMethod).subscribe({
+    // If MVola is selected, move to billing form (step 4)
+    if (this.selectedPaymentMethod === 'mvola') {
+      this.step = '4'; // Show billing form for MVola
+      return;
+    }
+
+    // If Cash is selected, call cash payment service
+    if (this.selectedPaymentMethod === 'cash') {
+      this.processCashPayment();
+      return;
+    }
+  }
+
+  // Send billing and payment link for MVola payment (full payment)
+  sendFullPaymentLink() {
+    if (!this.activeOrder || !this.activeOrder.idOrderM) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No active order found'
+      });
+      return;
+    }
+
+    this.orderService.sendFullPaymentLink(this.activeOrder).subscribe({
       next: (response: ApiResponse) => {
-        console.log('Payment confirmed:', response);
+        console.log('Full payment link sent:', response);
         this.messagingService.add({
           severity: 'success',
           summary: 'Success',
-          detail: `Payment confirmed via ${this.selectedPaymentMethod === 'mvola' ? 'MVola' : 'Cash'}`
+          detail: 'Payment link sent to customer via MVola'
         });
         this.openModal = false;
         this.fetchOrders();
       },
       error: (err: any) => {
-        console.error('Error confirming payment:', err);
+        console.error('Error sending payment link:', err);
         this.messagingService.add({
           severity: 'error',
           summary: 'Error',
-          detail: err.error?.errors?.[0]?.message || 'Failed to confirm payment'
+          detail: err.error?.errors?.[0]?.message || 'Failed to send payment link'
+        });
+      }
+    });
+  }
+
+  // Process cash payment - to be customized later
+  processCashPayment() {
+    if (!this.activeOrder || !this.activeOrder.idOrderM) {
+      return;
+    }
+
+    // TODO: Customize this service call based on your requirements
+    this.orderService.processCashPayment(this.activeOrder.idOrderM).subscribe({
+      next: (response: ApiResponse) => {
+        console.log('Cash payment processed:', response);
+        this.messagingService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Cash payment confirmed'
+        });
+        this.openModal = false;
+        this.fetchOrders();
+      },
+      error: (err: any) => {
+        console.error('Error processing cash payment:', err);
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error?.errors?.[0]?.message || 'Failed to process cash payment'
         });
       }
     });
@@ -421,7 +473,9 @@ export class OrdersComponent implements OnInit{
       21: 'Cancelled',
       25: 'Waiting for deliverer',
       31: 'Shipped',
-      41: 'Delivered - Asking for full payment',
+      41: 'Delivered',
+      45: 'Asking for full payment',
+      51: 'Completed',
     };
 
     return statusMap[status] || 'Unknown';

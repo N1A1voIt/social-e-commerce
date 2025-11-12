@@ -245,7 +245,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             sales1.setStatus(11); // Fully paid
             salesRepository.save(sales1);
             Payments payments = new Payments();
-            payments.setAmount(sales1.getAmount().doubleValue());
+            payments.setAmount(Double.parseDouble(paymentDTO.getAmount()));
             payments.setCreatedAt(LocalDateTime.now());
             payments.setIdSales(sales1.getIdSale().longValue());
             payments.setIdPm(1L);
@@ -258,4 +258,11 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             throw new Exception("Payment processing failed: " + e.getMessage());
         }
     }
+
+    @Override
+    public PaymentResponse processCashPayment(Long orderId) {
+        return null;
+    }
+
+
 }

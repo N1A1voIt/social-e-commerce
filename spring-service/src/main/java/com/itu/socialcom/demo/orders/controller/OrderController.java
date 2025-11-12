@@ -17,6 +17,8 @@ import com.itu.socialcom.demo.orders.repository.DownPaymentRepository;
 import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.service.*;
+import com.itu.socialcom.demo.orders.tempLink.TempLink;
+import com.itu.socialcom.demo.orders.tempLink.TempLinkRepository;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,8 @@ public class OrderController {
     private OrderFilterService orderFilterService;
     @Autowired
     private OrderDeliveredService orderDeliveredService;
+    @Autowired
+    private TempLinkRepository tempLinkRepository;
 
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
@@ -320,6 +324,34 @@ public class OrderController {
     }
 
 
+    @PostMapping("/api/order/pay-full-amount")
+    public ResponseEntity<ApiResponse> payFullOrderDirectly(@RequestBody PaymentDTO paymentDTO, @RequestParam(name = "link_identifier") String linkIdentifier) {
+        try {
+//            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+//            if (seller == null) {
+//                ApiResponse apiResponse = new ApiResponse();
+//                apiResponse.setStatus(401);
+//                apiResponse.setData(null);
+//                apiResponse.setErrors(List.of(new Exception("Please log in to pay for an order")));
+//                return ResponseEntity.status(401).body(apiResponse);
+//            }
+            PaymentResponse paymentResponse = orderPaymentService.processFullOrderPayment(paymentDTO,linkIdentifier);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(paymentResponse);
+            apiResponse.setErrors(null);
+            return ResponseEntity.status(200).body(apiResponse);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
 
     @GetMapping("/api/applications/{id_order}")
     public ResponseEntity<ApiResponse> applicantsList(@PathVariable("id_order") Long idOrder,@RequestHeader(name = "Authorization") String token) {
@@ -477,6 +509,108 @@ public class OrderController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    @PostMapping("/api/order/ask-for-full-payment-link")
+    public ResponseEntity<ApiResponse> sendFullPaymentLink(@RequestBody OrderParent orderParent, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to send payment link")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+
+            // Send full payment link via MVola
+            orderPaymentLink.askForUserToPayTheRest(orderParent);
+            
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+
+
+    @PostMapping("/api/order/process-cash-payment")
+    public ResponseEntity<ApiResponse> processCashPayment(@RequestBody java.util.Map<String, Object> payload, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to process payment")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+
+            Long orderId = Long.valueOf(payload.get("orderId").toString());
+            OrderParent orderParent = orderParentRepository.findById(orderId).orElse(null);
+            
+            if (orderParent == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(404);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Order not found")));
+                return ResponseEntity.status(404).body(apiResponse);
+            }
+
+            // TODO: Customize this logic based on your cash payment requirements
+            // For now, we'll just update the status to completed (5)
+            if (orderParent.getDStatus() == 41) {
+                orderParent.setDStatus(5); // Mark as completed
+                orderParentRepository.save(orderParent);
+            }
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    @GetMapping("/api/temp-link/{linkId}")
+    public ResponseEntity<ApiResponse> getTempLinkById(@PathVariable("linkId") String linkId) {
+        try {
+            TempLink tempLink = tempLinkRepository.findById(linkId).orElse(null);
+            
+            if (tempLink == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(404);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Payment link not found")));
+                return ResponseEntity.status(404).body(apiResponse);
+            }
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(tempLink);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

@@ -11,3 +11,14 @@ export interface TransactionDetail {
   provider?:string;
   idPayment?:string;
 }
+
+export interface TempLink {
+  id: string;
+  tempLink: string;
+  expiredAt: string;
+  phoneNumber: string;
+  idOrderM: number;
+  idSeller: number;
+  amount: number;
+  used: boolean;
+}

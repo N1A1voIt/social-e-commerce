@@ -36,6 +36,23 @@ public class TempLinkService {
         return repository.save(link);
     }
 
+    public TempLink createFullAmountLink(String phoneNumber, Integer idOrderM, Integer idSeller,double downPayment) {
+        TempLink link = new TempLink();
+        String id = UUID.randomUUID().toString();
+
+        link.setId(id);
+        link.setPhoneNumber(phoneNumber);
+        link.setIdOrderM(idOrderM);
+        link.setIdSeller(idSeller);
+        link.setExpiredAt(LocalDateTime.now().plusHours(1));
+        link.setAmount(downPayment);
+        // Secure temp link generation
+        String tempLink = baseUrl + "/transactions-full?id_payment=" + id;
+        link.setTempLink(tempLink);
+
+        return repository.save(link);
+    }
+
     public boolean isLinkValid(String tempLink) {
         Optional<TempLink> linkOpt = repository.findByTempLink(tempLink);
         if (linkOpt.isPresent()) {

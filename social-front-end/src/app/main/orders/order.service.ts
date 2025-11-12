@@ -152,4 +152,22 @@ export class OrderService {
     );
   }
 
+  sendFullPaymentLink(order: OrderParent): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(javaHost+'/api/order/ask-for-full-payment-link', order, {headers: header});
+  }
+
+  processCashPayment(orderId: number): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(
+      javaHost+'/api/order/process-cash-payment',
+      { orderId },
+      {headers: header}
+    );
+  }
+
 }

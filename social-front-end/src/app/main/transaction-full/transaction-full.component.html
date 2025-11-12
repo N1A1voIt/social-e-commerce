@@ -3,8 +3,9 @@
     <h2>Select Payment Method</h2>
     <p>Choose your preferred payment option to continue</p>
     <div *ngIf="tempLinkData && !isLoading" class="payment-amount-info">
-      <p class="amount-label">Amount to Pay:</p>
-      <p class="amount-value">{{ tempLinkData.amount | number:'1.2-2' }} Ariary</p>
+      <p class="amount-label">Total Amount to Pay:</p>
+      <p class="amount-value text-fotsy">{{ tempLinkData.amount | number:'1.2-2' }} Ariary</p>
+      <p class="fee-note">*includes 3% transaction fee on MVola ({{tempLinkData.amount * 1.03  | number:'1.2-2'}} Ariary) </p>
     </div>
     <div *ngIf="isLoading" class="loading-text">
       <p>Loading payment details...</p>
@@ -39,7 +40,7 @@
       </div>
     </div>
   </div>
-  <app-mvola [isVisible]="selectedMethod == 'mvola'" >
+  <app-mvola [isVisible]="selectedMethod == 'mvola'" [isFullPayment]="true">
 
   </app-mvola>
   <div class="payment-actions">

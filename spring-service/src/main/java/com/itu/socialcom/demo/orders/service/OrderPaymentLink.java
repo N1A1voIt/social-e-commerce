@@ -96,11 +96,12 @@ public class OrderPaymentLink implements OrderPaymentLinkService{
         }
         DownPayment downPayment = this.downPaymentRepository.findByIdSeller(orderParent.getIdSeller().longValue()).get(0);
         double paymentAmount = orderParent.getDTotal() - downPayment.getPaymentInPercent()/100 * orderParent.getDTotal();
-        TempLink tempLink = tempLinkService.createLink(orderParent.getCustomerNumber(), orderParent.getIdOrderM().intValue(),
+        double fees = paymentAmount * 0.03;
+        TempLink tempLink = tempLinkService.createFullAmountLink(orderParent.getCustomerNumber(), orderParent.getIdOrderM().intValue(),
                 orderParent.getIdSeller(),paymentAmount);
 
         String message = "Please pay the full amount for your order using the following link: " +
-                tempLink.getTempLink() + " just know that this link will expire in 1 hour and you won't be able to claim a new link , the down payment amount is " + paymentAmount +" Ariary ";
+                tempLink.getTempLink() + " just know that this link will expire in 1 hour and you won't be able to claim a new link , the amount is " + paymentAmount +" Ariary with this fee:"+ fees+" Ariary";
         if (orderParent.getIdManagedPages() == null) {
 
         } else {

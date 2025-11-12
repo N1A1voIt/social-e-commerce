@@ -36,6 +36,7 @@ import {
 } from "./main/content-management/post-scheduling/prompt-parameter/prompt-parameter.component";
 import {GenericChatComponent} from "./main/generic-chat/generic-chat.component";
 import {OrderDetailsComponent} from "./main/orders/order-details/order-details.component";
+import {TransactionFullComponent} from "./main/transaction-full/transaction-full.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -80,6 +81,7 @@ const homeRoutes: Routes = [
 
 const freeRoutes:Routes = [
   {path:'transactions',component:TransactionComponent},
+  {path:'transactions-full',component:TransactionFullComponent},
   {path:'success-redirection',component:SuccessRedirectionComponent}
 ]
 

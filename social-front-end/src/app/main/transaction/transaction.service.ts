@@ -15,4 +15,12 @@ export class TransactionService {
     console.log(paymentBody)
     return this.http.post<ApiResponse>(`${javaHost}/api/order/pay?link_identifier=${paymentBody.idPayment}`,paymentBody);
   }
+  fullPayment(paymentBody:TransactionDetail):Observable<ApiResponse> {
+    console.log(paymentBody)
+    return this.http.post<ApiResponse>(`${javaHost}/api/order/pay-full-amount?link_identifier=${paymentBody.idPayment}`,paymentBody);
+  }
+  
+  getTempLinkDetails(linkId: string): Observable<ApiResponse> {
+    return this.http.get<ApiResponse>(`${javaHost}/api/temp-link/${linkId}`);
+  }
 }

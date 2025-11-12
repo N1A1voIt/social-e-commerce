@@ -142,7 +142,7 @@
                 <button class="action-button bg-purple-50" [routerLink]="['/basic/orders', order.idOrderM]" title="View details">
                   <i class="pi pi-eye text-purple-500 text-xl"></i>
                 </button>
-                <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) " (click)="nextStep(order)" title="Next step">
+                <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 45)) && (!(order.dstatus == 51)) " (click)="nextStep(order)" title="Next step">
                   <i class="pi pi-arrow-circle-right text-green-500 text-xl"></i>
                 </button>
                 <button class="action-button bg-red-50" (click)="cancelOrder(order)" title="Cancel">
@@ -388,6 +388,39 @@
     </div>
   </div>
 </app-form-container>
+
+<!-- Step 4: MVola Full Payment Billing Form (Status 41 - MVola selected) -->
+<app-form-container (closeForm)="openModal=false" label="Send MVola Payment Link" [isVisible]="step=='4' && openModal">
+  <div class="flex flex-col w-full border border-black rounded-xl p-4 bg-gray-50 gap-3">
+    <h2 class="text-lg font-bold font-mono">Full Payment - MVola</h2>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Order ID:</span>
+        <span>{{ activeOrder?.idOrderM }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Customer Name:</span>
+        <span>{{ activeOrder?.dcustomerName }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Shipment Address:</span>
+        <span>{{ activeOrder?.shippingAddress }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Customer Number:</span>
+        <span>{{ activeOrder?.customerNumber }}</span>
+      </div>
+      <div class="flex flex-row justify-between border-t pt-2 mt-2">
+        <span class="font-semibold text-lg">Total Amount:</span>
+        <span class="font-bold text-lg text-green-600">{{ activeOrder?.dtotal | frenchNumber }} Ar</span>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4">
+    <app-beautiful-button [text]="'Send Full Payment Link via MVola'" (click)="sendFullPaymentLink()"></app-beautiful-button>
+  </div>
+</app-form-container>
+
 <app-form-container (closeForm)="showApplicants=false" [label]="'Applicants'" [isVisible]="showApplicants">
   <div class="cont-box w-full flex gap-5 justify-between items-center mt-2 rounded-3xl border p-2" *ngFor="let applicant of applicants">
     <div class="flex justify-center items-center gap-5">

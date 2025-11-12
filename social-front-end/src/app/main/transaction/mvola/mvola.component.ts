@@ -28,6 +28,7 @@ import {MessageService} from "primeng/api";
 })
 export class MvolaComponent {
   @Input() isVisible:boolean = false;
+  @Input() isFullPayment:boolean = false; // true for full payment, false for partial payment
   mvolaForm!:FormGroup;
   constructor(formBuilder:FormBuilder,private messageService:MessageService,private naavigateRouter:Router,private router:ActivatedRoute,private  transactionService:TransactionService) {
     this.mvolaForm = formBuilder.group({
@@ -41,7 +42,13 @@ export class MvolaComponent {
     transactionBody.provider = 'mvola';
     console.log(this.router.snapshot.queryParamMap?.get("id_payment"))
     transactionBody.idPayment = this.router.snapshot.queryParamMap?.get("id_payment") || "";
-    this.transactionService.mobilePay(transactionBody).subscribe({
+    
+    // Choose the appropriate payment method based on isFullPayment flag
+    const paymentObservable = this.isFullPayment 
+      ? this.transactionService.fullPayment(transactionBody)
+      : this.transactionService.mobilePay(transactionBody);
+    
+    paymentObservable.subscribe({
       next: (data: ApiResponse) => {
         this.isVisible = false;
         this.naavigateRouter.navigateByUrl("/success-redirection");

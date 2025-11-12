@@ -6,4 +6,5 @@ import com.itu.socialcom.demo.orders.dto.PaymentDTO;
 public interface OrderPaymentService {
     PaymentResponse processOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception;
     PaymentResponse processFullOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception;
+    PaymentResponse processCashPayment(Long orderId);
 }

@@ -1,25 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import {FormsModule} from "@angular/forms";
+import {MvolaComponent} from "../transaction/mvola/mvola.component";
 import {CommonModule, NgForOf, NgIf} from "@angular/common";
-import {MvolaComponent} from "./mvola/mvola.component";
-import {TransactionService} from "./transaction.service";
+import {PaymentMethod} from "../transaction/transaction.component";
+import {TransactionService} from "../transaction/transaction.service";
 import {ActivatedRoute} from "@angular/router";
-import {TempLink} from "./transaction.type";
+import {TempLink} from "../transaction/transaction.type";
 
 @Component({
-  selector: 'app-transaction',
+  selector: 'app-transaction-full',
   standalone: true,
   imports: [
-    FormsModule,
+    MvolaComponent,
     NgForOf,
     NgIf,
-    MvolaComponent,
     CommonModule
   ],
-  templateUrl: './transaction.component.html',
-  styleUrl: './transaction.component.css'
+  templateUrl: './transaction-full.component.html',
+  styleUrl: './transaction-full.component.css'
 })
-export class TransactionComponent implements OnInit {
+export class TransactionFullComponent implements OnInit {
   selectedMethod: string = '';
   phoneNumber: string = '';
   amount: number = 0;
@@ -138,13 +137,3 @@ export class TransactionComponent implements OnInit {
     this.amount = 0;
   }
 }
-
-
-export interface PaymentMethod {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-}
-
