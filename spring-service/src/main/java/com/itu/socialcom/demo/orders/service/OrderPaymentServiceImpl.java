@@ -260,8 +260,28 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     }
 
     @Override
-    public PaymentResponse processCashPayment(Long orderId) {
-        return null;
+    @Transactional
+    public PaymentResponse processCashPayment(OrderParent orderParent) throws Exception {
+        try {
+            Long orderId = orderParent.getIdOrderM();
+//            OrderParent orderParent = orderParentRepository.findByIdOrderM(orderId).get(0);
+            orderParent.setDStatus(51); // Completed
+            orderParentRepository.save(orderParent);
+            Sales sales = salesRepository.findByIdOrderM(orderId.intValue()).orElseThrow(() -> new Exception("Sales does not exist for this order"));
+            double rest = sales.getAmount().doubleValue() - sales.getPaidAmount();
+            sales.setPaidAmount(sales.getAmount().doubleValue());
+            salesRepository.save(sales);
+            Payments payments = new Payments();
+            payments.setAmount(rest);
+            payments.setCreatedAt(LocalDateTime.now());
+            payments.setIdSales(sales.getIdSale().longValue());
+            payments.setIdPm(2L);
+            payments.setPaymentMethod("Cash");
+            paymentsRepository.save(payments);
+            return null;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 

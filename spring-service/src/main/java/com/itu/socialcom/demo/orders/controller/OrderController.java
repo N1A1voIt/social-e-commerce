@@ -574,11 +574,9 @@ public class OrderController {
                 return ResponseEntity.status(404).body(apiResponse);
             }
 
-            // TODO: Customize this logic based on your cash payment requirements
-            // For now, we'll just update the status to completed (5)
+
             if (orderParent.getDStatus() == 41) {
-                orderParent.setDStatus(5); // Mark as completed
-                orderParentRepository.save(orderParent);
+                orderPaymentService.processCashPayment(orderParent);
             }
 
             ApiResponse apiResponse = new ApiResponse();
