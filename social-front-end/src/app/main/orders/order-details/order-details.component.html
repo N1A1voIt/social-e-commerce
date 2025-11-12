@@ -1,0 +1,129 @@
+<div class="order-details-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <p-progressSpinner />
+    <p class="text-lg text-gray-600">Loading order details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <i class="pi pi-exclamation-triangle" style="font-size: 3rem;"></i>
+    <h3>{{ error }}</h3>
+    <button pButton label="Go Back" icon="pi pi-arrow-left" class="p-button-outlined" (click)="goBack()"></button>
+  </div>
+
+  <!-- Order Details -->
+  <div *ngIf="!loading && !error">
+    <!-- Header -->
+    <div class="header-section" *ngIf="order">
+      <div>
+        <h1 class="order-header-title">Order #{{ order.idOrderM }}</h1>
+        <p class="text-gray-600 mt-1">{{ order.description || 'Order Details' }}</p>
+      </div>
+      <div class="action-buttons">
+        <button pButton label="Back to Orders" icon="pi pi-arrow-left" class="p-button-outlined" (click)="goBack()"></button>
+        <button pButton label="Export PDF" icon="pi pi-file-pdf" class="p-button-outlined" (click)="exportOrder()"></button>
+      </div>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="summary-card" *ngIf="order">
+      <h2 class="section-title">Order Information</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Status</span>
+          <div class="summary-value">
+            <p-tag [value]="getStatusLabel(order.dstatus)" [severity]="getStatusSeverity(order.dstatus)"></p-tag>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Customer Name</span>
+          <span class="summary-value">{{ order.dcustomerName || 'N/A' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Phone Number</span>
+          <span class="summary-value">{{ order.customerNumber || 'N/A' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Shipping Address</span>
+          <span class="summary-value">{{ order.shippingAddress || 'N/A' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Order Date</span>
+          <span class="summary-value">{{ order.createdAt | date:'medium' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Total Amount</span>
+          <span class="summary-value">{{ order.dtotal | frenchNumber }} Ar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="items-section">
+      <h2 class="section-title">Order Items</h2>
+
+      <p-table
+        [value]="orderDetails || []"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        styleClass="p-datatable-striped"
+        responsiveLayout="stack"
+        [breakpoint]="'768px'">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>
+              <img
+                *ngIf="item.mediaUrl"
+                [src]="item.mediaUrl"
+                [alt]="item.productName || 'Product'"
+                class="product-image"
+                onerror="this.style.display='none'">
+              <span *ngIf="!item.mediaUrl" class="text-gray-400">No image</span>
+            </td>
+            <td>
+              <div class="font-semibold">{{ item.productName || 'N/A' }}</div>
+            </td>
+            <td>
+              <p-tag [value]="item.sku || 'N/A'" severity="secondary"></p-tag>
+            </td>
+            <td>{{ item.price | frenchNumber }} Ar</td>
+            <td class="text-center font-semibold">{{ item.quantity }}</td>
+            <td class="font-semibold">{{ calculateItemTotal(item) | frenchNumber }} Ar</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="empty-message">
+              <i class="pi pi-inbox text-4xl text-gray-400 mb-3"></i>
+              <p class="text-lg">No items found in this order</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <!-- Total Section -->
+      <div class="total-section" *ngIf="order">
+        <span class="total-label">Total:</span>
+        <span class="total-amount">{{ order.dtotal | frenchNumber }} Ar</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -23,12 +23,13 @@ import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import {BasicInputComponent} from "../../shared/basic-input/basic-input.component";
+import {RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf, FrenchNumberPipe, CalendarModule, InputTextModule, DropdownModule, BasicInputComponent],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf, FrenchNumberPipe, CalendarModule, InputTextModule, DropdownModule, BasicInputComponent, RouterLink],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -53,6 +54,13 @@ export class OrdersComponent implements OnInit{
   showCancelModal: boolean = false;
   refundInfo: Refund | null = null;
   cancellingOrder: OrderParent | null = null;
+
+  // Payment method selection (for status 41 - Delivered - Asking for full payment)
+  selectedPaymentMethod: string | null = null;
+  paymentMethodOptions: SelectOption[] = [
+    { label: 'MVola', value: 'mvola' },
+    { label: 'Cash', value: 'cash' }
+  ];
 
   // Filter properties
   filterStatus: number | null = null;
@@ -98,8 +106,17 @@ export class OrdersComponent implements OnInit{
 
   nextStep(order:OrderParent) {
     this.activeOrder = order;
-    this.openModal = true;
     this.selectedShippingPoint = null;
+
+    // If status is 31 (Cancelled), don't open modal, just notify customer
+    if(order.dstatus == 31) {
+       this.notifyCustomer(order.idOrderM || -1);
+       console.log("Salame")
+       return; // Exit early
+    }
+
+    // Open modal for other statuses
+    this.openModal = true;
 
     if (order.dstatus == 1) {
       console.log(order.dstatus);
@@ -114,9 +131,22 @@ export class OrdersComponent implements OnInit{
       } else {
         this.fetchShippingPointsForOrder(order);
       }
+    } else if (order.dstatus == 41) {
+      // Delivered - Asking for full payment
+      this.step = '3';
+      this.selectedPaymentMethod = null; // Reset payment method selection
     }
   }
-
+  notifyCustomer(orderId:number) {
+    this.orderService.notifyCompleteDelivery(orderId).subscribe({
+      next: (response: ApiResponse) => {
+        console.log(response);
+        this.fetchOrders();
+      },error(err:ApiResponse) {
+        alert(err.errors[0].message);
+      }
+    });
+  }
   fetchShippingPointsForOrder(order: OrderParent) {
     if (!order.childs || order.childs.length === 0) {
       this.messagingService.add({
@@ -204,6 +234,48 @@ export class OrdersComponent implements OnInit{
     });
 
     this.openModal = false;
+  }
+
+  confirmPayment() {
+    if (!this.selectedPaymentMethod) {
+      this.messagingService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select a payment method'
+      });
+      return;
+    }
+
+    if (!this.activeOrder || !this.activeOrder.idOrderM) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No active order found'
+      });
+      return;
+    }
+
+    // Call API to confirm payment with selected method
+    this.orderService.confirmFullPayment(this.activeOrder.idOrderM, this.selectedPaymentMethod).subscribe({
+      next: (response: ApiResponse) => {
+        console.log('Payment confirmed:', response);
+        this.messagingService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Payment confirmed via ${this.selectedPaymentMethod === 'mvola' ? 'MVola' : 'Cash'}`
+        });
+        this.openModal = false;
+        this.fetchOrders();
+      },
+      error: (err: any) => {
+        console.error('Error confirming payment:', err);
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error?.errors?.[0]?.message || 'Failed to confirm payment'
+        });
+      }
+    });
   }
 
   fetchOrders(event?: TableLazyLoadEvent): void {
@@ -349,6 +421,7 @@ export class OrdersComponent implements OnInit{
       21: 'Cancelled',
       25: 'Waiting for deliverer',
       31: 'Shipped',
+      41: 'Delivered - Asking for full payment',
     };
 
     return statusMap[status] || 'Unknown';

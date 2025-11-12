@@ -12,9 +12,7 @@ import com.itu.socialcom.demo.orders.repository.OrderChildRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
 import com.itu.socialcom.demo.orders.tempLink.TempLink;
 import com.itu.socialcom.demo.orders.tempLink.TempLinkRepository;
-import com.itu.socialcom.demo.sales.Sales;
-import com.itu.socialcom.demo.sales.SalesDetails;
-import com.itu.socialcom.demo.sales.SalesRepository;
+import com.itu.socialcom.demo.sales.*;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPagesNumber;
 import com.itu.socialcom.demo.socialmedia.repository.ManagedPagesNumberRepository;
 import com.itu.socialcom.demo.stocks.StockChild;
@@ -53,6 +51,10 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     private SalesRepository salesRepository;
     @Autowired
     private StockPersistanceService stockPersistanceService;
+    @Autowired
+    private PaymentsRepository paymentsRepository;
+
+
     @Override
     @Transactional
     public PaymentResponse processOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception {
@@ -195,6 +197,13 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         sales.setDetails(salesDetailsList);
         sales.setPaidAmount(Double.parseDouble(paymentDTO.getAmount()));
         sales.setStatus(1); // Partially paid
+        Payments payments = new Payments();
+        payments.setAmount(sales.getAmount().doubleValue());
+        payments.setCreatedAt(LocalDateTime.now());
+        payments.setIdSales(sales.getIdSale().longValue());
+        payments.setIdPm(1L);
+        payments.setPaymentMethod("MVola");
+        paymentsRepository.save(payments);
         // Save the sales (cascade will save details automatically)
         return salesRepository.save(sales);
     }
@@ -235,6 +244,14 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             sales1.setPaidAmount(sales1.getAmount().doubleValue());
             sales1.setStatus(11); // Fully paid
             salesRepository.save(sales1);
+            Payments payments = new Payments();
+            payments.setAmount(sales1.getAmount().doubleValue());
+            payments.setCreatedAt(LocalDateTime.now());
+            payments.setIdSales(sales1.getIdSale().longValue());
+            payments.setIdPm(1L);
+            payments.setPaymentMethod("MVola");
+            paymentsRepository.save(payments);
+
             return paymentResponse;
         } catch (Exception e) {
             e.printStackTrace();

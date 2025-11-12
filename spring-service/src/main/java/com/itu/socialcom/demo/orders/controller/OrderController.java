@@ -53,6 +53,8 @@ public class OrderController {
     private OrderPaymentServiceImpl orderPaymentService;
     @Autowired
     private OrderFilterService orderFilterService;
+    @Autowired
+    private OrderDeliveredService orderDeliveredService;
 
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
@@ -381,6 +383,108 @@ public class OrderController {
             apiResponse.setData(null);
             apiResponse.setErrors(List.of(e));
             return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    @GetMapping("/api/order/{id}")
+    public ResponseEntity<ApiResponse> getOrder(@PathVariable("id") Long id) {
+        try {
+            OrderParent orderParent = orderParentRepository.findById(id).orElse(null);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+    @GetMapping("/api/order/complete-delivery/{id}")
+    public ResponseEntity<ApiResponse> notifyCustomer(@PathVariable("id") Long id) {
+        try {
+            orderDeliveredService.notifyCustomer(id);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(null);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    @GetMapping("/api/order/ask-for-full-payment")
+    public ResponseEntity<ApiResponse> askForFullPayment(@RequestParam("id") Long id) {
+        try {
+            OrderParent orderParent = orderParentRepository.findById(id).orElse(null);
+            orderParent = orderPaymentLink.askForUserToPayTheRest(orderParent);
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+    @PostMapping("/api/order/confirm-payment")
+    public ResponseEntity<ApiResponse> confirmPayment(@RequestBody java.util.Map<String, Object> payload, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to confirm payment")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+
+            Long orderId = Long.valueOf(payload.get("orderId").toString());
+            String paymentMethod = payload.get("paymentMethod").toString();
+
+            OrderParent orderParent = orderParentRepository.findById(orderId).orElse(null);
+            if (orderParent == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(404);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Order not found")));
+                return ResponseEntity.status(404).body(apiResponse);
+            }
+
+            // Update order status based on payment method
+            // Status 41 -> Status 5 (Completed)
+            if (orderParent.getDStatus() == 41) {
+                orderParent.setDStatus(5); // Mark as completed
+                orderParentRepository.save(orderParent);
+
+                // Log the payment method used
+                System.out.println("Payment confirmed for order " + orderId + " via " + paymentMethod);
+            }
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
         }
     }
 

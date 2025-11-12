@@ -35,6 +35,7 @@ import {
   PromptParameterComponent
 } from "./main/content-management/post-scheduling/prompt-parameter/prompt-parameter.component";
 import {GenericChatComponent} from "./main/generic-chat/generic-chat.component";
+import {OrderDetailsComponent} from "./main/orders/order-details/order-details.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -60,6 +61,7 @@ const homeRoutes: Routes = [
       { path: 'content/post/:id', component: PostDetailsComponent },
       { path: 'content/prompt-parameter', component: PromptParameterComponent },
       { path: 'orders', component: OrdersComponent },
+      { path: 'orders/:id', component: OrderDetailsComponent },
       { path: 'sales', component: SalesComponent },
     ]
   },

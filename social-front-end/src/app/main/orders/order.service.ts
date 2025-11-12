@@ -19,9 +19,9 @@ export class OrderService {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
-    
+
     let url = `${javaHost}/api/orders?size=10&page=${pageNum}`;
-    
+
     // Add filter parameters if provided
     if (status !== null && status !== undefined) {
       url += `&status=${status}`;
@@ -35,7 +35,7 @@ export class OrderService {
     if (endDate && endDate.trim() !== '') {
       url += `&endDate=${encodeURIComponent(endDate)}`;
     }
-    
+
     return this.http.get<ApiResponse>(url, {headers: header});
   }
 
@@ -127,4 +127,29 @@ export class OrderService {
     }
     return this.http.post<ApiResponse>(javaHost+'/api/order/cancel', refundRequest, {headers: header});
   }
+  fetchOrderById(orderId:number){
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.get<ApiResponse>(javaHost+'/api/order/'+orderId,{headers:header});
+  }
+
+  notifyCompleteDelivery(orderId: number) {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.get<ApiResponse>(javaHost+'/api/order/complete-delivery/'+orderId,{headers:header});
+  }
+
+  confirmFullPayment(orderId: number, paymentMethod: string): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(
+      javaHost+'/api/order/confirm-payment',
+      { orderId, paymentMethod },
+      {headers: header}
+    );
+  }
+
 }
