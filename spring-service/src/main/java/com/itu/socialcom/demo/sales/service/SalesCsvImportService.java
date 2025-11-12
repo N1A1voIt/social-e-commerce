@@ -130,7 +130,7 @@ public class SalesCsvImportService {
         // Split by comma, handling quoted fields
         List<String> fields = splitCsvLine(line);
 
-        if (fields.size() != 14) {
+        if (fields.size() != 15) {
             throw new Exception("Invalid number of columns. Expected 14, got " + fields.size());
         }
 
@@ -151,6 +151,7 @@ public class SalesCsvImportService {
             row.setVariantName(fields.get(11));
             row.setSkuProduct(fields.get(12));
             row.setSkuVariant(fields.get(13));
+            row.setPaidAmount(new BigDecimal(fields.get(14)));
         } catch (NumberFormatException e) {
             throw new Exception("Invalid number format: " + e.getMessage());
         } catch (DateTimeParseException e) {
@@ -229,7 +230,7 @@ public class SalesCsvImportService {
         sale.setIdOrderM(firstRow.getIdOrderM().isEmpty() ? null : Integer.parseInt(firstRow.getIdOrderM()));
         sale.setIdSpn(1); // Default phone number ID - adjust as needed
         sale.setStatus(1); // Default status
-        sale.setPaidAmount(0.0);
+        sale.setPaidAmount(firstRow.getPaidAmount().doubleValue());
 
         try {
             sale = salesRepository.save(sale);

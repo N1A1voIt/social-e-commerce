@@ -42,7 +42,7 @@ public class SalesController {
             salesToDisplay.setSales(sales);
             salesToDisplay.setTotalSales(salesRepository.countByIdSeller(seller.getId().intValue()));
 
-            System.out.println(sales.size());
+            System.out.println("Sales size:"+sales.size());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(salesToDisplay);

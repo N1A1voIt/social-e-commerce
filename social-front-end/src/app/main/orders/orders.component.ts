@@ -18,12 +18,17 @@ import {BasicSelectComponent} from "../../shared/basic-select/basic-select.compo
 import {ShippingPointService} from "../settings/managed-account/shipping-point/shipping-point.service";
 import {ShippingPoint} from "../settings/managed-account/shipping-point/shipping-point.model";
 import {SelectOption} from "../../shared/basic-select/basic-select.component";
+import {FrenchNumberPipe} from "../../shared/french-number.pipe";
+import { CalendarModule } from 'primeng/calendar';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import {BasicInputComponent} from "../../shared/basic-input/basic-input.component";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf, FrenchNumberPipe, CalendarModule, InputTextModule, DropdownModule, BasicInputComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -48,6 +53,23 @@ export class OrdersComponent implements OnInit{
   showCancelModal: boolean = false;
   refundInfo: Refund | null = null;
   cancellingOrder: OrderParent | null = null;
+
+  // Filter properties
+  filterStatus: number | null = null;
+  filterCustomerName: string = '';
+  filterStartDate: Date | null = null;
+  filterEndDate: Date | null = null;
+
+  // Status options for dropdown
+  statusOptions: SelectOption[] = [
+    { label: 'All Statuses', value: null },
+    { label: 'Created', value: 1 },
+    { label: 'Ordered', value: 11 },
+    { label: 'Waiting for deliverer', value: 25 },
+    { label: 'Cancelled', value: 21 },
+    { label: 'Completed', value: 5 },
+    { label: 'Shipped', value: 31 }
+  ];
 
   constructor(
     private orderService: OrderService,
@@ -188,7 +210,22 @@ export class OrdersComponent implements OnInit{
     this.loading = true;
     const page = event ? Math.floor((event.first || 0) / (event.rows || 10)) : 0;
 
-    this.orderService.fetchAllOrders(page).subscribe({
+    // Format dates to ISO string if they exist
+    const startDateStr = this.filterStartDate ? this.formatDateToISO(this.filterStartDate) : null;
+    const endDateStr = this.filterEndDate ? this.formatDateToISO(this.filterEndDate) : null;
+
+    // Clean up customer name - convert empty string to null
+    const customerNameFilter = this.filterCustomerName && this.filterCustomerName.trim() !== ''
+      ? this.filterCustomerName.trim()
+      : null;
+
+    this.orderService.fetchAllOrders(
+      page,
+      this.filterStatus,
+      customerNameFilter,
+      startDateStr,
+      endDateStr
+    ).subscribe({
       next: (response: ApiResponse) => {
         console.log(response);
         const orderDisplay = response.data as OrderDisplay;
@@ -203,6 +240,30 @@ export class OrdersComponent implements OnInit{
         alert(err.message || 'Failed to load orders');
       }
     });
+  }
+
+  formatDateToISO(date: Date): string {
+    // Format date to ISO 8601 format expected by backend
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
+  applyFilters(): void {
+    // Reset to first page when applying filters
+    this.fetchOrders();
+  }
+
+  clearFilters(): void {
+    this.filterStatus = null;
+    this.filterCustomerName = '';
+    this.filterStartDate = null;
+    this.filterEndDate = null;
+    this.fetchOrders();
   }
 
   // Fetch child orders when a row is expanded

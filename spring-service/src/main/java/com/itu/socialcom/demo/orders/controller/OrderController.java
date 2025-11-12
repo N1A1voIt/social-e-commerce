@@ -20,6 +20,7 @@ import com.itu.socialcom.demo.orders.service.*;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,8 @@ public class OrderController {
     private DeliveryRepository deliveryRepository;
     @Autowired
     private OrderPaymentServiceImpl orderPaymentService;
+    @Autowired
+    private OrderFilterService orderFilterService;
 
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
@@ -79,7 +82,13 @@ public class OrderController {
     }
 
     @GetMapping("/api/orders")
-    public ResponseEntity<ApiResponse> getAllOrders(@RequestHeader(name = "Authorization") String token, Pageable pageable) {
+    public ResponseEntity<ApiResponse> getAllOrders(
+            @RequestHeader(name = "Authorization") String token, 
+            Pageable pageable,
+            @RequestParam(name = "status", required = false) Integer status,
+            @RequestParam(name = "customerName", required = false) String customerName,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "endDate", required = false) String endDate) {
         try {
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
@@ -89,15 +98,43 @@ public class OrderController {
                 apiResponse.setErrors(List.of(new Exception("Please log in to view orders")));
                 return ResponseEntity.status(401).body(apiResponse);
             }
+            
+            // Parse date parameters
+            java.time.LocalDateTime startDateTime = null;
+            java.time.LocalDateTime endDateTime = null;
+            
+            if (startDate != null && !startDate.isEmpty()) {
+                startDateTime = java.time.LocalDateTime.parse(startDate);
+            }
+            if (endDate != null && !endDate.isEmpty()) {
+                endDateTime = java.time.LocalDateTime.parse(endDate);
+            }
+            
+            // Clean up customerName - treat empty strings as null
+            String cleanCustomerName = (customerName != null && !customerName.trim().isEmpty()) ? customerName.trim() : null;
+            
             OrdersToDisplay ordersToDisplay = new OrdersToDisplay();
-            List<OrderParent> orders = orderParentRepository.findAllByIdSeller(seller.getId().intValue(),pageable).getContent();
+            
+            // Use EntityManager-based filtering for flexible query building
+            Page<OrderParent> orderPage = orderFilterService.findOrdersWithFilters(
+                seller.getId().intValue(),
+                status,
+                cleanCustomerName,
+                startDateTime,
+                endDateTime,
+                pageable
+            );
+            
+            List<OrderParent> orders = orderPage.getContent();
+            int totalOrders = (int) orderPage.getTotalElements();
+            
             DownPayment downPayment = downPaymentRepository.findByIdSeller(seller.getId()).get(0);
             for (OrderParent order : orders) {
                 order.setDownP(downPayment.getPaymentInPercent() / 100 * order.getDTotal());
                 order.setDownPPercent(downPayment.getPaymentInPercent() / 100);
             }
             ordersToDisplay.setOrders(orders);
-            ordersToDisplay.setTotalOrders(orderParentRepository.countByIdSeller(seller.getId().intValue()));
+            ordersToDisplay.setTotalOrders(totalOrders);
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(ordersToDisplay);

@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CustomerOrdersService, CustomerOrder } from './orders.service';
+import { FrenchNumberPipe } from '../../shared/french-number.pipe';
 
 @Component({
   selector: 'app-client-orders',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink],
+  imports: [CommonModule, DatePipe, RouterLink, FrenchNumberPipe],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.css']
 })

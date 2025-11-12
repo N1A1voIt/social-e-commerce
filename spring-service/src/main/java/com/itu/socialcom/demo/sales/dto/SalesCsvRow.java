@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
  */
 @Data
 public class SalesCsvRow {
-    
-    // Sales table fields
     private Integer idSale;
     private BigDecimal amount;
     private LocalDateTime effectuedAt;
@@ -21,9 +19,9 @@ public class SalesCsvRow {
     private String description;
     private String platform;
     private String idOrderM;
-    
-    // Sales details fields
+
     private BigDecimal price;
+    private BigDecimal paidAmount;
     private Integer quantity;
     private String productName;
     private String variantName;

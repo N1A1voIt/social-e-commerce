@@ -4,6 +4,7 @@ import {VariantWithOptionsDTO} from "../../products.types";
 import {VariantFormComponent} from "../variant-form/variant-form.component";
 import {VariantUpdateComponent} from "../variant-update/variant-update.component";
 import {StockRefillFormComponent} from "../stock-refill-form/stock-refill-form.component";
+import {FrenchNumberPipe} from "../../../../shared/french-number.pipe";
 
 @Component({
   selector: 'app-variant-list',
@@ -15,7 +16,8 @@ import {StockRefillFormComponent} from "../stock-refill-form/stock-refill-form.c
     DatePipe,
     VariantFormComponent,
     VariantUpdateComponent,
-    StockRefillFormComponent
+    StockRefillFormComponent,
+    FrenchNumberPipe
   ],
   templateUrl: './variant-list.component.html',
   styleUrl: './variant-list.component.css'

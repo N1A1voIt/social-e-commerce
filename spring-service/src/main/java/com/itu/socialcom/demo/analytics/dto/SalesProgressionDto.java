@@ -12,4 +12,5 @@ import java.util.List;
 public class SalesProgressionDto {
     private List<String> labels; // Dates in string format: e.g. "2025-03-01"
     private List<Double> data;   // Corresponding sales totals
+    private List<Double> paidAmounts;
 }

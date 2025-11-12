@@ -17,7 +17,7 @@ public interface SalesRepository extends JpaRepository<Sales, Integer> {
 //    @Query("SELECT s FROM Sales s JOIN OrderParent o ON s.idOrderM = o.idOrderM WHERE o.idSeller = :idSeller ORDER BY s.effectuatedAt DESC")
 //    Page<Sales> findAllByIdSeller(@Param("idSeller") Integer idSeller, Pageable pageable);
 
-    @Query("SELECT COUNT(s) FROM Sales s JOIN OrderParent o ON s.idOrderM = o.idOrderM WHERE o.idSeller = :idSeller")
+    @Query("SELECT COUNT(s) FROM Sales s WHERE s.idSeller = :idSeller")
     int countByIdSeller(@Param("idSeller") Integer idSeller);
 
     Page<Sales> findByIdSeller(Integer idSeller, Pageable pageable);

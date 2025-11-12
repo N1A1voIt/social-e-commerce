@@ -1,0 +1,85 @@
+id_sale,amount,effectued_at,from_number,from_name,description,platform,id_order_m,price,quantity,product_name,variant_name,sku_product,sku_variant
+1,761.03,2025-10-21 11:18,261353487308,"Charlie Brown","Customer purchase",facebook,,20.91,5,"Product G","Variant 1",PWD,SMCH-BLACK
+1,761.03,2025-10-21 11:18,261353487308,"Charlie Brown","Customer purchase",facebook,,146.22,4,"Product H","Deluxe",PWD,SMCH-BLACK
+1,761.03,2025-10-21 11:18,261353487308,"Charlie Brown","Customer purchase",facebook,,17.90,4,"Product B","Basic",PT,PDT1
+2,503.16,2025-08-21 09:23,261747451780,"Jane Smith","Customer purchase",instagram,,43.15,4,"Product F","Variant 3",PT,PDT5
+2,503.16,2025-08-21 09:23,261747451780,"Jane Smith","Customer purchase",instagram,,19.93,4,"Product G","Deluxe",PWD,SMCH-BLACK
+2,503.16,2025-08-21 09:23,261747451780,"Jane Smith","Customer purchase",instagram,,125.42,2,"Product H","Variant 2",PWD,SMCH-BLACK
+3,357.73,2025-09-02 19:34,261648265950,"Diana Prince","Sale of products",instagram,,36.54,3,"Product H","Standard",PT,PDT1
+3,357.73,2025-09-02 19:34,261648265950,"Diana Prince","Sale of products",instagram,,35.07,3,"Product B","Standard",PWD,SMCH-BLACK
+3,357.73,2025-09-02 19:34,261648265950,"Diana Prince","Sale of products",instagram,,71.45,2,"Product B","Premium",PWD,SMCH-BLACK
+4,127.96,2025-11-06 10:13,261589909639,"Bob Johnson","Customer purchase",whatsapp,,63.98,2,"Product C","Basic",PT,PDT2
+5,57.32,2025-09-02 16:31,261262955761,"John Doe","Sale of products",whatsapp,,57.32,1,"Product A","Premium",PWD,SMCH-BLACK
+6,130.91,2025-08-18 01:02,261019793222,"Jane Smith","Online order",tiktok,,21.08,2,"Product C","Premium",PT,PDT4
+6,130.91,2025-08-18 01:02,261019793222,"Jane Smith","Online order",tiktok,,17.75,5,"Product C","Variant 1",PT,PDT2
+7,453.92,2025-11-06 10:51,261071062848,"John Doe","Direct sale",instagram,,157.55,1,"Product E","Variant 1",PWD,SMCH-BLACK
+7,453.92,2025-11-06 10:51,261071062848,"John Doe","Direct sale",instagram,,21.33,5,"Product A","Deluxe",PT,PDT3
+7,453.92,2025-11-06 10:51,261071062848,"John Doe","Direct sale",instagram,,63.24,3,"Product C","Standard",PWD,SMCH-BLACK
+8,1052.65,2025-08-13 00:45,261743592120,"Bob Johnson","Customer purchase",tiktok,,130.13,5,"Product G","Variant 3",PT,PDT5
+8,1052.65,2025-08-13 00:45,261743592120,"Bob Johnson","Customer purchase",tiktok,,134.00,3,"Product E","Deluxe",PWD,SMCH-BLACK
+9,304.83,2025-09-08 21:20,261399414884,"Charlie Brown","Online order",whatsapp,,49.74,1,"Product D","Basic",PT,PDT4
+9,304.83,2025-09-08 21:20,261399414884,"Charlie Brown","Online order",whatsapp,,85.03,3,"Product B","Variant 3",PT,PDT2
+10,691.70,2025-09-18 02:55,261904161972,"Diana Prince","Online order",instagram,,135.43,4,"Product C","Deluxe",PWD,SMCH-BLACK
+10,691.70,2025-09-18 02:55,261904161972,"Diana Prince","Online order",instagram,,74.99,2,"Product C","Variant 3",PWD,SMCH-BLACK
+11,890.04,2025-10-05 22:01,261009886754,"Charlie Brown","Direct sale",website,,135.52,5,"Product A","Basic",PT,PDT3
+11,890.04,2025-10-05 22:01,261009886754,"Charlie Brown","Direct sale",website,,23.02,2,"Product C","Variant 3",PT,PDT1
+11,890.04,2025-10-05 22:01,261009886754,"Charlie Brown","Direct sale",website,,41.60,4,"Product C","Deluxe",PT,PDT3
+12,875.14,2025-09-16 16:21,261612407207,"Jane Smith","Online order",tiktok,,131.80,5,"Product G","Variant 3",PWD,SMCH-BLACK
+12,875.14,2025-09-16 16:21,261612407207,"Jane Smith","Online order",tiktok,,108.07,2,"Product H","Variant 1",PWD,SMCH-BLACK
+13,643.64,2025-10-18 19:17,261777913245,"John Doe","Online order",whatsapp,,82.87,2,"Product F","Variant 4",PWD,SMCH-BLACK
+13,643.64,2025-10-18 19:17,261777913245,"John Doe","Online order",whatsapp,,79.14,5,"Product H","Variant 4",PWD,SMCH-BLACK
+13,643.64,2025-10-18 19:17,261777913245,"John Doe","Online order",whatsapp,,82.20,1,"Product G","Standard",PT,PDT5
+14,297.60,2025-08-01 18:51,261093703887,"Bob Johnson","Direct sale",whatsapp,,59.52,5,"Product E","Premium",PWD,SMCH-BLACK
+15,397.70,2025-11-04 16:50,261702943227,"Charlie Brown","Online order",whatsapp,,43.90,3,"Product E","Standard",PT,PDT5
+15,397.70,2025-11-04 16:50,261702943227,"Charlie Brown","Online order",whatsapp,,53.20,5,"Product H","Standard",PT,PDT5
+16,42.07,2025-10-04 16:50,261973469463,"John Doe","Sale of products",instagram,,42.07,1,"Product H","Basic",PT,PDT5
+17,868.72,2025-09-30 21:58,261547362866,"Bob Johnson","Customer purchase",website,,76.72,4,"Product C","Standard",PWD,SMCH-BLACK
+17,868.72,2025-09-30 21:58,261547362866,"Bob Johnson","Customer purchase",website,,140.46,4,"Product H","Standard",PWD,SMCH-BLACK
+18,49.50,2025-09-11 14:06,261436955577,"Charlie Brown","Direct sale",facebook,,16.50,3,"Product B","Variant 4",PT,PDT2
+19,270.06,2025-10-02 03:32,261142027318,"Bob Johnson","Online order",instagram,,72.26,1,"Product H","Variant 2",PT,PDT3
+19,270.06,2025-10-02 03:32,261142027318,"Bob Johnson","Online order",instagram,,98.90,2,"Product D","Variant 4",PWD,SMCH-BLACK
+20,547.99,2025-08-10 09:04,261811432334,"John Doe","Customer purchase",facebook,,85.14,1,"Product E","Standard",PWD,SMCH-BLACK
+20,547.99,2025-08-10 09:04,261811432334,"John Doe","Customer purchase",facebook,,92.57,5,"Product B","Premium",PT,PDT3
+21,623.56,2025-08-30 01:56,261169657442,"Charlie Brown","Customer purchase",instagram,,74.24,4,"Product D","Variant 1",PWD,SMCH-BLACK
+21,623.56,2025-08-30 01:56,261169657442,"Charlie Brown","Customer purchase",instagram,,72.80,1,"Product C","Premium",PT,PDT1
+21,623.56,2025-08-30 01:56,261169657442,"Charlie Brown","Customer purchase",instagram,,50.76,5,"Product D","Variant 2",PT,PDT4
+22,936.79,2025-09-03 12:13,261767417514,"Bob Johnson","Customer purchase",tiktok,,149.26,4,"Product D","Deluxe",PT,PDT1
+22,936.79,2025-09-03 12:13,261767417514,"Bob Johnson","Customer purchase",tiktok,,113.25,3,"Product F","Variant 4",PWD,SMCH-BLACK
+23,980.41,2025-10-07 19:45,261813316665,"Alice Williams","Customer purchase",instagram,,148.69,5,"Product D","Basic",PWD,SMCH-BLACK
+23,980.41,2025-10-07 19:45,261813316665,"Alice Williams","Customer purchase",instagram,,118.48,2,"Product H","Deluxe",PWD,SMCH-BLACK
+24,808.24,2025-08-03 18:02,261563845905,"Alice Williams","Direct sale",website,,139.78,4,"Product H","Basic",PWD,SMCH-BLACK
+24,808.24,2025-08-03 18:02,261563845905,"Alice Williams","Direct sale",website,,157.67,1,"Product B","Variant 3",PWD,SMCH-BLACK
+24,808.24,2025-08-03 18:02,261563845905,"Alice Williams","Direct sale",website,,18.29,5,"Product F","Basic",PWD,SMCH-BLACK
+25,759.78,2025-10-02 12:05,261684300007,"John Doe","Online order",instagram,,54.82,3,"Product A","Variant 4",PT,PDT2
+25,759.78,2025-10-02 12:05,261684300007,"John Doe","Online order",instagram,,53.91,4,"Product F","Variant 1",PT,PDT2
+25,759.78,2025-10-02 12:05,261684300007,"John Doe","Online order",instagram,,126.56,3,"Product D","Standard",PWD,SMCH-BLACK
+26,84.41,2025-08-20 03:43,261458490394,"John Doe","Online order",tiktok,,29.97,1,"Product A","Standard",PT,PDT1
+26,84.41,2025-08-20 03:43,261458490394,"John Doe","Online order",tiktok,,27.22,2,"Product A","Variant 3",PWD,SMCH-BLACK
+27,705.21,2025-10-04 23:50,261497911156,"John Doe","Online order",facebook,,129.18,3,"Product H","Variant 1",PT,PDT3
+27,705.21,2025-10-04 23:50,261497911156,"John Doe","Online order",facebook,,53.97,3,"Product E","Variant 1",PT,PDT2
+27,705.21,2025-10-04 23:50,261497911156,"John Doe","Online order",facebook,,155.76,1,"Product A","Variant 4",PT,PDT3
+28,647.72,2025-09-14 16:50,261992924599,"Jane Smith","Direct sale",website,,112.22,4,"Product H","Premium",PWD,SMCH-BLACK
+28,647.72,2025-09-14 16:50,261992924599,"Jane Smith","Direct sale",website,,99.42,2,"Product C","Standard",PT,PDT2
+29,202.32,2025-11-03 00:58,261964801250,"Bob Johnson","Customer purchase",instagram,,28.24,3,"Product D","Variant 3",PT,PDT3
+29,202.32,2025-11-03 00:58,261964801250,"Bob Johnson","Customer purchase",instagram,,23.52,5,"Product D","Variant 4",PWD,SMCH-BLACK
+30,351.06,2025-11-05 09:04,261969263526,"Charlie Brown","Online order",facebook,,127.12,2,"Product D","Standard",PT,PDT3
+30,351.06,2025-11-05 09:04,261969263526,"Charlie Brown","Online order",facebook,,10.74,3,"Product H","Basic",PT,PDT4
+30,351.06,2025-11-05 09:04,261969263526,"Charlie Brown","Online order",facebook,,64.60,1,"Product F","Variant 3",PT,PDT1
+31,257.00,2025-09-20 10:00,261291092654,"John Doe","Online order",facebook,,51.40,5,"Product C","Premium",PWD,SMCH-BLACK
+32,435.17,2025-10-02 19:29,261013238885,"John Doe","Customer purchase",whatsapp,,42.97,5,"Product G","Variant 1",PT,PDT5
+32,435.17,2025-10-02 19:29,261013238885,"John Doe","Customer purchase",whatsapp,,110.16,2,"Product F","Variant 4",PWD,SMCH-BLACK
+33,301.35,2025-11-02 01:19,261732766795,"Bob Johnson","Online order",instagram,,60.27,5,"Product A","Variant 3",PT,PDT4
+34,266.24,2025-10-06 05:56,261180287439,"Alice Williams","Direct sale",tiktok,,141.40,1,"Product D","Standard",PWD,SMCH-BLACK
+34,266.24,2025-10-06 05:56,261180287439,"Alice Williams","Direct sale",tiktok,,62.42,2,"Product F","Variant 4",PWD,SMCH-BLACK
+35,39.44,2025-09-15 19:19,261302873298,"John Doe","Customer purchase",whatsapp,,19.72,2,"Product F","Deluxe",PWD,SMCH-BLACK
+36,1368.19,2025-11-09 01:58,261247922438,"Charlie Brown","Direct sale",instagram,,94.82,5,"Product B","Variant 1",PWD,SMCH-BLACK
+36,1368.19,2025-11-09 01:58,261247922438,"Charlie Brown","Direct sale",instagram,,118.92,2,"Product F","Variant 2",PT,PDT1
+36,1368.19,2025-11-09 01:58,261247922438,"Charlie Brown","Direct sale",instagram,,131.25,5,"Product H","Premium",PWD,SMCH-BLACK
+37,315.42,2025-09-09 21:27,261518555437,"John Doe","Sale of products",instagram,,91.82,2,"Product D","Standard",PT,PDT1
+37,315.42,2025-09-09 21:27,261518555437,"John Doe","Sale of products",instagram,,131.78,1,"Product F","Variant 3",PT,PDT4
+38,311.42,2025-10-28 01:35,261713818596,"Charlie Brown","Direct sale",facebook,,155.71,2,"Product F","Variant 1",PT,PDT2
+39,1032.07,2025-09-25 19:47,261198898179,"Jane Smith","Customer purchase",website,,35.87,3,"Product C","Variant 4",PWD,SMCH-BLACK
+39,1032.07,2025-09-25 19:47,261198898179,"Jane Smith","Customer purchase",website,,144.02,3,"Product H","Basic",PT,PDT4
+39,1032.07,2025-09-25 19:47,261198898179,"Jane Smith","Customer purchase",website,,98.48,5,"Product A","Variant 1",PT,PDT4
+40,553.18,2025-08-24 06:48,261753682987,"Charlie Brown","Sale of products",website,,156.70,2,"Product F","Premium",PT,PDT3
+40,553.18,2025-08-24 06:48,261753682987,"Charlie Brown","Sale of products",website,,119.89,2,"Product F","Deluxe",PWD,SMCH-BLACK

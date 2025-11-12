@@ -198,4 +198,47 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         // Save the sales (cascade will save details automatically)
         return salesRepository.save(sales);
     }
+
+
+    @Override
+    @Transactional
+    public PaymentResponse processFullOrderPayment(PaymentDTO paymentDTO, String detailsIdentifier) throws Exception {
+        try {
+
+            TempLink tempLink = tempLinkRepository.findById(detailsIdentifier)
+                    .orElseThrow(() -> new Exception("Invalid payment link."));
+            if (tempLink.getUsed()) throw new Exception("This payment link has already been used.");
+            OrderParent orderParent = parentRepository.findById(tempLink.getIdOrderM().longValue())
+                    .orElseThrow(() -> new Exception("Order not found."));
+            if (tempLink.getAmount() + tempLink.getAmount() * 0.03 > Double.parseDouble(paymentDTO.getAmount())) {
+                throw new Exception("Amount is too low.");
+            }
+
+            ManagedPagesNumber managedPagesNumber = new ManagedPagesNumber();
+            if (orderParent.getIdManagedPages() != null) managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
+            SellerPhoneNumber sellerPhoneNumber = new SellerPhoneNumber();
+            if (orderParent.getIdManagedPages() != null) sellerPhoneNumber = sellerPhoneNumberRepository.findById(managedPagesNumber.getIdSpn())
+                    .orElseThrow(() -> new Exception("Seller phone number not found."));
+            if (orderParent.getIdManagedPages() == null) sellerPhoneNumber = sellerPhoneNumberRepository.findBySeller_IdAndPaymentMethod_Id(orderParent.getIdSeller().longValue(),1L)
+                    .orElseThrow(() -> new Exception("Seller phone number not found."));
+
+            PaymentRequest paymentRequest = createPaymentRequest(paymentDTO,orderParent,sellerPhoneNumber);
+            PaymentResponse paymentResponse = mVolaProvider.initiateTransaction(paymentRequest);
+
+            orderParent.setDStatus(51); // Completed
+            tempLink.setUsed(true);
+            orderParentRepository.save(orderParent);
+//            moveStock(orderParent);
+            tempLinkRepository.save(tempLink);
+//            Sales sales = transformOrderToSale(paymentDTO,orderParent, orderChildRepository.findByIdOrderM(orderParent.getIdOrderM().longValue()));
+            Sales sales1 = salesRepository.findByIdOrderM(orderParent.getIdOrderM().intValue()).orElseThrow(() -> new Exception("Sales not found."));
+            sales1.setPaidAmount(sales1.getAmount().doubleValue());
+            sales1.setStatus(11); // Fully paid
+            salesRepository.save(sales1);
+            return paymentResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("Payment processing failed: " + e.getMessage());
+        }
+    }
 }

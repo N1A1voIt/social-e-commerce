@@ -5,11 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CartService } from '../marketplace/services/cart.service';
 import { CheckoutService } from './services/checkout.service';
 import { Cart } from '../cart/cart.models';
+import { FrenchNumberPipe } from '../../shared/french-number.pipe';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FrenchNumberPipe],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']
 })

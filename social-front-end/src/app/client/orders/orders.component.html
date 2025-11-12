@@ -41,7 +41,7 @@
               {{ order.statusLabel }}
             </span>
           </div>
-          <p class="font-semibold text-lg">{{ order.dTotal | number:'1.2-2' }} Ar</p>
+          <p class="font-semibold text-lg">{{ order.dTotal | frenchNumber }} Ar</p>
         </div>
       </div>
 
@@ -69,13 +69,13 @@
           <div class="flex-1">
             <p class="font-medium">{{ item.productName }}</p>
             <p class="text-sm text-gray-600">
-              Quantity: {{ item.quantity }} × {{ item.price | number:'1.2-2' }} Ar
+              Quantity: {{ item.quantity }} × {{ item.price | frenchNumber }} Ar
             </p>
           </div>
 
           <!-- Item Subtotal -->
           <div class="text-right">
-            <p class="font-semibold">{{ (item.price * item.quantity) | number:'1.2-2' }} Ar</p>
+            <p class="font-semibold">{{ (item.price * item.quantity) | frenchNumber }} Ar</p>
           </div>
         </div>
       </div>

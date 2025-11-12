@@ -23,14 +23,14 @@
           <p class="text-sm text-gray-600">{{ item.variantTitle }}</p>
           <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
         </div>
-        <p class="font-semibold">{{ item.totalPrice | number:'1.2-2' }} Ar</p>
+        <p class="font-semibold">{{ item.totalPrice | frenchNumber }} Ar</p>
       </div>
     </div>
 
     <!-- Total -->
     <div class="border-t pt-4 flex justify-between items-center font-bold text-lg">
       <span>Total</span>
-      <span>{{ cart.totalPrice | number:'1.2-2' }} Ar</span>
+      <span>{{ cart.totalPrice | frenchNumber }} Ar</span>
     </div>
 
     <!-- Action Buttons -->

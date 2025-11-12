@@ -207,13 +207,13 @@ public class DashboardService {
                 && dashboardRequestDto.getEndDate().toLocalDate().equals(LocalDate.of(3000,1,1)));
 
         StringBuilder sql = new StringBuilder(
-                "SELECT DATE(created_at) AS sale_date, SUM(d_total) AS total_sales " +
-                        "FROM order_mother " +
+                "SELECT DATE(effectued_at) AS sale_date, SUM(amount) AS total_sales, SUM(paid_amount) AS paid_amounts " +
+                        "FROM sales " +
                         "WHERE id_seller = :sellerId "
         );
 
         if (applyDateFilter) {
-            sql.append("AND (created_at >= :startDate) AND (created_at <= :endDate) ");
+            sql.append("AND (effectued_at >= :startDate) AND (effectued_at <= :endDate) ");
         }
 
         sql.append("GROUP BY sale_date ORDER BY sale_date");
@@ -231,17 +231,20 @@ public class DashboardService {
         // Step 1: map query results and generate labels & data only for dates that have sales
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
+        List<Double> paid = new ArrayList<>();
 
         for (Object[] row : results) {
             java.sql.Date sqlDate = (java.sql.Date) row[0];
             LocalDate date = sqlDate.toLocalDate();
             Double total = ((Number) row[1]).doubleValue();
+            Double totalPaid = ((Number) row[2]).doubleValue();
 
             labels.add(date.toString()); // or format to "10 Oct" if you want
             data.add(total);
+            paid.add(totalPaid);
         }
 
-        return new SalesProgressionDto(labels, data);
+        return new SalesProgressionDto(labels, data,paid);
     }
 
 

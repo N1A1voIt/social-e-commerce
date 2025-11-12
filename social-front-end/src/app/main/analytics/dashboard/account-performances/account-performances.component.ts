@@ -1,11 +1,13 @@
 import {Component, Input} from '@angular/core';
 import {DecimalPipe} from "@angular/common";
+import {FrenchNumberPipe} from "../../../../shared/french-number.pipe";
 
 @Component({
   selector: 'app-account-performances',
   standalone: true,
   imports: [
-    DecimalPipe
+    DecimalPipe,
+    FrenchNumberPipe
   ],
   templateUrl: './account-performances.component.html',
   styleUrl: './account-performances.component.css'

@@ -9,6 +9,7 @@ import {DecimalPipe, DatePipe, NgIf} from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { BeautifulButtonComponent } from '../../shared/beautiful-button/beautiful-button.component';
 import { SalesService } from './sales.service';
+import { FrenchNumberPipe } from '../../shared/french-number.pipe';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -16,7 +17,7 @@ import autoTable from 'jspdf-autotable';
   selector: 'app-sales',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf],
+  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf, FrenchNumberPipe],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
@@ -36,13 +37,13 @@ export class SalesComponent implements OnInit {
 
   ngOnInit(): void {
     // initial load
-    this.fetchSales({ first: 0, rows: 20 });
+    this.fetchSales({ first: 0, rows: 10 });
   }
 
   fetchSales(event?: TableLazyLoadEvent) {
     this.loading = true;
-    const page = event && event.first ? Math.floor((event.first / (event.rows || 20))) : 0;
-    const size = event && event.rows ? event.rows : 20;
+    const page = event && event.first !== undefined ? Math.floor((event.first / (event.rows || 10))) : 0;
+    const size = event && event.rows ? event.rows : 10;
     const sort = event && (event as any).sortField ? `${(event as any).sortField},${(event as any).sortOrder === -1 ? 'desc' : 'asc'}` : undefined;
 
     this.salesService.fetchAllSales(page, size, sort).subscribe({

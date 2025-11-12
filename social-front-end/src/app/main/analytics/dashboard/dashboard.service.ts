@@ -23,6 +23,7 @@ export interface PagesRepartitionDto {
 export interface SalesProgressionDto {
   labels: string[];
   data: number[];
+  paidAmounts:number[];
 }
 export interface DashboardStats {
   totalRevenue: number;

@@ -17,6 +17,7 @@ import {FormsModule} from "@angular/forms";
 import {DateSelectorComponent} from "../../../shared/date-selector/date-selector.component";
 import {LineChartComponent} from "./line-chart/line-chart.component";
 import {HeatmapComponent} from "./heatmap/heatmap.component";
+import {FrenchNumberPipe} from "../../../shared/french-number.pipe";
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -37,7 +38,8 @@ import {HeatmapComponent} from "./heatmap/heatmap.component";
     FormsModule,
     DateSelectorComponent,
     LineChartComponent,
-    HeatmapComponent
+    HeatmapComponent,
+    FrenchNumberPipe
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'

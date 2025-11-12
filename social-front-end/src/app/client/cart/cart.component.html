@@ -96,14 +96,14 @@
 
         <div class="flex justify-between mb-2">
           <span>Total Items ({{ totalItemCount }}):</span>
-          <span>{{ grandTotal | number:'1.2-2' }} Ar</span>
+          <span>{{ grandTotal | frenchNumber }} Ar</span>
         </div>
 
         <div class="border-t border-gray-200 my-4"></div>
 
         <div class="flex justify-between font-semibold text-lg">
           <span>Total:</span>
-          <span>{{ grandTotal | number:'1.2-2' }} Ar</span>
+          <span>{{ grandTotal | frenchNumber }} Ar</span>
         </div>
 
         <button class="w-full mt-4 py-2 bg-yellow text-fotsy rounded-full" (click)="checkout()">
@@ -141,7 +141,7 @@
         <h3 class="font-semibold mb-2">Order Summary</h3>
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm text-gray-600">Total Items: {{ selectedCart.itemCount }}</p>
-          <p class="text-lg font-semibold mt-2">Total: {{ selectedCart.totalPrice | number:'1.2-2' }} Ar</p>
+          <p class="text-lg font-semibold mt-2">Total: {{ selectedCart.totalPrice | frenchNumber }} Ar</p>
         </div>
       </div>
 

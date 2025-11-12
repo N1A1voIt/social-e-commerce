@@ -15,11 +15,28 @@ export class OrderService {
 
   constructor(private http:HttpClient) { }
 
-  fetchAllOrders(pageNum:number):Observable<ApiResponse> {
+  fetchAllOrders(pageNum: number, status?: number | null, customerName?: string | null, startDate?: string | null, endDate?: string | null): Observable<ApiResponse> {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
-    return this.http.get<ApiResponse>(javaHost+'/api/orders?size=10&page='+pageNum,{headers:header});
+    
+    let url = `${javaHost}/api/orders?size=10&page=${pageNum}`;
+    
+    // Add filter parameters if provided
+    if (status !== null && status !== undefined) {
+      url += `&status=${status}`;
+    }
+    if (customerName && customerName.trim() !== '') {
+      url += `&customerName=${encodeURIComponent(customerName)}`;
+    }
+    if (startDate && startDate.trim() !== '') {
+      url += `&startDate=${encodeURIComponent(startDate)}`;
+    }
+    if (endDate && endDate.trim() !== '') {
+      url += `&endDate=${encodeURIComponent(endDate)}`;
+    }
+    
+    return this.http.get<ApiResponse>(url, {headers: header});
   }
 
   sendBillingAndPaymentLink(order:OrderParent):Observable<ApiResponse> {
