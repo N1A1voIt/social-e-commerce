@@ -90,18 +90,35 @@ public class DashboardService {
         return dashboardStatsDto;
     }
     public PlatformRepartitionDto[] platformRepartitionDtos(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
+//        List<Object[]> results = entityManager.createNativeQuery(
+//                        "WITH total_revenue AS ( " +
+//                                "    SELECT SUM(d_total) AS total_revenue " +
+//                                "    FROM order_mother " +
+//                                "    WHERE id_seller = :sellerId and d_status >= 25 " +
+//                                ") " +
+//                                "SELECT row_number() over () as dummy_id, " +
+//                                "       sum(d_total)/total_revenue.total_revenue * 100 as total_percentage, " +
+//                                "       sum(d_total) as total, id_sp " +
+//                                "FROM v_order_mother_cpl " +
+//                                "CROSS JOIN total_revenue " +
+//                                "WHERE v_order_mother_cpl.id_seller = :sellerId and v_order_mother_cpl.d_status >= 25 AND v_order_mother_cpl.created_at >= :startDate AND v_order_mother_cpl.created_at <= :endDate " +
+//                                "GROUP BY id_sp,total_revenue.total_revenue"
+//                ).setParameter("sellerId", sellerId)
+//                .setParameter("startDate", dashboardRequestDto.getStartDate())
+//                .setParameter("endDate", dashboardRequestDto.getEndDate())
+//                .getResultList();
+
         List<Object[]> results = entityManager.createNativeQuery(
-                        "WITH total_revenue AS ( " +
-                                "    SELECT SUM(d_total) AS total_revenue " +
-                                "    FROM order_mother " +
-                                "    WHERE id_seller = :sellerId and d_status >= 25 " +
+                             "WITH total_revenue AS ( " +
+                                "    SELECT SUM(paid_amount) AS total_revenue " +
+                                "    FROM postgres.public.sales " +
+                                "    WHERE id_seller = :sellerId " +
                                 ") " +
                                 "SELECT row_number() over () as dummy_id, " +
-                                "       sum(d_total)/total_revenue.total_revenue * 100 as total_percentage, " +
-                                "       sum(d_total) as total, id_sp " +
-                                "FROM v_order_mother_cpl " +
-                                "CROSS JOIN total_revenue " +
-                                "WHERE v_order_mother_cpl.id_seller = :sellerId and v_order_mother_cpl.d_status >= 25 AND v_order_mother_cpl.created_at >= :startDate AND v_order_mother_cpl.created_at <= :endDate " +
+                                "       sum(paid_amount)/total_revenue.total_revenue * 100 as total_percentage, " +
+                                "       sum(paid_amount) as total, id_sp " +
+                                "FROM sales JOIN postgres.public.potential_customers_v2 ON potential_customers_v2.id_pc = sales.id_pc CROSS JOIN total_revenue" +
+                                " WHERE sales.id_seller = :sellerId AND sales.effectued_at >= :startDate AND sales.effectued_at <= :endDate " +
                                 "GROUP BY id_sp,total_revenue.total_revenue"
                 ).setParameter("sellerId", sellerId)
                 .setParameter("startDate", dashboardRequestDto.getStartDate())
