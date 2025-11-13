@@ -12,12 +12,16 @@ import { SalesService } from './sales.service';
 import { FrenchNumberPipe } from '../../shared/french-number.pipe';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Router } from '@angular/router';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { BasicInputComponent } from '../../shared/basic-input/basic-input.component';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf, FrenchNumberPipe],
+  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf, FrenchNumberPipe, DropdownModule, CalendarModule, BasicInputComponent],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
@@ -33,7 +37,24 @@ export class SalesComponent implements OnInit {
   // CSV import state
   importLoading = false;
 
-  constructor(private messagingService: MessageService, private salesService: SalesService) { }
+  // Filter properties
+  filterStatus: number | null = null;
+  filterFromName: string = '';
+  filterStartDate: Date | null = null;
+  filterEndDate: Date | null = null;
+  filterOrderId: string = '';
+
+  statusOptions = [
+    { label: 'All', value: null },
+    { label: 'Partially Paid', value: 1 },
+    { label: 'Paid', value: 11 }
+  ];
+
+  constructor(
+    private messagingService: MessageService,
+    private salesService: SalesService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     // initial load
@@ -46,7 +67,30 @@ export class SalesComponent implements OnInit {
     const size = event && event.rows ? event.rows : 10;
     const sort = event && (event as any).sortField ? `${(event as any).sortField},${(event as any).sortOrder === -1 ? 'desc' : 'asc'}` : undefined;
 
-    this.salesService.fetchAllSales(page, size, sort).subscribe({
+    // Build filter parameters
+    const filters: any = {};
+
+    if (this.filterStatus !== null) {
+      filters.status = this.filterStatus;
+    }
+
+    if (this.filterFromName && this.filterFromName.trim()) {
+      filters.fromName = this.filterFromName.trim();
+    }
+
+    if (this.filterOrderId && this.filterOrderId.trim()) {
+      filters.orderId = this.filterOrderId.trim();
+    }
+
+    if (this.filterStartDate) {
+      filters.startDate = this.formatDateToISO(this.filterStartDate);
+    }
+
+    if (this.filterEndDate) {
+      filters.endDate = this.formatDateToISO(this.filterEndDate);
+    }
+
+    this.salesService.fetchAllSales(page, size, sort, filters).subscribe({
       next: (response) => {
         if (response && response.status === 200) {
           this.sales = response.data?.sales || [];
@@ -63,6 +107,26 @@ export class SalesComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyFilters() {
+    this.fetchSales({ first: 0, rows: 10 });
+  }
+
+  clearFilters() {
+    this.filterStatus = null;
+    this.filterFromName = '';
+    this.filterStartDate = null;
+    this.filterEndDate = null;
+    this.filterOrderId = '';
+    this.fetchSales({ first: 0, rows: 10 });
+  }
+
+  formatDateToISO(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   updateSaleStatus(sale: any) {
@@ -128,6 +192,11 @@ export class SalesComponent implements OnInit {
   viewSaleDetails(sale: any) {
     this.activeSale = sale;
     // open modal or route to details page
+  }
+
+  viewOrder(orderId: number) {
+    // Navigate to order details page
+    this.router.navigate(['/basic/orders', orderId]);
   }
 
   onImportCsvClick() {

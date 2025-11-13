@@ -11,11 +11,19 @@ import {ApiResponse} from "../inbox/inbox.service";
 export class ProductServiceService {
 
   constructor(private http: HttpClient) { }
+  
   fetchProducts():Observable<ProductCpl[]> {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
     return this.http.get<ProductCpl[]>(javaHost + '/api/products/cpl',{headers:header});
+  }
+
+  fetchProductOptions(productId: number):Observable<any> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    };
+    return this.http.get<any>(`${javaHost}/api/products/${productId}/options`, {headers:header});
   }
 
 }

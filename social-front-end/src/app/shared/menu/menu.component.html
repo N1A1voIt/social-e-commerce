@@ -29,13 +29,13 @@
         <!-- Mobile navigation links -->
         <div class="flex flex-row items-center justify-around sm:hidden border-b border-zinc-200">
           <app-link icon="heroChartBarSquare" href="/dashboard"></app-link>
-          <app-link icon="heroHome" href="/feed" [isActive]="true"></app-link>
-          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
-          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
-          <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+          <app-link icon="heroCube" href="/products"></app-link>
+          <app-link icon="heroNewspaper" href="/feed" [isActive]="true"></app-link>
+          <app-link icon="heroChatBubbleOvalLeftEllipsis" href="/inbox"></app-link>
+          <app-link icon="heroCog6Tooth" href="/settings"></app-link>
           <!-- Last app-link with click event to toggle sidebar -->
           <div (click)="toggleSidebar(); $event.preventDefault()">
-            <app-link icon="heroDocumentSolid" href="javascript:void(0)"></app-link>
+            <app-link icon="heroBars3" href="javascript:void(0)"></app-link>
           </div>
         </div>
       </header>

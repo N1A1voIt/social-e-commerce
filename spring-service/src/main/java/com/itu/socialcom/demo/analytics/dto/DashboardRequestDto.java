@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class DashboardRequestDto {
     LocalDateTime startDate;
     LocalDateTime endDate;
+    String timeFrame;  // WEEKLY, MONTHLY, or YEARLY
 
     public LocalDateTime getStartDate() {
         if (startDate == null) {
@@ -22,5 +23,12 @@ public class DashboardRequestDto {
             return LocalDateTime.now().plusYears(1990);
         }
         return endDate;
+    }
+
+    public String getTimeFrame() {
+        if (timeFrame == null || timeFrame.isEmpty()) {
+            return "WEEKLY";  // Default to WEEKLY if not specified
+        }
+        return timeFrame;
     }
 }

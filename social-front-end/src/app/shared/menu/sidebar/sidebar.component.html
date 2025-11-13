@@ -14,17 +14,17 @@
         <app-link icon="heroChartBarSquare"  [isActive]="activeSection === 'dashboard'"></app-link>
       </div>
       <div (click)="setActiveSection('products')">
-        <app-link icon="heroShoppingBag"  [isActive]="activeSection === 'products'"></app-link>
+        <app-link icon="heroCube"  [isActive]="activeSection === 'products'"></app-link>
       </div>
       <div (click)="setActiveSection('content')">
-        <app-link icon="heroDocumentSolid"  [isActive]="activeSection === 'content'"></app-link>
+        <app-link icon="heroNewspaper"  [isActive]="activeSection === 'content'"></app-link>
       </div>
     </div>
 
     <!-- Secondary navigation links -->
     <div class="flex flex-col items-center space-y-5">
       <app-link icon="heroChatBubbleOvalLeftEllipsis" [isActive]="activeSection === 'inbox'" (click)="router.navigateByUrl('/basic/inbox');setActiveSection('inbox')"></app-link>
-      <app-link icon="heroDocumentSolid" href="/alll"></app-link>
+      <app-link icon="heroCog6Tooth" href="/alll"></app-link>
     </div>
   </nav>
 

@@ -13,6 +13,88 @@
       </button>
     </div>
 
+    <!-- Filters Section -->
+<!--    <div class="w-full px-4">-->
+<!--      <div class="bg-white rounded-lg shadow p-4 border border-gray-200">-->
+<!--        <h3 class="text-sm font-semibold mb-3 text-gray-700">Filters</h3>-->
+<!--        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">-->
+<!--          &lt;!&ndash; Status Filter &ndash;&gt;-->
+<!--          <div class="flex flex-col">-->
+<!--            <label class="text-xs text-gray-600 mb-1">Status</label>-->
+<!--            <p-dropdown-->
+<!--              [options]="statusOptions"-->
+<!--              [(ngModel)]="filterStatus"-->
+<!--              optionLabel="label"-->
+<!--              optionValue="value"-->
+<!--              placeholder="Select status"-->
+<!--              [showClear]="true"-->
+<!--              styleClass="w-full">-->
+<!--            </p-dropdown>-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; From Name Filter &ndash;&gt;-->
+<!--          <div class="flex flex-col">-->
+<!--            <label class="text-xs text-gray-600 mb-1">From Name</label>-->
+<!--            <app-basic-input-->
+<!--              [(ngModel)]="filterFromName"-->
+<!--              [placeholder]="'Enter name'"-->
+<!--              [type]="'text'">-->
+<!--            </app-basic-input>-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; Order ID Filter &ndash;&gt;-->
+<!--          <div class="flex flex-col">-->
+<!--            <label class="text-xs text-gray-600 mb-1">Order ID</label>-->
+<!--            <app-basic-input-->
+<!--              [(ngModel)]="filterOrderId"-->
+<!--              [placeholder]="'Enter order ID'"-->
+<!--              [type]="'text'">-->
+<!--            </app-basic-input>-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; Start Date Filter &ndash;&gt;-->
+<!--          <div class="flex flex-col">-->
+<!--            <label class="text-xs text-gray-600 mb-1">Start Date</label>-->
+<!--            <p-calendar-->
+<!--              [(ngModel)]="filterStartDate"-->
+<!--              dateFormat="yy-mm-dd"-->
+<!--              [showIcon]="true"-->
+<!--              placeholder="Select start date"-->
+<!--              styleClass="w-full">-->
+<!--            </p-calendar>-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; End Date Filter &ndash;&gt;-->
+<!--          <div class="flex flex-col">-->
+<!--            <label class="text-xs text-gray-600 mb-1">End Date</label>-->
+<!--            <p-calendar-->
+<!--              [(ngModel)]="filterEndDate"-->
+<!--              dateFormat="yy-mm-dd"-->
+<!--              [showIcon]="true"-->
+<!--              placeholder="Select end date"-->
+<!--              styleClass="w-full">-->
+<!--            </p-calendar>-->
+<!--          </div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Filter Actions &ndash;&gt;-->
+<!--        <div class="flex gap-2 mt-3">-->
+<!--          <button-->
+<!--            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"-->
+<!--            (click)="applyFilters()">-->
+<!--            <i class="pi pi-filter mr-2"></i>-->
+<!--            Apply Filters-->
+<!--          </button>-->
+<!--          <button-->
+<!--            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"-->
+<!--            (click)="clearFilters()">-->
+<!--            <i class="pi pi-filter-slash mr-2"></i>-->
+<!--            Clear Filters-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+
     <div class="card w-full font-custom-font rounded-3xl border border-gray-200 overflow-y-scroll">
       <p-toast />
 
@@ -70,6 +152,15 @@
               <div class="action-buttons">
                 <button class="action-button bg-blue-50" (click)="exportSale(sale)" title="Generate Invoice">
                   <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
+                </button>
+                <button
+                  class="action-button bg-purple-50"
+                  (click)="viewOrder(sale.idOrderM)"
+                  [disabled]="!sale.idOrderM"
+                  [class.opacity-40]="!sale.idOrderM"
+                  [class.cursor-not-allowed]="!sale.idOrderM"
+                  title="View Order">
+                  <i class="pi pi-shopping-cart text-purple-500 text-xl"></i>
                 </button>
 <!--                <button *ngIf="sale.status == 1" (click)="updateSaleStatus(sale)" class="action-button bg-green-50"  title="Change status">-->
 <!--                  <i  class="pi pi-check text-green-500 text-xl"></i>-->

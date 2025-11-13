@@ -54,9 +54,12 @@ export class DashboardComponent implements OnInit {
   constructor(private dashboardService: DashboardService) {}
 
   ngOnInit() {
+    // Initialize with current year for GitHub-style heatmap
+    const currentYear = new Date().getFullYear();
     this.dashboardRequest = {
-      startDate: new Date('1990-01-01'),
-      endDate: new Date('3000-01-01')
+      startDate: new Date(currentYear, 0, 1), // January 1 of current year
+      endDate: new Date(currentYear, 11, 31, 23, 59, 59), // December 31 of current year
+      timeFrame: 'YEARLY' // GitHub-style yearly view
     }
     this.loadDashboardData();
   }
@@ -115,6 +118,17 @@ export class DashboardComponent implements OnInit {
     // Filter dashboard data with the new date range
     this.filterDashboardData();
   }
+
+  onYearChange(year: number) {
+    // Set date range to the selected year (Jan 1 to Dec 31)
+    this.dashboardRequest.startDate = new Date(year, 0, 1); // January 1
+    this.dashboardRequest.endDate = new Date(year, 11, 31, 23, 59, 59); // December 31
+    this.dashboardRequest.timeFrame = 'YEARLY'; // Set to yearly for GitHub-style view
+    
+    // Reload dashboard data with the new year range
+    this.filterDashboardData();
+  }
+
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2

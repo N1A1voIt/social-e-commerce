@@ -16,6 +16,7 @@ import {ProductServiceService} from "../product-service.service";
 })
 export class ProductListComponent implements OnInit {
   @Output() addProductClicked = new EventEmitter<void>();
+  @Output() editProductClicked = new EventEmitter<ProductCpl>();
   @Input() productsList: ProductCpl[] = [];
   constructor(private http: HttpClient,private productService:ProductServiceService) {
   }
@@ -24,5 +25,10 @@ export class ProductListComponent implements OnInit {
   @Output() navigateToVariants:EventEmitter<number> = new EventEmitter<number>();
   onAddProduct() {
     this.addProductClicked.emit();
+  }
+  
+  onEditProduct(product: ProductCpl, event: Event) {
+    event.stopPropagation();
+    this.editProductClicked.emit(product);
   }
 }

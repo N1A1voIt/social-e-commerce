@@ -29,6 +29,9 @@ export class VariantUpdateComponent implements OnInit,OnChanges {
   @Output() variantUpdated = new EventEmitter<VariantWithOptionsDTO>();
   @Output() close = new EventEmitter<void>();
   formGroup !: FormGroup;
+  isLoading: boolean = false;
+  errorMessage: string = '';
+  
   ngOnInit(): void {
     // Initial load if data is already available
     if (this.variantDetails) {
@@ -70,16 +73,26 @@ export class VariantUpdateComponent implements OnInit,OnChanges {
     return '';
   }
   onSubmit() {
-    // this.close.emit()
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      return;
+    }
+    
+    this.isLoading = true;
+    this.errorMessage = '';
     const updatedVariant : UpdateVariantRequest = this.formGroup.value;
+    
     this.variantService.updateVariant(this.productId, this.variantId, updatedVariant).subscribe({
         next: (response) => {
-          const answer:VariantWithOptionsDTO = response.data
+          const answer:VariantWithOptionsDTO = response.data;
+          this.isLoading = false;
           this.variantUpdated.emit(answer);
           this.close.emit();
         },
         error: (error) => {
           console.error('Error updating variant:', error);
+          this.errorMessage = error.error?.message || 'Failed to update variant. Please try again.';
+          this.isLoading = false;
         }
     });
   }

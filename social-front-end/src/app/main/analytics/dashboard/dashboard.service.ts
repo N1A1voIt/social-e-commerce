@@ -26,7 +26,9 @@ export interface SalesProgressionDto {
   paidAmounts:number[];
 }
 export interface DashboardStats {
-  totalRevenue: number;
+  totalRevenue: number;       // Total paid amount
+  totalAmount: number;        // Total amount (paid + unpaid)
+  unpaidAmount: number;       // Total unpaid amount
   revenuePerUser: number;
   bestDeal: number;
   totalSales: number;
@@ -40,8 +42,8 @@ export interface DashboardStats {
 export interface HeatmapCell {
   x: string;
   y: string;
-  postCount: number;
-  avgReactions: number;
+  likeCount: number;  // Changed from postCount - tracks number of likes/reactions
+  avgReactions: number;  // Average reaction value
 }
 
 export interface HeatmapData {
@@ -58,6 +60,7 @@ export interface BestTimeToPost {
 export interface DashboardRequest {
   startDate: Date;
   endDate: Date;
+  timeFrame?: 'WEEKLY' | 'MONTHLY' | 'YEARLY';  // Added for heatmap granularity
 }
 
 @Injectable({

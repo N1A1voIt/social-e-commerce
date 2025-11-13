@@ -142,6 +142,9 @@
                 <button class="action-button bg-purple-50" [routerLink]="['/basic/orders', order.idOrderM]" title="View details">
                   <i class="pi pi-eye text-purple-500 text-xl"></i>
                 </button>
+                <button class="action-button bg-cyan-50" (click)="navigateToCustomerChat(order)" title="Chat with customer">
+                  <i class="pi pi-comments text-cyan-500 text-xl"></i>
+                </button>
                 <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 45)) && (!(order.dstatus == 51)) " (click)="nextStep(order)" title="Next step">
                   <i class="pi pi-arrow-circle-right text-green-500 text-xl"></i>
                 </button>

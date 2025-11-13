@@ -47,6 +47,8 @@ export class ProductsComponent implements OnInit {
   uploadError = '';
 
   showForm:boolean = false;
+  isEditMode:boolean = false;
+  editingProduct: ProductCpl | null = null;
   products:ProductCpl[] = [];
 
   private apiUrl = javaHost + '/api/steps'; // Adjust base URL as needed
@@ -320,6 +322,8 @@ export class ProductsComponent implements OnInit {
     const optionsArray = this.step2Form.get('options') as FormArray;
     optionsArray.clear();
 
+    console.log('Populating step 2 form with options:', options);
+
     options.forEach(option => {
       const valuesArray = this.fb.array(
         option.values.map(value => this.fb.control(value, Validators.required))
@@ -332,6 +336,8 @@ export class ProductsComponent implements OnInit {
 
       optionsArray.push(optionGroup);
     });
+
+    console.log('Form array after population:', optionsArray.value);
   }
 
   previousStep() {
@@ -368,5 +374,71 @@ export class ProductsComponent implements OnInit {
     // Implement your token retrieval logic here
     // This could be from localStorage, a service, etc.
     return localStorage.getItem('token') || '';
+  }
+
+  onEditProduct(product: ProductCpl) {
+    this.isEditMode = true;
+    this.editingProduct = product;
+    this.showForm = true;
+    this.currentStep = 1;
+    
+    // Populate step 1 form with product data
+    this.step1Form.patchValue({
+      idProduct: product.idPc,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      media: product.media,
+      idSeller: product.idSeller || 1,
+      idCategory: product.idCategory || 1,
+      state: true,
+      sku_prefix: product.skuPrefix || ''
+    });
+    
+    // Set preview URL for existing image
+    if (product.media) {
+      this.previewUrl = product.media;
+    }
+    
+    // Load existing options if available
+    // You may need to fetch options from the backend
+    this.loadProductOptions(product.idPc);
+  }
+
+  loadProductOptions(productId: number) {
+    this.isLoading = true;
+    this.productService.fetchProductOptions(productId).subscribe({
+      next: (response) => {
+        console.log('Loaded product options:', response);
+        if (response && response.length > 0) {
+          this.populateStep2Form(response);
+          console.log('Options populated. Options array length:', this.optionsArray.length);
+        } else {
+          console.log('No existing options found. Adding empty option.');
+          // If no options exist, add one empty option for new options to be added
+          if (this.optionsArray.length === 0) {
+            this.addOption();
+          }
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading product options:', error);
+        // On error, still allow adding new options
+        if (this.optionsArray.length === 0) {
+          this.addOption();
+        }
+        this.isLoading = false;
+      }
+    });
+  }
+
+  closeFormAndReset() {
+    this.showForm = false;
+    this.isEditMode = false;
+    this.editingProduct = null;
+    this.resetForm();
+    this.selectedFile = null;
+    this.previewUrl = null;
   }
 }

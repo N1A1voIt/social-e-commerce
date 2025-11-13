@@ -10,19 +10,19 @@ export class NodeService {
         key: '0',
         label: 'Content & Feed',
         data: 'Content section',
-        icon: 'pi pi-fw pi-folder',
+        icon: 'pi pi-fw pi-rss',
         children: [
           {
             key: '0-0',
             label: 'Feed',
-            icon: 'pi pi-fw pi-home',
+            icon: 'pi pi-fw pi-th-large',
             data: 'Social Feed',
             link: '/basic/feed'
           },
           {
             key: '0-1',
             label: 'Content Management',
-            icon: 'pi pi-fw pi-file',
+            icon: 'pi pi-fw pi-file-edit',
             data: 'Content Management',
             link: '/basic/content'
           }
@@ -37,26 +37,26 @@ export class NodeService {
         key: '0',
         label: 'Products',
         data: 'Products section',
-        icon: 'pi pi-fw pi-shopping-bag',
+        icon: 'pi pi-fw pi-box',
         children: [
           {
             key: '0-0',
             label: 'All Products',
-            icon: 'pi pi-fw pi-list',
+            icon: 'pi pi-fw pi-tags',
             data: 'All Products',
             link: '/basic/products'
           },
           {
             key: '0-1',
             label: 'Sales',
-            icon: 'pi pi-fw pi-chart-line',
+            icon: 'pi pi-fw pi-dollar',
             data: 'Sales',
             link: '/basic/sales'
           },
           {
             key: '0-2',
             label: 'Orders',
-            icon: 'pi pi-fw pi-tags',
+            icon: 'pi pi-fw pi-shopping-cart',
             data: 'Orders',
             link: '/basic/orders'
           }
@@ -76,14 +76,14 @@ export class NodeService {
           {
             key: '0-0',
             label: 'Overview',
-            icon: 'pi pi-fw pi-eye',
+            icon: 'pi pi-fw pi-home',
             data: 'Dashboard Overview',
             link: '/basic/dashboard'
           },
           {
             key: '0-1',
             label: 'Ai assistant',
-            icon: 'pi pi-fw pi-chart-line',
+            icon: 'pi pi-fw pi-sparkles',
             data: 'Ai assistant',
             link: '/basic/ai-assistant'
           }

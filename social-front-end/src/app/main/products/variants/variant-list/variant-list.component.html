@@ -16,7 +16,7 @@
   </div>
 </div>
 <app-variant-form [productId]="productId" [isVisible]="isFormVisible" (close)="isFormVisible = false" (variantCreated)="createVariant.emit()" ></app-variant-form>
-<app-variant-update [label]="'Update Variant'" [variantDetails]="actualVariant" [productId]="productId" *ngIf="isUpdateFormVisible" [variantId]="variantId" (close)="isUpdateFormVisible = false" (variantUpdated)="createVariant.emit()"></app-variant-update>
+<app-variant-update [label]="'Update Variant'" [variantDetails]="actualVariant" [productId]="productId" *ngIf="isUpdateFormVisible" [variantId]="variantId" (close)="isUpdateFormVisible = false" (variantUpdated)="variantUpdated.emit()"></app-variant-update>
 <!-- New: Refill modal -->
 <app-stock-refill-form
   *ngIf="isRefillVisible"

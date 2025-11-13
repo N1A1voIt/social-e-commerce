@@ -7,7 +7,11 @@ import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -49,7 +53,7 @@ public class HeatmapService {
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        return transformResults(results, timeFrame);
+        return transformResults(results, timeFrame, startDate, endDate);
     }
 
     // --- REVISED buildHeatmapQuery ---
@@ -88,7 +92,7 @@ public class HeatmapService {
                             END AS x_axis_str
                             """;
             case "YEARLY" ->
-                // Y-axis: Day of Week, X-axis: Week of Year (GITHUB STYLE)
+                // Y-axis: Day of Week, X-axis: Date (GITHUB STYLE)
                     """
                             CASE EXTRACT(DOW FROM created_at)
                                 WHEN 0 THEN 'Sunday'
@@ -99,8 +103,8 @@ public class HeatmapService {
                                 WHEN 5 THEN 'Friday'
                                 WHEN 6 THEN 'Saturday'
                             END AS y_axis,
-                            EXTRACT(WEEK FROM created_at) AS x_axis_num,
-                            CONCAT('W', EXTRACT(WEEK FROM created_at)) AS x_axis_str
+                            0 AS x_axis_num,
+                            TO_CHAR(DATE(created_at), 'YYYY-MM-DD') AS x_axis_str
                             """;
             default -> throw new IllegalArgumentException("Invalid timeframe: " + timeFrame);
         };
@@ -109,7 +113,7 @@ public class HeatmapService {
             SELECT
                 y_axis,
                 x_axis_str,
-                COUNT(*) AS post_count,
+                COUNT(*) AS like_count,
                 ROUND(AVG(reactions), 2) AS avg_reactions,
                 -- Ordering columns
                 MIN(EXTRACT(DOW FROM created_at)) AS y_order,
@@ -130,7 +134,7 @@ public class HeatmapService {
     }
 
     // --- REVISED transformResults ---
-    private HeatmapData transformResults(List<Object[]> results, String timeFrame) {
+    private HeatmapData transformResults(List<Object[]> results, String timeFrame, LocalDateTime startDate, LocalDateTime endDate) {
         Map<String, HeatmapCell> cellMap = new LinkedHashMap<>();
         List<String> xLabels;
         List<String> yLabels;
@@ -140,70 +144,57 @@ public class HeatmapService {
             case "WEEKLY": // y=DayName, x=Hour
                 yLabels = Arrays.asList(DAYS_OF_WEEK);
                 xLabels = Arrays.asList(HOURS_OF_DAY);
+                
+                // Pre-populate the map with 0-value cells
+                for (String y : yLabels) {
+                    for (String x : xLabels) {
+                        cellMap.put(y + ":" + x, new HeatmapCell(x, y, 0L, 0.0));
+                    }
+                }
+                
+                // Update with actual data
+                for (Object[] row : results) {
+                    String yAxis = (String) row[0];
+                    String xAxis = row[1] + ":00";
+                    Long likeCount = ((Number) row[2]).longValue();
+                    Double avgReactions = row[3] != null ? ((Number) row[3]).doubleValue() : 0.0;
+                    String key = yAxis + ":" + xAxis;
+                    if (cellMap.containsKey(key)) {
+                        cellMap.put(key, new HeatmapCell(xAxis, yAxis, likeCount, avgReactions));
+                    }
+                }
                 break;
+                
             case "MONTHLY": // y=WeekOfMonth, x=DayName
                 yLabels = Arrays.asList(WEEKS_OF_MONTH);
                 xLabels = Arrays.asList(DAYS_OF_WEEK);
-                break;
-            case "YEARLY":
-                yLabels = Arrays.asList(DAYS_OF_WEEK);
-                xLabels = Arrays.asList(WEEKS_OF_YEAR);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid timeframe: " + timeFrame);
-        }
-
-        // Pre-populate the map with 0-value cells
-        for (String y : yLabels) {
-            for (String x : xLabels) {
-                cellMap.put(y + ":" + x, new HeatmapCell(x, y, 0L, 0.0));
-            }
-        }
-
-        // 2. Iterate over actual SQL results and *update* the map
-        for (Object[] row : results) {
-            String yAxis = (String) row[0];
-            String xAxis = (String) row[1];
-
-            // For WEEKLY, format the numeric hour to "H:00"
-            if (timeFrame.equals("WEEKLY")) {
-                xAxis = xAxis + ":00";
-            }
-
-            Long postCount = ((Number) row[2]).longValue();
-            Double avgReactions = row[3] != null
-                    ? ((Number) row[3]).doubleValue()
-                    : 0.0;
-
-            String key = yAxis + ":" + xAxis;
-
-            // Update the existing cell in the map
-            if (cellMap.containsKey(key)) {
-                cellMap.put(key, new HeatmapCell(xAxis, yAxis, postCount, avgReactions));
-            }
-            // else: data is outside our pre-defined grid, so we ignore it.
-        }
-
-        // 3. For YEARLY, we only want to show weeks that are in the map.
-        // (Optional: If you want to *always* show 53 weeks, skip this block)
-        if (timeFrame.equals("YEARLY")) {
-            // Filter xLabels to only those present in the query range
-            // This avoids showing 53 weeks if you only selected a 3-month range.
-            Set<String> presentXLabels = new LinkedHashSet<>();
-            for (Object[] row : results) {
-                presentXLabels.add((String) row[1]); // "W1", "W2", etc.
-            }
-            if (!presentXLabels.isEmpty()) {
-                xLabels = new ArrayList<>(presentXLabels);
-                // Re-filter the cellMap to only include these labels
-                Map<String, HeatmapCell> filteredCellMap = new LinkedHashMap<>();
+                
+                // Pre-populate the map with 0-value cells
                 for (String y : yLabels) {
                     for (String x : xLabels) {
-                        filteredCellMap.put(y + ":" + x, cellMap.get(y + ":" + x));
+                        cellMap.put(y + ":" + x, new HeatmapCell(x, y, 0L, 0.0));
                     }
                 }
-                cellMap = filteredCellMap;
-            }
+                
+                // Update with actual data
+                for (Object[] row : results) {
+                    String yAxis = (String) row[0];
+                    String xAxis = (String) row[1];
+                    Long likeCount = ((Number) row[2]).longValue();
+                    Double avgReactions = row[3] != null ? ((Number) row[3]).doubleValue() : 0.0;
+                    String key = yAxis + ":" + xAxis;
+                    if (cellMap.containsKey(key)) {
+                        cellMap.put(key, new HeatmapCell(xAxis, yAxis, likeCount, avgReactions));
+                    }
+                }
+                break;
+                
+            case "YEARLY":
+                // GitHub-style: Generate all days in the year
+                return generateGitHubStyleHeatmap(results, startDate, endDate);
+                
+            default:
+                throw new IllegalArgumentException("Invalid timeframe: " + timeFrame);
         }
 
         return new HeatmapData(
@@ -212,5 +203,101 @@ public class HeatmapService {
                 new ArrayList<>(cellMap.values()),
                 timeFrame
         );
+    }
+
+    /**
+     * Generate GitHub-style heatmap data.
+     * X-axis: Weeks (with month labels showing at the first week of each month)
+     * Y-axis: Day of week (Mon, Tue, Wed, Thu, Fri, Sat, Sun) - GitHub order
+     * Each cell represents one day
+     */
+    private HeatmapData generateGitHubStyleHeatmap(List<Object[]> results, LocalDateTime startDate, LocalDateTime endDate) {
+        // Create a map of date -> data from SQL results
+        Map<String, Object[]> dateDataMap = new HashMap<>();
+        for (Object[] row : results) {
+            String date = (String) row[1]; // YYYY-MM-DD format
+            dateDataMap.put(date, row);
+        }
+        
+        // Start from first Sunday of the year (GitHub week starts on Sunday)
+        LocalDate start = LocalDate.of(startDate.getYear(), 1, 1);
+        LocalDate end = LocalDate.of(endDate.getYear(), 12, 31);
+        
+        // Find the first Sunday on or before January 1st
+        LocalDate firstSunday = start;
+        while (firstSunday.getDayOfWeek().getValue() != 7) { // 7 = Sunday
+            firstSunday = firstSunday.minusDays(1);
+        }
+        
+        // Generate all weeks in the year
+        List<LocalDate> weekStarts = new ArrayList<>();
+        LocalDate current = firstSunday;
+        while (current.isBefore(end.plusWeeks(1))) {
+            weekStarts.add(current);
+            current = current.plusWeeks(1);
+        }
+        
+        // Generate x-axis labels (month names at first occurrence in grid)
+        List<String> xLabels = new ArrayList<>();
+        Set<Integer> shownMonths = new HashSet<>();
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM");
+        
+        for (LocalDate weekStart : weekStarts) {
+            String monthLabel = "";
+            
+            // Check if any day in this week is in a month we haven't shown yet
+            for (int i = 0; i < 7; i++) {
+                LocalDate day = weekStart.plusDays(i);
+                int monthValue = day.getMonthValue();
+                
+                // Show month label if this is the first time we see this month in the grid
+                if (!shownMonths.contains(monthValue) && 
+                    !day.isBefore(start.withMonth(1).withDayOfMonth(1)) && 
+                    !day.isAfter(end.withMonth(12).withDayOfMonth(31))) {
+                    monthLabel = day.format(monthFormatter);
+                    shownMonths.add(monthValue);
+                    break;
+                }
+            }
+            
+            xLabels.add(monthLabel);
+        }
+        
+        // Y-axis labels (days of week) - GitHub displays Mon-Sun (Monday at top)
+        // But data is stored with Sunday as day 0, so we need to map correctly
+        List<String> yLabels = Arrays.asList(
+            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+        );
+        
+        // Generate cells: one cell per day
+        List<HeatmapCell> cells = new ArrayList<>();
+        
+        for (int weekIndex = 0; weekIndex < weekStarts.size(); weekIndex++) {
+            LocalDate weekStart = weekStarts.get(weekIndex);
+            String weekLabel = "W" + weekIndex; // Unique identifier for each week column
+            
+            // Generate cells in GitHub order: Mon, Tue, Wed, Thu, Fri, Sat, Sun
+            // Week starts on Sunday (day 0), so we need to reorder
+            int[] dayOrder = {1, 2, 3, 4, 5, 6, 0}; // Mon=1, Tue=2, ..., Sat=6, Sun=0
+            
+            for (int displayRow = 0; displayRow < 7; displayRow++) {
+                int dayOfWeek = dayOrder[displayRow];
+                LocalDate date = weekStart.plusDays(dayOfWeek);
+                String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                String yLabel = yLabels.get(displayRow); // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+                
+                if (dateDataMap.containsKey(dateStr)) {
+                    Object[] data = dateDataMap.get(dateStr);
+                    Long likeCount = ((Number) data[2]).longValue();
+                    Double avgReactions = data[3] != null ? ((Number) data[3]).doubleValue() : 0.0;
+                    cells.add(new HeatmapCell(weekLabel, yLabel, likeCount, avgReactions));
+                } else {
+                    // No data for this day
+                    cells.add(new HeatmapCell(weekLabel, yLabel, 0L, 0.0));
+                }
+            }
+        }
+        
+        return new HeatmapData(xLabels, yLabels, cells, "YEARLY");
     }
 }

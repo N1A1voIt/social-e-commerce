@@ -34,10 +34,24 @@ public class DashboardService {
         List<OrderParent> completedOrders = orderParentRepository.findByDStatusGreaterThanEqualAndIdSeller(25, sellerId,
                 dashboardRequestDto.getStartDate(), dashboardRequestDto.getEndDate());
         
-        // Calculate total revenue
-        Double totalRevenue = completedOrders.stream()
-                .mapToDouble(OrderParent::getDTotal)
-                .sum();
+        // Calculate revenue from Sales table (paid_amount and amount)
+        String salesQuery = "SELECT " +
+                "COALESCE(SUM(paid_amount), 0) AS total_paid, " +
+                "COALESCE(SUM(amount), 0) AS total_amount " +
+                "FROM sales " +
+                "WHERE id_seller = :sellerId " +
+                "AND effectued_at >= :startDate " +
+                "AND effectued_at <= :endDate";
+        
+        Object[] salesResult = (Object[]) entityManager.createNativeQuery(salesQuery)
+                .setParameter("sellerId", sellerId)
+                .setParameter("startDate", dashboardRequestDto.getStartDate())
+                .setParameter("endDate", dashboardRequestDto.getEndDate())
+                .getSingleResult();
+        
+        Double totalRevenue = ((Number) salesResult[0]).doubleValue();  // Total paid amount
+        Double totalAmount = ((Number) salesResult[1]).doubleValue();   // Total amount (paid + unpaid)
+        Double unpaidAmount = totalAmount - totalRevenue;                // Unpaid amount
         
         // Calculate revenue per user (average revenue per customer)
         Double revenuePerUser = 0.0;
@@ -63,9 +77,9 @@ public class DashboardService {
         LocalDateTime thirtyDaysAgo = now.minusDays(30);
         String dateRange = thirtyDaysAgo.format(DateTimeFormatter.ofPattern("MMM d")) + 
                           " to " + now.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
-        HeatmapData heatmapData = heatmapService.getHeatmapData("MONTHLY",dashboardRequestDto.getStartDate(),dashboardRequestDto.getEndDate());
+        HeatmapData heatmapData = heatmapService.getHeatmapData(dashboardRequestDto.getTimeFrame(), dashboardRequestDto.getStartDate(), dashboardRequestDto.getEndDate());
         BestTimeToPost bestTimeToPost = bestPostTimeForBetterAttendance(sellerId,dashboardRequestDto);
-        DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, revenuePerUser, bestDeal, totalSales, dateRange);
+        DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, totalAmount, unpaidAmount, revenuePerUser, bestDeal, totalSales, dateRange);
         PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId,dashboardRequestDto);
         PagesRepartitionDto[] pagesRepartitionDtos = pagesRepartitionDtos(sellerId,dashboardRequestDto);
         dashboardStatsDto.setPlatformRepartition(platformRepartitionDtos);

@@ -33,6 +33,8 @@ export class VariantListComponent {
   @Input() productId: number = -1;
   // New: notify parent after a successful refill
   @Output() stockRefilled = new EventEmitter<void>();
+  // New: notify parent after a successful variant update
+  @Output() variantUpdated = new EventEmitter<void>();
 
   isFormVisible: boolean = false;
   isUpdateFormVisible:boolean = false;
@@ -43,9 +45,12 @@ export class VariantListComponent {
   selectedVariant!: VariantWithOptionsDTO;
 
   onEditVariant(variant: VariantWithOptionsDTO) {
+    console.log('Edit variant clicked:', variant);
     this.variantId = variant.idVariant;
     this.actualVariant = variant;
     this.isUpdateFormVisible = true;
+    console.log('isUpdateFormVisible set to:', this.isUpdateFormVisible);
+    console.log('actualVariant:', this.actualVariant);
     this.editVariant.emit(variant);
   }
 

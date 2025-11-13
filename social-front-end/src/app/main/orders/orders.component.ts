@@ -23,7 +23,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import {BasicInputComponent} from "../../shared/basic-input/basic-input.component";
-import {RouterLink} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-orders',
@@ -75,14 +75,17 @@ export class OrdersComponent implements OnInit{
     { label: 'Ordered', value: 11 },
     { label: 'Waiting for deliverer', value: 25 },
     { label: 'Cancelled', value: 21 },
-    { label: 'Completed', value: 5 },
-    { label: 'Shipped', value: 31 }
+    { label: 'Completed', value: 51 },
+    { label: 'In delivery', value: 31 },
+    { label: 'Delivered', value: 41 },
+    { label: 'Asking for full payment', value: 45 },
   ];
 
   constructor(
     private orderService: OrderService,
     private messagingService: MessageService,
-    private shippingPointService: ShippingPointService
+    private shippingPointService: ShippingPointService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -472,7 +475,7 @@ export class OrdersComponent implements OnInit{
       11: 'Ordered',
       21: 'Cancelled',
       25: 'Waiting for deliverer',
-      31: 'Shipped',
+      31: 'In delivery',
       41: 'Delivered',
       45: 'Asking for full payment',
       51: 'Completed',
@@ -600,5 +603,23 @@ export class OrdersComponent implements OnInit{
     this.cancellingOrder = null;
     this.refundInfo = null;
     this.fetchOrders(); // Refresh the orders list
+  }
+
+  navigateToCustomerChat(order: OrderParent) {
+    if (order.idPc && order.idManagedPages) {
+      // Navigate to inbox with query params to open specific conversation
+      this.router.navigate(['/basic/inbox'], {
+        queryParams: {
+          customerId: order.idPc,
+          pageId: order.idManagedPages
+        }
+      });
+    } else {
+      this.messagingService.add({
+        severity: 'warn',
+        summary: 'No Conversation',
+        detail: 'No customer conversation found for this order'
+      });
+    }
   }
 }

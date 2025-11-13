@@ -8,7 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DashboardStatsDto {
-    private Double totalRevenue;
+    private Double totalRevenue;  // Total paid amount
+    private Double totalAmount;   // Total amount (paid + unpaid)
+    private Double unpaidAmount;  // Total unpaid amount
     private Double revenuePerUser;
     private Double bestDeal;
     private Long totalSales;
@@ -20,8 +22,10 @@ public class DashboardStatsDto {
     private HeatmapData heatmapData;
     public DashboardStatsDto() {}
     
-    public DashboardStatsDto(Double totalRevenue, Double revenuePerUser, Double bestDeal, Long totalSales, String dateRange) {
+    public DashboardStatsDto(Double totalRevenue, Double totalAmount, Double unpaidAmount, Double revenuePerUser, Double bestDeal, Long totalSales, String dateRange) {
         this.totalRevenue = totalRevenue;
+        this.totalAmount = totalAmount;
+        this.unpaidAmount = unpaidAmount;
         this.revenuePerUser = revenuePerUser;
         this.bestDeal = bestDeal;
         this.totalSales = totalSales;

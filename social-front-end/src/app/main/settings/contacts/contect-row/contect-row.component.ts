@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import {CheckboxComponent} from "../../../../shared/checkbox/checkbox.component";
+import {NgIf} from "@angular/common";
 
 /**
  * A single contact row. Receives a `phone` object via @Input and
@@ -9,7 +10,8 @@ import {CheckboxComponent} from "../../../../shared/checkbox/checkbox.component"
   selector: 'app-contect-row',
   standalone: true,
   imports: [
-    CheckboxComponent
+    CheckboxComponent,
+    NgIf
   ],
   templateUrl: './contect-row.component.html',
   styleUrls: ['./contect-row.component.css']

@@ -8,6 +8,7 @@ import {ManagedAccountComponent} from "../settings/managed-account/managed-accou
 import {PageListComponent} from "./page-list/page-list.component";
 import {InboxPopupComponent} from "./inbox-popup/inbox-popup.component";
 import {OrderPreview, VariantWithQuantity} from "../products/products.types";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-inbox',
@@ -75,7 +76,11 @@ export class InboxComponent implements OnInit {
     }
   }
 
-  constructor(private inboxService: InboxService,private datePipe: DatePipe) { }
+  constructor(
+    private inboxService: InboxService,
+    private datePipe: DatePipe,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -84,23 +89,56 @@ export class InboxComponent implements OnInit {
         this.isTyping = false;
       }, 3000);
     }, 1000);
+    
     this.inboxService.fetchPages().subscribe({
       next: (response) => {
         this.pages = response;
         if (this.pages.length > 0) {
-          this.fetchInboxContent(this.pages[0].idMp);
+          // Check if there are query params to navigate to a specific conversation
+          this.route.queryParams.subscribe(params => {
+            const customerId = params['customerId'];
+            const pageId = params['pageId'];
+            
+            if (pageId && customerId) {
+              // Find the page that matches the pageId
+              const targetPage = this.pages.find(p => p.idMp === parseInt(pageId));
+              if (targetPage) {
+                this.pageInbox = targetPage;
+                this.fetchInboxContent(parseInt(pageId), customerId);
+              } else {
+                // Default to first page if not found
+                this.fetchInboxContent(this.pages[0].idMp);
+              }
+            } else {
+              // No query params, load first page as usual
+              this.fetchInboxContent(this.pages[0].idMp);
+            }
+          });
         }
-      },error(err) {
+      },
+      error(err) {
         alert(err.message);
       }
     });
   }
-  fetchInboxContent(pageId:number) {
+  
+  fetchInboxContent(pageId: number, autoOpenCustomerId?: string) {
     this.inboxService.fetchInbox(pageId).subscribe({
       next: (response) => {
         console.log(response);
         this.inbox = response;
-      },error(err) {
+        
+        // If customerId is provided, automatically open that conversation
+        if (autoOpenCustomerId && this.inbox.mothers) {
+          const targetCustomer = this.inbox.mothers.find(
+            (msg: MessageBox) => msg.idPc === autoOpenCustomerId
+          );
+          if (targetCustomer) {
+            this.fetchMessages(targetCustomer);
+          }
+        }
+      },
+      error(err) {
         alert(err.message);
       }
     });

@@ -80,10 +80,9 @@ export class VariantsComponent implements OnInit {
   }
 
   onCreateVariant(): void {
-    // TODO: Implement create variant modal/form
-    console.log('Create variant clicked');
+    // Refresh variants list when a variant is created or updated
+    console.log('Create/Update variant - refreshing list');
     this.fetchVariants();
-    this.showMessage('Create variant feature coming soon!', 'info');
   }
 
   onGenerateAllVariants(): void {
@@ -115,6 +114,13 @@ export class VariantsComponent implements OnInit {
     // TODO: Implement edit variant modal/form
     console.log('Edit variant:', variant);
     this.showMessage('Edit variant feature coming soon!', 'info');
+  }
+
+  onVariantUpdated(): void {
+    // Refresh the variants list after successful update
+    console.log('Variant updated - refreshing list');
+    this.fetchVariants();
+    this.showMessage('Variant updated successfully!', 'success');
   }
 
   onDeleteVariant(variant: VariantWithOptionsDTO): void {
