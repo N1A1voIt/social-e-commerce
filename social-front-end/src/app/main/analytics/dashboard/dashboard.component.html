@@ -57,7 +57,7 @@
       <app-account-performances
         *ngFor="let d of dashboardStats?.platformRepartition"
         [platformId]="d.idSp"
-        class="{{ getWidthClass(d) }}"
+        [style.width.%]="d.totalPercentage"
         [percentage]="d.totalPercentage"
         [amount]="d.total">
       </app-account-performances>

@@ -16,7 +16,7 @@ public interface LikesHistoryRepository extends JpaRepository<LikesHistory, Inte
     List<LikesHistory> findByIdChildAndIdPc(@Param("idChild") Integer idChild);
     
     // Statistics queries
-    @Query("SELECT pc.idSp as platformId, MAX(COALESCE(lh.reactions, 0)) as likesCount " +
+    @Query("SELECT pc.idSp as platformId, COUNT(lh.id) as likesCount " +
            "FROM LikesHistory lh " +
            "JOIN PostChild pc ON lh.idChild = pc.id " +
            "WHERE pc.idPost = :postId " +
@@ -24,7 +24,7 @@ public interface LikesHistoryRepository extends JpaRepository<LikesHistory, Inte
     List<Object[]> getPlatformDistribution(@Param("postId") Integer postId);
     
     @Query("SELECT DATE(lh.createdAt) as date, pc.idSp as platformId, " +
-           "       MAX(COALESCE(lh.reactions, 0)) as likesCount " +
+           "       COUNT(lh.id) as likesCount " +
            "FROM LikesHistory lh " +
            "JOIN PostChild pc ON lh.idChild = pc.id " +
            "WHERE pc.idPost = :postId " +

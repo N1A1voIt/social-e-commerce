@@ -40,7 +40,7 @@
             <!-- Normal display -->
             <span *ngIf="!showUpdateMode">{{ order.quantity }}</span>
             <span>X</span>
-            <span>{{ order.variant.price | number: '1.2-2' }} $</span>
+            <span>{{ order.variant.price | frenchNumber }} Ar</span>
             <!-- Remove button in update mode -->
             <button *ngIf="showUpdateMode" (click)="removeItem(i)" class="ml-2 text-red-500 hover:text-red-700 text-sm">
               <i class="pi pi-trash"></i>
@@ -60,7 +60,7 @@
       <div class="flex flex-col justify-center items-center p-2 gap-12 w-full border-black py-4 px-4">
         <div class="flex justify-between items-center w-full text-xl font-mono font-bold">
           <span>Subtotal</span>
-          <span>{{ getSubtotal() | number: '1.2-2' }} $</span>
+          <span>{{ getSubtotal() | frenchNumber }} $</span>
         </div>
         <div class="flex flex-col justify-between items-center w-full">
           <div>
@@ -111,7 +111,7 @@
         </div>
         <div class="flex-grow">
           <h4 class="font-medium capitalize">{{ product.title }}</h4>
-          <p class="text-sm text-gray-600">{{ product.price | number: '1.2-2' }} $</p>
+          <p class="text-sm text-gray-600">{{ product.price | frenchNumber }} Ar</p>
         </div>
         <button class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm hover:bg-blue-600">
           <i class="pi pi-plus"></i>

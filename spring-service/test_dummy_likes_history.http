@@ -1,0 +1,64 @@
+### Dummy Likes History API Testing
+### Base URL - adjust according to your server configuration
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+###############################################################################
+# 1. Get Current Statistics
+# Check the current state of likes_history data
+###############################################################################
+
+GET {{baseUrl}}/api/dummy/likes-history/stats
+Content-Type: {{contentType}}
+
+###############################################################################
+# 2. Generate Dummy Likes History Data
+# This will create dummy potential customers (if needed) and generate
+# random likes for all child posts (5-25 likes per post)
+###############################################################################
+
+POST {{baseUrl}}/api/dummy/likes-history/generate
+Content-Type: {{contentType}}
+
+###############################################################################
+# 3. Get Statistics After Generation
+# View the updated statistics after generating dummy data
+###############################################################################
+
+GET {{baseUrl}}/api/dummy/likes-history/stats
+Content-Type: {{contentType}}
+
+###############################################################################
+# 4. Clear All Likes History (Optional - for testing)
+# WARNING: This will delete ALL likes_history records
+###############################################################################
+
+DELETE {{baseUrl}}/api/dummy/likes-history/clear
+Content-Type: {{contentType}}
+
+###############################################################################
+# Expected Response Format for Generate:
+# {
+#   "success": true,
+#   "message": "Successfully generated dummy likes_history data",
+#   "data": {
+#     "childPostsProcessed": 41,
+#     "likesGenerated": 512,
+#     "customersUsed": 50,
+#     "averageLikesPerPost": 12.48
+#   }
+# }
+###############################################################################
+
+###############################################################################
+# Expected Response Format for Stats:
+# {
+#   "success": true,
+#   "data": {
+#     "totalChildPosts": 41,
+#     "totalLikes": 512,
+#     "totalCustomers": 50,
+#     "averageLikesPerPost": 12.48
+#   }
+# }
+###############################################################################

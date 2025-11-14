@@ -156,9 +156,11 @@ CREATE TABLE temporary_product(
     id_category INTEGER NOT NULL,
     id_seller INTEGER NOT NULL,
     state BOOLEAN,
+    sku_prefix VARCHAR(50) NOT NULL,
     PRIMARY KEY(id_temp_product),
     FOREIGN KEY(id_category) REFERENCES category(id_category),
-    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
+    FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
+    UNIQUE (id_seller,sku_prefix)
 );
 /*
 CREATE TABLE temp_product_state(
@@ -179,7 +181,9 @@ CREATE TABLE products_v2(
                             media TEXT,
                             id_category INTEGER NOT NULL,
                             id_seller INTEGER NOT NULL,
+                            sku_prefix VARCHAR(50) NOT NULL ,
                             PRIMARY KEY(id_product),
+                            UNIQUE (id_seller,sku_prefix),
                             FOREIGN KEY(id_category) REFERENCES category(id_category),
                             FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller)
 );
@@ -425,10 +429,16 @@ CREATE TABLE sales(
                       id_spn INTEGER NOT NULL,
                       id_order_m INTEGER NOT NULL,
                       id_pc TEXT NOT NULL,
+                      id_seller INTEGER NOT NULL,
+                      paid_amount NUMERIC(18,2)   NOT NULL,
+                      status integer default 1 NOT NULL,
+                      id_mp INTEGER NOT NULL,
                       PRIMARY KEY(id_sale),
                       FOREIGN KEY(id_spn) REFERENCES sellers_phone_number_e(id_spn),
                       FOREIGN KEY(id_order_m) REFERENCES order_mother(id_order_m),
-                      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc)
+                      FOREIGN KEY(id_pc) REFERENCES potential_customers_v2(id_pc),
+                      FOREIGN KEY(id_seller) REFERENCES seller_v2(id_seller),
+                      FOREIGN KEY(id_mp) REFERENCES managed_pages(id_mp)
 );
 
 CREATE TABLE sales_details_v2(

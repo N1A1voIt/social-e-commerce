@@ -4,8 +4,11 @@ import com.itu.socialcom.demo.analytics.dto.*;
 import com.itu.socialcom.demo.orders.OrderParent;
 import com.itu.socialcom.demo.orders.repository.OrderMotherCplRepository;
 import com.itu.socialcom.demo.orders.repository.OrderParentRepository;
+import com.itu.socialcom.demo.sales.Sales;
+import com.itu.socialcom.demo.sales.SalesRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,17 +30,19 @@ public class DashboardService {
     private EntityManager entityManager;
     @Autowired
     HeatmapService heatmapService;
-
+    @Autowired
+    SalesRepository salesRepository;
 
     public DashboardStatsDto getDashboardStats(Integer sellerId, DashboardRequestDto dashboardRequestDto) {
         // Get orders with status >= 25 for the seller
         List<OrderParent> completedOrders = orderParentRepository.findByDStatusGreaterThanEqualAndIdSeller(25, sellerId,
                 dashboardRequestDto.getStartDate(), dashboardRequestDto.getEndDate());
-        
+//        List<Sales> sales = salesRepository.findByIdSeller(sellerId, PageRequest.of(0, 100));
         // Calculate revenue from Sales table (paid_amount and amount)
         String salesQuery = "SELECT " +
                 "COALESCE(SUM(paid_amount), 0) AS total_paid, " +
-                "COALESCE(SUM(amount), 0) AS total_amount " +
+                "COALESCE(SUM(amount), 0) AS total_amount, " +
+                "COUNT(*) AS total_sales " +
                 "FROM sales " +
                 "WHERE id_seller = :sellerId " +
                 "AND effectued_at >= :startDate " +
@@ -52,6 +57,7 @@ public class DashboardService {
         Double totalRevenue = ((Number) salesResult[0]).doubleValue();  // Total paid amount
         Double totalAmount = ((Number) salesResult[1]).doubleValue();   // Total amount (paid + unpaid)
         Double unpaidAmount = totalAmount - totalRevenue;                // Unpaid amount
+        Long totalSales = ((Number) salesResult[2]).longValue();         // Total number of sales
         
         // Calculate revenue per user (average revenue per customer)
         Double revenuePerUser = 0.0;
@@ -68,9 +74,6 @@ public class DashboardService {
                 .mapToDouble(OrderParent::getDTotal)
                 .max()
                 .orElse(0.0);
-        
-        // Count total sales
-        Long totalSales = (long) completedOrders.size();
         
         // Generate date range (last 30 days for now)
         LocalDateTime now = LocalDateTime.now();
@@ -112,7 +115,7 @@ public class DashboardService {
                              "WITH total_revenue AS ( " +
                                 "    SELECT SUM(paid_amount) AS total_revenue " +
                                 "    FROM postgres.public.sales " +
-                                "    WHERE id_seller = :sellerId " +
+                                "    WHERE id_seller = :sellerId and effectued_at >= :startDate and effectued_at <= :endDate " +
                                 ") " +
                                 "SELECT row_number() over () as dummy_id, " +
                                 "       sum(paid_amount)/total_revenue.total_revenue * 100 as total_percentage, " +

@@ -8,6 +8,7 @@ import {FormsModule} from "@angular/forms";
 import {IPopupService} from "./i-popup.service";
 import {ApiResponse} from "../inbox.service";
 import {InboxDisplay, MessageBox} from "../inbox-element.type";
+import {FrenchNumberPipe} from "../../../shared/french-number.pipe";
 
 @Component({
   selector: 'app-inbox-popup',
@@ -19,7 +20,8 @@ import {InboxDisplay, MessageBox} from "../inbox-element.type";
     NgIf,
     NgForOf,
     DecimalPipe,
-    FormsModule
+    FormsModule,
+    FrenchNumberPipe
   ],
   templateUrl: './inbox-popup.component.html',
   styleUrl: './inbox-popup.component.css'

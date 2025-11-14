@@ -191,12 +191,12 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
                 salesDetailsList.add(salesDetail);
             }
         }
-
         // Set the details to the sales entity
         sales.setIdSeller(orderParent.getIdSeller());
         sales.setDetails(salesDetailsList);
         sales.setPaidAmount(Double.parseDouble(paymentDTO.getAmount()));
         sales.setStatus(1); // Partially paid
+        salesRepository.save(sales);
         Payments payments = new Payments();
         payments.setAmount(sales.getAmount().doubleValue());
         payments.setCreatedAt(LocalDateTime.now());
@@ -205,7 +205,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         payments.setPaymentMethod("MVola");
         paymentsRepository.save(payments);
         // Save the sales (cascade will save details automatically)
-        return salesRepository.save(sales);
+        return sales;
     }
 
 

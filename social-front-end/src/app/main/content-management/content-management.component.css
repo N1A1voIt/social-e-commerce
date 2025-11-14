@@ -1,0 +1,83 @@
+/* Pagination styling */
+::ng-deep .p-paginator {
+  background: transparent !important;
+  border: none !important;
+  padding: 1rem 0 !important;
+}
+
+::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+  min-width: 2.5rem !important;
+  height: 2.5rem !important;
+  margin: 0 0.25rem !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #e5e7eb !important;
+  background: white !important;
+  color: #374151 !important;
+  transition: all 0.2s !important;
+}
+
+::ng-deep .p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+}
+
+::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: #f97316 !important;
+  border-color: #f97316 !important;
+  color: white !important;
+}
+
+::ng-deep .p-paginator .p-paginator-first,
+::ng-deep .p-paginator .p-paginator-prev,
+::ng-deep .p-paginator .p-paginator-next,
+::ng-deep .p-paginator .p-paginator-last {
+  min-width: 2.5rem !important;
+  height: 2.5rem !important;
+  margin: 0 0.25rem !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #e5e7eb !important;
+  background: white !important;
+  color: #374151 !important;
+}
+
+::ng-deep .p-paginator .p-paginator-first:not(.p-disabled):hover,
+::ng-deep .p-paginator .p-paginator-prev:not(.p-disabled):hover,
+::ng-deep .p-paginator .p-paginator-next:not(.p-disabled):hover,
+::ng-deep .p-paginator .p-paginator-last:not(.p-disabled):hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+}
+
+::ng-deep .p-paginator .p-paginator-first.p-disabled,
+::ng-deep .p-paginator .p-paginator-prev.p-disabled,
+::ng-deep .p-paginator .p-paginator-next.p-disabled,
+::ng-deep .p-paginator .p-paginator-last.p-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+::ng-deep .p-paginator .p-dropdown {
+  height: 2.5rem !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid #e5e7eb !important;
+  margin: 0 0.5rem !important;
+}
+
+::ng-deep .p-paginator .p-paginator-current {
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+  padding: 0 1rem !important;
+}
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
