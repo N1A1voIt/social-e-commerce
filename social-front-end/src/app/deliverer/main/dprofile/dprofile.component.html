@@ -1,0 +1,177 @@
+<div class="w-full h-full bg-gray-50 p-6 overflow-y-auto">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">My Profile</h1>
+        <p class="text-gray-600 mt-2">View and edit your delivery driver information</p>
+      </div>
+      <button 
+        *ngIf="!isEditing && !loading" 
+        (click)="startEdit()"
+        class="px-4 py-2 bg-orange text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
+        <ng-icon name="heroPencilSquare" size="20"></ng-icon>
+        <span>Edit Profile</span>
+      </button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+      <div class="flex items-center gap-3">
+        <ng-icon name="heroCheckCircle" class="text-green-500" size="24"></ng-icon>
+        <p class="text-green-700 font-medium">{{ successMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange"></div>
+      <p class="mt-4 text-gray-600">Loading profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div class="flex items-center gap-3">
+        <ng-icon name="heroExclamationCircle" class="text-red-500" size="24"></ng-icon>
+        <div>
+          <h3 class="font-semibold text-red-800">Error Loading Profile</h3>
+          <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div *ngIf="profile && !loading" class="space-y-6">
+      <!-- Profile Card -->
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <!-- Header with gradient -->
+        <div class="bg-gradient-to-r from-orange to-orange-600 h-32"></div>
+        
+        <!-- Profile Info -->
+        <div class="px-6 pb-6">
+          <!-- Avatar -->
+          <div class="flex items-end -mt-16 mb-4">
+            <div class="bg-white rounded-full p-2 shadow-lg">
+              <div class="w-24 h-24 rounded-full bg-orange-100 flex items-center justify-center">
+                <ng-icon name="heroUser" class="text-orange" size="48"></ng-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Name and ID -->
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">{{ profile.name }}</h2>
+            <p class="text-gray-500 text-sm mt-1">Driver ID: #{{ profile.id }}</p>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Email -->
+            <div class="flex items-start gap-3">
+              <div class="mt-1">
+                <ng-icon name="heroEnvelope" class="text-gray-400" size="20"></ng-icon>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500 font-medium">Email</p>
+                <p class="text-gray-800">{{ profile.email }}</p>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="flex items-start gap-3">
+              <div class="mt-1">
+                <ng-icon name="heroPhone" class="text-gray-400" size="20"></ng-icon>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm text-gray-500 font-medium mb-1">Phone Number</p>
+                <p *ngIf="!isEditing" class="text-gray-800">{{ profile.phoneNumber }}</p>
+                <input 
+                  *ngIf="isEditing"
+                  type="tel"
+                  [(ngModel)]="editForm.phoneNumber"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange outline-none"
+                  placeholder="Enter phone number">
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Area -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Service Area</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Min Range -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <ng-icon name="heroMapPin" class="text-orange" size="20"></ng-icon>
+                  <p class="text-sm text-gray-600 font-medium">Minimum Range</p>
+                </div>
+                <div *ngIf="!isEditing">
+                  <p class="text-2xl font-bold text-gray-800">{{ profile.minRange }} <span class="text-base font-normal text-gray-500">Ariary</span></p>
+                </div>
+                <div *ngIf="isEditing" class="flex items-center gap-2">
+                  <input 
+                    type="number"
+                    [(ngModel)]="editForm.minRange"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange outline-none"
+                    placeholder="Min range">
+                  <span class="text-gray-500 text-sm">Ariary</span>
+                </div>
+              </div>
+
+              <!-- Max Range -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <ng-icon name="heroMapPin" class="text-orange" size="20"></ng-icon>
+                  <p class="text-sm text-gray-600 font-medium">Maximum Range</p>
+                </div>
+                <div *ngIf="!isEditing">
+                  <p class="text-2xl font-bold text-gray-800">{{ profile.maxRange }} <span class="text-base font-normal text-gray-500">Ariary</span></p>
+                </div>
+                <div *ngIf="isEditing" class="flex items-center gap-2">
+                  <input 
+                    type="number"
+                    [(ngModel)]="editForm.maxRange"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange outline-none"
+                    placeholder="Max range">
+                  <span class="text-gray-500 text-sm">Ariary</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Actions -->
+            <div *ngIf="isEditing" class="mt-6 flex gap-3 justify-end">
+              <button 
+                (click)="cancelEdit()"
+                [disabled]="saving"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
+                Cancel
+              </button>
+              <button 
+                (click)="saveChanges()"
+                [disabled]="saving || !validateForm()"
+                class="px-4 py-2 bg-orange text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-2">
+                <span *ngIf="!saving">Save Changes</span>
+                <span *ngIf="saving">Saving...</span>
+                <div *ngIf="saving" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Info Card -->
+      <div *ngIf="!isEditing" class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <div class="flex items-start gap-3">
+          <ng-icon name="heroInformationCircle" class="text-blue-500 mt-1" size="24"></ng-icon>
+          <div>
+            <h3 class="font-semibold text-blue-800 mb-2">About Your Profile</h3>
+            <p class="text-blue-700 text-sm">
+              This information is used to match you with delivery requests within your service area. 
+              You can update your phone number and service range using the edit button above.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,7 +9,7 @@ import {
   heroChartBarSquare, heroChatBubbleOvalLeftEllipsis,
   heroDocument, heroHeart, heroHome,
   heroPencilSquare,
-  heroPlusCircle, heroShoppingBag, heroShoppingCart, heroUserCircle,heroCube,heroNewspaper,
+  heroPlusCircle, heroShoppingBag, heroShoppingCart, heroUserCircle,heroCube,heroNewspaper,heroClipboardDocumentList,heroClock,heroArrowRightOnRectangle,
   heroXMark
 } from "@ng-icons/heroicons/outline";
 import {MenuComponent} from "./shared/menu/menu.component";
@@ -21,7 +21,7 @@ import {heroDocumentSolid} from "@ng-icons/heroicons/solid";
   imports: [CommonModule, RouterOutlet, AccountDetailsComponent, MenuComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark,heroDocumentSolid,heroChartBarSquare,heroChatBubbleOvalLeftEllipsis,heroArrowUturnRight,
+  providers: [provideIcons({heroPencilSquare,heroPlusCircle,heroXMark,heroDocumentSolid,heroChartBarSquare,heroChatBubbleOvalLeftEllipsis,heroArrowUturnRight,heroClipboardDocumentList,heroClock,heroArrowRightOnRectangle,
   heroHome,heroHeart,heroBellAlert,heroUserCircle,heroShoppingBag,heroShoppingCart,heroAdjustmentsHorizontal,heroCube,heroNewspaper,})]
 })
 export class AppComponent implements OnInit {

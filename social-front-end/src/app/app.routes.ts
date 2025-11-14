@@ -29,6 +29,7 @@ import {DdashboardComponent} from "./deliverer/main/ddashboard/ddashboard.compon
 import {DeliveryAuthGuard} from "./shared/guards/delivery-auth.guard";
 import {PreviousMissionComponent} from "./deliverer/main/previous-mission/previous-mission.component";
 import {PendingRequestComponent} from "./deliverer/main/pending-request/pending-request.component";
+import {DprofileComponent} from "./deliverer/main/dprofile/dprofile.component";
 import {ClientLoginComponent} from "./client/authentication/client-login/client-login.component";
 import {ClientSignupComponent} from "./client/authentication/client-signup/client-signup.component";
 import {
@@ -101,7 +102,8 @@ const deliveryRoutes = [
     children: [
       {path: 'dashboard',component:DdashboardComponent},
       {path: 'mission-history',component:PreviousMissionComponent},
-      {path: 'pending-applications',component:PendingRequestComponent}
+      {path: 'pending-applications',component:PendingRequestComponent},
+      {path: 'profile',component:DprofileComponent}
     ]
   }
 ]
