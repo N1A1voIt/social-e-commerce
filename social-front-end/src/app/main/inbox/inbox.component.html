@@ -1,7 +1,7 @@
-<div class="flex h-full flex-col md:grid md:grid-cols-12 gap-4">
+<div class="flex h-full flex-col md:grid md:grid-cols-12 gap-0">
   <!-- Conversation List - Hidden on mobile when chat is active -->
 
-  <div class="md:col-span-4 h-full bg-white relative rounded-3xl p-4 md:p-6 md:py-8 overflow-y-scroll hide-scrollbar conversation-list"
+  <div class="md:col-span-4 h-full bg-white relative border border-rose-50 p-4 md:p-6 md:py-8 overflow-y-scroll hide-scrollbar conversation-list"
        [ngClass]="{'hidden': showChatOnMobile, 'block': !showChatOnMobile, 'md:block': true}">
     <div class="w-full h-full bg-white absolute top-0 left-0 z-50 p-4" *ngIf="showPageList">
       <div class="flex justify-between items-center relative py-4 border-b border-fotsy">
@@ -13,10 +13,35 @@
       <app-page-list (selectPage)="changePage($event)"  [pages]="pages" ></app-page-list>
     </div>
     <div class="flex justify-between items-center relative">
-      <h1 class="text-xl md:text-xl font-bold font-mono " style="letter-spacing: 1px">Inbox of {{pageInbox?.pageTitle}} </h1>
-      <div class="w-[50px] h-[50px] border flex justify-center items-center font-bold cursor-pointer rounded-full" (click)="showPageList = true">
-        <i class="pi pi-list"></i>
-      </div>
+      <h1 class="text-xl md:text-xl font-bold font-mono " style="letter-spacing: 1px">Inbox </h1>
+<!--      <div class="w-[50px] h-[50px] border flex justify-center items-center font-bold cursor-pointer rounded-full" (click)="showPageList = true">-->
+<!--        <i class="pi pi-list"></i>-->
+<!--      </div>-->
+    </div>
+    <div class="w-full flex overflow-y-scroll gap-4 py-3">
+<!--      <div class="border rounded-full p-3" >-->
+<!--        <span><img src="{{page.}}" alt=""></span>-->
+<!--        <span>General</span>-->
+      <div
+        class="w-auto rounded-full bg-fotsy border-blackt py-1 px-3 shadow font-semibold
+         cursor-pointer max-w-[150px] font-sans flex flex-row gap-2 items-center text-xs"
+        style="letter-spacing: 1px"
+        *ngFor="let page of pages"
+        [ngClass]="{
+          'border-2 border-blue-500': page.platform === 'facebook',
+          'border-2 border-pink-500': page.platform === 'instagram'
+        }"
+        (click)="changePage(page)"
+      >
+
+      <div class="w-[25px] h-[25px] overflow-hidden rounded-full">
+            <img src="{{page.associatedMedia}}" class="object-cover" width="25" alt="">
+          </div>
+          <h1 class="truncate whitespace-nowrap overflow-hidden min-w-0">
+            {{ page.pageTitle }}
+          </h1>
+        </div>
+<!--      </div>-->
     </div>
 
 <!--    <div class="grid grid-cols-2 mt-4 gap-3 bg-fotsy w-full rounded-xl p-2 font-bold" style="letter-spacing: 1px">-->
@@ -30,7 +55,7 @@
 
     <div class="w-full flex flex-col justify-center items-center mt-4 gap-3">
       <!-- Conversation items with hover effects -->
-      <div class="w-full profile flex items-center gap-4 bg-fotsy p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer" (click)="fetchMessages(conversation)" *ngFor="let conversation of inbox.mothers">
+      <div class="w-full profile border border-blue-50 flex items-center gap-4 bg-fotsy p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer" (click)="fetchMessages(conversation)" *ngFor="let conversation of inbox.mothers">
         <div class="relative">
           <div class="rounded-full overflow-hidden w-[50px] h-[50px]">
             <img src="{{ conversation.mediaUrl }}" alt="{{conversation.mediaUrl}}" class="w-full h-full object-cover">
@@ -58,21 +83,27 @@
     class="md:col-span-8 h-full bg-white rounded-3xl flex flex-col overflow-hidden relative"
     [ngClass]="{'hidden': !showChatOnMobile, 'block': showChatOnMobile, 'md:block': true, 'md:h-full': true}"
   >
-    <div class="w-full flex items-center gap-3 border-b border-fotsy p-4 md:py-6 md:px-6 flex-shrink-0" *ngIf="actualCustomer">
+    <div class="w-full flex items-center gap-3 border-b border-fotsy p-4 md:py-6 md:px-6 flex-shrink-0 shadow-[0_1px_3px_-1px_rgba(0,0,0,0.4)]" *ngIf="actualCustomer">
       <button class="md:hidden mr-2 text-xl" (click)="toggleChatView()">
         <i class="pi pi-arrow-left"></i>
       </button>
-      <div class="relative">
-        <div class="rounded-full overflow-hidden w-[45px] h-[45px] md:w-[50px] md:h-[50px]">
-          <img src="{{actualCustomer.mediaUrl}}" alt="Profile" class="w-full h-full object-cover">
+      <div class="w-full flex items-begin justify-center gap-3">
+        <div class="relative">
+          <div class="rounded-full overflow-hidden w-[45px] h-[45px] md:w-[50px] md:h-[50px]">
+            <img src="{{actualCustomer.mediaUrl}}" alt="Profile" class="w-full h-full object-cover">
+          </div>
+          <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
         </div>
-        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-      </div>
-      <div class="flex flex-col justify-start flex-grow">
-        <span class="text-lg md:text-xl font-bold" style="letter-spacing:1px">{{ actualCustomer.name }}</span>
-        <span class="text-sm font-light text-zinc-500"> {{actualCustomer.platform}}</span>
-      </div>
-      <div class="flex gap-3">
+        <div class="flex flex-col justify-start flex-grow">
+          <div class="flex gap-2 items-center">
+            <span class="text-md md:text-md font-bold" style="letter-spacing:1px">{{ actualCustomer.name }}</span>
+            <span class="text-sm font-light  bg-blue-500 bg-opacity-20 px-3 py-1 rounded-full text-blue-500 flex items-center gap-1"> <i class="pi pi-mobile"></i> {{actualCustomer.platform}}</span>
+          </div>
+          <span class="text-sm font-light text-zinc-500"> Online</span>
+        </div>
+<!--        <div class="flex gap-3">-->
+<!--          <span class="text-sm font-light text-zinc-500"> {{actualCustomer.platform}}</span>-->
+<!--        </div>-->
       </div>
     </div>
 
@@ -88,7 +119,7 @@
               <img src="{{ actualCustomer.mediaUrl }}" alt="Profile" class="w-full h-full object-cover">
             </div>
             <div class="flex flex-col relative">
-              <div class="bg-fotsy py-2 px-4 rounded-t-2xl rounded-br-2xl shadow-sm">
+              <div class="bg-blue-50 py-3 px-6 rounded-t-2xl rounded-br-2xl shadow-sm">
                 <p class="text-blackt">{{message.message}}</p>
               </div>
               <div class="flex items-center justify-between mt-1">
@@ -106,7 +137,7 @@
           </div>
 
           <div class="flex flex-col items-end ml-auto max-w-[80%]" *ngIf="!message.fromPlatform">
-            <div class="bg-yellow text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
+            <div class="bg-blue-400 text-fotsy py-2 px-4 rounded-t-2xl rounded-bl-2xl shadow-sm">
               <p>{{ message.message }}</p>
             </div>
             <div class="flex items-center gap-1 mt-1">
@@ -132,15 +163,15 @@
       </div>
     </div>
 
-    <div class="h-[70px] w-full grid grid-cols-3 items-center gap-2 border-t border-fotsy px-4 md:px-6 py-2" *ngIf="actualCustomer">
+    <div class="h-[100px] w-full grid grid-cols-3 items-center gap-2 border-t border-fotsy bg-blue-50 px-4 md:px-6 py-8" *ngIf="actualCustomer">
       <!-- Left buttons -->
       <div class="flex gap-2  w-full col-span-3">
-        <button class="text-xl p-2 rounded-full hover:bg-fotsy text-gray-500">
-          <i class="pi pi-plus"></i>
-        </button>
-        <button class="text-xl p-2 rounded-full hover:bg-fotsy text-gray-500">
-          <i class="pi pi-image"></i>
-        </button>
+<!--        <button class="text-xl p-2 rounded-full hover:bg-fotsy text-gray-500">-->
+<!--          <i class="pi pi-plus"></i>-->
+<!--        </button>-->
+<!--        <button class="text-xl p-2 rounded-full hover:bg-fotsy text-gray-500">-->
+<!--          <i class="pi pi-image"></i>-->
+<!--        </button>-->
         <div class="bg-fotsy rounded-full px-4 py-2 w-full">
           <input
             type="text"

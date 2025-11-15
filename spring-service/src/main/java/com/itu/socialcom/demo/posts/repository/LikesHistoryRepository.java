@@ -16,19 +16,41 @@ public interface LikesHistoryRepository extends JpaRepository<LikesHistory, Inte
     List<LikesHistory> findByIdChildAndIdPc(@Param("idChild") Integer idChild);
     
     // Statistics queries
-    @Query("SELECT pc.idSp as platformId, COUNT(lh.id) as likesCount " +
-           "FROM LikesHistory lh " +
-           "JOIN PostChild pc ON lh.idChild = pc.id " +
-           "WHERE pc.idPost = :postId " +
-           "GROUP BY pc.idSp")
+    @Query("""
+            SELECT pc.idSp AS platformId, lh.reactions AS likesCount, lh.createdAt
+            FROM LikesHistory lh
+            JOIN PostChild pc ON lh.idChild = pc.id
+            WHERE pc.idPost = :postId 
+              AND pc.type = 'main_post'
+              AND lh.createdAt = (
+                  SELECT MAX(lh2.createdAt)
+                  FROM LikesHistory lh2
+                  JOIN PostChild pc2 ON lh2.idChild = pc2.id
+                  WHERE pc2.idSp = pc.idSp 
+                    AND pc2.idPost = :postId 
+                    AND pc2.type = 'main_post'
+              )
+        """)
     List<Object[]> getPlatformDistribution(@Param("postId") Integer postId);
-    
-    @Query("SELECT DATE(lh.createdAt) as date, pc.idSp as platformId, " +
-           "       COUNT(lh.id) as likesCount " +
-           "FROM LikesHistory lh " +
-           "JOIN PostChild pc ON lh.idChild = pc.id " +
-           "WHERE pc.idPost = :postId " +
-           "GROUP BY DATE(lh.createdAt), pc.idSp " +
-           "ORDER BY DATE(lh.createdAt) ASC")
+
+    @Query("""
+        SELECT DATE(lh.createdAt) AS date, 
+               pc.idSp AS platformId, 
+               lh.reactions AS likesCount
+        FROM LikesHistory lh
+        JOIN PostChild pc ON lh.idChild = pc.id
+        WHERE pc.idPost = :postId
+          AND pc.type = 'main_post'
+          AND lh.createdAt = (
+              SELECT MAX(lh2.createdAt)
+              FROM LikesHistory lh2
+              JOIN PostChild pc2 ON lh2.idChild = pc2.id
+              WHERE pc2.idSp = pc.idSp
+                AND DATE(lh2.createdAt) = DATE(lh.createdAt)
+                AND pc2.idPost = :postId
+                AND pc2.type = 'main_post'
+          )
+        ORDER BY DATE(lh.createdAt) ASC
+    """)
     List<Object[]> getLikesTimeSeries(@Param("postId") Integer postId);
 }

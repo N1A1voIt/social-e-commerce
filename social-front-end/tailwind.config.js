@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'mono': ['LTSuperiorSerif', 'sans-serif'], // 'custom-font' is your Tailwind utility, 'MyCustomFont' matches your @font-face name
+        'mono': ['Inter', 'sans-serif'], // 'custom-font' is your Tailwind utility, 'MyCustomFont' matches your @font-face name
       },
       fontSize: {
         // base mobile font sizes
@@ -17,7 +17,7 @@ module.exports = {
         fotsy:    '#FFFFFF',   // True white for high contrast
         gray:     '#7A7A8C',   // Neutral gray with better tone
         principal:'#EDECEA',   // Soft light gray, clean UI background
-        white:    '#E1DCDA',   // Subtle off-white for cards or sections
+        white:    '#ffffff',   // Subtle off-white for cards or sections
         black:    '#1A1A1A',   // Strong black for headings/text
         brown:    '#B89C86',   // Soft earthy brown (less dusty)
         yellow:   '#C93355',   // Warmer, vibrant yellow

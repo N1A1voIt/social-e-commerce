@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ContentService, MotherPostDisplay, PostChild, PostStatistics} from "../content.service";
+import {ContentService, LikesTimeSeries, MotherPostDisplay, PostChild, PostStatistics} from "../content.service";
 import {CommonModule, DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {ChartConfiguration, ChartData, ChartType} from 'chart.js';
 import {BaseChartDirective, NgChartsModule} from 'ng2-charts';
@@ -165,20 +165,74 @@ export class PostDetailsComponent implements OnInit {
     };
 
     // Update line chart data for time series
-    // const platformGroups = this.groupTimeSeriesByPlatform(statistics.likesTimeSeries);
-    // const datasets = Object.keys(platformGroups).map((platform, index) => ({
-    //   label: platform,
-    //   data: platformGroups[platform].map(item => item.likesCount),
-    //   borderColor: platform === 'Facebook' ? '#3B82F6' : platform === 'Instagram' ? '#EC4899' : '#6B7280',
-    //   backgroundColor: platform === 'Facebook' ? '#3B82F680' : platform === 'Instagram' ? '#EC489980' : '#6B728080',
-    //   tension: 0.4,
-    //   fill: false
-    // }));
-    //
-    // this.lineChartData = {
-    //   labels: this.getUniqueDates(statistics.likesTimeSeries),
-    //   datasets: datasets
-    // };
+    if (statistics.likesTimeSeries && statistics.likesTimeSeries.length > 0) {
+      const platformGroups = this.groupTimeSeriesByPlatform(statistics.likesTimeSeries);
+      const uniqueDates = this.getUniqueDates(statistics.likesTimeSeries);
+      
+      const datasets = Object.keys(platformGroups).map((platform, index) => {
+        const platformData = platformGroups[platform];
+        // Create data array matching all dates, filling missing dates with 0
+        const data = uniqueDates.map(date => {
+          const item = platformData.find(p => p.date === date);
+          return item ? item.likesCount : 0;
+        });
+        
+        const colors: {[key: string]: {border: string, background: string}} = {
+          'Facebook': { border: '#3B82F6', background: '#3B82F680' },
+          'Instagram': { border: '#EC4899', background: '#EC489980' },
+          'default': { border: '#6B7280', background: '#6B728080' }
+        };
+        
+        const color = colors[platform] || colors['default'];
+        
+        return {
+          label: platform,
+          data: data,
+          borderColor: color.border,
+          backgroundColor: color.background,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2
+        };
+      });
+
+      this.lineChartData = {
+        labels: uniqueDates,
+        datasets: datasets
+      };
+    } else {
+      // No time series data available
+      this.lineChartData = {
+        labels: [],
+        datasets: []
+      };
+    }
+  }
+
+  groupTimeSeriesByPlatform(timeSeries: LikesTimeSeries[]): {[platform: string]: LikesTimeSeries[]} {
+    const grouped: {[platform: string]: LikesTimeSeries[]} = {};
+    
+    timeSeries.forEach(item => {
+      if (!grouped[item.platformName]) {
+        grouped[item.platformName] = [];
+      }
+      grouped[item.platformName].push(item);
+    });
+    
+    // Sort each platform's data by date
+    Object.keys(grouped).forEach(platform => {
+      grouped[platform].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    });
+    
+    return grouped;
+  }
+
+  getUniqueDates(timeSeries: LikesTimeSeries[]): string[] {
+    const dates = timeSeries.map(item => item.date);
+    const uniqueDates = Array.from(new Set(dates));
+    return uniqueDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
   }
 
   goBack() {

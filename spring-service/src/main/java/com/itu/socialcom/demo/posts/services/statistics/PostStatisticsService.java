@@ -49,7 +49,7 @@ public class PostStatisticsService {
 
         for (Object[] row : rawData) {
             Long platformId = (Long) row[0];
-            Integer likesCount = (Integer) row[1];
+            Integer likesCount = ((Integer) row[1]);
 
             String platformName = PlatformNameMapper.getPlatformName(platformId.intValue());
             platformReactions.add(new PostStatisticsDto.PlatformReactionDistribution(
@@ -82,7 +82,7 @@ public class PostStatisticsService {
         for (Object[] row : rawData) {
             java.sql.Date date = (java.sql.Date) row[0];
             Long platformId = (Long) row[1];
-            Integer likesCount = (Integer) row[2];
+            Integer likesCount = ((Integer) row[2]);
 
             String platformName = PlatformNameMapper.getPlatformName(platformId.intValue());
             likesTimeSeries.add(new PostStatisticsDto.LikesTimeSeries(
