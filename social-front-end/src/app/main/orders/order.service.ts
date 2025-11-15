@@ -170,4 +170,28 @@ export class OrderService {
     );
   }
 
+  // Set order to customer pickup mode (status 26) and create sale with 0 paid amount
+  setCustomerPickup(orderId: number): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(
+      javaHost+'/api/order/customer-pickup',
+      { orderId },
+      {headers: header}
+    );
+  }
+
+  // Complete customer pickup order (status 26 -> 51) and create cash payment
+  completeCustomerPickup(orderId: number): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(
+      javaHost+'/api/order/complete-pickup',
+      { orderId },
+      {headers: header}
+    );
+  }
+
 }

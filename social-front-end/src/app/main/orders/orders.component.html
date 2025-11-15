@@ -249,6 +249,76 @@
 <!--  </div>-->
 <!--</div>-->
 
+<!-- Step 0: Delivery Mode Selection (Status 1: Created) -->
+<app-form-container (closeForm)="openModal=false" label="Choose Delivery Method" [isVisible]="step=='0' && openModal">
+  <div class="flex flex-col w-full border border-black rounded-xl p-4 bg-gray-50 gap-3 mb-4">
+    <h2 class="text-lg font-bold font-mono">How will the customer receive their order?</h2>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Order ID:</span>
+        <span>{{ activeOrder?.idOrderM }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Customer:</span>
+        <span>{{ activeOrder?.dcustomerName }}</span>
+      </div>
+      <div class="flex flex-row justify-between">
+        <span class="font-semibold">Delivery Address:</span>
+        <span>{{ activeOrder?.shippingAddress }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col w-full border border-black rounded-xl p-4 bg-gray-50 gap-3 mb-4">
+    <h3 class="text-md font-semibold font-mono mb-2">Select Delivery Method</h3>
+
+    <div class="flex flex-col gap-3">
+      <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+             [class.border-blue-500]="selectedDeliveryMode === 'pickup'"
+             [class.bg-blue-50]="selectedDeliveryMode === 'pickup'">
+        <input
+          type="radio"
+          name="deliveryMode"
+          value="pickup"
+          [(ngModel)]="selectedDeliveryMode"
+          class="mr-3 w-4 h-4">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-shopping-bag text-2xl text-purple-500"></i>
+          <div>
+            <div class="font-semibold">Customer Pickup</div>
+            <div class="text-sm text-gray-600">Customer will pick up the order from a location</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+             [class.border-blue-500]="selectedDeliveryMode === 'delivery'"
+             [class.bg-blue-50]="selectedDeliveryMode === 'delivery'">
+        <input
+          type="radio"
+          name="deliveryMode"
+          value="delivery"
+          [(ngModel)]="selectedDeliveryMode"
+          class="mr-3 w-4 h-4">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-truck text-2xl text-green-500"></i>
+          <div>
+            <div class="font-semibold">Send a Deliverer</div>
+            <div class="text-sm text-gray-600">We will assign a delivery person to deliver the order</div>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div class="mt-4">
+      <app-beautiful-button
+        [text]="'Continue'"
+        (click)="selectDeliveryMode()">
+      </app-beautiful-button>
+    </div>
+  </div>
+</app-form-container>
+
 <app-form-container (closeForm)="openModal=false" [isVisible]="step=='1' && openModal">
   <div class="flex flex-col w-full border border-blackt rounded-xl p-4 bg-gray-50 gap-3">
     <h2 class="text-lg font-bold font-mono">Customer Information</h2>

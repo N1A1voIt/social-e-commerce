@@ -1,9 +1,12 @@
 package com.itu.socialcom.demo.client.cart.mapper;
 
+import com.itu.socialcom.demo.authentication.user.Seller;
+import com.itu.socialcom.demo.authentication.user.SellerRepository;
 import com.itu.socialcom.demo.client.cart.dto.CartDTO;
 import com.itu.socialcom.demo.client.cart.dto.CartItemDTO;
 import com.itu.socialcom.demo.client.cart.model.Cart;
 import com.itu.socialcom.demo.client.cart.model.CartDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -15,6 +18,9 @@ import java.util.stream.Collectors;
  */
 @Component
 public class CartMapper {
+    
+    @Autowired
+    private SellerRepository sellerRepository;
     
     /**
      * Convert a Cart entity and its details to a CartDTO
@@ -30,6 +36,12 @@ public class CartMapper {
         cartDTO.setCreatedAt(cart.getCreatedAt());
         cartDTO.setActive(cart.isActive());
         cartDTO.setIdSeller(cart.getIdSeller());
+        
+        // Fetch seller name from database
+        String sellerName = sellerRepository.findById(cart.getIdSeller())
+                .map(Seller::getUsername)
+                .orElse("Unknown Seller");
+        cartDTO.setSellerName(sellerName);
         
         List<CartItemDTO> itemDTOs = cartDetails.stream()
                 .map(this::toCartItemDTO)

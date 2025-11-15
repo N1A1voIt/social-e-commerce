@@ -105,15 +105,15 @@
       <!-- Action Buttons -->
       <div class="grid grid-cols-2 gap-2 w-full mt-4">
         <button
-          class="rounded-full col-span-1 border border-yellow text-yellow px-4 py-2"
+          class="rounded-full col-span-2 border border-yellow text-yellow px-4 py-2"
           [disabled]="!variant || variant.stockStatus === 'Out of Stock'"
           [class.opacity-50]="!variant || variant.stockStatus === 'Out of Stock'"
           (click)="addToCart()">
           Add to Cart
         </button>
-        <button class="rounded-full col-span-1 border bg-yellow text-fotsy px-4 py-2">
+        <!-- <button class="rounded-full col-span-1 border bg-yellow text-fotsy px-4 py-2">
           Contact seller
-        </button>
+        </button> -->
       </div>
     </div>
   </div>

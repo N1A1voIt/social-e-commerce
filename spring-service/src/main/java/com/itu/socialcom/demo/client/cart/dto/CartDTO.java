@@ -23,4 +23,5 @@ public class CartDTO {
     private long itemCount;
     private BigDecimal totalPrice;
     private Long idSeller;
+    private String sellerName;
 }

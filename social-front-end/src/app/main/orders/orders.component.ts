@@ -41,8 +41,9 @@ export class OrdersComponent implements OnInit{
   loading: boolean = true;
   activeOrder?: OrderParent;
   loadingChildren: { [key: string]: boolean } = {}; // Track loading state for child orders
-  step:string = '1'; // 1 - payment , 2 - delivery
+  step:string = '1'; // 0 - delivery mode selection, 1 - payment , 2 - delivery
   openModal: boolean = false;
+  selectedDeliveryMode: string | null = null; // 'pickup' or 'delivery'
   applicants:DeliveryApplicant[] = [];
   // Shipping points related properties
   shippingPoints: ShippingPoint[] = [];
@@ -74,6 +75,7 @@ export class OrdersComponent implements OnInit{
     { label: 'Created', value: 1 },
     { label: 'Ordered', value: 11 },
     { label: 'Waiting for deliverer', value: 25 },
+    { label: 'Waiting for customer', value: 26 },
     { label: 'Cancelled', value: 21 },
     { label: 'Completed', value: 51 },
     { label: 'In delivery', value: 31 },
@@ -90,6 +92,53 @@ export class OrdersComponent implements OnInit{
 
   ngOnInit(): void {
     this.fetchOrders();
+  }
+
+  selectDeliveryMode() {
+    if (!this.selectedDeliveryMode) {
+      this.messagingService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select a delivery mode'
+      });
+      return;
+    }
+
+    if (this.selectedDeliveryMode === 'pickup') {
+      // For pickup, set order to status 26 (Waiting for customer) and create sale with 0 paid amount
+      if (!this.activeOrder || !this.activeOrder.idOrderM) {
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No active order found'
+        });
+        return;
+      }
+
+      this.orderService.setCustomerPickup(this.activeOrder.idOrderM).subscribe({
+        next: (response: ApiResponse) => {
+          console.log('Customer pickup set:', response);
+          this.messagingService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Order set to customer pickup mode. Waiting for customer to collect.'
+          });
+          this.openModal = false;
+          this.fetchOrders();
+        },
+        error: (err: any) => {
+          console.error('Error setting customer pickup:', err);
+          this.messagingService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err.error?.errors?.[0]?.message || 'Failed to set customer pickup mode'
+          });
+        }
+      });
+    } else if (this.selectedDeliveryMode === 'delivery') {
+      // For delivery, proceed to payment (they'll handle delivery assignment later)
+      this.step = '1';
+    }
   }
 
   sendBillingAndPaymentLink() {
@@ -123,7 +172,9 @@ export class OrdersComponent implements OnInit{
 
     if (order.dstatus == 1) {
       console.log(order.dstatus);
-      this.step = '1';
+      // Show delivery mode selection popup first
+      this.step = '0';
+      this.selectedDeliveryMode = null; // Reset delivery mode selection
     } else if (order.dstatus == 11) {
       this.step = '2';
       // Fetch child orders if not already loaded to get the managed page ID
@@ -134,6 +185,10 @@ export class OrdersComponent implements OnInit{
       } else {
         this.fetchShippingPointsForOrder(order);
       }
+    } else if (order.dstatus == 26) {
+      // Waiting for customer - Complete pickup with cash payment
+      this.completeCustomerPickup(order);
+      return; // Don't open modal, just complete the order
     } else if (order.dstatus == 41) {
       // Delivered - Asking for full payment
       this.step = '3';
@@ -147,6 +202,37 @@ export class OrdersComponent implements OnInit{
         this.fetchOrders();
       },error(err:ApiResponse) {
         alert(err.errors[0].message);
+      }
+    });
+  }
+
+  completeCustomerPickup(order: OrderParent) {
+    if (!order.idOrderM) {
+      this.messagingService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Invalid order ID'
+      });
+      return;
+    }
+
+    this.orderService.completeCustomerPickup(order.idOrderM).subscribe({
+      next: (response: ApiResponse) => {
+        console.log('Customer pickup completed:', response);
+        this.messagingService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Order marked as completed. Cash payment recorded.'
+        });
+        this.fetchOrders();
+      },
+      error: (err: any) => {
+        console.error('Error completing customer pickup:', err);
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error?.errors?.[0]?.message || 'Failed to complete customer pickup'
+        });
       }
     });
   }
@@ -475,6 +561,7 @@ export class OrdersComponent implements OnInit{
       11: 'Ordered',
       21: 'Cancelled',
       25: 'Waiting for deliverer',
+      26: 'Waiting for customer',
       31: 'In delivery',
       41: 'Delivered',
       45: 'Asking for full payment',

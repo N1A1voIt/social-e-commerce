@@ -59,6 +59,8 @@ public class OrderController {
     private OrderDeliveredService orderDeliveredService;
     @Autowired
     private TempLinkRepository tempLinkRepository;
+    @Autowired
+    private CustomerPickupService customerPickupService;
 
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
@@ -609,6 +611,74 @@ public class OrderController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(tempLink);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    /**
+     * Set order to customer pickup mode (status 26)
+     * Creates a sale with paid amount = 0
+     */
+    @PostMapping("/api/order/customer-pickup")
+    @Transactional
+    public ResponseEntity<ApiResponse> setCustomerPickup(@RequestBody java.util.Map<String, Object> payload, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to process order")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+
+            Long orderId = Long.valueOf(payload.get("orderId").toString());
+            OrderParent orderParent = customerPickupService.setCustomerPickup(orderId);
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    /**
+     * Complete customer pickup order (status 26 -> 51)
+     * Creates cash payment for the full amount
+     */
+    @PostMapping("/api/order/complete-pickup")
+    @Transactional
+    public ResponseEntity<ApiResponse> completeCustomerPickup(@RequestBody java.util.Map<String, Object> payload, @RequestHeader(name = "Authorization") String token) {
+        try {
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                ApiResponse apiResponse = new ApiResponse();
+                apiResponse.setStatus(401);
+                apiResponse.setData(null);
+                apiResponse.setErrors(List.of(new Exception("Please log in to process order")));
+                return ResponseEntity.status(401).body(apiResponse);
+            }
+
+            Long orderId = Long.valueOf(payload.get("orderId").toString());
+            OrderParent orderParent = customerPickupService.completeCustomerPickup(orderId);
+
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(orderParent);
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();

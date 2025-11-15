@@ -39,13 +39,33 @@ public class StockPersistanceService extends StockSavingService {
                 stockChildRepository
                         .findMostRecentVariantsByVariantIds(new ArrayList<>(variantIds))
                         .stream()
-                        .collect(Collectors.toMap(StockChild::getIdVariant, sc -> sc));
+                        .collect(Collectors.toMap(
+                                StockChild::getIdVariant,
+                                sc -> sc,
+                                (existing, replacement) -> {
+                                    // Keep the most recent record (latest createdAt/actionAt)
+                                    LocalDateTime existingTime = existing.getActionAt() != null ? existing.getActionAt() : existing.getCreatedAt();
+                                    LocalDateTime replacementTime = replacement.getActionAt() != null ? replacement.getActionAt() : replacement.getCreatedAt();
+                                    return (replacementTime != null && (existingTime == null || replacementTime.isAfter(existingTime))) 
+                                            ? replacement : existing;
+                                }
+                        ));
 
         Map<Long, StockChild> productLastRecords = productIds.isEmpty() ? Collections.emptyMap() :
                 stockChildRepository
                         .findByLastProductRecords(new ArrayList<>(productIds))
                         .stream()
-                        .collect(Collectors.toMap(StockChild::getIdProduct, sc -> sc));
+                        .collect(Collectors.toMap(
+                                StockChild::getIdProduct,
+                                sc -> sc,
+                                (existing, replacement) -> {
+                                    // Keep the most recent record (latest createdAt/actionAt)
+                                    LocalDateTime existingTime = existing.getActionAt() != null ? existing.getActionAt() : existing.getCreatedAt();
+                                    LocalDateTime replacementTime = replacement.getActionAt() != null ? replacement.getActionAt() : replacement.getCreatedAt();
+                                    return (replacementTime != null && (existingTime == null || replacementTime.isAfter(existingTime))) 
+                                            ? replacement : existing;
+                                }
+                        ));
 
         // Seed running totals
         Map<Long, Double> variantTotals = new HashMap<>();

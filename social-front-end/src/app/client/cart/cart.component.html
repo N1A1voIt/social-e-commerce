@@ -1,5 +1,5 @@
 <div class="container mx-auto p-4 max-w-5xl">
-  <h1 class="text-2xl font-bold mb-6">Your Shopping Cart</h1>
+  <h1 class="text-2xl font-bold mb-6 font-mono">Your Shopping Cart</h1>
 
   <!-- Loading Indicator -->
   <div *ngIf="loading" class="flex justify-center items-center py-8">
@@ -7,18 +7,18 @@
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
-      <p class="mt-2">Loading your cart...</p>
+      <p class="mt-2 font-mono">Loading your cart...</p>
     </div>
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    <p>{{ error }}</p>
+  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-3xl mb-4">
+    <p class="font-mono">{{ error }}</p>
     <div class="mt-2 flex flex-wrap gap-2">
-      <button class="px-4 py-2 bg-yellow text-fotsy rounded-full" (click)="loadCarts()">
+      <button class="px-4 py-2 bg-yellow text-fotsy rounded-full font-mono" (click)="loadCarts()">
         Retry
       </button>
-      <button class="px-4 py-2 border border-yellow text-yellow rounded-full" (click)="error = null">
+      <button class="px-4 py-2 border border-yellow text-yellow rounded-full font-mono" (click)="error = null">
         Dismiss
       </button>
     </div>
@@ -26,8 +26,8 @@
 
   <!-- Empty Cart -->
   <div *ngIf="!loading && carts.length === 0" class="text-center py-8">
-    <p class="text-gray-500 mb-4">Your cart is empty</p>
-    <button class="px-6 py-2 bg-yellow text-fotsy rounded-full" (click)="continueShopping()">
+    <p class="text-gray-500 mb-4 font-mono">Your cart is empty</p>
+    <button class="px-6 py-2 bg-yellow text-fotsy rounded-full font-mono" (click)="continueShopping()">
       Continue Shopping
     </button>
   </div>
@@ -36,17 +36,17 @@
   <div *ngIf="!loading && carts.length > 0" class="flex flex-col md:flex-row gap-6">
     <!-- Carts List -->
     <div class="md:w-2/3">
-      <div *ngFor="let cart of carts" class="bg-white rounded-lg shadow-md p-4 mb-4">
+      <div *ngFor="let cart of carts" class="bg-fotsy rounded-3xl shadow-lg p-4 mb-4 border border-gray-200">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">Seller: {{ cart.sellerName || 'Seller #'}}</h2>
-          <button class="text-red-500 text-sm" (click)="clearCart(cart.cartId)">Clear Cart</button>
+          <h2 class="text-lg font-semibold font-mono">Seller: {{ cart.sellerName || 'Unknown Seller' }}</h2>
+          <button class="text-red-500 text-sm font-mono bg-white rounded-xl px-3 py-1" (click)="clearCart(cart.cartId)">Clear Cart</button>
         </div>
 
         <!-- Cart Item -->
         <div *ngFor="let item of cart.items" class="border-b py-4 last:border-b-0">
           <div class="flex flex-col md:flex-row gap-4">
             <!-- Product Image -->
-            <div class="w-24 h-24 bg-gray-100 rounded-md overflow-hidden">
+            <div class="w-24 h-24 bg-black rounded-3xl overflow-hidden">
               <img *ngIf="item.productMedia" [src]="item.productMedia" alt="Product image" class="w-full h-full object-cover" />
               <div *ngIf="!item.productMedia" class="w-full h-full flex items-center justify-center text-gray-400">
                 No Image
@@ -55,32 +55,32 @@
 
             <!-- Product Info -->
             <div class="flex-1">
-              <h3 class="font-semibold">{{ item.productName }}</h3>
-              <p class="text-sm text-gray-600">{{ item.variantTitle }}</p>
-              <p class="text-yellow-500 font-semibold mt-1">{{ item.price }} Ar</p>
+              <h3 class="font-semibold font-mono">{{ item.productName }}</h3>
+              <p class="text-sm text-gray-600 font-mono">{{ item.variantTitle }}</p>
+              <p class="text-yellow-500 font-semibold mt-1 font-mono">{{ item.price }} Ar</p>
 
               <!-- Quantity Controls -->
-              <div class="flex items-center mt-2">
+              <div class="flex items-center mt-2 font-mono">
                 <span class="mr-2">Qty:</span>
-                <div class="flex items-center border rounded-lg">
-                  <button class="px-2 py-1 bg-gray-100" (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">-</button>
+                <div class="flex items-center border rounded-xl bg-white">
+                  <button class="px-3 py-1 bg-white rounded-l-xl" (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">-</button>
                   <input type="number" [(ngModel)]="item.quantity" min="1" max="99" class="w-12 text-center border-0 outline-none" (change)="updateQuantity(item, item.quantity)" />
-                  <button class="px-2 py-1 bg-gray-100" (click)="updateQuantity(item, item.quantity + 1)">+</button>
+                  <button class="px-3 py-1 bg-white rounded-r-xl" (click)="updateQuantity(item, item.quantity + 1)">+</button>
                 </div>
-                <button class="ml-4 text-red-500 text-sm" (click)="removeItem(item.variantId)">Remove</button>
+                <button class="ml-4 text-red-500 text-sm bg-white rounded-xl px-3 py-1" (click)="removeItem(item.variantId)">Remove</button>
               </div>
             </div>
 
             <!-- Subtotal -->
             <div class="text-right">
-              <p class="font-semibold">{{ item.totalPrice }} Ar</p>
+              <p class="font-semibold font-mono">{{ item.totalPrice }} Ar</p>
             </div>
           </div>
         </div>
 
         <!-- Checkout Button for this Seller -->
         <div class="mt-4 pt-4 border-t">
-          <button class="w-full py-2 bg-yellow text-fotsy rounded-full font-semibold"
+          <button class="w-full py-2 bg-yellow text-fotsy rounded-full font-semibold font-mono"
                   (click)="openCheckoutModal(cart)"
                   [disabled]="cart.items.length === 0">
             Checkout This Seller's Items
@@ -91,26 +91,26 @@
 
     <!-- Order Summary -->
     <div class="md:w-1/3">
-      <div class="bg-white rounded-lg shadow-md p-4 sticky top-4">
-        <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+      <div class="bg-fotsy rounded-3xl shadow-lg p-4 sticky top-4 border border-gray-200">
+        <h2 class="text-lg font-semibold mb-4 font-mono">Order Summary</h2>
 
-        <div class="flex justify-between mb-2">
+        <div class="flex justify-between mb-2 font-mono">
           <span>Total Items ({{ totalItemCount }}):</span>
           <span>{{ grandTotal | frenchNumber }} Ar</span>
         </div>
 
         <div class="border-t border-gray-200 my-4"></div>
 
-        <div class="flex justify-between font-semibold text-lg">
+        <div class="flex justify-between font-semibold text-lg font-mono">
           <span>Total:</span>
           <span>{{ grandTotal | frenchNumber }} Ar</span>
         </div>
 
-        <button class="w-full mt-4 py-2 bg-yellow text-fotsy rounded-full" (click)="checkout()">
+        <button class="w-full mt-4 py-2 bg-yellow text-fotsy rounded-full font-mono" (click)="checkout()">
           Proceed to Checkout
         </button>
 
-        <button class="w-full mt-2 py-2 border border-yellow text-yellow rounded-full" (click)="continueShopping()">
+        <button class="w-full mt-2 py-2 border border-yellow text-yellow rounded-full font-mono" (click)="continueShopping()">
           Continue Shopping
         </button>
       </div>
@@ -122,12 +122,12 @@
 <div *ngIf="showCheckoutModal && selectedCart"
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
      (click)="closeCheckoutModal()">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-4"
+  <div class="bg-fotsy rounded-3xl shadow-xl w-full max-w-md m-4"
        (click)="$event.stopPropagation()">
     <!-- Modal Header -->
     <div class="flex justify-between items-center p-6 border-b">
-      <h2 class="text-xl font-semibold">Checkout</h2>
-      <button class="text-gray-500 hover:text-gray-700" (click)="closeCheckoutModal()">
+      <h2 class="text-xl font-semibold font-mono">Checkout</h2>
+      <button class="text-gray-500 hover:text-gray-700 bg-white rounded-xl p-2" (click)="closeCheckoutModal()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -138,50 +138,50 @@
     <div class="p-6">
       <!-- Order Summary -->
       <div class="mb-6">
-        <h3 class="font-semibold mb-2">Order Summary</h3>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-sm text-gray-600">Total Items: {{ selectedCart.itemCount }}</p>
-          <p class="text-lg font-semibold mt-2">Total: {{ selectedCart.totalPrice | frenchNumber }} Ar</p>
+        <h3 class="font-semibold mb-2 font-mono">Order Summary</h3>
+        <div class="bg-white rounded-3xl p-4 shadow-lg">
+          <p class="text-sm text-gray-600 font-mono">Total Items: {{ selectedCart.itemCount }}</p>
+          <p class="text-lg font-semibold mt-2 font-mono">Total: {{ selectedCart.totalPrice | frenchNumber }} Ar</p>
         </div>
       </div>
 
       <!-- Checkout Form -->
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Shipping Address</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2 font-mono">Shipping Address</label>
           <textarea
             [(ngModel)]="checkoutForm.shippingAddress"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow"
+            class="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-yellow font-mono"
             rows="3"
             placeholder="Enter your shipping address">
           </textarea>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2 font-mono">Phone Number</label>
           <input
             type="text"
             [(ngModel)]="checkoutForm.phoneNumber"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow"
+            class="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-yellow font-mono"
             placeholder="Enter your phone number">
         </div>
       </div>
 
       <!-- Error Message -->
-      <div *ngIf="error" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+      <div *ngIf="error" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-3xl font-mono">
         <p>{{ error }}</p>
       </div>
 
       <!-- Modal Actions -->
       <div class="mt-6 flex gap-3">
         <button
-          class="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50"
+          class="flex-1 py-2 px-4 border border-gray-300 rounded-full hover:bg-gray-50 font-mono"
           (click)="closeCheckoutModal()"
           [disabled]="loading">
           Cancel
         </button>
         <button
-          class="flex-1 py-2 px-4 bg-yellow text-fotsy rounded-lg font-semibold hover:bg-yellow-600 disabled:opacity-50"
+          class="flex-1 py-2 px-4 bg-yellow text-fotsy rounded-full font-semibold hover:bg-yellow-600 disabled:opacity-50 font-mono"
           (click)="processCheckout()"
           [disabled]="loading">
           {{ loading ? 'Processing...' : 'Place Order' }}
