@@ -53,7 +53,7 @@
     </div>
   </div>
   <div class="w-full py-6 ">
-    <div class="w-full h-[50px] rounded-full bg-fotsy sm:flex hidden flex-row items-center justify-center p-1 gap-1 ">
+    <div class="w-full h-[50px] bg-blue-50 rounded-full sm:flex hidden flex-row items-center justify-center p-1 gap-1 ">
       <app-account-performances
         *ngFor="let d of dashboardStats?.platformRepartition"
         [platformId]="d.idSp"
@@ -64,7 +64,7 @@
     </div>
   </div>
   <div class="w-full flex flex-col 2xl:flex-row items-center py-1 gap-4">
-    <div class="w-full  h-[350px] 2xl:h-[400px]">
+    <div class="w-full  h-[350px] 2xl:h-[350px]">
       <app-heatmap-chart
         [data]="dashboardStats?.heatmapData || {xlabels:[],ylabels:[],cells:[],timeFrame:'YEARLY'}"
         (yearChange)="onYearChange($event)">

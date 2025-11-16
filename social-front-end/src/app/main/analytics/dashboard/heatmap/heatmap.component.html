@@ -1,4 +1,4 @@
-<div style="display:block; " class="w-full h-full bg-fotsy p-4 rounded-3xl font-mono flex flex-col" >
+<div style="display:block; " class="w-full  bg-blue-50 p-4 rounded-3xl font-mono flex flex-col" >
   <!-- Header with Year Selector -->
   <div class="w-full flex justify-between items-start mb-4">
     <div>
@@ -6,7 +6,7 @@
       <span class="block text-xs text-gray-500 mt-0.5">{{ getTotalLikes() }} reactions received in {{ selectedYear }}</span>
     </div>
     <div class="flex items-center gap-2">
-      <button 
+      <button
         (click)="previousYear()"
         class="p-1.5 hover:bg-gray-100 rounded transition-colors"
         [disabled]="!canGoPreviousYear()"
@@ -16,15 +16,15 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
       </button>
-      
-      <select 
-        [(ngModel)]="selectedYear" 
+
+      <select
+        [(ngModel)]="selectedYear"
         (change)="onYearChange()"
         class="px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer hover:border-gray-400 transition-colors">
         <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
       </select>
-      
-      <button 
+
+      <button
         (click)="nextYear()"
         class="p-1.5 hover:bg-gray-100 rounded transition-colors"
         [disabled]="!canGoNextYear()"
@@ -36,7 +36,7 @@
       </button>
     </div>
   </div>
-  
+
   <!-- Heatmap Chart -->
   <div class="flex-1 w-full overflow-x-auto overflow-y-hidden" style="min-height: 180px;">
     <div [style.min-width]="getMinChartWidth()" style="height: 180px;">
@@ -47,7 +47,7 @@
       </canvas>
     </div>
   </div>
-  
+
   <!-- Legend -->
   <div class="flex items-center justify-end gap-2 mt-3 text-xs text-gray-600">
     <span>Less</span>
