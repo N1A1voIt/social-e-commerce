@@ -4,13 +4,17 @@ import com.itu.socialcom.demo.authentication.token.TokenV2Service;
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.sales.dto.ImportResult;
 import com.itu.socialcom.demo.sales.service.SalesCsvImportService;
+import com.itu.socialcom.demo.sales.service.SalesFilterService;
 import com.itu.socialcom.demo.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,8 +29,18 @@ public class SalesController {
     @Autowired
     private SalesCsvImportService salesCsvImportService;
 
+    @Autowired
+    private SalesFilterService salesFilterService;
+
     @GetMapping("/api/sales")
-    public ResponseEntity<ApiResponse> getAllSales(@RequestHeader(name = "Authorization") String token, Pageable pageable) {
+    public ResponseEntity<ApiResponse> getAllSales(
+            @RequestHeader(name = "Authorization") String token,
+            @RequestParam(name = "status", required = false) Integer status,
+            @RequestParam(name = "fromName", required = false) String fromName,
+            @RequestParam(name = "orderId", required = false) String orderId,
+            @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            Pageable pageable) {
         try {
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
@@ -37,12 +51,22 @@ public class SalesController {
                 return ResponseEntity.status(401).body(apiResponse);
             }
             
+            // Use filter service to get sales with filters
+            Page<Sales> salesPage = salesFilterService.findSalesWithFilters(
+                seller.getId().intValue(),
+                status,
+                fromName,
+                orderId,
+                startDate,
+                endDate,
+                pageable
+            );
+            
             SalesToDisplay salesToDisplay = new SalesToDisplay();
-            List<Sales> sales = salesRepository.findByIdSeller(seller.getId().intValue(), pageable).getContent();
-            salesToDisplay.setSales(sales);
-            salesToDisplay.setTotalSales(salesRepository.countByIdSeller(seller.getId().intValue()));
+            salesToDisplay.setSales(salesPage.getContent());
+            salesToDisplay.setTotalSales((int) salesPage.getTotalElements());
 
-            System.out.println("Sales size:"+sales.size());
+            System.out.println("Sales size: " + salesPage.getContent().size());
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(salesToDisplay);

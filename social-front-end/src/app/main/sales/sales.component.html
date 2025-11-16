@@ -1,10 +1,10 @@
 <!-- sales.component.html -->
-<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
+<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full lg:p-4 p-0 gap-8">
   <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
     <div class="w-full flex justify-between items-center px-4 font-mono">
-      <h1>Sales</h1>
+      <h1>Sales List</h1>
       <button
-        class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         (click)="onImportCsvClick()"
         [disabled]="importLoading"
         title="Import sales from CSV">
@@ -13,258 +13,298 @@
       </button>
     </div>
 
-    <!-- Filters Section -->
-<!--    <div class="w-full px-4">-->
-<!--      <div class="bg-white rounded-lg shadow p-4 border border-gray-200">-->
-<!--        <h3 class="text-sm font-semibold mb-3 text-gray-700">Filters</h3>-->
-<!--        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">-->
-<!--          &lt;!&ndash; Status Filter &ndash;&gt;-->
-<!--          <div class="flex flex-col">-->
-<!--            <label class="text-xs text-gray-600 mb-1">Status</label>-->
-<!--            <p-dropdown-->
-<!--              [options]="statusOptions"-->
-<!--              [(ngModel)]="filterStatus"-->
-<!--              optionLabel="label"-->
-<!--              optionValue="value"-->
-<!--              placeholder="Select status"-->
-<!--              [showClear]="true"-->
-<!--              styleClass="w-full">-->
-<!--            </p-dropdown>-->
-<!--          </div>-->
+    <!-- Filter Section -->
+    <div class="w-full px-4 bg-gray-50 rounded-lg p-4 border-4 border-blue-50">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-3">
+        <!-- Status Filter -->
+        <div class="flex flex-col gap-2">
+          <label class="text-md text-gray-700">Status</label>
+          <p-dropdown
+            [(ngModel)]="filterStatus"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All Statuses"
+            [showClear]="true"
+            styleClass="w-full border-4 border-blue-50">
+          </p-dropdown>
+        </div>
 
-<!--          &lt;!&ndash; From Name Filter &ndash;&gt;-->
-<!--          <div class="flex flex-col">-->
-<!--            <label class="text-xs text-gray-600 mb-1">From Name</label>-->
-<!--            <app-basic-input-->
-<!--              [(ngModel)]="filterFromName"-->
-<!--              [placeholder]="'Enter name'"-->
-<!--              [type]="'text'">-->
-<!--            </app-basic-input>-->
-<!--          </div>-->
+        <!-- From Name Filter -->
+        <div class="flex flex-col gap-2">
+          <label class="text-md text-gray-700">From Name</label>
+          <app-basic-input
+            [(ngModel)]="filterFromName"
+            placeholder="Enter name"
+            type="text">
+          </app-basic-input>
+        </div>
 
-<!--          &lt;!&ndash; Order ID Filter &ndash;&gt;-->
-<!--          <div class="flex flex-col">-->
-<!--            <label class="text-xs text-gray-600 mb-1">Order ID</label>-->
-<!--            <app-basic-input-->
-<!--              [(ngModel)]="filterOrderId"-->
-<!--              [placeholder]="'Enter order ID'"-->
-<!--              [type]="'text'">-->
-<!--            </app-basic-input>-->
-<!--          </div>-->
+        <!-- Order ID Filter -->
+        <div class="flex flex-col gap-2">
+          <label class="text-md text-gray-700">Order ID</label>
+          <app-basic-input
+            [(ngModel)]="filterOrderId"
+            placeholder="Enter order ID"
+            type="text">
+          </app-basic-input>
+        </div>
 
-<!--          &lt;!&ndash; Start Date Filter &ndash;&gt;-->
-<!--          <div class="flex flex-col">-->
-<!--            <label class="text-xs text-gray-600 mb-1">Start Date</label>-->
-<!--            <p-calendar-->
-<!--              [(ngModel)]="filterStartDate"-->
-<!--              dateFormat="yy-mm-dd"-->
-<!--              [showIcon]="true"-->
-<!--              placeholder="Select start date"-->
-<!--              styleClass="w-full">-->
-<!--            </p-calendar>-->
-<!--          </div>-->
+        <!-- Start Date Filter -->
+        <div class="flex flex-col gap-2">
+          <label class="text-md text-gray-700">Start Date</label>
+          <app-basic-input
+            [(ngModel)]="filterStartDate"
+            type="date">
+          </app-basic-input>
+        </div>
 
-<!--          &lt;!&ndash; End Date Filter &ndash;&gt;-->
-<!--          <div class="flex flex-col">-->
-<!--            <label class="text-xs text-gray-600 mb-1">End Date</label>-->
-<!--            <p-calendar-->
-<!--              [(ngModel)]="filterEndDate"-->
-<!--              dateFormat="yy-mm-dd"-->
-<!--              [showIcon]="true"-->
-<!--              placeholder="Select end date"-->
-<!--              styleClass="w-full">-->
-<!--            </p-calendar>-->
-<!--          </div>-->
-<!--        </div>-->
+        <!-- End Date Filter -->
+        <div class="flex flex-col gap-2">
+          <label class="text-md text-gray-700">End Date</label>
+          <app-basic-input
+            [(ngModel)]="filterEndDate"
+            type="date">
+          </app-basic-input>
+        </div>
+      </div>
 
-<!--        &lt;!&ndash; Filter Actions &ndash;&gt;-->
-<!--        <div class="flex gap-2 mt-3">-->
-<!--          <button-->
-<!--            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"-->
-<!--            (click)="applyFilters()">-->
-<!--            <i class="pi pi-filter mr-2"></i>-->
-<!--            Apply Filters-->
-<!--          </button>-->
-<!--          <button-->
-<!--            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"-->
-<!--            (click)="clearFilters()">-->
-<!--            <i class="pi pi-filter-slash mr-2"></i>-->
-<!--            Clear Filters-->
-<!--          </button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-
-    <div class="card w-full font-custom-font rounded-3xl border border-gray-200 overflow-y-scroll">
-      <p-toast />
-
-      <p-table
-        [value]="sales"
-        [paginator]="true"
-        [rows]="10"
-        [totalRecords]="totalRecords"
-        [lazy]="true"
-        [loading]="loading"
-        (onLazyLoad)="fetchSales($event)"
-        dataKey="idSale"
-        [tableStyle]="{ 'min-width': '70rem' }"
-        [expandedRowKeys]="expandedRows"
-        (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)"
-        styleClass="p-datatable-rounded p-datatable-hoverable-rows p-datatable-striped p-datatable-gridlines"
-
-        [rowHover]="true"
-        responsiveLayout="stack"
-        [breakpoint]="'960px'">
-
-        <!-- Table Header -->
-        <ng-template pTemplate="header">
-          <tr class="font-mono ">
-            <th style="width: 3rem" class="text-center">#</th>
-            <th pSortableColumn="description">Description</th>
-            <th pSortableColumn="fromName">From</th>
-            <th pSortableColumn="effectuatedAt">Date</th>
-            <th pSortableColumn="amount">Amount</th>
-            <th pSortableColumn="paid">Paid amount</th>
-            <th>Order ID</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-sale let-expanded="expanded">
-          <tr class="font-mono">
-            <td>
-              <p-button type="button" pRipple [pRowToggler]="sale"
-                        [text]="true" severity="secondary" [rounded]="true"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-              </p-button>
-            </td>
-
-            <td>{{ sale.description || 'N/A' }}</td>
-            <td>{{ sale.fromName || sale.fromNumber || 'N/A' }}</td>
-            <td>{{ sale.effectuatedAt | date:'short' }}</td>
-            <td>{{ sale.amount | frenchNumber }} Ar</td>
-            <td>{{ sale.paidAmount | frenchNumber }} Ar</td>
-            <td>{{ sale.idOrderM || '—' }}</td>
-            <td>{{ sale.status == 1 ? 'Partially paid' : 'Paid' || '—' }}</td>
-            <td>
-              <div class="action-buttons">
-                <button class="action-button bg-blue-50" (click)="exportSale(sale)" title="Generate Invoice">
-                  <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
-                </button>
-                <button
-                  class="action-button bg-purple-50"
-                  (click)="viewOrder(sale.idOrderM)"
-                  [disabled]="!sale.idOrderM"
-                  [class.opacity-40]="!sale.idOrderM"
-                  [class.cursor-not-allowed]="!sale.idOrderM"
-                  title="View Order">
-                  <i class="pi pi-shopping-cart text-purple-500 text-xl"></i>
-                </button>
-<!--                <button *ngIf="sale.status == 1" (click)="updateSaleStatus(sale)" class="action-button bg-green-50"  title="Change status">-->
-<!--                  <i  class="pi pi-check text-green-500 text-xl"></i>-->
-<!--                </button>-->
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
-        <!-- Expanded Row (Sale Details) -->
-        <ng-template pTemplate="rowexpansion" let-sale>
-          <tr>
-            <td colspan="9">
-              <div class="p-4 p-rowexpansion-content">
-                <div class="order-details-header">
-                  <h5 class="m-0 text-lg font-semibold font-mono">Sale Details for {{ sale.description || 'Sale #' + sale.idSale }}</h5>
-                </div>
-
-                <!-- Purchased items table -->
-                <p-table [value]="sale.details" dataKey="id" class="mt-4 child-orders-table p-datatable-sm p-datatable-striped p-datatable-gridlines"
-                         [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="stack" [breakpoint]="'768px'">
-
-                  <ng-template pTemplate="header">
-                    <tr class="font-custom-font">
-                      <th>Item ID</th>
-                      <th>Product</th>
-                      <th>SKU</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                      <th>Total</th>
-                      <th>Image</th>
-                    </tr>
-                  </ng-template>
-
-                  <ng-template pTemplate="body" let-item>
-                    <tr class="font-mono">
-                      <td>{{ item.id || item.idDetail || '-' }}</td>
-                      <td>{{ item.productName || item.name || item.label || 'N/A' }}</td>
-                      <td>
-                        <p-tag [value]="item.variantName || 'N/A'" severity="secondary"></p-tag>
-                      </td>
-                      <td class="text-center">{{ item.quantity || item.qty || 0 }}</td>
-                      <td>{{ (item.price || item.unitPrice || 0) | frenchNumber }} Ar</td>
-                      <td>{{ ((item.price || item.unitPrice || 0) * (item.quantity || item.qty || 0)) | frenchNumber }} Ar</td>
-                      <td>
-                        <img *ngIf="item.mediaUrl || item.imageUrl"
-                             [src]="item.mediaUrl || item.imageUrl"
-                             [alt]="item.productName || item.name || 'Product image'"
-                             class="product-image"
-                             onerror="this.style.display='none'">
-                        <span *ngIf="!(item.mediaUrl || item.imageUrl)" class="text-gray-400">No image</span>
-                      </td>
-                    </tr>
-                  </ng-template>
-
-                  <ng-template pTemplate="emptymessage">
-                    <tr>
-                      <td colspan="7" class="text-center py-6">
-                        <div class="flex flex-col items-center text-gray-500 p-4 bg-gray-50 rounded-lg">
-                          <i class="pi pi-inbox text-3xl mb-2 text-blue-400"></i>
-                          <span class="font-medium">No items found for this sale</span>
-                          <p class="text-sm mt-1">This sale doesn't have any product details attached.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-
-                <div class="mt-4">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                      <div class="flex justify-between">
-                        <span class="font-semibold">Amount:</span>
-                        <span>{{ sale.amount | frenchNumber }} Ar</span>
-                      </div>
-                      <div class="flex justify-between mt-2">
-                        <span class="font-semibold">From:</span>
-                        <span>{{ sale.fromName || sale.fromNumber }}</span>
-                      </div>
-                      <div class="flex justify-between mt-2">
-                        <span class="font-semibold">Date:</span>
-                        <span>{{ sale.effectuatedAt | date:'fullDate' }}</span>
-                      </div>
-                    </div>
-
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                      <div class="flex flex-col">
-                        <span class="font-semibold">Description</span>
-                        <p class="text-sm text-gray-600 mt-2">{{ sale.description || 'No description provided' }}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="mt-4">
-                    <app-beautiful-button [text]="'Download Invoice'" (click)="exportSale(sale)"></app-beautiful-button>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
-      </p-table>
+      <!-- Filter Actions -->
+      <div class="flex gap-2 justify-end">
+        <app-basic-button (click)="clearFilters()">
+          Clear filters
+        </app-basic-button>
+        <app-basic-button (click)="applyFilters()">
+          <i class="pi pi-filter"></i> <span> Apply filters</span>
+        </app-basic-button>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="p-4">
+  <div class="w-full p-4 rounded-xl flex flex-col gap-4">
+    <p-toast />
+
+    <p-toast />
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <span class="ml-3 text-gray-600">Loading sales...</span>
+    </div>
+
+    <!-- Sales List -->
+    <div class="border-4 border-blue-50 rounded-xl" *ngFor="let sale of sales">
+      <div class="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
+        <div class="w-24">
+          <div class="text-sm text-gray mb-1">Sale ID</div>
+          <div class="font-mono text-md">#{{sale.idSale}}</div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Description</div>
+          <div class="text-md truncate" title="{{sale.description}}">
+            {{ sale.description || 'N/A' }}
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">From</div>
+          <div class="text-md truncate" title="{{sale.fromName || sale.fromNumber}}">
+            {{ sale.fromName || sale.fromNumber || 'N/A' }}
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Date</div>
+          <div class="text-md truncate" title="{{ sale.effectuatedAt | date:'short' }}">
+            {{ sale.effectuatedAt | date:'short' }}
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Amount</div>
+          <div class="text-md truncate" title="{{ sale.amount }}">
+            {{ sale.amount | frenchNumber }} Ar
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Paid</div>
+          <div class="text-md truncate" title="{{ sale.paidAmount }}">
+            {{ sale.paidAmount | frenchNumber }} Ar
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Order ID</div>
+          <div class="text-md truncate">
+            {{ sale.idOrderM || '—' }}
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Status</div>
+          <div class="text-md truncate">
+            <span class="px-2 py-1 text-xs rounded-full" 
+              [ngClass]="sale.status == 1 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">
+              {{ sale.status == 1 ? 'Partially paid' : 'Paid' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="action-buttons">
+            <button class="action-button bg-purple-50" (click)="toggleSaleDetails(sale, $event)" title="View details">
+              <i class="pi" [ngClass]="isSaleExpanded(sale) ? 'pi-eye-slash' : 'pi-eye'" class="text-black text-xl"></i>
+            </button>
+            <button class="action-button bg-blue-50" (click)="exportSale(sale)" title="Generate Invoice">
+              <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
+            </button>
+            <button
+              class="action-button bg-cyan-50"
+              (click)="viewOrder(sale.idOrderM, $event)"
+              [disabled]="!sale.idOrderM"
+              [class.opacity-40]="!sale.idOrderM"
+              [class.cursor-not-allowed]="!sale.idOrderM"
+              title="View Order">
+              <i class="pi pi-shopping-cart text-cyan-500 text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sale Details Expanded Section -->
+      <div class="w-full p-10 bg-blue-50" *ngIf="isSaleExpanded(sale)">
+        <div class="grid grid-cols-3 gap-4">
+          <!-- Sale Information -->
+          <div class="col-span-1">
+            <div class="flex flex-col gap-4">
+              <span class="text-xl"><i class="pi pi-money-bill"></i> Sale Information</span>
+              <div class="flex flex-col gap-3 bg-white p-4 rounded-lg">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray">Sale ID:</span>
+                  <span class="font-mono text-md">#{{ sale.idSale }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray">Amount:</span>
+                  <span class="text-md font-semibold">{{ sale.amount | frenchNumber }} Ar</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray">Paid:</span>
+                  <span class="text-md font-semibold">{{ sale.paidAmount | frenchNumber }} Ar</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray">Status:</span>
+                  <span class="px-2 py-1 text-xs rounded-full inline-block"
+                    [ngClass]="sale.status == 1 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">
+                    {{ sale.status == 1 ? 'Partially paid' : 'Paid' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Information -->
+          <div class="col-span-1">
+            <div class="flex flex-col gap-4">
+              <span class="text-xl"><i class="pi pi-user"></i> Customer Details</span>
+              <div class="flex flex-col gap-3 bg-white p-4 rounded-lg">
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm text-gray">From Name:</span>
+                  <span class="text-md">{{ sale.fromName || 'N/A' }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm text-gray">Phone Number:</span>
+                  <span class="text-md">{{ sale.fromNumber || 'N/A' }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm text-gray">Date:</span>
+                  <span class="text-md">{{ sale.effectuatedAt | date:'fullDate' }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm text-gray">Order ID:</span>
+                  <span class="text-md">{{ sale.idOrderM || '—' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Products -->
+          <div class="col-span-1">
+            <div class="flex flex-col gap-4">
+              <span class="text-xl"><i class="pi pi-box"></i> Products</span>
+              <div class="flex flex-col gap-2">
+                <div *ngIf="!sale.details || sale.details.length === 0" class="bg-white p-4 rounded-lg text-center text-gray-500">
+                  No product details available
+                </div>
+                <div *ngFor="let item of sale.details" class="border border-blue-300 rounded-xl bg-white p-3">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="font-medium text-md">{{ item.productName || item.label || 'N/A' }}</div>
+                      <div class="text-sm text-gray mt-1">
+                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100">{{ item.variantName || 'N/A' }}</span>
+                      </div>
+                      <div class="text-sm text-gray mt-1">Qty: {{ item.quantity || item.qty || 0 }}</div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-md font-semibold">{{ (item.price || item.unitPrice || 0) | frenchNumber }} Ar</div>
+                      <div class="text-sm text-gray">Total: {{ ((item.price || item.unitPrice || 0) * (item.quantity || item.qty || 0)) | frenchNumber }} Ar</div>
+                    </div>
+                  </div>
+                  <img *ngIf="item.mediaUrl || item.imageUrl"
+                    [src]="item.mediaUrl || item.imageUrl"
+                    [alt]="item.productName || 'Product'"
+                    class="w-full h-32 object-cover rounded-lg mt-2"
+                    onerror="this.style.display='none'">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mt-6 bg-white p-4 rounded-lg">
+          <span class="text-md font-semibold text-gray">Description</span>
+          <p class="text-sm text-gray-600 mt-2">{{ sale.description || 'No description provided' }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="border-t border-blue-200 grid grid-cols-12 mt-8 py-4">
+          <div class="col-span-6 flex items-center gap-4">
+            <button class="px-4 py-2 border border-blue-100 bg-white rounded-lg flex flex-row items-center gap-2" (click)="exportSale(sale)">
+              <i class="pi pi-download"></i> <span>Download Invoice</span>
+            </button>
+          </div>
+          <div class="col-span-6 flex items-center justify-end gap-4">
+            <button *ngIf="sale.idOrderM" class="px-4 py-2 border border-blue-100 rounded-lg flex flex-row items-center gap-2 bg-black text-white" (click)="viewOrder(sale.idOrderM, $event)">
+              <i class="pi pi-shopping-cart"></i> <span>View Order</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center mt-6" *ngIf="!loading && sales.length > 0">
+      <p-paginator
+        [rows]="pageSize"
+        [totalRecords]="totalRecords"
+        [first]="currentPage * pageSize"
+        (onPageChange)="onPageChange($event)"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} sales">
+      </p-paginator>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && sales.length === 0" class="text-center py-12">
+      <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="pi pi-inbox text-gray-400 text-3xl"></i>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No sales found</h3>
+      <p class="text-gray-500">There are no sales matching your filters.</p>
+    </div>
+  </div>
+</div>

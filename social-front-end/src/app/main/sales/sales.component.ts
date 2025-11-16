@@ -5,7 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
-import {DecimalPipe, DatePipe, NgIf} from '@angular/common';
+import {DecimalPipe, DatePipe, NgIf, NgClass, NgForOf} from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { BeautifulButtonComponent } from '../../shared/beautiful-button/beautiful-button.component';
 import { SalesService } from './sales.service';
@@ -15,13 +15,15 @@ import autoTable from 'jspdf-autotable';
 import { Router } from '@angular/router';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
+import { PaginatorModule } from 'primeng/paginator';
 import { BasicInputComponent } from '../../shared/basic-input/basic-input.component';
+import { BasicButtonComponent } from '../../shared/basic-button/basic-button.component';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf, FrenchNumberPipe, DropdownModule, CalendarModule, BasicInputComponent],
+  imports: [TableModule, ButtonModule, TagModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, BeautifulButtonComponent, NgIf, NgClass, NgForOf, FrenchNumberPipe, DropdownModule, CalendarModule, BasicInputComponent, BasicButtonComponent, PaginatorModule],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
@@ -30,6 +32,10 @@ export class SalesComponent implements OnInit {
   totalRecords = 0;
   loading = false;
   expandedRows: { [key: string]: boolean } = {};
+
+  // Pagination properties
+  currentPage: number = 0;
+  pageSize: number = 10;
 
   // Placeholder for selected sale / details
   activeSale: any = null;
@@ -58,14 +64,32 @@ export class SalesComponent implements OnInit {
 
   ngOnInit(): void {
     // initial load
-    this.fetchSales({ first: 0, rows: 10 });
+    this.fetchSales();
   }
 
-  fetchSales(event?: TableLazyLoadEvent) {
+  toggleSaleDetails(sale: any, event?: Event): void {
+    event?.stopPropagation();
+    const saleId = sale.idSale?.toString() || '';
+    
+    if (this.expandedRows[saleId]) {
+      // If already expanded, just collapse it
+      delete this.expandedRows[saleId];
+    } else {
+      // If not expanded, expand it
+      this.expandedRows[saleId] = true;
+    }
+  }
+
+  isSaleExpanded(sale: any): boolean {
+    const saleId = sale.idSale?.toString() || '';
+    return !!this.expandedRows[saleId];
+  }
+
+  fetchSales(page?: number) {
     this.loading = true;
-    const page = event && event.first !== undefined ? Math.floor((event.first / (event.rows || 10))) : 0;
-    const size = event && event.rows ? event.rows : 10;
-    const sort = event && (event as any).sortField ? `${(event as any).sortField},${(event as any).sortOrder === -1 ? 'desc' : 'asc'}` : undefined;
+    const pageToFetch = page !== undefined ? page : this.currentPage;
+    const size = this.pageSize;
+    const sort = undefined;
 
     // Build filter parameters
     const filters: any = {};
@@ -82,15 +106,32 @@ export class SalesComponent implements OnInit {
       filters.orderId = this.filterOrderId.trim();
     }
 
+    let startDateStr = null;
+    let endDateStr = null;
+
     if (this.filterStartDate) {
-      filters.startDate = this.formatDateToISO(this.filterStartDate);
+      // Set to start of day (00:00:00)
+      const startDate = new Date(this.filterStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      startDateStr = this.formatDateToISO(startDate);
     }
 
     if (this.filterEndDate) {
-      filters.endDate = this.formatDateToISO(this.filterEndDate);
+      // Set to end of day (23:59:59)
+      const endDate = new Date(this.filterEndDate);
+      endDate.setHours(23, 59, 59, 999);
+      endDateStr = this.formatDateToISO(endDate);
     }
 
-    this.salesService.fetchAllSales(page, size, sort, filters).subscribe({
+    if (startDateStr) {
+      filters.startDate = startDateStr;
+    }
+
+    if (endDateStr) {
+      filters.endDate = endDateStr;
+    }
+
+    this.salesService.fetchAllSales(pageToFetch, size, sort, filters).subscribe({
       next: (response) => {
         if (response && response.status === 200) {
           this.sales = response.data?.sales || [];
@@ -109,8 +150,15 @@ export class SalesComponent implements OnInit {
     });
   }
 
+  onPageChange(event: any): void {
+    this.currentPage = event.page;
+    this.pageSize = event.rows;
+    this.fetchSales(this.currentPage);
+  }
+
   applyFilters() {
-    this.fetchSales({ first: 0, rows: 10 });
+    this.currentPage = 0;
+    this.fetchSales(0);
   }
 
   clearFilters() {
@@ -119,14 +167,19 @@ export class SalesComponent implements OnInit {
     this.filterStartDate = null;
     this.filterEndDate = null;
     this.filterOrderId = '';
-    this.fetchSales({ first: 0, rows: 10 });
+    this.currentPage = 0;
+    this.fetchSales(0);
   }
 
   formatDateToISO(date: Date): string {
+    // Format date to ISO 8601 format expected by backend
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   updateSaleStatus(sale: any) {
@@ -143,14 +196,6 @@ export class SalesComponent implements OnInit {
         this.messagingService.add({ severity: 'error', summary: 'Error', detail: 'Could not update sale status' });
       }
     });
-  }
-
-  onRowExpand(event: any) {
-    // optionally load details for sale
-  }
-
-  onRowCollapse(event: any) {
-    // no-op
   }
 
   async exportSale(sale: any) {
@@ -194,7 +239,8 @@ export class SalesComponent implements OnInit {
     // open modal or route to details page
   }
 
-  viewOrder(orderId: number) {
+  viewOrder(orderId: number, event?: Event) {
+    event?.stopPropagation();
     // Navigate to order details page
     this.router.navigate(['/basic/orders', orderId]);
   }
@@ -233,7 +279,8 @@ export class SalesComponent implements OnInit {
             detail: 'CSV imported successfully'
           });
           // Refresh the sales list after import
-          this.fetchSales({ first: 0, rows: 10 });
+          this.currentPage = 0;
+          this.fetchSales(0);
         } else {
           this.messagingService.add({
             severity: 'warn',
