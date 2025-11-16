@@ -26,6 +26,7 @@ public class OrderFilterService {
             String customerName,
             LocalDateTime startDate,
             LocalDateTime endDate,
+            String idPc,
             Pageable pageable) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -35,7 +36,7 @@ public class OrderFilterService {
         Root<OrderParent> order = query.from(OrderParent.class);
         
         // Build predicates dynamically
-        List<Predicate> predicates = buildPredicates(cb, order, idSeller, status, customerName, startDate, endDate);
+        List<Predicate> predicates = buildPredicates(cb, order, idSeller, status, customerName, startDate, endDate, idPc);
         
         query.where(predicates.toArray(new Predicate[0]));
         query.orderBy(cb.desc(order.get("createdAt")));
@@ -48,7 +49,7 @@ public class OrderFilterService {
         List<OrderParent> results = typedQuery.getResultList();
         
         // Get total count
-        long total = countOrdersWithFilters(idSeller, status, customerName, startDate, endDate);
+        long total = countOrdersWithFilters(idSeller, status, customerName, startDate, endDate, idPc);
         
         return new PageImpl<>(results, pageable, total);
     }
@@ -58,7 +59,8 @@ public class OrderFilterService {
             Integer status,
             String customerName,
             LocalDateTime startDate,
-            LocalDateTime endDate) {
+            LocalDateTime endDate,
+            String idPc) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         
@@ -67,7 +69,7 @@ public class OrderFilterService {
         Root<OrderParent> order = countQuery.from(OrderParent.class);
         
         // Build predicates dynamically
-        List<Predicate> predicates = buildPredicates(cb, order, idSeller, status, customerName, startDate, endDate);
+        List<Predicate> predicates = buildPredicates(cb, order, idSeller, status, customerName, startDate, endDate, idPc);
         
         countQuery.select(cb.count(order));
         countQuery.where(predicates.toArray(new Predicate[0]));
@@ -82,7 +84,8 @@ public class OrderFilterService {
             Integer status,
             String customerName,
             LocalDateTime startDate,
-            LocalDateTime endDate) {
+            LocalDateTime endDate,
+            String idPc) {
 
         List<Predicate> predicates = new ArrayList<>();
         
@@ -114,6 +117,11 @@ public class OrderFilterService {
         // Optional: Filter by end date
         if (endDate != null) {
             predicates.add(cb.lessThanOrEqualTo(order.get("createdAt"), endDate));
+        }
+        
+        // Optional: Filter by potential customer ID (idPc)
+        if (idPc != null && !idPc.trim().isEmpty()) {
+            predicates.add(cb.equal(order.get("idPc"), idPc));
         }
         
         return predicates;

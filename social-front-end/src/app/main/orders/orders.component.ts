@@ -10,7 +10,7 @@ import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import {FormsModule} from "@angular/forms";
-import {DecimalPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
+import {DecimalPipe, DatePipe, NgForOf, NgIf, NgClass} from "@angular/common";
 import { MessageService } from 'primeng/api';
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {BeautifulButtonComponent} from "../../shared/beautiful-button/beautiful-button.component";
@@ -22,14 +22,17 @@ import {FrenchNumberPipe} from "../../shared/french-number.pipe";
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { PaginatorModule } from 'primeng/paginator';
 import {BasicInputComponent} from "../../shared/basic-input/basic-input.component";
 import {Router, RouterLink} from "@angular/router";
+import {BasicButtonComponent} from "../../shared/basic-button/basic-button.component";
+import {PotentialCustomerV2Service} from "../potentialCustomers/potential-customer-v2.service";
 
 @Component({
   selector: 'app-orders',
   standalone: true,
   providers: [MessageService],
-  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf, FrenchNumberPipe, CalendarModule, InputTextModule, DropdownModule, BasicInputComponent, RouterLink],
+  imports: [TableModule, ButtonModule, TagModule, RatingModule, ToastModule, RippleModule, FormsModule, DecimalPipe, DatePipe, NgIf, NgClass, FormContainerComponent, BeautifulButtonComponent, BasicSelectComponent, NgForOf, FrenchNumberPipe, CalendarModule, InputTextModule, DropdownModule, PaginatorModule, BasicInputComponent, RouterLink, BasicButtonComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
@@ -68,6 +71,15 @@ export class OrdersComponent implements OnInit{
   filterCustomerName: string = '';
   filterStartDate: Date | null = null;
   filterEndDate: Date | null = null;
+  filterCustomerId: string | null = null;
+
+  // Customer selection
+  customerOptions: SelectOption[] = [];
+  loadingCustomers: boolean = false;
+
+  // Pagination properties
+  currentPage: number = 0;
+  pageSize: number = 10;
 
   // Status options for dropdown
   statusOptions: SelectOption[] = [
@@ -87,11 +99,55 @@ export class OrdersComponent implements OnInit{
     private orderService: OrderService,
     private messagingService: MessageService,
     private shippingPointService: ShippingPointService,
-    private router: Router
+    private router: Router,
+    private potentialCustomerService: PotentialCustomerV2Service
   ) {}
 
   ngOnInit(): void {
     this.fetchOrders();
+    this.fetchPotentialCustomers();
+  }
+
+  fetchPotentialCustomers(): void {
+    this.loadingCustomers = true;
+    this.potentialCustomerService.getAllPotentialCustomers().subscribe({
+      next: (response: any) => {
+        const customers = response.data || response;
+        console.log(customers);
+        this.customerOptions = [
+          { label: 'All Customers', value: null },
+          ...customers.map((customer: any) => ({
+            label: `${customer.name} `,
+            value: customer.id
+          }))
+        ];
+        this.loadingCustomers = false;
+      },
+      error: (err: any) => {
+        console.error('Error fetching customers:', err);
+        this.loadingCustomers = false;
+        this.customerOptions = [{ label: 'All Customers', value: null }];
+      }
+    });
+  }
+
+  toggleOrderDetails(order: OrderParent, event: Event): void {
+    event.stopPropagation();
+    const orderId = order.idOrderM?.toString() || '';
+
+    if (this.expandedRows[orderId]) {
+      // If already expanded, just collapse it
+      delete this.expandedRows[orderId];
+    } else {
+      // If not expanded, fetch child orders and expand
+      this.expandedRows[orderId] = true;
+      this.fetchChildOrders(order);
+    }
+  }
+
+  isOrderExpanded(order: OrderParent): boolean {
+    const orderId = order.idOrderM?.toString() || '';
+    return !!this.expandedRows[orderId];
   }
 
   selectDeliveryMode() {
@@ -419,13 +475,27 @@ export class OrdersComponent implements OnInit{
     });
   }
 
-  fetchOrders(event?: TableLazyLoadEvent): void {
+  fetchOrders(page?: number): void {
     this.loading = true;
-    const page = event ? Math.floor((event.first || 0) / (event.rows || 10)) : 0;
+    const pageToFetch = page !== undefined ? page : this.currentPage;
 
-    // Format dates to ISO string if they exist
-    const startDateStr = this.filterStartDate ? this.formatDateToISO(this.filterStartDate) : null;
-    const endDateStr = this.filterEndDate ? this.formatDateToISO(this.filterEndDate) : null;
+    // Format dates with proper time ranges
+    let startDateStr = null;
+    let endDateStr = null;
+
+    if (this.filterStartDate) {
+      // Set to start of day (00:00:00)
+      const startDate = new Date(this.filterStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      startDateStr = this.formatDateToISO(startDate);
+    }
+
+    if (this.filterEndDate) {
+      // Set to end of day (23:59:59)
+      const endDate = new Date(this.filterEndDate);
+      endDate.setHours(23, 59, 59, 999);
+      endDateStr = this.formatDateToISO(endDate);
+    }
 
     // Clean up customer name - convert empty string to null
     const customerNameFilter = this.filterCustomerName && this.filterCustomerName.trim() !== ''
@@ -433,11 +503,12 @@ export class OrdersComponent implements OnInit{
       : null;
 
     this.orderService.fetchAllOrders(
-      page,
+      pageToFetch,
       this.filterStatus,
       customerNameFilter,
       startDateStr,
-      endDateStr
+      endDateStr,
+      this.filterCustomerId
     ).subscribe({
       next: (response: ApiResponse) => {
         console.log(response);
@@ -466,9 +537,16 @@ export class OrdersComponent implements OnInit{
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
+  onPageChange(event: any): void {
+    this.currentPage = event.page;
+    this.pageSize = event.rows;
+    this.fetchOrders(this.currentPage);
+  }
+
   applyFilters(): void {
     // Reset to first page when applying filters
-    this.fetchOrders();
+    this.currentPage = 0;
+    this.fetchOrders(0);
   }
 
   clearFilters(): void {
@@ -476,7 +554,9 @@ export class OrdersComponent implements OnInit{
     this.filterCustomerName = '';
     this.filterStartDate = null;
     this.filterEndDate = null;
-    this.fetchOrders();
+    this.filterCustomerId = null;
+    this.currentPage = 0;
+    this.fetchOrders(0);
   }
 
   // Fetch child orders when a row is expanded

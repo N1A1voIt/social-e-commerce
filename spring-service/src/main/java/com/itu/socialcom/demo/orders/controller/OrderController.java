@@ -96,7 +96,8 @@ public class OrderController {
             @RequestParam(name = "status", required = false) Integer status,
             @RequestParam(name = "customerName", required = false) String customerName,
             @RequestParam(name = "startDate", required = false) String startDate,
-            @RequestParam(name = "endDate", required = false) String endDate) {
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestParam(name = "idPc", required = false) String idPc) {
         try {
             Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
             if (seller == null) {
@@ -120,6 +121,7 @@ public class OrderController {
             
             // Clean up customerName - treat empty strings as null
             String cleanCustomerName = (customerName != null && !customerName.trim().isEmpty()) ? customerName.trim() : null;
+            String cleanIdPc = (idPc != null && !idPc.trim().isEmpty()) ? idPc.trim() : null;
             
             OrdersToDisplay ordersToDisplay = new OrdersToDisplay();
             
@@ -130,6 +132,7 @@ public class OrderController {
                 cleanCustomerName,
                 startDateTime,
                 endDateTime,
+                cleanIdPc,
                 pageable
             );
             

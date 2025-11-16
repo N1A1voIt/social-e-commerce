@@ -15,7 +15,7 @@ export class OrderService {
 
   constructor(private http:HttpClient) { }
 
-  fetchAllOrders(pageNum: number, status?: number | null, customerName?: string | null, startDate?: string | null, endDate?: string | null): Observable<ApiResponse> {
+  fetchAllOrders(pageNum: number, status?: number | null, customerName?: string | null, startDate?: string | null, endDate?: string | null, idPc?: string | null): Observable<ApiResponse> {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
@@ -34,6 +34,9 @@ export class OrderService {
     }
     if (endDate && endDate.trim() !== '') {
       url += `&endDate=${encodeURIComponent(endDate)}`;
+    }
+    if (idPc && idPc.trim() !== '') {
+      url += `&idPc=${encodeURIComponent(idPc)}`;
     }
 
     return this.http.get<ApiResponse>(url, {headers: header});

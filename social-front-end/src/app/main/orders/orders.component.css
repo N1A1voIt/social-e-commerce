@@ -48,6 +48,61 @@
   transition: background-color 0.2s;
 }
 
+/* Paginator styling */
+:host ::ng-deep .p-paginator {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+  color: #334155;
+  background-color: transparent;
+  border: 1px solid #e2e8f0;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 0.125rem;
+  transition: all 0.2s;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-first,
+:host ::ng-deep .p-paginator .p-paginator-prev,
+:host ::ng-deep .p-paginator .p-paginator-next,
+:host ::ng-deep .p-paginator .p-paginator-last {
+  color: #334155;
+  background-color: transparent;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #e2e8f0;
+  margin: 0 0.125rem;
+  transition: all 0.2s;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-first:not(.p-disabled):hover,
+:host ::ng-deep .p-paginator .p-paginator-prev:not(.p-disabled):hover,
+:host ::ng-deep .p-paginator .p-paginator-next:not(.p-disabled):hover,
+:host ::ng-deep .p-paginator .p-paginator-last:not(.p-disabled):hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+:host ::ng-deep .p-paginator .p-paginator-current {
+  color: #64748b;
+  background-color: transparent;
+}
+
 :host ::ng-deep .p-datatable .p-datatable-thead > tr > th:hover {
   background-color: #e2e8f0;
 }

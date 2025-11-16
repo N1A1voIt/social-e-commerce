@@ -85,6 +85,7 @@ public class PostStatisticsService {
             Integer likesCount = ((Integer) row[2]);
 
             String platformName = PlatformNameMapper.getPlatformName(platformId.intValue());
+
             likesTimeSeries.add(new PostStatisticsDto.LikesTimeSeries(
                 date.toLocalDate().format(DATE_FORMATTER),
                 likesCount,

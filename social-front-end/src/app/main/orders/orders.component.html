@@ -1,16 +1,16 @@
 <!-- orders.component.html -->
-<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full h-full lg:p-4 p-0 gap-8">
+<div class="flex flex-col lg:grid lg:grid-cols-5 lg:bg-white rounded-3xl w-full  lg:p-4 p-0 gap-8">
   <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
     <div class="w-full flex justify-between items-center px-4 font-mono">
       <h1>Order List</h1>
     </div>
 
     <!-- Filter Section -->
-    <div class="w-full px-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+    <div class="w-full px-4 bg-gray-50 rounded-lg p-4 border-4 border-blue-50">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-3">
         <!-- Status Filter -->
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold text-gray-700">Status</label>
+          <label class="text-md text-gray-700">Status</label>
           <p-dropdown
             [(ngModel)]="filterStatus"
             [options]="statusOptions"
@@ -18,13 +18,13 @@
             optionValue="value"
             placeholder="All Statuses"
             [showClear]="true"
-            styleClass="w-full">
+            styleClass="w-full border-4 border-blue-50">
           </p-dropdown>
         </div>
 
         <!-- Start Date Filter -->
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold text-gray-700">Start Date</label>
+          <label class="text-md  text-gray-700">Start Date</label>
           <app-basic-input
             [(ngModel)]="filterStartDate"
             type="date">
@@ -33,27 +33,37 @@
 
         <!-- End Date Filter -->
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold text-gray-700">End Date</label>
+          <label class="text-md  text-gray-700">End Date</label>
           <app-basic-input
             [(ngModel)]="filterEndDate"
             type="date">
           </app-basic-input>
+        </div>
 
+        <!-- Customer Filter -->
+        <div class="flex flex-col gap-2">
+          <label class="text-md text-gray-700">Customer</label>
+          <app-basic-select
+            [(ngModel)]="filterCustomerId"
+            [options]="customerOptions"
+            class="h-full"
+            placeholder="Select customer">
+          </app-basic-select>
         </div>
       </div>
 
       <!-- Filter Actions -->
       <div class="flex gap-2 justify-end">
-        <button
-          pButton
-          type="button"
-          label="Clear Filters"
-          icon="pi pi-filter-slash"
-          class="p-button-outlined p-button-secondary"
+
+        <app-basic-button
           (click)="clearFilters()">
-        </button>
+          Clear filters
+        </app-basic-button>
+        <app-basic-button
+          (click)="applyFilters()" >
+          <i class="pi pi-filter"></i> <span> Apply filters</span>
+        </app-basic-button>
         <button
-          pButton
           type="button"
           label="Apply Filters"
           icon="pi pi-filter"
@@ -62,181 +72,216 @@
         </button>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="card w-full font-custom-font rounded-3xl border border-gray-200 overflow-y-scroll">
-      <p-toast />
 
-      <p-table
-        [value]="orders"
-        [paginator]="true"
-        [rows]="10"
+<div class="p-4">
+  <div class="w-full p-4  rounded-xl flex flex-col gap-4">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <span class="ml-3 text-gray-600">Loading orders...</span>
+    </div>
+
+    <!-- Orders List -->
+    <div class="  border-4 border-blue-50 rounded-xl" *ngFor="let order of orders">
+      <div class="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
+        <div class="w-24">
+          <div class="text-sm text-gray mb-1">Order ID</div>
+          <div class="font-mono text-md">ORD{{order.idOrderM}}</div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Description</div>
+          <div class="text-md truncate" title="{{order.description}}">
+            {{ order.description }}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Customer</div>
+          <div class="text-md truncate" title="{{order.dcustomerName}}">
+            {{ order.dcustomerName }}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Status</div>
+          <div class="text-md truncate" title="{{order.dstatus}}">
+            {{ getStatusLabel(order.dstatus) }}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Shipping address</div>
+          <div class="text-md truncate" title="{{order.shippingAddress}}">
+            {{ order.shippingAddress }}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Phone number</div>
+          <div class="text-md truncate" title="{{order.customerNumber}}">
+            {{ order.customerNumber }}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Created At</div>
+          <div class="text-md truncate" title="{{ order.createdAt | date:'short' }}">
+            {{ order.createdAt | date:'short' }}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm text-gray mb-1">Total</div>
+          <div class="text-md truncate" title="{{ order.dtotal }}">
+            {{ order.dtotal | frenchNumber }} Ar
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="action-buttons">
+            <button class="action-button bg-purple-50" (click)="toggleOrderDetails(order, $event)" title="View details">
+              <i class="pi pi-eye" [ngClass]="isOrderExpanded(order) ? 'pi-eye' : 'pi-eye'"></i>
+            </button>
+            <button class="action-button bg-cyan-50" (click)="navigateToCustomerChat(order)" title="Chat with customer">
+              <i class="pi pi-comments text-cyan-500 text-xl"></i>
+            </button>
+            <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 45)) && (!(order.dstatus == 51)) " (click)="nextStep(order)" title="Next step">
+              <i class="pi pi-arrow-circle-right text-blue-300 text-xl"></i>
+            </button>
+            <button class="action-button bg-red-50" (click)="cancelOrder(order)" title="Cancel">
+              <i class="pi pi-times-circle text-red-500 text-xl"></i>
+            </button>
+            <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
+              <i class="pi pi-download text-blue-500 text-xl"></i>
+            </button>
+            <button class="action-button  bg-blue-50" *ngIf="((order.dstatus == 25))" (click)="viewApplicants(order)" title="View applicants">
+              <i class="pi pi-file-export text-gray text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="w-full p-10 bg-blue-50" *ngIf="isOrderExpanded(order)">
+        <div class="grid grid-cols-3">
+          <div class="col-span-1" id="info-client">
+            <div class="flex flex-col gap-4">
+              <span class="text-xl"><i class="pi pi-box"></i> Informations clients</span>
+              <div class="flex flex-row gap-2 items-center">
+                <div class="h-[60px] w-[60px] bg-black rounded-full">
+
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-md font-bold">{{ order.dcustomerName }}</span>
+                  <span class="text-gray">{{ order.customerNumber }}</span>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-md text-gray"><i class="pi pi-map-marker"></i> Shipping address</span>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="w-[10px]">
+
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-black text-lg">{{ order.shippingAddress }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-row gap-1">
+                <span class="text-md text-gray">Platform : </span> <span>Facebook</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-1">
+            <div class="flex flex-col gap-4">
+              <span class="text-xl"><i class="pi pi-check "></i> Order details</span>
+              <div class="flex flex-col gap-1">
+                <span class="text-md text-gray">Command Id</span>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-black text-lg">ORD{{ order.idOrderM }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-md text-gray">Created at</span>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="">
+                    <i class="pi pi-clock"></i>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-black text-lg">{{ order.createdAt | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-md text-gray">Status</span>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-white bg-black text-lg border-black border px-3 rounded-full">{{ getStatusLabel(order.dstatus) }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-md text-gray">Description</span>
+                <div class="flex flex-row gap-2 items-center">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-gray text-lg rounded-full">{{ order.description }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-1">
+            <div class="flex flex-col gap-4">
+              <span class="text-xl"><i class="pi pi-box "></i> Products</span>
+              <div class="border border-blue-300 rounded-xl bg-white grid grid-cols-6 p-3" *ngFor="let product of order.childs">
+                <div class="col-span-4 flex flex-col gap-3">
+                  <span class="text-md text-black">{{ product.productName }}</span>
+                  <span class="text-sm text-gray">Quantité: {{ product.quantity }}</span>
+                </div>
+                <div class="col-span-2 items-end flex flex-col gap-3">
+                  <span class="text-md text-black">{{ product.price | frenchNumber}} Ar</span>
+                  <span class="text-sm text-gray">Total: {{ (product.price || 0) * (product.quantity || 0) | frenchNumber }} Ar</span>
+                </div>
+              </div>
+              <div class="border-4 border-blue-300 rounded-xl bg-blue-50 p-3 text-xl flex flex-row justify-between items-center" >
+                <span>Total</span>
+                <span>{{ order.dtotal | frenchNumber }} Ar</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        <div class="border-t border-blue-200 grid grid-cols-12 mt-8 py-4">
+          <div class="col-span-6 flex items-center gap-4">
+            <button class="px-4 py-2 border border-blue-100 bg-white rounded-lg flex flex-row items-center gap-2" (click)="exportOrder(order)"> <i class="pi pi-download" ></i> <span>Export</span></button>
+            <button class="px-4 py-2 border border-blue-100 bg-white rounded-lg flex flex-row items-center gap-2" (click)="navigateToCustomerChat(order)"> <i class="pi pi-comment" ></i> <span>Contact customer</span></button>
+          </div>
+          <div class="col-span-6 flex items-center justify-end gap-4">
+            <button class="px-4 py-2 border border-blue-100 rounded-lg flex flex-row items-center gap-2 bg-red-600 text-white" (click)="cancelOrder(order)"> <i class="pi pi-times-circle"></i> <span>Cancel</span></button>
+            <button class="px-4 py-2 border border-blue-100 rounded-lg flex flex-row items-center gap-2 bg-black text-white" (click)="nextStep(order)"> <i class="pi pi-arrow-circle-right"></i> <span>Next Step</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center w-full" *ngIf="!loading && orders.length > 0">
+      <p-paginator
+        [rows]="pageSize"
         [totalRecords]="totalRecords"
-        [lazy]="true"
-        [loading]="loading"
-        (onLazyLoad)="fetchOrders($event)"
-        dataKey="idOrderM"
-        [tableStyle]="{ 'min-width': '70rem' }"
-        [expandedRowKeys]="expandedRows"
-        (onRowExpand)="onRowExpand($event)"
-        (onRowCollapse)="onRowCollapse($event)"
-        styleClass="p-datatable-rounded p-datatable-hoverable-rows p-datatable-striped p-datatable-gridlines"
+        [first]="currentPage * pageSize"
+        (onPageChange)="onPageChange($event)"
+        [showCurrentPageReport]="true"
+        class="w-full"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders">
+      </p-paginator>
+    </div>
 
-        [rowHover]="true"
-        responsiveLayout="stack"
-        [breakpoint]="'960px'">
-
-        <!-- Table Header -->
-        <ng-template pTemplate="header">
-          <tr class="font-mono ">
-            <th style="width: 3rem" class="text-center">#</th>
-            <th pSortableColumn="description">
-              Order ID
-              <!--              <p-sortIcon field="description" />-->
-            </th>
-            <th pSortableColumn="description">
-              Description
-<!--              <p-sortIcon field="description" />-->
-            </th>
-            <th pSortableColumn="dCustomerName">
-              Customer
-<!--              <p-sortIcon field="dCustomerName" />-->
-            </th>
-            <th pSortableColumn="dStatus">
-              Status
-<!--              <p-sortIcon field="dStatus" />-->
-            </th>
-            <th>Shipping Address</th>
-            <th>Phone Number</th>
-            <th pSortableColumn="createdAt">
-              Created At
-<!--              <p-sortIcon field="createdAt" />-->
-            </th>
-            <th pSortableColumn="dTotal">
-              Total
-<!--              <p-sortIcon field="dTotal" />-->
-            </th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-order let-expanded="expanded">
-          <tr class="font-mono">
-            <td>
-              <p-button type="button" pRipple [pRowToggler]="order"
-                        [text]="true" severity="secondary" [rounded]="true"
-                        [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
-              </p-button>
-            </td>
-            <td>ORD {{ order.idOrderM || 'N/A' }}</td>
-            <td>{{ order.description || 'N/A' }}</td>
-            <td>{{ order.dcustomerName || 'N/A' }}</td>
-            <td>
-              <p-tag [value]="getStatusLabel(order.dstatus)" [severity]="getStatusSeverity(order.dstatus)"></p-tag>
-            </td>
-            <td>{{ order.shippingAddress || 'N/A' }}</td>
-            <td>{{ order.customerNumber || 'N/A' }}</td>
-            <td>{{ order.createdAt | date:'short' }}</td>
-            <td>{{ order.dtotal | frenchNumber }} Ar</td>
-            <td>
-              <div class="action-buttons">
-                <button class="action-button bg-purple-50" [routerLink]="['/basic/orders', order.idOrderM]" title="View details">
-                  <i class="pi pi-eye text-purple-500 text-xl"></i>
-                </button>
-                <button class="action-button bg-cyan-50" (click)="navigateToCustomerChat(order)" title="Chat with customer">
-                  <i class="pi pi-comments text-cyan-500 text-xl"></i>
-                </button>
-                <button class="action-button bg-green-50" *ngIf="(!(order.dstatus == 5)) && (!(order.dstatus == 21)) && (!(order.dstatus == 25)) && (!(order.dstatus == 45)) && (!(order.dstatus == 51)) " (click)="nextStep(order)" title="Next step">
-                  <i class="pi pi-arrow-circle-right text-green-500 text-xl"></i>
-                </button>
-                <button class="action-button bg-red-50" (click)="cancelOrder(order)" title="Cancel">
-                  <i class="pi pi-times-circle text-red-500 text-xl"></i>
-                </button>
-                <button class="action-button bg-blue-50" (click)="exportOrder(order)" title="Export order">
-                  <i class="pi pi-file-export text-blue-500 text-xl"></i>
-                </button>
-                <button class="action-button  bg-blue-50" *ngIf="((order.dstatus == 25))" (click)="viewApplicants(order)" title="View applicants">
-                  <i class="pi pi-file-export text-gray text-xl"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
-        <!-- Expanded Row (Child Orders) -->
-        <ng-template pTemplate="rowexpansion" let-order>
-          <tr >
-            <td colspan="9">
-              <div class="p-4 p-rowexpansion-content">
-                <div class="order-details-header">
-                  <h5 class="m-0 text-lg font-semibold font-mono">Order Details for {{ order.description || 'Order #' + order.idOrderM }}</h5>
-<!--                  <p-tag [value]="'Order ID: ' + order.idOrderM" class="font-mono" severity="info" styleClass="p-tag-rounded" />-->
-                </div>
-
-                <!-- Loading state for child orders -->
-                <div *ngIf="isChildOrdersLoading(order)" class="loading-spinner">
-                  <i class="pi pi-spinner pi-spin" style="font-size: 2rem"></i>
-                  <p class="mt-2">Loading order details...</p>
-                </div>
-
-                <!-- Child orders table -->
-                <p-table *ngIf="!isChildOrdersLoading(order)"
-                         [value]="order.childs"
-                         dataKey="idOrderDetails"
-                         styleClass="child-orders-table p-datatable-striped p-datatable-gridlines p-datatable-sm"
-
-                         [tableStyle]="{ 'min-width': '50rem' }"
-                         responsiveLayout="stack"
-                         [breakpoint]="'768px'">
-                  <ng-template pTemplate="header">
-                    <tr class="font-custom-font">
-                      <th>Detail ID</th>
-                      <th>Product</th>
-                      <th>SKU</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                      <th>Total</th>
-                      <th>Image</th>
-                    </tr>
-                  </ng-template>
-
-                  <ng-template pTemplate="body" let-child>
-                    <tr class="font-mono">
-                      <td >{{ child.idOrderDetails }}</td>
-                      <td>{{ child.productName || 'N/A' }}</td>
-                      <td>
-                        <p-tag [value]="child.sku || 'N/A'" severity="secondary" />
-                      </td>
-                      <td class="text-center">{{ child.quantity || 0 }}</td>
-                      <td>{{ child.price | frenchNumber }} Ar</td>
-                      <td>{{ (child.price || 0) * (child.quantity || 0) | frenchNumber }} Ar</td>
-                      <td>
-                        <img *ngIf="child.mediaUrl"
-                             [src]="child.mediaUrl"
-                             [alt]="child.productName || 'Product image'"
-                             class="product-image"
-                             onerror="this.style.display='none'">
-                        <span *ngIf="!child.mediaUrl" class="text-gray-400">No image</span>
-                      </td>
-                    </tr>
-                  </ng-template>
-
-                  <ng-template pTemplate="emptymessage">
-                    <tr>
-                      <td colspan="7" class="text-center py-6">
-                        <div class="flex flex-col items-center text-gray-500 p-4 bg-gray-50 rounded-lg">
-                          <i class="pi pi-inbox text-3xl mb-2 text-blue-400"></i>
-                          <span class="font-medium">No order details found for this order</span>
-                          <p class="text-sm mt-1">This order doesn't have any product details attached.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+    <!-- Empty State -->
+    <div *ngIf="!loading && orders.length === 0" class="text-center py-12">
+      <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="pi pi-inbox text-gray-400 text-3xl"></i>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+      <p class="text-gray-500">There are no orders matching your filters.</p>
     </div>
   </div>
 </div>
