@@ -48,13 +48,15 @@ export class VariantUpdateComponent implements OnInit,OnChanges {
   private fillForm(details: VariantWithOptionsDTO) {
     this.formGroup.patchValue({
       title: details.title,
-      price: details.price
+      price: details.price,
+      sku: details.sku
     });
   }
   constructor(private formBuilder: FormBuilder,private variantService: VariantsService) {
     this.formGroup = this.formBuilder.group({
       title: ['' , Validators.required],
       price: ['' , Validators.required],
+      sku: [''],
     });
   }
   getFieldError(fieldName: string): string {

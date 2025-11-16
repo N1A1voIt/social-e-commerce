@@ -106,6 +106,7 @@ export interface GenerateVariantsRequest {
 export interface UpdateVariantRequest {
   title?: string;
   price?: number;
+  sku?: string;
 }
 
 export interface ProductOption {

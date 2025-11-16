@@ -20,6 +20,9 @@ public class UpdateVariantRequest {
     @JsonProperty("price")
     private BigDecimal price;
     
+    @JsonProperty("sku")
+    private String sku;
+    
     /**
      * Default constructor
      */
@@ -28,8 +31,9 @@ public class UpdateVariantRequest {
     /**
      * Constructor with all fields
      */
-    public UpdateVariantRequest(String title, BigDecimal price) {
+    public UpdateVariantRequest(String title, BigDecimal price, String sku) {
         this.title = title;
         this.price = price;
+        this.sku = sku;
     }
 }

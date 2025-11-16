@@ -184,6 +184,10 @@ public class VariantServiceImpl implements VariantService {
             variant.setPrice(request.getPrice());
         }
         
+        if (request.getSku() != null && !request.getSku().trim().isEmpty()) {
+            variant.setSku(request.getSku());
+        }
+        
         // Save variant (timestamp will be updated by @PreUpdate)
         variant = variantRepository.save(variant);
         

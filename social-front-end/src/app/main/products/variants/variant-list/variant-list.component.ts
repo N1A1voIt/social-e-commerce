@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {NgForOf, NgIf, DecimalPipe, DatePipe} from "@angular/common";
+import {Component, Input, Output, EventEmitter, HostListener} from '@angular/core';
+import {NgForOf, NgIf, DecimalPipe, DatePipe, NgClass} from "@angular/common";
 import {VariantWithOptionsDTO} from "../../products.types";
 import {VariantFormComponent} from "../variant-form/variant-form.component";
 import {VariantUpdateComponent} from "../variant-update/variant-update.component";
@@ -17,7 +17,8 @@ import {FrenchNumberPipe} from "../../../../shared/french-number.pipe";
     VariantFormComponent,
     VariantUpdateComponent,
     StockRefillFormComponent,
-    FrenchNumberPipe
+    FrenchNumberPipe,
+    NgClass
   ],
   templateUrl: './variant-list.component.html',
   styleUrl: './variant-list.component.css'
@@ -43,18 +44,33 @@ export class VariantListComponent {
   // New: refill modal state
   isRefillVisible: boolean = false;
   selectedVariant!: VariantWithOptionsDTO;
+  // Menu state for dropdown
+  openMenuId: number | null = null;
 
-  onEditVariant(variant: VariantWithOptionsDTO) {
+  toggleMenu(variantId: number, event: Event) {
+    event.stopPropagation();
+    this.openMenuId = this.openMenuId === variantId ? null : variantId;
+  }
+
+  isMenuOpen(variantId: number): boolean {
+    return this.openMenuId === variantId;
+  }
+
+  onEditVariant(variant: VariantWithOptionsDTO, event?: Event) {
+    event?.stopPropagation();
     console.log('Edit variant clicked:', variant);
     this.variantId = variant.idVariant;
     this.actualVariant = variant;
     this.isUpdateFormVisible = true;
+    this.openMenuId = null;
     console.log('isUpdateFormVisible set to:', this.isUpdateFormVisible);
     console.log('actualVariant:', this.actualVariant);
     this.editVariant.emit(variant);
   }
 
-  onDeleteVariant(variant: VariantWithOptionsDTO) {
+  onDeleteVariant(variant: VariantWithOptionsDTO, event?: Event) {
+    event?.stopPropagation();
+    this.openMenuId = null;
     if (confirm(`Are you sure you want to delete variant "${variant.title}"?`)) {
       this.deleteVariant.emit(variant);
     }
@@ -74,6 +90,7 @@ export class VariantListComponent {
     event?.stopPropagation();
     this.selectedVariant = variant;
     this.isRefillVisible = true;
+    this.openMenuId = null;
   }
 
   getOptionsDisplay(variant: VariantWithOptionsDTO): string {
@@ -113,5 +130,11 @@ export class VariantListComponent {
 
   trackByVariantId(index: number, variant: VariantWithOptionsDTO): number {
     return variant.idVariant;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    // Close menu when clicking outside
+    this.openMenuId = null;
   }
 }

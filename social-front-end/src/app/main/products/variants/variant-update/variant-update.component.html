@@ -35,6 +35,17 @@
           [errorMessage]="getFieldError('price')">
         </app-basic-input>
       </div>
+
+      <!-- SKU -->
+      <div>
+        <app-basic-input
+          label="SKU"
+          placeholder="Enter SKU"
+          [formControl]="$any(formGroup.get('sku'))"
+          [error]="!!getFieldError('sku')"
+          [errorMessage]="getFieldError('sku')">
+        </app-basic-input>
+      </div>
       <div class="flex justify-between pt-4">
         <app-basic-button
           type="submit"
