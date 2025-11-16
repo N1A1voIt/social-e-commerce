@@ -8,6 +8,7 @@ import com.itu.socialcom.demo.posts.exceptions.SellerNotLogged;
 import com.itu.socialcom.demo.posts.repository.PostChildMediaRepository;
 import com.itu.socialcom.demo.posts.repository.PostRepository;
 import com.itu.socialcom.demo.posts.services.etl.PostRetriever;
+import com.itu.socialcom.demo.posts.services.PostFilterService;
 import com.itu.socialcom.demo.posts.services.get.PostGetter;
 import com.itu.socialcom.demo.posts.services.save.FacebookPostSaver;
 import com.itu.socialcom.demo.posts.services.save.GeneralPostSaver;
@@ -27,9 +28,11 @@ import com.itu.socialcom.demo.socialmedia.repository.ManagedPageCPLRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -61,6 +64,8 @@ public class PostController {
     RepostService repostService;
     @Autowired
     PostFromPreviewSaver postFromPreviewSaver;
+    @Autowired
+    PostFilterService postFilterService;
 
     @GetMapping("/fetch-page-ids")
     public ResponseEntity<List<ManagedPageCPL>> fetchPageIds(@RequestHeader(name = "Authorization") String token) {
@@ -152,11 +157,35 @@ public class PostController {
     }
 
     @GetMapping("/fetch-mother")
-    public ResponseEntity<List<MotherPostDisplay>> fetchMother(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<PostsResponse> fetchMother(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "title", required = false) String title,
+            @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            Pageable pageable) {
         try {
-          Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
-            if (seller == null) {throw new SellerNotLogged("Seller not found");}
-            return ResponseEntity.ok(postRetriever.motherPostDisplays(postRepository.findAll()));
+            Seller seller = tokenV2Service.findSellerByToken(token).orElse(null);
+            if (seller == null) {
+                throw new SellerNotLogged("Seller not found");
+            }
+            
+            Page<Post> postsPage = postFilterService.findPostsWithFilters(
+                seller.getId(),
+                title,
+                type,
+                startDate,
+                endDate,
+                pageable
+            );
+            
+            List<MotherPostDisplay> motherPostDisplays = postRetriever.motherPostDisplays(postsPage.getContent());
+            
+            PostsResponse response = new PostsResponse();
+            response.setPosts(motherPostDisplays);
+            response.setTotalPosts((int) postsPage.getTotalElements());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);

@@ -5,9 +5,13 @@ import {PostCardComponent} from "./post-card/post-card.component";
 import {FormContainerComponent} from "../../shared/form-container/form-container.component";
 import {ContentService, MotherPostDisplay, PostChild} from "./content.service";
 import {error} from "@angular/compiler-cli/src/transformers/util";
-import {NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {PostSchedulingComponent} from "./post-scheduling/post-scheduling.component";
 import {PaginatorModule} from "primeng/paginator";
+import {BasicInputComponent} from "../../shared/basic-input/basic-input.component";
+import {BasicButtonComponent} from "../../shared/basic-button/basic-button.component";
+import {DropdownModule} from "primeng/dropdown";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-content-management',
@@ -19,20 +23,37 @@ import {PaginatorModule} from "primeng/paginator";
     NgForOf,
     PostSchedulingComponent,
     NgIf,
-    PaginatorModule
+    NgClass,
+    PaginatorModule,
+    BasicInputComponent,
+    BasicButtonComponent,
+    DropdownModule,
+    FormsModule
   ],
   templateUrl: './content-management.component.html',
   styleUrl: './content-management.component.css'
 })
 export class ContentManagementComponent implements OnInit{
   posts : MotherPostDisplay[] = [];
-  allPosts: MotherPostDisplay[] = [];
   showForm = false;
+  loading = false;
 
   // Pagination properties
   currentPage: number = 0;
-  itemsPerPage: number = 10;
+  pageSize: number = 10;
   totalRecords: number = 0;
+
+  // Filter properties
+  filterTitle: string = '';
+  filterType: string | null = null;
+  filterStartDate: Date | null = null;
+  filterEndDate: Date | null = null;
+
+  typeOptions = [
+    { label: 'All Types', value: null },
+    { label: 'Facebook', value: 'facebook_post' },
+    { label: 'Instagram', value: 'instagram_post' }
+  ];
 
   constructor(
     private contentService: ContentService,
@@ -43,31 +64,85 @@ export class ContentManagementComponent implements OnInit{
     this.fetchPosts();
   }
 
-  fetchPosts() {
-    this.posts = [];
-    this.contentService.fetchContent().subscribe({
+  fetchPosts(page?: number) {
+    this.loading = true;
+    const pageToFetch = page !== undefined ? page : this.currentPage;
+
+    const filters: any = {};
+
+    if (this.filterTitle && this.filterTitle.trim()) {
+      filters.title = this.filterTitle.trim();
+    }
+
+    if (this.filterType !== null) {
+      filters.type = this.filterType;
+    }
+
+    let startDateStr = null;
+    let endDateStr = null;
+
+    if (this.filterStartDate) {
+      const startDate = new Date(this.filterStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      startDateStr = this.formatDateToISO(startDate);
+    }
+
+    if (this.filterEndDate) {
+      const endDate = new Date(this.filterEndDate);
+      endDate.setHours(23, 59, 59, 999);
+      endDateStr = this.formatDateToISO(endDate);
+    }
+
+    if (startDateStr) {
+      filters.startDate = startDateStr;
+    }
+
+    if (endDateStr) {
+      filters.endDate = endDateStr;
+    }
+
+    this.contentService.fetchContent(pageToFetch, this.pageSize, filters).subscribe({
       next: (response) => {
         console.log(response)
-        this.allPosts = response;
-        this.totalRecords = response.length;
-        this.updateDisplayedPosts();
+        this.posts = response.posts;
+        this.totalRecords = response.totalPosts;
+        this.loading = false;
       },
       error: (err) => {
         console.log(err);
+        this.loading = false;
       }
     })
   }
 
-  updateDisplayedPosts() {
-    const startIndex = this.currentPage * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.posts = this.allPosts.slice(startIndex, endIndex);
+  formatDateToISO(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   onPageChange(event: any) {
     this.currentPage = event.page;
-    this.itemsPerPage = event.rows;
-    this.updateDisplayedPosts();
+    this.pageSize = event.rows;
+    this.fetchPosts(this.currentPage);
+  }
+
+  applyFilters() {
+    this.currentPage = 0;
+    this.fetchPosts(0);
+  }
+
+  clearFilters() {
+    this.filterTitle = '';
+    this.filterType = null;
+    this.filterStartDate = null;
+    this.filterEndDate = null;
+    this.currentPage = 0;
+    this.fetchPosts(0);
   }
 
   onViewPostDetails(post: MotherPostDisplay) {

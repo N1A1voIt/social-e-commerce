@@ -54,10 +54,27 @@ public class DashboardService {
                 .setParameter("endDate", dashboardRequestDto.getEndDate())
                 .getSingleResult();
         
-        Double totalRevenue = ((Number) salesResult[0]).doubleValue();  // Total paid amount
-        Double totalAmount = ((Number) salesResult[1]).doubleValue();   // Total amount (paid + unpaid)
-        Double unpaidAmount = totalAmount - totalRevenue;                // Unpaid amount
-        Long totalSales = ((Number) salesResult[2]).longValue();         // Total number of sales
+        Double totalPaidAmount = ((Number) salesResult[0]).doubleValue();  // Total paid amount
+        Double totalAmount = ((Number) salesResult[1]).doubleValue();      // Total amount (paid + unpaid)
+        Long totalSales = ((Number) salesResult[2]).longValue();           // Total number of sales
+        
+        // Calculate total refunds for this seller in the date range
+        String refundQuery = "SELECT COALESCE(SUM(r.amount), 0) " +
+                "FROM refund r " +
+                "JOIN sales s ON r.id_sale = s.id_sale " +
+                "WHERE s.id_seller = :sellerId " +
+                "AND r.created_at >= :startDate " +
+                "AND r.created_at <= :endDate";
+        
+        Double totalRefunds = ((Number) entityManager.createNativeQuery(refundQuery)
+                .setParameter("sellerId", sellerId)
+                .setParameter("startDate", dashboardRequestDto.getStartDate())
+                .setParameter("endDate", dashboardRequestDto.getEndDate())
+                .getSingleResult()).doubleValue();
+        
+        // Calculate actual revenue (paid amount - refunds)
+        Double totalRevenue = totalPaidAmount - totalRefunds;
+        Double unpaidAmount = totalAmount - totalPaidAmount;                // Unpaid amount
         
         // Calculate revenue per user (average revenue per customer)
         Double revenuePerUser = 0.0;

@@ -5,40 +5,88 @@
       <i class="pi pi-plus"></i>
       <span>Create</span>
     </div>
-
   </div>
-  <div class="w-full mt-3 ">
-    <div class="flex gap-3 items-center">
-      <div class="flex items-center  px-4 gap-2 py-3 rounded-2xl border border-zinc-500 text-zinc-500 shadow-sm overflow-hidden max-w-[200px] ">
-        <i class="pi pi-search"></i>
-        <input type="email" placeholder="Search Something..." class="w-full outline-none bg-transparent text-gray-600 text-sm" />
+
+  <!-- Filter Section -->
+  <div class="w-full mt-4 bg-gray-50 rounded-lg p-4 border-4 border-blue-50">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+      <!-- Title/Search Filter -->
+<!--      <div class="flex flex-col gap-2">-->
+<!--        <label class="text-md text-gray-700">Search Title</label>-->
+<!--        <app-basic-input-->
+<!--          [(ngModel)]="filterTitle"-->
+<!--          placeholder="Enter title"-->
+<!--          type="text">-->
+<!--        </app-basic-input>-->
+<!--      </div>-->
+
+      <div class="flex flex-col gap-2">
+        <label class="text-md text-gray-700">Type</label>
+        <p-dropdown
+          [(ngModel)]="filterType"
+          [options]="typeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All Types"
+          [showClear]="true"
+          styleClass="w-full border-4 border-blue-50">
+        </p-dropdown>
       </div>
-      <app-select-research></app-select-research>
-      <app-select-research></app-select-research>
+
+      <!-- Start Date Filter -->
+      <div class="flex flex-col gap-2">
+        <label class="text-md text-gray-700">Start Date</label>
+        <app-basic-input
+          [(ngModel)]="filterStartDate"
+          type="date">
+        </app-basic-input>
+      </div>
+
+      <!-- End Date Filter -->
+      <div class="flex flex-col gap-2">
+        <label class="text-md text-gray-700">End Date</label>
+        <app-basic-input
+          [(ngModel)]="filterEndDate"
+          type="date">
+        </app-basic-input>
+      </div>
+    </div>
+
+    <!-- Filter Actions -->
+    <div class="flex gap-2 justify-end">
+      <app-basic-button (click)="clearFilters()">
+        Clear filters
+      </app-basic-button>
+      <app-basic-button (click)="applyFilters()">
+        <i class="pi pi-filter"></i> <span> Apply filters</span>
+      </app-basic-button>
     </div>
   </div>
-  
+
+  <!-- Loading State -->
+  <div class="w-full mt-4 flex justify-center items-center py-12" *ngIf="loading">
+    <i class="pi pi-spinner pi-spin text-4xl text-blue-500"></i>
+  </div>
+
   <!-- Posts Grid -->
-  <div class="w-full mt-3 grid grid-cols-5 gap-3" *ngIf="posts.length > 0">
+  <div class="w-full mt-4 grid grid-cols-5 gap-3" *ngIf="posts.length > 0 && !loading">
     <app-post-card *ngFor="let post of posts" [post]="post" (viewChildren)="onViewPostDetails($event.post)"></app-post-card>
   </div>
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="posts.length === 0 && totalRecords === 0">
-    <i class="pi pi-inbox"></i>
+  <div class="w-full mt-4 flex flex-col items-center justify-center py-12" *ngIf="posts.length === 0 && totalRecords === 0 && !loading">
+    <i class="pi pi-inbox text-6xl text-gray-400 mb-4"></i>
     <h3 class="text-lg font-semibold text-gray-700 mb-2">No posts yet</h3>
     <p class="text-gray-500">Create your first post to get started!</p>
   </div>
-  
+
   <!-- Pagination -->
-  <div class="w-full mt-6" *ngIf="totalRecords > 0">
-    <p-paginator 
-      [rows]="itemsPerPage" 
+  <div class="w-full mt-6" *ngIf="totalRecords > 0 && !loading">
+    <p-paginator
+      [rows]="pageSize"
       [totalRecords]="totalRecords"
-      [rowsPerPageOptions]="[5, 10, 20, 30, 50]"
-      (onPageChange)="onPageChange($event)"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} posts">
+      [first]="currentPage * pageSize"
+      (onPageChange)="onPageChange($event)">
     </p-paginator>
   </div>
 </div>

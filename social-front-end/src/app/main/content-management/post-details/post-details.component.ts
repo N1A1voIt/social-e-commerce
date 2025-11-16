@@ -98,9 +98,9 @@ export class PostDetailsComponent implements OnInit {
     this.error = null;
 
     // First, get the post details from the content list
-    this.contentService.fetchContent().subscribe({
-      next: (posts) => {
-        this.post = posts.find(p => p.idPost === postId) || null;
+    this.contentService.fetchContent(0, 1000).subscribe({
+      next: (response) => {
+        this.post = response.posts.find(p => p.idPost === postId) || null;
         if (this.post) {
           // Then fetch the post children and statistics
           this.loadPostChildren(postId);

@@ -63,15 +63,39 @@ export interface PostUtilities {
   products: Product[]
 }
 
+export interface PostsResponse {
+  posts: MotherPostDisplay[],
+  totalPosts: number
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ContentService {
   constructor(private http: HttpClient) { }
-  fetchContent():Observable<MotherPostDisplay[]> {
+  
+  fetchContent(page: number, size: number, filters?: any):Observable<PostsResponse> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders().set('Authorization', token?.replace('Bearer ', '') || '');
-    return this.http.get<MotherPostDisplay[]>(`${javaHost}/api/posts/fetch-mother`, {headers});
+    
+    let url = `${javaHost}/api/posts/fetch-mother?page=${page}&size=${size}`;
+    
+    if (filters) {
+      if (filters.title) {
+        url += `&title=${encodeURIComponent(filters.title)}`;
+      }
+      if (filters.type) {
+        url += `&type=${encodeURIComponent(filters.type)}`;
+      }
+      if (filters.startDate) {
+        url += `&startDate=${filters.startDate}`;
+      }
+      if (filters.endDate) {
+        url += `&endDate=${filters.endDate}`;
+      }
+    }
+    
+    return this.http.get<PostsResponse>(url, {headers});
   }
   public fetchUtilities(): Observable<PostUtilities> {
     const token = localStorage.getItem('token');
