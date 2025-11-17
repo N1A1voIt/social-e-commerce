@@ -72,3 +72,11 @@ export interface Refund {
   createdAt?: Date;
 }
 
+export interface OrderPayment {
+  id?: number;
+  salesId?: number;
+  amount?: number;
+  paymentMethodId?: number;
+  paymentMethodName?: string;
+  createdAt?: Date;
+}

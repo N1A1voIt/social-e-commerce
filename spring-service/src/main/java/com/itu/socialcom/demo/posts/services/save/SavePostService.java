@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface SavePostService {
     String uploadMediaUnpublished(MediaDetails mediaDetails) throws IOException;
-    PostChild createPostWithMedia(PostDetails postDetails) throws IOException;
+    PostChild createPostWithMedia(PostDetails postDetails) throws IOException, InterruptedException;
     PostChild schedulePostWithMedia(PostDetails postDetails, long scheduledUnixTime) throws IOException;
 }

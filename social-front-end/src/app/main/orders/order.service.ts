@@ -5,7 +5,7 @@ import {HttpClient} from "@angular/common/http";
 import {ApiResponse} from "../inbox/inbox.service";
 import {javaHost} from "../../../environments/environment";
 import {Observable} from "rxjs";
-import {DeliveryApplicant, DeliveryMission, OrderChild, OrderParent, RefundRequest} from "./order.type";
+import {DeliveryApplicant, DeliveryMission, OrderChild, OrderParent, OrderPayment, Refund, RefundRequest} from "./order.type";
 
 
 @Injectable({
@@ -193,6 +193,28 @@ export class OrderService {
     return this.http.post<ApiResponse>(
       javaHost+'/api/order/complete-pickup',
       { orderId },
+      {headers: header}
+    );
+  }
+
+  // Get payments for an order
+  getOrderPayments(orderId: number): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.get<ApiResponse>(
+      javaHost+'/api/orders/'+orderId+'/payments',
+      {headers: header}
+    );
+  }
+
+  // Get refunds for an order
+  getOrderRefunds(orderId: number): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.get<ApiResponse>(
+      javaHost+'/api/orders/'+orderId+'/refunds',
       {headers: header}
     );
   }

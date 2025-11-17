@@ -2,8 +2,10 @@ package com.itu.socialcom.demo.posts.services.save;
 
 import com.itu.socialcom.demo.authentication.user.Seller;
 import com.itu.socialcom.demo.posts.dto.*;
+import com.itu.socialcom.demo.posts.entity.Media;
 import com.itu.socialcom.demo.posts.entity.Post;
 import com.itu.socialcom.demo.posts.entity.PostChild;
+import com.itu.socialcom.demo.posts.repository.MediaRepository;
 import com.itu.socialcom.demo.posts.repository.PostChildRepository;
 import com.itu.socialcom.demo.posts.repository.PostRepository;
 import com.itu.socialcom.demo.socialmedia.entity.ManagedPageCPL;
@@ -31,6 +33,8 @@ public class PostFromPreviewSaver {
     PostRepository postRepository;
     @Autowired
     PostChildRepository postChildRepository;
+    @Autowired
+    private MediaRepository mediaRepository;
 
     @Transactional
     public List<PostChild> createPostsFromPreview(CreatePostFromPreviewArgs args, Seller seller) throws Exception {
@@ -140,7 +144,15 @@ public class PostFromPreviewSaver {
             }
             post.getPostChildren().get(i).setIdPost(post.getId());
             postChildRepository.save(post.getPostChildren().get(i));
-            
+            System.out.println("Media size:"+ post.getPostChildren().get(i).getMediaList().size());
+            if (!post.getPostChildren().get(i).getMediaList().isEmpty() || post.getPostChildren().get(i).getMediaList() != null) {
+//                Media media =
+                for (int j = 0; j < post.getPostChildren().get(i).getMediaList().size(); j++) {
+                    Media media = post.getPostChildren().get(i).getMediaList().get(j);
+                    media.setIdChild(post.getPostChildren().get(i).getId());
+                    mediaRepository.save(media);
+                }
+            }
             // Save grandchildren if any
             if (post.getPostChildren().get(i).getPostChilds() != null) {
                 for (int j = 0; j < post.getPostChildren().get(i).getPostChilds().size(); j++) {

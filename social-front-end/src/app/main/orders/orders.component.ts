@@ -1,7 +1,7 @@
 // orders.component.ts
 import {Component, OnInit} from '@angular/core';
 import {OrderService} from "./order.service";
-import {OrderDisplay, OrderParent, DeliveryMission, DeliveryApplicant, RefundRequest, Refund} from "./order.type";
+import {OrderDisplay, OrderParent, DeliveryMission, DeliveryApplicant, RefundRequest, Refund, OrderPayment} from "./order.type";
 import {ApiResponse} from "../inbox/inbox.service";
 import {TableModule, TableRowCollapseEvent, TableRowExpandEvent, TableLazyLoadEvent} from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -80,6 +80,12 @@ export class OrdersComponent implements OnInit{
   // Pagination properties
   currentPage: number = 0;
   pageSize: number = 10;
+
+  // Payment and Refund tracking
+  expandedPaymentRefundRows: { [key: string]: boolean } = {};
+  orderPayments: { [key: string]: OrderPayment[] } = {};
+  orderRefunds: { [key: string]: Refund[] } = {};
+  loadingPaymentRefund: { [key: string]: boolean } = {};
 
   // Status options for dropdown
   statusOptions: SelectOption[] = [
@@ -785,8 +791,90 @@ export class OrdersComponent implements OnInit{
       this.messagingService.add({
         severity: 'warn',
         summary: 'No Conversation',
-        detail: 'No customer conversation found for this order'
+        detail: 'Unable to find conversation for this order'
       });
     }
+  }
+
+  // Payment and Refund methods
+  togglePaymentRefundView(order: OrderParent, event: Event): void {
+    event.stopPropagation();
+    const orderId = order.idOrderM?.toString() || '';
+
+    if (this.expandedPaymentRefundRows[orderId]) {
+      // If already expanded, just collapse it
+      delete this.expandedPaymentRefundRows[orderId];
+    } else {
+      // If not expanded, fetch payments and refunds and expand
+      this.expandedPaymentRefundRows[orderId] = true;
+      this.fetchPaymentsAndRefunds(order);
+    }
+  }
+
+  isPaymentRefundExpanded(order: OrderParent): boolean {
+    const orderId = order.idOrderM?.toString() || '';
+    return !!this.expandedPaymentRefundRows[orderId];
+  }
+
+  fetchPaymentsAndRefunds(order: OrderParent): void {
+    if (!order.idOrderM) return;
+
+    const orderId = order.idOrderM.toString();
+    this.loadingPaymentRefund[orderId] = true;
+
+    // Fetch payments
+    this.orderService.getOrderPayments(order.idOrderM).subscribe({
+      next: (response: ApiResponse) => {
+        this.orderPayments[orderId] = response.data || [];
+        this.checkPaymentRefundLoadingComplete(orderId);
+      },
+      error: (err: any) => {
+        console.error('Error fetching payments:', err);
+        this.orderPayments[orderId] = [];
+        this.checkPaymentRefundLoadingComplete(orderId);
+      }
+    });
+
+    // Fetch refunds
+    this.orderService.getOrderRefunds(order.idOrderM).subscribe({
+      next: (response: ApiResponse) => {
+        this.orderRefunds[orderId] = response.data || [];
+        this.checkPaymentRefundLoadingComplete(orderId);
+      },
+      error: (err: any) => {
+        console.error('Error fetching refunds:', err);
+        this.orderRefunds[orderId] = [];
+        this.checkPaymentRefundLoadingComplete(orderId);
+      }
+    });
+  }
+
+  checkPaymentRefundLoadingComplete(orderId: string): void {
+    // Check if both payments and refunds have been loaded
+    if (this.orderPayments[orderId] !== undefined && this.orderRefunds[orderId] !== undefined) {
+      this.loadingPaymentRefund[orderId] = false;
+    }
+  }
+
+  getTotalPayments(order: OrderParent): number {
+    const orderId = order.idOrderM?.toString() || '';
+    const payments = this.orderPayments[orderId] || [];
+    return payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+  }
+
+  getTotalRefunds(order: OrderParent): number {
+    const orderId = order.idOrderM?.toString() || '';
+    const refunds = this.orderRefunds[orderId] || [];
+    return refunds.reduce((sum, refund) => sum + (refund.amount || 0), 0);
+  }
+
+  getPaymentsList(order: OrderParent): OrderPayment[] {
+    const orderId = order.idOrderM?.toString() || '';
+    return this.orderPayments[orderId] || [];
+  }
+
+  getRefundsList(order: OrderParent): Refund[] {
+    const orderId = order.idOrderM?.toString() || '';
+    return this.orderRefunds[orderId] || [];
   }
 }

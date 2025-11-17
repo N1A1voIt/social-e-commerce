@@ -139,6 +139,9 @@
             <button class="action-button bg-purple-50" (click)="toggleOrderDetails(order, $event)" title="View details">
               <i class="pi pi-eye" [ngClass]="isOrderExpanded(order) ? 'pi-eye' : 'pi-eye'"></i>
             </button>
+            <button class="action-button bg-yellow-50" (click)="togglePaymentRefundView(order, $event)" title="View payments & refunds">
+              <i class="pi pi-dollar text-yellow-600 text-xl"></i>
+            </button>
             <button class="action-button bg-cyan-50" (click)="navigateToCustomerChat(order)" title="Chat with customer">
               <i class="pi pi-comments text-cyan-500 text-xl"></i>
             </button>
@@ -257,6 +260,103 @@
           <div class="col-span-6 flex items-center justify-end gap-4">
             <button class="px-4 py-2 border border-blue-100 rounded-lg flex flex-row items-center gap-2 bg-red-600 text-white" (click)="cancelOrder(order)"> <i class="pi pi-times-circle"></i> <span>Cancel</span></button>
             <button class="px-4 py-2 border border-blue-100 rounded-lg flex flex-row items-center gap-2 bg-black text-white" (click)="nextStep(order)"> <i class="pi pi-arrow-circle-right"></i> <span>Next Step</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment & Refund Section -->
+      <div class="w-full p-10 bg-green-50" *ngIf="isPaymentRefundExpanded(order)">
+        <div class="flex flex-col gap-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-bold"><i class="pi pi-dollar"></i> Payments & Refunds</h3>
+            <div class="flex gap-4">
+              <div class="bg-blue-100 px-4 py-2 rounded-lg">
+                <span class="text-sm text-gray-600">Total Payments: </span>
+                <span class="font-bold text-blue-600">{{ getTotalPayments(order) | frenchNumber }} Ar</span>
+              </div>
+              <div class="bg-red-100 px-4 py-2 rounded-lg">
+                <span class="text-sm text-gray-600">Total Refunds: </span>
+                <span class="font-bold text-red-600">{{ getTotalRefunds(order) | frenchNumber }} Ar</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Payments List -->
+            <div class="col-span-1">
+              <div class="flex flex-col gap-4">
+                <h4 class="text-xl font-semibold"><i class="pi pi-wallet"></i> Payments</h4>
+                <div *ngIf="loadingPaymentRefund[order.idOrderM?.toString() || '']" class="text-center py-4">
+                  <i class="pi pi-spin pi-spinner text-2xl"></i>
+                  <p class="text-gray-500 mt-2">Loading payments...</p>
+                </div>
+                <div *ngIf="!loadingPaymentRefund[order.idOrderM?.toString() || ''] && getPaymentsList(order).length === 0" class="text-center py-8 bg-white rounded-xl border border-gray-200">
+                  <i class="pi pi-inbox text-4xl text-gray-300"></i>
+                  <p class="text-gray-500 mt-2">No payments found</p>
+                </div>
+                <div class="flex flex-col gap-3" *ngIf="!loadingPaymentRefund[order.idOrderM?.toString() || '']">
+                  <div class="border border-green-300 rounded-xl bg-white p-4 hover:shadow-md transition-shadow" *ngFor="let payment of getPaymentsList(order)">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex flex-col gap-1">
+                        <span class="text-sm text-gray-500">Payment #{{ payment.id }}</span>
+                        <span class="text-lg font-bold text-green-600">{{ payment.amount | frenchNumber }} Ar</span>
+                      </div>
+                      <div class="bg-green-100 px-3 py-1 rounded-full">
+                        <span class="text-xs font-semibold text-green-700">{{ payment.paymentMethodName || 'N/A' }}</span>
+                      </div>
+                    </div>
+                    <div class="flex flex-col gap-1 text-sm text-gray-600">
+                      <div class="flex items-center gap-2">
+                        <i class="pi pi-calendar text-gray-400"></i>
+                        <span>{{ payment.createdAt | date:'medium' }}</span>
+                      </div>
+                      <div class="flex items-center gap-2" *ngIf="payment.salesId">
+                        <i class="pi pi-receipt text-gray-400"></i>
+                        <span>Sale ID: {{ payment.salesId }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Refunds List -->
+            <div class="col-span-1">
+              <div class="flex flex-col gap-4">
+                <h4 class="text-xl font-semibold"><i class="pi pi-undo"></i> Refunds</h4>
+                <div *ngIf="loadingPaymentRefund[order.idOrderM?.toString() || '']" class="text-center py-4">
+                  <i class="pi pi-spin pi-spinner text-2xl"></i>
+                  <p class="text-gray-500 mt-2">Loading refunds...</p>
+                </div>
+                <div *ngIf="!loadingPaymentRefund[order.idOrderM?.toString() || ''] && getRefundsList(order).length === 0" class="text-center py-8 bg-white rounded-xl border border-gray-200">
+                  <i class="pi pi-inbox text-4xl text-gray-300"></i>
+                  <p class="text-gray-500 mt-2">No refunds found</p>
+                </div>
+                <div class="flex flex-col gap-3" *ngIf="!loadingPaymentRefund[order.idOrderM?.toString() || '']">
+                  <div class="border border-red-300 rounded-xl bg-white p-4 hover:shadow-md transition-shadow" *ngFor="let refund of getRefundsList(order)">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="flex flex-col gap-1">
+                        <span class="text-sm text-gray-500">Refund #{{ refund.id }}</span>
+                        <span class="text-lg font-bold text-red-600">{{ refund.amount | frenchNumber }} Ar</span>
+                      </div>
+                      <div class="bg-red-100 px-3 py-1 rounded-full">
+                        <span class="text-xs font-semibold text-red-700">REFUNDED</span>
+                      </div>
+                    </div>
+                    <div class="flex flex-col gap-1 text-sm text-gray-600">
+                      <div class="flex items-center gap-2">
+                        <i class="pi pi-calendar text-gray-400"></i>
+                        <span>{{ refund.createdAt | date:'medium' }}</span>
+                      </div>
+                      <div class="flex items-center gap-2" *ngIf="refund.saleId">
+                        <i class="pi pi-receipt text-gray-400"></i>
+                        <span>Sale ID: {{ refund.saleId }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

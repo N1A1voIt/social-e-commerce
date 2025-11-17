@@ -2,6 +2,7 @@ package com.itu.socialcom.demo.posts.services.save;
 
 import com.itu.socialcom.demo.posts.dto.MediaDetails;
 import com.itu.socialcom.demo.posts.dto.PostDetails;
+import com.itu.socialcom.demo.posts.entity.Media;
 import com.itu.socialcom.demo.posts.entity.PostChild;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -26,7 +27,7 @@ public class InstagramPostSaver implements SavePostService {
         String accessToken = mediaDetails.getPageAccessToken();
         String imageUrl = mediaDetails.getImageUrl();
         String caption = mediaDetails.getMessage();
-
+        System.out.println("URL: "+imageUrl);
         // Instagram requires a container first for media uploads
         String containerUrl = String.format("https://graph.facebook.com/v23.0/%s/media", instagramUserId);
 
@@ -43,7 +44,7 @@ public class InstagramPostSaver implements SavePostService {
             String json = EntityUtils.toString(response.getEntity());
             System.out.println("Instagram container response: " + json);
             JSONObject obj = new JSONObject(json);
-            return obj.getString("id") + "__SEP__" + caption;
+            return obj.getString("id") + "__SEP__" + (caption.isEmpty()? "banga" : caption) +"__SEP__"+imageUrl;
         }
     }
 
@@ -52,6 +53,7 @@ public class InstagramPostSaver implements SavePostService {
         String instagramUserId = postDetails.getPageId();
         String accessToken = postDetails.getPageAccessToken();
         List<String> mediaIds = postDetails.getMediaIds();
+
         String caption = postDetails.getMessage();
 
         if (mediaIds.isEmpty()) {
@@ -118,20 +120,24 @@ public class InstagramPostSaver implements SavePostService {
             mother.setIdChild1(null);
 
             // Children for carousel or single media
+            List<Media> mediaList = new ArrayList<>();
             List<PostChild> children = new ArrayList<>();
             for (String mediaId : mediaIds) {
                 PostChild child = new PostChild();
                 child.setPostUrl(postUrl);
                 child.setMediaUrl("https://www.instagram.com/p/" + mediaId.split("__SEP__")[0]);
                 child.setPlatformIdentifier(mediaId.split("__SEP__")[0]);
-                child.setDescription(mediaId.split("__SEP__")[1]);
+//                child.setDescription(caption);
                 child.setType(mediaIds.size() == 1 ? "photo" : "carousel_photo");
                 child.setIdSp(2L);
                 child.setIdPost(null);
                 child.setIdChild1(null);
                 children.add(child);
+                Media media = new Media();
+                media.setMediaUrl(mediaId.split("__SEP__")[2]);
+                mediaList.add(media);
             }
-
+            mother.setMediaList(mediaList);
             mother.setPostChilds(children);
             return mother;
         }

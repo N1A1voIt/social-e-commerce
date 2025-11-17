@@ -61,6 +61,8 @@ public class OrderController {
     private TempLinkRepository tempLinkRepository;
     @Autowired
     private CustomerPickupService customerPickupService;
+    @Autowired
+    private PaymentRefundService paymentRefundService;
 
     @PostMapping("/api/orders/save")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderParent orderParent,@RequestHeader(name = "Authorization") String token) {
@@ -682,6 +684,40 @@ public class OrderController {
             ApiResponse apiResponse = new ApiResponse();
             apiResponse.setStatus(200);
             apiResponse.setData(orderParent);
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    @GetMapping("/api/orders/{orderId}/payments")
+    public ResponseEntity<ApiResponse> getOrderPayments(@PathVariable Long orderId) {
+        try {
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(paymentRefundService.getPaymentsByOrderId(orderId));
+            return ResponseEntity.ok(apiResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(500);
+            apiResponse.setData(null);
+            apiResponse.setErrors(List.of(e));
+            return ResponseEntity.status(500).body(apiResponse);
+        }
+    }
+
+    @GetMapping("/api/orders/{orderId}/refunds")
+    public ResponseEntity<ApiResponse> getOrderRefunds(@PathVariable Long orderId) {
+        try {
+            ApiResponse apiResponse = new ApiResponse();
+            apiResponse.setStatus(200);
+            apiResponse.setData(paymentRefundService.getRefundsByOrderId(orderId));
             return ResponseEntity.ok(apiResponse);
         } catch (Exception e) {
             e.printStackTrace();
