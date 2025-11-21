@@ -219,4 +219,16 @@ export class OrderService {
     );
   }
 
+  // Request AI assistance for delivery driver selection
+  requestAiDeliveryAssistance(payload: { deliveryId: number, firebaseUIDs: { uid: string }[] }): Observable<ApiResponse> {
+    const header = {
+      'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
+    }
+    return this.http.post<ApiResponse>(
+      javaHost+'/api/deliveries/ai-assistance',
+      payload,
+      {headers: header}
+    );
+  }
+
 }

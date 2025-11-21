@@ -59,6 +59,12 @@ export class NodeService {
             icon: 'pi pi-fw pi-shopping-cart',
             data: 'Orders',
             link: '/basic/orders'
+          },{
+            key: '0-3',
+            label: 'Stock movement',
+            icon: 'pi pi-fw pi-stock',
+            data: 'Stock movement',
+            link: '/basic/stock-movement'
           }
         ]
       }

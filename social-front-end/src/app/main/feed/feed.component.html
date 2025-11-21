@@ -3,30 +3,31 @@
     <!-- posts-feed.component.html -->
     <div class="w-full lg:col-span-3 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
       <!-- Create Post Section -->
-      <div class="md:hidden w-full p-2 px-4 border rounded-xl flex gap-2 cursor-pointer bg-fotsy">
+      <div class="md:hidden w-full p-4 border-4 border-blue-50 rounded-xl flex gap-2 cursor-pointer bg-white">
         <div class="w-[50px] h-[50px] bg-red-100 top-[50px] left-[20px] rounded-full border-fotsy border-2 overflow-hidden">
           <img src="assets/imgs/gustavo.jpeg" width="50" alt="">
         </div>
-        <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-white">
+        <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-gray-50">
           <span>Create a post</span>
         </div>
       </div>
       <!-- Posts Loop -->
-      <div *ngFor="let post of posts" class="w-full h-auto lg:rounded-xl border-b pb-2 border-zinc-400 bg-fotsy lg:p-6 p-0">
+      <div *ngFor="let post of posts" class="w-full border-4 border-blue-50 rounded-xl bg-white p-4">
 
         <!-- Post Header -->
         <div class="w-full h-auto flex justify-between items-center gap-4 mb-4">
           <div class="w-full h-auto flex items-center gap-4 font-bold" style="letter-spacing: 1px">
-            <div class="w-[50px] h-[50px] border-[2px] border-fotsy rounded-full overflow-hidden">
+            <div class="w-[50px] h-[50px] border-[2px] border-blue-100 rounded-full overflow-hidden">
               <img src="assets/imgs/gustavo.jpeg" width="50" class="object-cover" alt="">
             </div>
             <div class="flex flex-col">
-              <h1>{{ post.username }}</h1>
+              <div class="text-sm text-gray-600 mb-1">Posted by</div>
+              <h1 class="text-md font-medium">{{ post.username }}</h1>
               <h1 class="text-xs text-zinc-500">{{ post.platform | titlecase }}</h1>
             </div>
           </div>
           <div>
-            <div class="w-[50px] h-[50px] border-[2px] border-fotsy rounded-full overflow-hidden">
+            <div class="w-[50px] h-[50px] border-[2px] border-blue-100 rounded-full overflow-hidden">
               <img [src]="getPlatformLogo(post.platform)" width="50" class="object-cover" alt="{{ post.platform }}">
             </div>
           </div>
@@ -36,43 +37,49 @@
         <div class="w-full h-auto flex flex-col justify-start items-center gap-4">
           <!-- Post Message -->
           <div *ngIf="post.message && post.message.trim()"
-               class="w-full h-auto flex items-center gap-4 font-light py-2"
-               style="letter-spacing: 0px">
-            <p>{{ post.message }}</p>
+               class="w-full h-auto flex flex-col gap-2 py-2">
+            <div class="text-sm text-gray-600">Message</div>
+            <p class="text-md text-gray-800 bg-gray-50 p-3 rounded-lg">{{ post.message }}</p>
           </div>
 
           <!-- Instagram Post Media (when childPosts is null but medias is not null) -->
-          <div *ngIf="isInstagramPost(post)" class="rounded-3xl overflow-hidden w-full grid gap-2"
-               [class]="getGridClass(getValidMedias(post.medias).length)">
-            <div *ngFor="let media of getValidMedias(post.medias); let i = index"
-                 class="bg-gray-100 relative overflow-hidden min-h-[200px]"
-                 [class]="getImageClass(getValidMedias(post.medias).length, i)">
-              <img *ngIf="media.mediaUrl"
-                   [src]="media.mediaUrl"
-                   class="object-cover w-full h-full"
-                   alt="Instagram post image">
-              <div *ngIf="!media.mediaUrl"
-                   class="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span class="text-gray-500">No image</span>
+          <div *ngIf="isInstagramPost(post)" class="w-full flex flex-col gap-2">
+            <div class="text-sm text-gray-600">Media</div>
+            <div class="rounded-xl overflow-hidden w-full grid gap-2 border border-gray-200"
+                 [class]="getGridClass(getValidMedias(post.medias).length)">
+              <div *ngFor="let media of getValidMedias(post.medias); let i = index"
+                   class="bg-gray-100 relative overflow-hidden min-h-[200px]"
+                   [class]="getImageClass(getValidMedias(post.medias).length, i)">
+                <img *ngIf="media.mediaUrl"
+                     [src]="media.mediaUrl"
+                     class="object-cover w-full h-full"
+                     alt="Instagram post image">
+                <div *ngIf="!media.mediaUrl"
+                     class="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span class="text-gray-500">No image</span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Facebook Post Media (when childPosts is not null) -->
-          <div *ngIf="isFacebookPost(post)" class="rounded-3xl overflow-hidden w-full grid gap-2"
-               [class]="getGridClass(getFacebookPostMedias(post).length)">
-            <div *ngFor="let media of getFacebookPostMedias(post); let i = index"
-                 class="bg-gray-100 relative overflow-hidden min-h-[200px]"
-                 [class]="getImageClass(getFacebookPostMedias(post).length, i)">
-              <img [src]="media.mediaUrl"
-                   class="object-cover w-full h-full"
-                   alt="Facebook post image">
+          <div *ngIf="isFacebookPost(post)" class="w-full flex flex-col gap-2">
+            <div class="text-sm text-gray-600">Media</div>
+            <div class="rounded-xl overflow-hidden w-full grid gap-2 border border-gray-200"
+                 [class]="getGridClass(getFacebookPostMedias(post).length)">
+              <div *ngFor="let media of getFacebookPostMedias(post); let i = index"
+                   class="bg-gray-100 relative overflow-hidden min-h-[200px]"
+                   [class]="getImageClass(getFacebookPostMedias(post).length, i)">
+                <img [src]="media.mediaUrl"
+                     class="object-cover w-full h-full"
+                     alt="Facebook post image">
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Like and Comment Section -->
-        <div class="mt-4">
+        <div class="mt-6 pt-4 border-t border-gray-200">
           <app-like-comment></app-like-comment>
         </div>
       </div>
@@ -80,19 +87,19 @@
 
   </div>
   <div class="w-full lg:col-span-2 hidden rounded-3xl p-4 lg:flex flex-col gap-4 items-center mt-4 lg:mt-0">
-    <div class="w-2/3 p-2 px-4 rounded-xl flex gap-2 cursor-pointer bg-fotsy">
-      <div class="w-[50px] h-[50px] bg-red-100 top-[50px] left-[20px] rounded-full border-fotsy border-2 overflow-hidden">
+    <div class="w-2/3 p-4 border-4 border-blue-50 rounded-xl flex gap-2 cursor-pointer bg-white">
+      <div class="w-[50px] h-[50px] bg-red-100 top-[50px] left-[20px] rounded-full border-blue-100 border-2 overflow-hidden">
         <img src="assets/imgs/gustavo.jpeg" width="50" alt="">
       </div>
-      <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-white">
+      <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-gray-50">
         <span>Create a post</span>
       </div>
     </div>
-    <div class="w-full sm:w-2/3 h-[250px] bg-fotsy rounded-xl overflow-hidden relative cursor-pointer">
+    <div class="w-full sm:w-2/3 h-[250px] bg-white border-4 border-blue-50 rounded-xl overflow-hidden relative cursor-pointer">
       <div class="h-[80px] w-full bg-black">
 
       </div>
-      <div class="absolute w-[60px] h-[60px] bg-red-100 top-[50px] left-[20px] rounded-full border-fotsy border-2 overflow-hidden">
+      <div class="absolute w-[60px] h-[60px] bg-red-100 top-[50px] left-[20px] rounded-full border-blue-100 border-2 overflow-hidden">
         <img src="assets/imgs/gustavo.jpeg" width="60" alt="">
       </div>
       <div class="h-[170px]">
@@ -103,11 +110,11 @@
         </div>
       </div>
     </div>
-    <div class="w-2/3 p-2 px-4 h-[50px] rounded-xl flex gap-2 cursor-pointer bg-fotsy">
+    <div class="w-2/3 p-4 h-[50px] border-4 border-blue-50 rounded-xl flex gap-2 cursor-pointer bg-white">
 <!--      <div class="w-[50px] h-[50px] bg-red-100 top-[50px] left-[20px] rounded-full border-fotsy border-2 overflow-hidden">-->
 <!--        <img src="assets/imgs/gustavo.jpeg" width="50" alt="">-->
 <!--      </div>-->
-      <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-white">
+      <div class="flex-1 rounded-full flex justify-center items-center font-mono text-zinc-500 bg-gray-50">
         <span>Sync to social medias</span>
       </div>
     </div>

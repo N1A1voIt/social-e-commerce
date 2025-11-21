@@ -1,0 +1,79 @@
+### CPL Agent API Tests
+### This file contains test requests for the CPL (Customer Product List) Agent
+
+### Test 1: Basic request - Get promotional content for available products
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "Create a promotional post for all my products that are in stock"
+}
+
+###
+
+### Test 2: Request specific format - JSON output
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "Give me a JSON list of all my products with stock, including name, SKU, price, and stock status"
+}
+
+###
+
+### Test 3: Category-specific request
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "Show me all electronics products I have in stock with low stock warnings"
+}
+
+###
+
+### Test 4: Social media content generation
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "Create an Instagram post showcasing my top 5 products with the best stock levels"
+}
+
+###
+
+### Test 5: Price-based query
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "List all products under $50 that are in stock, formatted as a Facebook marketplace post"
+}
+
+###
+
+### Test 6: Inventory summary
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "Give me a summary of my inventory: how many products in stock, low stock, and total value"
+}
+
+###
+
+### Test 7: Custom promotional content
+POST http://localhost:8000/cpl-agent
+Content-Type: application/json
+Authorization: YOUR_AUTH_TOKEN_HERE
+
+{
+  "query": "Write a promotional email highlighting products that are low in stock to create urgency"
+}
+
+###

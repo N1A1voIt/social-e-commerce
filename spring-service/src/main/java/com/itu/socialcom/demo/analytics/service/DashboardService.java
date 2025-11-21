@@ -97,7 +97,7 @@ public class DashboardService {
         LocalDateTime thirtyDaysAgo = now.minusDays(30);
         String dateRange = thirtyDaysAgo.format(DateTimeFormatter.ofPattern("MMM d")) + 
                           " to " + now.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
-        HeatmapData heatmapData = heatmapService.getHeatmapData(dashboardRequestDto.getTimeFrame(), dashboardRequestDto.getStartDate(), dashboardRequestDto.getEndDate());
+        HeatmapData heatmapData = heatmapService.getHeatmapData( dashboardRequestDto.getStartDate(), dashboardRequestDto.getEndDate(), sellerId);
         BestTimeToPost bestTimeToPost = bestPostTimeForBetterAttendance(sellerId,dashboardRequestDto);
         DashboardStatsDto dashboardStatsDto = new DashboardStatsDto(totalRevenue, totalAmount, unpaidAmount, revenuePerUser, bestDeal, totalSales, dateRange);
         PlatformRepartitionDto[] platformRepartitionDtos = platformRepartitionDtos(sellerId,dashboardRequestDto);
@@ -215,7 +215,7 @@ public class DashboardService {
                         "WITH total_revenue AS ( " +
                                 "    SELECT SUM(d_total) AS total_revenue " +
                                 "    FROM order_mother  " +
-                                "    WHERE id_seller = :sellerId and d_status >= 25" +
+                                "    WHERE id_seller = :sellerId and d_status >= 25 AND order_mother.created_at >= :startDate AND order_mother.created_at <= :endDate " +
                                 ") " +
                                 "SELECT  " +
                                 "   row_number() over () as dummy_id, " +

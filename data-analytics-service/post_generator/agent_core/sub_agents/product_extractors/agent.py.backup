@@ -1,0 +1,281 @@
+import ast
+import json
+import re
+
+from google.adk.agents import LlmAgent
+from pydantic import BaseModel
+
+from post_generator.agent_core.sub_agents.product_extractors.prompt import PRODUCT_EXTRACTOR_PROMPT
+from products.ProductRepository import ProductRepository
+from products.ProductStockRepository import ProductStockRepository
+from products.VariantRepository import VariantRepository
+
+
+import json
+
+def extract_products(db_category_output: str, user_id: int):
+    """
+    Extract products based on category output and user ID.
+
+    Args:
+        db_category_output: JSON string containing category information
+        user_id: The user ID to filter products by
+    """
+    def clean_and_parse_json(markdown_json_str):
+        cleaned = re.sub(r"^```json\s*|\s*```$", "", markdown_json_str.strip(), flags=re.MULTILINE)
+        return json.loads(cleaned)
+    categoriese = clean_and_parse_json(db_category_output)
+    print("dazfbne:"+str(categoriese))
+    pr = ProductRepository()
+    print(f'User ID: {user_id}')
+    if user_id is None:
+        raise ValueError("User ID (u_output) not found in session state")
+    products = pr.find_by_token_and_categories(user_id, categoriese['categories'])
+    products_dict = [p.model_dump() for p in products]
+    return json.dumps(products_dict, default=str)
+
+
+def extract_products_with_variants_by_name(product_name: str, user_id: int):
+    """
+    Extract products and their variants by product name.
+    
+    Args:
+        product_name: Name of the product to search for
+        user_id: The user ID to filter products by
+        
+    Returns:
+        JSON string containing products with their variants
+    """
+    pr = ProductStockRepository()
+    vr = VariantRepository()
+    
+    if user_id is None:
+        raise ValueError("User ID not found")
+    
+    # Get all products for seller
+    products = pr.find_by_seller(user_id)
+    
+    # Filter by name (case insensitive partial match)
+    matching_products = [
+        p for p in products 
+        if product_name.lower() in p.name.lower()
+    ]
+    
+    # Get variants for each product
+    result = []
+    for product in matching_products:
+        variants = vr.find_by_product_id(product.id_product)
+        result.append({
+            "product": product.model_dump(),
+            "variants": [v.model_dump() for v in variants]
+        })
+    
+    return json.dumps(result, default=str)
+
+
+def extract_products_with_variants_by_category(category_name: str, user_id: int):
+    """
+    Extract products and their variants by category name.
+    
+    Args:
+        category_name: Name of the category to search for
+        user_id: The user ID to filter products by
+        
+    Returns:
+        JSON string containing products with their variants
+    """
+    pr = ProductStockRepository()
+    vr = VariantRepository()
+    
+    if user_id is None:
+        raise ValueError("User ID not found")
+    
+    # Get all products for seller
+    products = pr.find_by_seller(user_id)
+    
+    # Filter by category (case insensitive partial match)
+    matching_products = [
+        p for p in products 
+        if p.category and category_name.lower() in p.category.lower()
+    ]
+    
+    # Get variants for each product
+    result = []
+    for product in matching_products:
+        variants = vr.find_by_product_id(product.id_product)
+        result.append({
+            "product": product.model_dump(),
+            "variants": [v.model_dump() for v in variants]
+        })
+    
+    return json.dumps(result, default=str)
+
+
+def extract_variants_by_sku(sku: str, user_id: int):
+    """
+    Extract variants by SKU (supports partial match).
+    Also returns the parent product information.
+    
+    Args:
+        sku: The SKU to search for
+        user_id: The user ID to filter by
+        
+    Returns:
+        JSON string containing variants with their parent product info
+    """
+    pr = ProductStockRepository()
+    vr = VariantRepository()
+    
+    if user_id is None:
+        raise ValueError("User ID not found")
+    
+    # Find variants by SKU
+    variants = vr.find_by_sku(sku)
+    
+    # Get unique product IDs from variants
+    product_ids = list(set(v.id_product for v in variants))
+    
+    # Get product information for each
+    result = []
+    for prod_id in product_ids:
+        product = pr.find_by_id(prod_id)
+        if product and product.id_seller == user_id:
+            product_variants = [v for v in variants if v.id_product == prod_id]
+            result.append({
+                "product": product.model_dump(),
+                "variants": [v.model_dump() for v in product_variants]
+            })
+    
+    return json.dumps(result, default=str)
+
+
+def extract_products_with_variants_by_sku_prefix(sku_prefix: str, user_id: int):
+    """
+    Extract products and their variants by SKU prefix.
+    
+    Args:
+        sku_prefix: The SKU prefix of the product
+        user_id: The user ID to filter products by
+        
+    Returns:
+        JSON string containing products with their variants
+    """
+    pr = ProductStockRepository()
+    vr = VariantRepository()
+    
+    if user_id is None:
+        raise ValueError("User ID not found")
+    
+    # Get all products for seller
+    products = pr.find_by_seller(user_id)
+    
+    # Filter by SKU prefix
+    matching_products = [
+        p for p in products 
+        if p.sku_prefix and sku_prefix.lower() in p.sku_prefix.lower()
+    ]
+    
+    # Get variants for each product
+    result = []
+    for product in matching_products:
+        variants = vr.find_by_product_id(product.id_product)
+        result.append({
+            "product": product.model_dump(),
+            "variants": [v.model_dump() for v in variants]
+        })
+    
+    return json.dumps(result, default=str)
+
+
+
+product_extractor_agent = LlmAgent (
+    name="product_extractor_agent",
+    model="gemini-2.0-flash-001",
+    instruction="""You're an agent in charge of extracting products and their variants from the database.
+    
+    You have access to multiple tools depending on the user's request:
+    
+    1. extract_products: Use when categories are provided by the previous agent (db_category_output)
+    2. extract_products_with_variants_by_name: Use when user asks to generate post for a specific product name (e.g., "Generate post to promote Nike Shoes")
+    3. extract_products_with_variants_by_category: Use when user asks to generate post for a category (e.g., "Generate post to promote Electronics")
+    4. extract_variants_by_sku: Use when user provides a specific SKU (e.g., "Generate post for SKU-12345")
+    5. extract_products_with_variants_by_sku_prefix: Use when user provides a SKU prefix
+    
+    Analyze the user query in the session to determine which tool to use.
+    Always use {u_output} as the user_id parameter.
+    
+    The tools will return products with their variants, which includes:
+    - Product information (name, description, price, media, category)
+    - Variant details (SKU, title, price, stock status)
+    """,
+    description=PRODUCT_EXTRACTOR_PROMPT,
+    output_key="extracted_products_v2",
+    tools=[
+        extract_products,
+        extract_products_with_variants_by_name,
+        extract_products_with_variants_by_category,
+        extract_variants_by_sku,
+        extract_products_with_variants_by_sku_prefix
+    ]
+)
+
+product_formatter_agent = LlmAgent(
+    name="product_formatter_agent",
+    model="gemini-2.0-flash-001",
+
+    instruction="You're an agent in charge of formatting the extracted products into a the provided json format template.",
+    description="""
+            You are a content generation agent tasked with creating engaging promotional content that highlights selected products to attract potential customers and drive purchases.
+            
+            You are provided with a list of extracted products under the variable {extracted_products_v2}, generated by the product_extractor_agent. Each product includes attributes such as name, price, description, and media.
+            
+            Your task:
+            Write a persuasive main marketing message that grabs attention, encourages customer inte.imageUrlrest, and promotes purchasing behavior. The tone should be enthusiastic, customer-focused, and sales-oriented.
+            
+            For each product, write a short personalized media message that:
+            
+            Highlights key benefits or features.
+            
+            Is enticing and concise.
+            
+            Encourages clicks or further interest.
+            
+            And don't forget to include the product name and price and id of the product.
+            
+            Final Output Format:
+            Return your message as a JSON object structured exactly like below. Replace placeholders with real values (using the product media and your generated message for each):
+            
+            [
+                {
+                  "platform":"facebook",
+                  "mainMessage": "Your persuasive promotional message goes here.",
+                  "mediaDetails": [
+                    {
+                      "imageUrl": "media for product 1",
+                      "message": "Short engaging message for product 1"
+                    },
+                    {
+                      "imageUrl": "media for product 2",
+                      "message": "Short engaging message for product 2"
+                    }
+                    // ...and so on for each product
+                  ]
+                },...
+            ]
+            
+            Available platforms are : facebook,instagram.(everything should be in lowercase) 
+            Don't forget to include product name,SKU.For facebook you can do it on each media but for instagram it should be in the main message.
+            Important:
+            
+            Focus on selling the products in a natural way.
+            
+            Use emotionally engaging language (e.g., “Don’t miss out!”, “Elevate your style”, “Limited-time offer!”).
+            
+            Avoid generic filler text. Make each message specific to the product.
+            
+            Ensure valid JSON structure in the final output.
+            
+    """,
+    output_key = "formatted_products",
+
+)

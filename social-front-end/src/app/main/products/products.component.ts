@@ -12,6 +12,9 @@ import {SupabaseService} from "../../shared/supabase.service";
 import {BasicSelectComponent, SelectOption} from "../../shared/basic-select/basic-select.component";
 import {ProductServiceService} from "./product-service.service";
 import {Router} from "@angular/router";
+import {EditProductInfoComponent} from "./edit-product-info/edit-product-info.component";
+import {EditProductOptionsComponent} from "./edit-product-options/edit-product-options.component";
+import {StockMovementsComponent} from "./stock-movements/stock-movements.component";
 
 @Component({
   selector: 'app-products',
@@ -25,7 +28,10 @@ import {Router} from "@angular/router";
     ReactiveFormsModule,
     NgForOf,
     AsyncPipe,
-    BasicSelectComponent
+    BasicSelectComponent,
+    EditProductInfoComponent,
+    EditProductOptionsComponent,
+    StockMovementsComponent
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
@@ -50,6 +56,10 @@ export class ProductsComponent implements OnInit {
   isEditMode:boolean = false;
   editingProduct: ProductCpl | null = null;
   products:ProductCpl[] = [];
+
+  // New separate form states
+  showEditProductForm: boolean = false;
+  showEditOptionsForm: boolean = false;
 
   private apiUrl = javaHost + '/api/steps'; // Adjust base URL as needed
   private authToken = ''; // Get from your auth service
@@ -94,7 +104,7 @@ export class ProductsComponent implements OnInit {
       idSeller: [1], // Set from current user context
       idCategory: [1, [Validators.required, Validators.min(1)]],
       state: [true],
-      sku_prefix: ['',[Validators.required]],
+      skuPrefix: ['',[Validators.required]],
     });
 
     this.step2Form = this.fb.group({
@@ -222,6 +232,20 @@ export class ProductsComponent implements OnInit {
           this.step1Form.patchValue({ media: uploadedUrl });
         }
 
+        // In edit mode, just move to step 2 without API call (options already loaded)
+        if (this.isEditMode && this.editingProduct) {
+          this.currentStep = 2;
+          this.isLoading = false;
+
+          // Don't reinitialize options in edit mode - they should already be loaded
+          // If somehow no options are loaded, ensure at least one empty option
+          if (this.optionsArray.length === 0) {
+            this.addOption();
+          }
+          return;
+        }
+
+        // For new products, proceed with the API call
         const step1Data: CreationStepsDTO = {
           sessionId: this.sessionId,
           step1: this.step1Form.value,
@@ -235,7 +259,7 @@ export class ProductsComponent implements OnInit {
               this.currentStep = 2;
               this.isLoading = false;
 
-              // Initialize with at least one option
+              // Initialize with at least one option for new products
               if (this.optionsArray.length === 0) {
                 this.addOption();
               }
@@ -320,24 +344,49 @@ export class ProductsComponent implements OnInit {
 
   private populateStep2Form(options: OptionValueDTO[]) {
     const optionsArray = this.step2Form.get('options') as FormArray;
-    optionsArray.clear();
+
+    // Ensure array is clean before populating
+    while (optionsArray.length !== 0) {
+      optionsArray.removeAt(0);
+    }
 
     console.log('Populating step 2 form with options:', options);
 
-    options.forEach(option => {
+    if (!options || !Array.isArray(options)) {
+      console.warn('Invalid options data received:', options);
+      this.addOption(); // Add empty option if data is invalid
+      return;
+    }
+
+    options.forEach((option, index) => {
+      console.log(`Processing option ${index}:`, option);
+
+      // Ensure option has required properties
+      if (!option.optionLabels || !Array.isArray(option.values)) {
+        console.warn(`Invalid option structure at index ${index}:`, option);
+        return;
+      }
+
       const valuesArray = this.fb.array(
-        option.values.map(value => this.fb.control(value, Validators.required))
+        option.values.map(value => this.fb.control(value || '', Validators.required))
       );
 
       const optionGroup = this.fb.group({
-        optionLabels: [option.optionLabels, Validators.required],
+        optionLabels: [option.optionLabels || '', Validators.required],
         values: valuesArray
       });
 
       optionsArray.push(optionGroup);
     });
 
+    // If no valid options were added, add an empty one
+    if (optionsArray.length === 0) {
+      console.log('No valid options were processed, adding empty option');
+      this.addOption();
+    }
+
     console.log('Form array after population:', optionsArray.value);
+    console.log('Final options array length:', optionsArray.length);
   }
 
   previousStep() {
@@ -377,66 +426,48 @@ export class ProductsComponent implements OnInit {
   }
 
   onEditProduct(product: ProductCpl) {
-    this.isEditMode = true;
+    console.log('Opening edit product form for:', product);
     this.editingProduct = product;
-    this.showForm = true;
-    this.currentStep = 1;
-    
-    // Populate step 1 form with product data
-    this.step1Form.patchValue({
-      idProduct: product.idPc,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      media: product.media,
-      idSeller: product.idSeller || 1,
-      idCategory: product.idCategory || 1,
-      state: true,
-      sku_prefix: product.skuPrefix || ''
-    });
-    
-    // Set preview URL for existing image
-    if (product.media) {
-      this.previewUrl = product.media;
-    }
-    
-    // Load existing options if available
-    // You may need to fetch options from the backend
-    this.loadProductOptions(product.idPc);
+    this.showEditProductForm = true;
+    console.log('showEditProductForm set to:', this.showEditProductForm);
   }
 
-  loadProductOptions(productId: number) {
-    this.isLoading = true;
-    this.productService.fetchProductOptions(productId).subscribe({
-      next: (response) => {
-        console.log('Loaded product options:', response);
-        if (response && response.length > 0) {
-          this.populateStep2Form(response);
-          console.log('Options populated. Options array length:', this.optionsArray.length);
-        } else {
-          console.log('No existing options found. Adding empty option.');
-          // If no options exist, add one empty option for new options to be added
-          if (this.optionsArray.length === 0) {
-            this.addOption();
-          }
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading product options:', error);
-        // On error, still allow adding new options
-        if (this.optionsArray.length === 0) {
-          this.addOption();
-        }
-        this.isLoading = false;
-      }
-    });
+  onEditOptions(product: ProductCpl) {
+    console.log('Opening edit options form for:', product);
+    this.editingProduct = product;
+    this.showEditOptionsForm = true;
+    console.log('showEditOptionsForm set to:', this.showEditOptionsForm);
+  }
+
+  // New methods for separate forms
+  closeEditProductForm() {
+    this.showEditProductForm = false;
+    this.editingProduct = null;
+  }
+
+  closeEditOptionsForm() {
+    this.showEditOptionsForm = false;
+    this.editingProduct = null;
+  }
+
+  onProductUpdated(updatedProduct: ProductCpl) {
+    // Update the product in the list
+    const index = this.products.findIndex(p => p.idPc === updatedProduct.idPc);
+    if (index !== -1) {
+      this.products[index] = { ...this.products[index], ...updatedProduct };
+    }
+  }
+
+  onOptionsUpdated(updatedOptions: any) {
+    // Refresh products list or handle options update
+    this.fetchProducts();
   }
 
   closeFormAndReset() {
     this.showForm = false;
     this.isEditMode = false;
     this.editingProduct = null;
+    this.errorMessage = ''; // Clear any error messages
     this.resetForm();
     this.selectedFile = null;
     this.previewUrl = null;

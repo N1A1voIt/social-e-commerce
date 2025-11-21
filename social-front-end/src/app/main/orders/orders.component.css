@@ -1,5 +1,51 @@
 /* Custom styles for the orders component */
 
+/* Status Badge Styling */
+.status-badge {
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+  user-select: none;
+}
+
+.status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced status colors with better contrast */
+.bg-blue-100 { background-color: #dbeafe !important; }
+.text-blue-800 { color: #1e40af !important; }
+
+.bg-yellow-100 { background-color: #fef3c7 !important; }
+.text-yellow-800 { color: #92400e !important; }
+
+.bg-green-100 { background-color: #dcfce7 !important; }
+.text-green-800 { color: #166534 !important; }
+
+.bg-red-100 { background-color: #fee2e2 !important; }
+.text-red-800 { color: #991b1b !important; }
+
+.bg-orange-100 { background-color: #ffedd5 !important; }
+.text-orange-800 { color: #9a3412 !important; }
+
+.bg-purple-100 { background-color: #f3e8ff !important; }
+.text-purple-800 { color: #6b21a8 !important; }
+
+.bg-indigo-100 { background-color: #e0e7ff !important; }
+.text-indigo-800 { color: #3730a3 !important; }
+
+.bg-teal-100 { background-color: #ccfdf7 !important; }
+.text-teal-800 { color: #115e59 !important; }
+
+.bg-amber-100 { background-color: #fef3c7 !important; }
+.text-amber-800 { color: #92400e !important; }
+
+.bg-emerald-100 { background-color: #d1fae5 !important; }
+.text-emerald-800 { color: #065f46 !important; }
+
+.bg-gray-100 { background-color: #f3f4f6 !important; }
+.text-gray-800 { color: #1f2937 !important; }
+
 /* Main container styling */
 :host ::ng-deep .card {
   background-color: #ffffff;

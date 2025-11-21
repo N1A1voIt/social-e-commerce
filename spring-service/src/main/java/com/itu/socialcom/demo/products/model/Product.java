@@ -64,8 +64,11 @@ public class Product {
     @Column(name = "id_category", nullable = false)
     private Integer idCategory;
 
-    @Column(name = "sku_prefix")
+    @Column(name = "sku_prefix", nullable = false)
     private String skuPrefix;
+
+    @Column(name = "state")
+    private boolean state;
 
     @PrePersist
     protected void onCreate() {

@@ -25,6 +25,9 @@ public class UpdateProductRequest {
     @JsonProperty("media")
     private String media;
     
+    @JsonProperty("skuPrefix")
+    private String skuPrefix;
+    
     /**
      * Default constructor
      */
@@ -33,10 +36,11 @@ public class UpdateProductRequest {
     /**
      * Constructor with all fields
      */
-    public UpdateProductRequest(String name, String description, BigDecimal price, String media) {
+    public UpdateProductRequest(String name, String description, BigDecimal price, String media, String skuPrefix) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.media = media;
+        this.skuPrefix = skuPrefix;
     }
 }

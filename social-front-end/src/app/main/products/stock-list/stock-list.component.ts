@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {StockFormComponent} from "../stock-form/stock-form.component";
+import {StockMovementsComponent} from "../stock-movements/stock-movements.component";
 
 interface StockItem {
   id: number;
@@ -19,12 +20,13 @@ interface StockItem {
 @Component({
   selector: 'app-stock-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, StockFormComponent],
+  imports: [CommonModule, RouterModule, StockFormComponent, StockMovementsComponent],
   templateUrl: './stock-list.component.html',
   styleUrl: './stock-list.component.css'
 })
 export class StockListComponent implements OnInit {
   stockItems: StockItem[] = [];
+  activeTab: 'levels' | 'movements' = 'levels';
 
   constructor() {}
 

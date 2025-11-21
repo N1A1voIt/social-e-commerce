@@ -1,0 +1,19 @@
+### Test Stock Movements CSV Export
+GET http://localhost:8080/api/stock-movements/export/csv
+Authorization: your-token-here
+
+### Test Stock Movements PDF Export (Now generates real PDF!)
+GET http://localhost:8080/api/stock-movements/export/pdf
+Authorization: your-token-here
+
+### Test Stock Movements CSV Export with filters
+GET http://localhost:8080/api/stock-movements/export/csv?search=test&movementType=STOCK_IN&startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+Authorization: your-token-here
+
+### Test Stock Movements PDF Export with filters (Real PDF format)
+GET http://localhost:8080/api/stock-movements/export/pdf?search=test&movementType=STOCK_OUT&startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+Authorization: your-token-here
+
+### Test Basic Stock Movements List (for comparison)
+GET http://localhost:8080/api/stock-movements?page=0&size=5
+Authorization: your-token-here

@@ -30,10 +30,14 @@
           <div *ngIf="isMenuOpen(product.idPc)" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-5">
             <ul class="text-sm p-4">
               <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 hover:bg-blue-50 rounded-md" (click)="onEditProduct(product, $event)">
-                <i class="pi pi-pencil text-green-600"></i>
-                <span>Modify</span>
+                <i class="pi pi-info-circle text-blue-600"></i>
+                <span>Edit Product Info</span>
               </li>
-              <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-red-600 hover:bg-blue-50 rounded-md" (click)="onDeleteProduct(product, $event)">
+              <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 hover:bg-green-50 rounded-md" (click)="onEditOptions(product, $event)">
+                <i class="pi pi-cog text-green-600"></i>
+                <span>Edit Options</span>
+              </li>
+              <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-red-600 hover:bg-red-50 rounded-md" (click)="onDeleteProduct(product, $event)">
                 <i class="pi pi-trash"></i>
                 <span>Delete</span>
               </li>

@@ -3,14 +3,24 @@
   <div class="w-full lg:col-span-5 flex flex-col justify-start items-center gap-4 hide-scrollbar overflow-y-scroll">
     <div class="w-full flex justify-between items-center px-4 font-mono">
       <h1>Sales List</h1>
-      <button
-        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        (click)="onImportCsvClick()"
-        [disabled]="importLoading"
-        title="Import sales from CSV">
-        <i [class]="importLoading ? 'pi pi-spinner pi-spin' : 'pi pi-upload'"></i>
-        <span>{{ importLoading ? 'Importing...' : 'Import CSV' }}</span>
-      </button>
+      <div class="flex gap-3">
+        <button
+          class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          (click)="exportToCsv()"
+          [disabled]="loading || exportLoading"
+          title="Export sales to CSV">
+          <i [class]="exportLoading ? 'pi pi-spinner pi-spin' : 'pi pi-download'"></i>
+          <span>{{ exportLoading ? 'Exporting...' : 'Export CSV' }}</span>
+        </button>
+        <button
+          class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          (click)="onImportCsvClick()"
+          [disabled]="importLoading"
+          title="Import sales from CSV">
+          <i [class]="importLoading ? 'pi pi-spinner pi-spin' : 'pi pi-upload'"></i>
+          <span>{{ importLoading ? 'Importing...' : 'Import' }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Filter Section -->
@@ -155,7 +165,7 @@
         </div>
 
         <div class="flex-1 min-w-0">
-          <div class="action-buttons">
+          <div class="action-buttons flex gap-2">
             <button class="action-button bg-purple-50" (click)="toggleSaleDetails(sale, $event)" title="View details">
               <i class="pi" [ngClass]="isSaleExpanded(sale) ? 'pi-eye-slash' : 'pi-eye'" class="text-black text-xl"></i>
             </button>

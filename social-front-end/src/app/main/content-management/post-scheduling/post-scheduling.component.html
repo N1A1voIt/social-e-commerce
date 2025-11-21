@@ -103,6 +103,7 @@
   <app-post-preview
     [visible]="previewVisible"
     [data]="previewData"
+    [isPublishing]="isSubmitting"
     (close)="onClosePreview()"
     (publish)="publish($event)"></app-post-preview>
 </div>

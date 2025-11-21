@@ -4,6 +4,7 @@ import {PaginatorModule} from "primeng/paginator";
 import {HttpClient} from "@angular/common/http";
 import {pythonHost} from "../../../environments/environment";
 import {ChartDisplayComponent} from "./chart-display/chart-display.component";
+import {FormsModule} from "@angular/forms";
 export interface AIMessage {
   message: string;
   chart: any;
@@ -17,7 +18,8 @@ export interface AIMessage {
     NgIf,
     PaginatorModule,
     NgClass,
-    ChartDisplayComponent
+    ChartDisplayComponent,
+    FormsModule
   ],
   templateUrl: './generic-chat.component.html',
   styleUrl: './generic-chat.component.css'
@@ -26,6 +28,7 @@ export class GenericChatComponent {
   messages:AIMessage[] = [];
   query:string = '';
   url:string = pythonHost+'/generic-chat';
+  isWaitingForResponse: boolean = false;
 
   constructor(private http: HttpClient) {
 
@@ -34,6 +37,10 @@ export class GenericChatComponent {
     this.query = event.target.value;
   }
   onSubmit() {
+    if (!this.query.trim() || this.isWaitingForResponse) {
+      return;
+    }
+    
     this.messages.push({message:this.query,chart:null,isFromMe:true});
     const query = {
       'query': this.query
@@ -41,8 +48,13 @@ export class GenericChatComponent {
     const header = {
       'Authorization': `${localStorage.getItem('token')?.replace('Bearer ', '')}`
     };
-     this.http.post<AIMessage>(this.url , query , {headers:header}).subscribe({
+    
+    this.query = '';
+    this.isWaitingForResponse = true;
+    
+    this.http.post<AIMessage>(this.url , query , {headers:header}).subscribe({
        next: (res) => {
+         this.isWaitingForResponse = false;
          this.messages.push(
            {
              message:res.message,
@@ -51,6 +63,7 @@ export class GenericChatComponent {
            }
          )
        },error: (err) => {
+         this.isWaitingForResponse = false;
          console.log(err)
          alert(err)
        }

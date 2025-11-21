@@ -40,4 +40,6 @@ public class DeliveryApplicant {
     private String email;
     @Column(name = "username")
     private String username;
+    @Column(name = "firebase_uid")
+    private String firebaseUid;
 }

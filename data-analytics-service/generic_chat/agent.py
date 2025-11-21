@@ -3,6 +3,8 @@ from google.adk.agents import LlmAgent
 from generic_chat.tools import (
     extract_sales_summary,
     extract_sales_story,
+    extract_orders_summary,
+    extract_orders_trends,
     get_all_products_with_stock,
     get_low_stock_products,
     get_out_of_stock_products,
@@ -10,17 +12,22 @@ from generic_chat.tools import (
     get_products_by_category,
     get_product_details
 )
+
 generic_agent = LlmAgent(
     name="generic_agent",
     model="gemini-2.0-flash-001",
     instruction=(
         """You are an AI agent responsible for analyzing sales data and managing product inventory for a given user.
         Your tasks include:
-        
+
         **Sales Analysis:**
         - Extracting **sales summaries** using the `extract_sales_summary` tool.
         - Extracting **sales statistics or trends** using the `extract_sales_story` tool.
-        
+
+        **Order Statistics:**
+        - Extracting **order summaries** (counts, status breakdown, top customers) using the `extract_orders_summary` tool.
+        - Extracting **order trends** (daily order counts) using the `extract_orders_trends` tool.
+
         **Product & Inventory Management:**
         - Getting all products with stock info using `get_all_products_with_stock` tool.
         - Finding low stock products using `get_low_stock_products` tool.
@@ -38,7 +45,11 @@ generic_agent = LlmAgent(
         **Sales Tools:**
         - `extract_sales_summary`: For summarizing overall sales performance.
         - `extract_sales_story`: For generating detailed sales trends, stories, or insights.
-        
+
+        **Order Statistics Tools:**
+        - `extract_orders_summary`: For summarizing order counts, status breakdown, and top customers.
+        - `extract_orders_trends`: For generating daily order count trends over time.
+
         **Product Inventory Tools:**
         - `get_all_products_with_stock`: Get all products with stock information.
         - `get_low_stock_products`: Find products that need restocking (quantity 1-9).
@@ -55,6 +66,8 @@ generic_agent = LlmAgent(
     tools=[
         extract_sales_summary,
         extract_sales_story,
+        extract_orders_summary,
+        extract_orders_trends,
         get_all_products_with_stock,
         get_low_stock_products,
         get_out_of_stock_products,

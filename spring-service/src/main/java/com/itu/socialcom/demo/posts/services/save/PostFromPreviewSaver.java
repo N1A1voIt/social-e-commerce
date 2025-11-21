@@ -123,6 +123,7 @@ public class PostFromPreviewSaver {
 
         // Save the mother post
         Post post = new Post();
+        post.setDescription(args.getPlatformPreviews().get(0).getMainMessage());
         post.setType(args.getScheduledUnixTime() != null && args.getScheduledUnixTime() > 0 ? "scheduled_post" : "post");
         
         if (args.getScheduledUnixTime() != null && args.getScheduledUnixTime() > 0) {
@@ -144,8 +145,8 @@ public class PostFromPreviewSaver {
             }
             post.getPostChildren().get(i).setIdPost(post.getId());
             postChildRepository.save(post.getPostChildren().get(i));
-            System.out.println("Media size:"+ post.getPostChildren().get(i).getMediaList().size());
-            if (!post.getPostChildren().get(i).getMediaList().isEmpty() || post.getPostChildren().get(i).getMediaList() != null) {
+//            System.out.println("Media size:"+ post.getPostChildren().get(i).getMediaList().size());
+            if (post.getPostChildren().get(i).getMediaList() != null) {
 //                Media media =
                 for (int j = 0; j < post.getPostChildren().get(i).getMediaList().size(); j++) {
                     Media media = post.getPostChildren().get(i).getMediaList().get(j);

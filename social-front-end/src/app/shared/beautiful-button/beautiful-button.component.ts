@@ -9,4 +9,5 @@ import {Component, Input} from '@angular/core';
 })
 export class BeautifulButtonComponent {
   @Input() text: string = 'Explore All';
+  @Input() disabled: boolean = false;
 }

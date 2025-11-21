@@ -99,6 +99,12 @@
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 		</dependency>
+		<!-- PDF Generation -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>5.5.13.3</version>
+		</dependency>
 		<dependency>
 			<groupId>com.facebook.business.sdk</groupId>
 			<artifactId>facebook-java-business-sdk</artifactId>

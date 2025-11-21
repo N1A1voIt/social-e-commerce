@@ -38,6 +38,7 @@ import {
 import {GenericChatComponent} from "./main/generic-chat/generic-chat.component";
 import {OrderDetailsComponent} from "./main/orders/order-details/order-details.component";
 import {TransactionFullComponent} from "./main/transaction-full/transaction-full.component";
+import {StockMovementsComponent} from "./main/products/stock-movements/stock-movements.component";
 
 const authRoutes: Routes = [
   { path: 'auth/login', component: LoginComponent, canActivate: [NoAuthGuard] },
@@ -63,6 +64,7 @@ const homeRoutes: Routes = [
       { path: 'content/post/:id', component: PostDetailsComponent },
       { path: 'content/prompt-parameter', component: PromptParameterComponent },
       { path: 'orders', component: OrdersComponent },
+      { path: 'stock-movement', component: StockMovementsComponent },
       { path: 'orders/:id', component: OrderDetailsComponent },
       { path: 'sales', component: SalesComponent },
     ]
@@ -75,7 +77,7 @@ const homeRoutes: Routes = [
       {path: 'marketplace',component: MarketplaceComponent},
       { path: 'marketplace/product/:id', component: ProductDetailComponent },
       { path: 'cart', component: CartComponent },
-      { path: 'orders', component: ClientOrdersComponent }
+      { path: 'orders', component: ClientOrdersComponent },
     ]
   },
 ]

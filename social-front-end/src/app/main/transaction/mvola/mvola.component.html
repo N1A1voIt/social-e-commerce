@@ -24,6 +24,12 @@
       [formControl]="$any(mvolaForm.get('phoneNumber'))"
       type="text">
     </app-basic-input>
+    <app-basic-input
+      class="w-full"
+      [label]="'Password'"
+      placeholder="****"
+      type="password">
+    </app-basic-input>
     <app-beautiful-button  [text]="'Pay'" type="submit"></app-beautiful-button>
   </form>
 </app-form-container>

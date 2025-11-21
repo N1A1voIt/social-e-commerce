@@ -68,7 +68,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             if (tempLink.getAmount() > Double.parseDouble(paymentDTO.getAmount())) {
                 throw new Exception("Amount is too low.");
             }
-
+            if ( Double.parseDouble(paymentDTO.getAmount()) < tempLink.getAmount() * 1.03 ) throw new Exception("Amount is too low. you have to pay:"+tempLink.getAmount() * 1.03+" Ariary");
             ManagedPagesNumber managedPagesNumber = new ManagedPagesNumber();
             if (orderParent.getIdManagedPages() != null) managedPagesNumber = managedPagesNumberRepository.findByIdMp(orderParent.getIdManagedPages().longValue());
             SellerPhoneNumber sellerPhoneNumber = new SellerPhoneNumber();
@@ -85,7 +85,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             orderParentRepository.save(orderParent);
             moveStock(orderParent);
             tempLinkRepository.save(tempLink);
-            Sales sales = transformOrderToSale(paymentDTO,orderParent, orderChildRepository.findByIdOrderM(orderParent.getIdOrderM().longValue()));
+            Sales sales = transformOrderToSale(paymentDTO,orderParent, orderChildRepository.findByIdOrderM(orderParent.getIdOrderM().longValue()),tempLink);
             return paymentResponse;
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +130,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
     }
 
     @Transactional
-    public Sales transformOrderToSale(PaymentDTO paymentDTO,OrderParent orderParent, List<OrderChild> orderChildren) throws Exception {
+    public Sales transformOrderToSale(PaymentDTO paymentDTO,OrderParent orderParent, List<OrderChild> orderChildren,TempLink tempLink) throws Exception {
         if (orderParent == null) {
             throw new Exception("OrderParent cannot be null");
         }
@@ -198,7 +198,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
         sales.setStatus(1); // Partially paid
         salesRepository.save(sales);
         Payments payments = new Payments();
-        payments.setAmount(sales.getAmount().doubleValue());
+        payments.setAmount(sales.getPaidAmount() - (tempLink.getAmount() * 0.03));
         payments.setCreatedAt(LocalDateTime.now());
         payments.setIdSales(sales.getIdSale().longValue());
         payments.setIdPm(1L);
@@ -245,7 +245,8 @@ public class OrderPaymentServiceImpl implements OrderPaymentService{
             sales1.setStatus(11); // Fully paid
             salesRepository.save(sales1);
             Payments payments = new Payments();
-            payments.setAmount(Double.parseDouble(paymentDTO.getAmount()));
+            payments.setAmount(Double.parseDouble(paymentDTO.getAmount())- (tempLink.getAmount() * 0.03));
+
             payments.setCreatedAt(LocalDateTime.now());
             payments.setIdSales(sales1.getIdSale().longValue());
             payments.setIdPm(1L);

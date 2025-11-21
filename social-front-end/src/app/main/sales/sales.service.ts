@@ -55,4 +55,61 @@ export class SalesService {
     formData.append('file', file);
     return this.http.post<ApiResponse>(`${javaHost}/api/sales/import`, formData, { headers: header as any });
   }
+  exportCsv(filters?: any): Observable<Blob> { 
+    const header = { 
+      "Authorization": `${localStorage.getItem("token")?.replace("Bearer ", "")}` 
+    }; 
+    let url = `${javaHost}/api/sales/export/csv`; 
+    if (filters) { 
+      const params = new URLSearchParams(); 
+      if (filters.status !== undefined && filters.status !== null) { 
+        params.append("status", filters.status.toString()); 
+      } 
+      if (filters.fromName) { 
+        params.append("fromName", filters.fromName); 
+      } 
+      if (filters.orderId) { 
+        params.append("orderId", filters.orderId); 
+      } 
+      if (filters.startDate) { 
+        params.append("startDate", filters.startDate); 
+      } 
+      if (filters.endDate) { 
+        params.append("endDate", filters.endDate); 
+      } 
+      if (params.toString()) { 
+        url += "?" + params.toString(); 
+      } 
+    } 
+    return this.http.get(url, { headers: header as any, responseType: "blob" }); 
+  } 
+
+  exportPdf(filters?: any): Observable<Blob> { 
+    const header = { 
+      "Authorization": `${localStorage.getItem("token")?.replace("Bearer ", "")}` 
+    }; 
+    let url = `${javaHost}/api/sales/export/pdf`; 
+    if (filters) { 
+      const params = new URLSearchParams(); 
+      if (filters.status !== undefined && filters.status !== null) { 
+        params.append("status", filters.status.toString()); 
+      } 
+      if (filters.fromName) { 
+        params.append("fromName", filters.fromName); 
+      } 
+      if (filters.orderId) { 
+        params.append("orderId", filters.orderId); 
+      } 
+      if (filters.startDate) { 
+        params.append("startDate", filters.startDate); 
+      } 
+      if (filters.endDate) { 
+        params.append("endDate", filters.endDate); 
+      } 
+      if (params.toString()) { 
+        url += "?" + params.toString(); 
+      } 
+    } 
+    return this.http.get(url, { headers: header as any, responseType: "blob" }); 
+  }
 }

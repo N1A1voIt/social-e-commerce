@@ -85,11 +85,22 @@ export class FeedComponent implements OnInit {
     if (!post.childPosts) return [];
 
     const allMedias: Media[] = [];
+    const seenUrls = new Set<string>();
+    
     post.childPosts.forEach(childPost => {
       if (childPost.medias) {
-        allMedias.push(...childPost.medias.filter(media => media.mediaUrl !== null));
+        childPost.medias
+          .filter(media => media.mediaUrl !== null)
+          .forEach(media => {
+            // Only add media if we haven't seen this URL before
+            if (media.mediaUrl && !seenUrls.has(media.mediaUrl)) {
+              seenUrls.add(media.mediaUrl);
+              allMedias.push(media);
+            }
+          });
       }
     });
+    
     return allMedias;
   }
 

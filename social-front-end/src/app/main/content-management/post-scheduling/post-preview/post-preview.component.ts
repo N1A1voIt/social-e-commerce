@@ -24,6 +24,7 @@ interface PlatformPreviewItem {
 export class PostPreviewComponent {
   @Input() visible = false;
   @Input() data: PlatformPreviewItem[] = [];
+  @Input() isPublishing = false;
   @Output() close = new EventEmitter<void>();
   @Output() publish = new EventEmitter<{ scheduledAt?: string, data?: PlatformPreviewItem[] }>();
 
@@ -54,6 +55,12 @@ export class PostPreviewComponent {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
+  }
+
+  removeMediaDetail(platformIndex: number, mediaIndex: number) {
+    if (this.data[platformIndex] && this.data[platformIndex].mediaDetails) {
+      this.data[platformIndex].mediaDetails.splice(mediaIndex, 1);
+    }
   }
 
   getMinDateTime(): string {

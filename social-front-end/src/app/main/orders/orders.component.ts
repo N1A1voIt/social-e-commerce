@@ -48,6 +48,20 @@ export class OrdersComponent implements OnInit{
   openModal: boolean = false;
   selectedDeliveryMode: string | null = null; // 'pickup' or 'delivery'
   applicants:DeliveryApplicant[] = [];
+
+  // Delivery selection mode
+  deliverySelectionMode: 'manual' | 'ai-assisted' | null = null;
+  showDeliveryModeSelection: boolean = false;
+  selectedDeliveryId: number | null = null;
+  isRequestingAiAssistance: boolean = false;
+
+  // Form loading states
+  isSubmittingDeliveryMode: boolean = false;
+  isSubmittingBillingLink: boolean = false;
+  isSubmittingMission: boolean = false;
+  isSubmittingPayment: boolean = false;
+  isSubmittingDriver: boolean = false;
+
   // Shipping points related properties
   shippingPoints: ShippingPoint[] = [];
   shippingPointOptions: SelectOption[] = [];
@@ -177,6 +191,7 @@ export class OrdersComponent implements OnInit{
         return;
       }
 
+      this.isSubmittingDeliveryMode = true;
       this.orderService.setCustomerPickup(this.activeOrder.idOrderM).subscribe({
         next: (response: ApiResponse) => {
           console.log('Customer pickup set:', response);
@@ -185,6 +200,7 @@ export class OrdersComponent implements OnInit{
             summary: 'Success',
             detail: 'Order set to customer pickup mode. Waiting for customer to collect.'
           });
+          this.isSubmittingDeliveryMode = false;
           this.openModal = false;
           this.fetchOrders();
         },
@@ -195,6 +211,7 @@ export class OrdersComponent implements OnInit{
             summary: 'Error',
             detail: err.error?.errors?.[0]?.message || 'Failed to set customer pickup mode'
           });
+          this.isSubmittingDeliveryMode = false;
         }
       });
     } else if (this.selectedDeliveryMode === 'delivery') {
@@ -204,14 +221,16 @@ export class OrdersComponent implements OnInit{
   }
 
   sendBillingAndPaymentLink() {
-
+    this.isSubmittingBillingLink = true;
     this.orderService.sendBillingAndPaymentLink(this.activeOrder!).subscribe({
         next: (response: ApiResponse) => {
           console.log(response);
+          this.isSubmittingBillingLink = false;
           this.openModal = false;
           this.fetchOrders();
-        },error(err:ApiResponse) {
+        },error: (err:ApiResponse) => {
           alert(err.errors[0].message);
+          this.isSubmittingBillingLink = false;
           // .messagingService.add({severity: 'error', summary: 'Error', detail: err.errors[0].message});
         }
     });
@@ -359,6 +378,7 @@ export class OrdersComponent implements OnInit{
       });
       return;
     }
+    this.isSubmittingMission = true;
     let orderMission:DeliveryMission = {
       orderParent:this.activeOrder!,
       shippingPointId:this.selectedShippingPoint
@@ -366,10 +386,12 @@ export class OrdersComponent implements OnInit{
     this.orderService.sendMission(orderMission).subscribe({
       next: (response:ApiResponse) => {
         console.log(response);
+        this.isSubmittingMission = false;
         this.openModal = false;
         this.fetchOrders();
-      },error(err:ApiResponse) {
+      },error: (err:ApiResponse) => {
         alert(err.errors[0].message);
+        this.isSubmittingMission = false;
       }
     });
     // this.orderService.sendMission(
@@ -383,8 +405,6 @@ export class OrdersComponent implements OnInit{
       summary: 'Success',
       detail: 'Mission sent to delivery persons'
     });
-
-    this.openModal = false;
   }
 
   confirmPayment() {
@@ -430,6 +450,7 @@ export class OrdersComponent implements OnInit{
       return;
     }
 
+    this.isSubmittingPayment = true;
     this.orderService.sendFullPaymentLink(this.activeOrder).subscribe({
       next: (response: ApiResponse) => {
         console.log('Full payment link sent:', response);
@@ -438,6 +459,7 @@ export class OrdersComponent implements OnInit{
           summary: 'Success',
           detail: 'Payment link sent to customer via MVola'
         });
+        this.isSubmittingPayment = false;
         this.openModal = false;
         this.fetchOrders();
       },
@@ -448,6 +470,7 @@ export class OrdersComponent implements OnInit{
           summary: 'Error',
           detail: err.error?.errors?.[0]?.message || 'Failed to send payment link'
         });
+        this.isSubmittingPayment = false;
       }
     });
   }
@@ -458,6 +481,7 @@ export class OrdersComponent implements OnInit{
       return;
     }
 
+    this.isSubmittingPayment = true;
     // TODO: Customize this service call based on your requirements
     this.orderService.processCashPayment(this.activeOrder.idOrderM).subscribe({
       next: (response: ApiResponse) => {
@@ -467,6 +491,7 @@ export class OrdersComponent implements OnInit{
           summary: 'Success',
           detail: 'Cash payment confirmed'
         });
+        this.isSubmittingPayment = false;
         this.openModal = false;
         this.fetchOrders();
       },
@@ -477,6 +502,7 @@ export class OrdersComponent implements OnInit{
           summary: 'Error',
           detail: err.error?.errors?.[0]?.message || 'Failed to process cash payment'
         });
+        this.isSubmittingPayment = false;
       }
     });
   }
@@ -625,19 +651,128 @@ export class OrdersComponent implements OnInit{
       await this.orderService.generateOrderPdf(order);
    }
    viewApplicants(order: OrderParent) {
-
      if (order.idOrderM != null) {
        this.orderService.fetchApplicants(order.idOrderM).subscribe({
          next: (response: ApiResponse) => {
            console.log(response);
-          this.showApplicants = true;
-          this.applicants = response.data;
+           this.applicants = response.data;
+           this.activeOrder = order;
+           // Get deliveryId from first applicant if available
+           if (this.applicants.length > 0 && this.applicants[0].idDelivery) {
+             this.selectedDeliveryId = this.applicants[0].idDelivery;
+           }
+           // Show mode selection dialog
+           this.showDeliveryModeSelection = true;
          }, error: (err: ApiResponse) => {
           alert(err);
          }
        });
      }
    }
+
+   selectDeliverySelectionMode(mode: 'manual' | 'ai-assisted') {
+     this.deliverySelectionMode = mode;
+     this.showDeliveryModeSelection = false;
+
+     if (mode === 'manual') {
+       // Show normal applicants list
+       this.showApplicants = true;
+     } else if (mode === 'ai-assisted') {
+       // Request AI assistance
+       this.requestAiAssistance();
+     }
+   }
+
+   requestAiAssistance() {
+     if (!this.selectedDeliveryId || this.applicants.length === 0) {
+       this.messagingService.add({
+         severity: 'error',
+         summary: 'Error',
+         detail: 'No delivery applicants available'
+       });
+       return;
+     }
+
+     this.isRequestingAiAssistance = true;
+
+     // Prepare firebaseUIDs array
+     const firebaseUIDs = this.applicants
+       .filter(applicant => applicant.firebaseUid)
+       .map(applicant => ({ uid: applicant.firebaseUid! }));
+
+     if (firebaseUIDs.length === 0) {
+       this.messagingService.add({
+         severity: 'error',
+         summary: 'Error',
+         detail: 'No applicants with Firebase UID found'
+       });
+       this.isRequestingAiAssistance = false;
+       return;
+     }
+
+     const requestPayload = {
+       deliveryId: this.selectedDeliveryId,
+       firebaseUIDs: firebaseUIDs
+     };
+
+     this.orderService.requestAiDeliveryAssistance(requestPayload).subscribe({
+       next: (response: ApiResponse) => {
+         console.log('AI assistance request accepted:', response);
+
+         this.messagingService.add({
+           severity: 'info',
+           summary: 'AI Processing',
+           detail: 'AI is analyzing applicants. You will be notified when a driver is selected.',
+           life: 5000
+         });
+
+         this.isRequestingAiAssistance = false;
+
+         // Close the selection mode dialog
+         this.showDeliveryModeSelection = false;
+         this.deliverySelectionMode = null;
+
+         // Start polling for assignment completion (optional - for UI feedback)
+         this.startPollingForAssignment();
+       },
+       error: (err: any) => {
+         console.error('AI assistance error:', err);
+         this.messagingService.add({
+           severity: 'error',
+           summary: 'AI Assistance Failed',
+           detail: err.error?.errors?.[0]?.message || 'Failed to request AI assistance'
+         });
+         this.isRequestingAiAssistance = false;
+       }
+     });
+   }
+
+   startPollingForAssignment() {
+     // Poll the orders list every 3 seconds to see if assignment is complete
+     const pollInterval = setInterval(() => {
+       this.fetchOrders();
+
+       if (this.activeOrder && this.activeOrder.idOrderM) {
+         const updatedOrder = this.orders.find(o => o.idOrderM === this.activeOrder?.idOrderM);
+         if (updatedOrder && updatedOrder.dstatus !== 25) {
+           // Status changed - assignment complete
+           clearInterval(pollInterval);
+           this.messagingService.add({
+             severity: 'success',
+             summary: 'Driver Assigned',
+             detail: 'AI has successfully assigned a driver to this delivery',
+             life: 5000
+           });
+         }
+       }
+     }, 3000);
+
+     // Stop polling after 30 seconds
+     setTimeout(() => {
+       clearInterval(pollInterval);
+     }, 30000);
+   }
+
   getStatusLabel(status?: number): string {
     if (status === undefined) return 'Unknown';
 
@@ -655,6 +790,25 @@ export class OrdersComponent implements OnInit{
     };
 
     return statusMap[status] || 'Unknown';
+  }
+
+  getStatusColor(status?: number): { bg: string, text: string, icon: string } {
+    if (status === undefined) return { bg: 'bg-gray-100', text: 'text-gray-800', icon: 'pi-question' };
+
+    const statusColorMap: { [key: number]: { bg: string, text: string, icon: string } } = {
+      1: { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'pi-plus' },           // Created - Blue
+      5: { bg: 'bg-orange-100', text: 'text-orange-800', icon: 'pi-credit-card' }, // Waiting for payment - Yellow
+      11: { bg: 'bg-green-100', text: 'text-green-800', icon: 'pi-check' },       // Ordered - Green
+      21: { bg: 'bg-red-100', text: 'text-red-800', icon: 'pi-times' },           // Cancelled - Red
+      25: { bg: 'bg-orange-100', text: 'text-orange-800', icon: 'pi-clock' },     // Waiting for deliverer - Orange
+      26: { bg: 'bg-purple-100', text: 'text-purple-800', icon: 'pi-user' },     // Waiting for customer - Purple
+      31: { bg: 'bg-indigo-100', text: 'text-indigo-800', icon: 'pi-truck' },    // In delivery - Indigo
+      41: { bg: 'bg-teal-100', text: 'text-teal-800', icon: 'pi-home' },         // Delivered - Teal
+      45: { bg: 'bg-amber-100', text: 'text-amber-800', icon: 'pi-dollar' },     // Asking for full payment - Amber
+      51: { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: 'pi-check-circle' }, // Completed - Emerald
+    };
+
+    return statusColorMap[status] || { bg: 'bg-gray-100', text: 'text-gray-800', icon: 'pi-question' };
   }
 
   getStatusSeverity(status?: number | string): "success" | "info" | "danger" | "secondary" | "contrast" | "warning" | undefined {
@@ -695,12 +849,15 @@ export class OrdersComponent implements OnInit{
     return this.loadingChildren[order.idOrderM.toString()] || false;
   }
   assignDriver(applicant:DeliveryApplicant) {
+    this.isSubmittingDriver = true;
     this.orderService.assignDriver(applicant).subscribe({
       next: (response: ApiResponse) => {
+        this.isSubmittingDriver = false;
         this.showApplicants = false;
         this.messagingService.add({ severity: 'info', summary: 'Deliverer assigned', detail: `You have assigned ${applicant.driverName} to this order`, life: 3000 })
       },
       error: (err: any) => {
+        this.isSubmittingDriver = false;
         this.messagingService.add({ severity: 'error', summary: 'An error has occured', detail: `${err.error.errors[0].message}`, life: 3000 })
       },
     })

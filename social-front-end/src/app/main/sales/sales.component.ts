@@ -42,13 +42,16 @@ export class SalesComponent implements OnInit {
 
   // CSV import state
   importLoading = false;
+  
+  // CSV export state
+  exportLoading = false;
 
   // Filter properties
   filterStatus: number | null = null;
   filterFromName: string = '';
+  filterOrderId: string = '';
   filterStartDate: Date | null = null;
   filterEndDate: Date | null = null;
-  filterOrderId: string = '';
 
   statusOptions = [
     { label: 'All', value: null },
@@ -243,6 +246,179 @@ export class SalesComponent implements OnInit {
     event?.stopPropagation();
     // Navigate to order details page
     this.router.navigate(['/basic/orders', orderId]);
+  }
+
+  exportToCsv() {
+    this.exportLoading = true;
+    
+    // Prepare query parameters for export
+    const filters: any = {};
+
+    
+    // Add filters if they exist
+    if (this.filterStatus !== null) {
+      filters.status = this.filterStatus;
+    }
+    if (this.filterFromName?.trim()) {
+      filters.fromName = this.filterFromName.trim();
+    }
+    if (this.filterOrderId?.trim()) {
+      filters.orderId = this.filterOrderId.trim();
+    }
+    if (this.filterStartDate) {
+      const startDate = new Date(this.filterStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      filters.startDate = this.formatDateToISO(startDate);
+    }
+    if (this.filterEndDate) {
+      const endDate = new Date(this.filterEndDate);
+      endDate.setHours(23, 59, 59, 999);
+      filters.endDate = this.formatDateToISO(endDate);
+    }
+    
+    console.log('Export filters:', filters);
+    console.log('Current sales in table:', this.sales.length);
+    
+    // If no filters are applied, try to export what's currently displayed
+    if (Object.keys(filters).length === 0 && this.sales.length > 0) {
+      console.log('No filters applied, exporting current table data');
+      this.generateCsv(this.sales);
+      this.exportLoading = false;
+      return;
+    }
+    
+    // Try using backend CSV export first, fallback to frontend generation
+    this.salesService.exportCsv(filters).subscribe({
+      next: (blob: Blob) => {
+        // Create download link for the CSV blob
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `sales-export-${new Date().toISOString().split('T')[0]}.csv`;
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.messagingService.add({
+          severity: 'success',
+          summary: 'Export Complete',
+          detail: 'Sales data exported successfully'
+        });
+        this.exportLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Backend CSV export failed, trying frontend generation:', error);
+        // Fallback to frontend CSV generation
+        this.fallbackCsvExport(filters);
+      }
+    });
+  }
+  
+  fallbackCsvExport(filters: any) {
+    console.log('Using fallback CSV export with filters:', filters);
+    this.salesService.fetchAllSales(0, 99999, undefined, filters).subscribe({
+      next: (response: any) => {
+        console.log('Fallback export response:', response);
+        if (response && response.status === 200) {
+          const salesData = response.data?.sales || [];
+          console.log('Sales data for export:', salesData.length, 'records');
+          this.generateCsv(salesData);
+        } else {
+          this.messagingService.add({
+            severity: 'error',
+            summary: 'Export Failed',
+            detail: 'Unable to export sales data'
+          });
+        }
+        this.exportLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error exporting sales:', error);
+        this.messagingService.add({
+          severity: 'error',
+          summary: 'Export Failed',
+          detail: 'An error occurred while exporting sales data'
+        });
+        this.exportLoading = false;
+      }
+    });
+  }
+  
+  generateCsv(salesData: any[]) {
+    if (!salesData || salesData.length === 0) {
+      this.messagingService.add({
+        severity: 'warn',
+        summary: 'No Data',
+        detail: 'No sales data available to export'
+      });
+      return;
+    }
+    
+    // CSV headers
+    const headers = [
+      'Sale ID',
+      'Description', 
+      'From Name',
+      'From Number',
+      'Amount (Ar)',
+      'Paid Amount (Ar)',
+      'Status',
+      'Order ID',
+      'Date',
+      'Products'
+    ];
+    
+    // Convert data to CSV format
+    const csvData = salesData.map(sale => {
+      const products = sale.details?.map((detail: any) => 
+        `${detail.productName || detail.label || 'N/A'} (${detail.variantName || 'N/A'}) x${detail.quantity || detail.qty || 0}`
+      ).join('; ') || 'No products';
+      
+      return [
+        sale.idSale || '',
+        (sale.description || '').replace(/"/g, '""'), // Escape quotes
+        (sale.fromName || '').replace(/"/g, '""'),
+        sale.fromNumber || '',
+        sale.amount || 0,
+        sale.paidAmount || 0,
+        sale.status === 1 ? 'Partially Paid' : 'Paid',
+        sale.idOrderM || '',
+        sale.effectuatedAt ? new Date(sale.effectuatedAt).toLocaleString() : '',
+        products.replace(/"/g, '""')
+      ];
+    });
+    
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => 
+        row.map(cell => 
+          typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n')) 
+            ? `"${cell}"` 
+            : cell
+        ).join(',')
+      )
+    ].join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `sales-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    this.messagingService.add({
+      severity: 'success',
+      summary: 'Export Complete',
+      detail: `Exported ${salesData.length} sales records to CSV`
+    });
   }
 
   onImportCsvClick() {

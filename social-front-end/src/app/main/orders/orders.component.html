@@ -106,8 +106,12 @@
         </div>
         <div class="flex-1 min-w-0">
           <div class="text-sm text-gray mb-1">Status</div>
-          <div class="text-md truncate" title="{{order.dstatus}}">
-            {{ getStatusLabel(order.dstatus) }}
+          <div class="flex items-center gap-2">
+            <span [ngClass]="getStatusColor(order.dstatus)"
+                  class="status-badge inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border {{getStatusColor(order.dstatus).bg}}">
+              <i [ngClass]="'pi ' + getStatusColor(order.dstatus).icon" class="text-xs"></i>
+              {{ getStatusLabel(order.dstatus) }}
+            </span>
           </div>
         </div>
         <div class="flex-1 min-w-0">
@@ -214,10 +218,12 @@
               </div>
               <div class="flex flex-col gap-1">
                 <span class="text-md text-gray">Status</span>
-                <div class="flex flex-row gap-2 items-center">
-                  <div class="flex flex-col gap-1">
-                    <span class="text-white bg-black text-lg border-black border px-3 rounded-full">{{ getStatusLabel(order.dstatus) }}</span>
-                  </div>
+                <div class="flex items-center gap-2 mt-1">
+                  <span [ngClass]="getStatusColor(order.dstatus)"
+                        class="status-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-lg font-medium border shadow-sm">
+                    <i [ngClass]="'pi ' + getStatusColor(order.dstatus).icon" class="text-sm"></i>
+                    {{ getStatusLabel(order.dstatus) }}
+                  </span>
                 </div>
               </div>
               <div class="flex flex-col gap-1">
@@ -457,9 +463,14 @@
 
     <div class="mt-4">
       <app-beautiful-button
-        [text]="'Continue'"
+        [text]="isSubmittingDeliveryMode ? 'Processing...' : 'Continue'"
+        [disabled]="isSubmittingDeliveryMode"
         (click)="selectDeliveryMode()">
       </app-beautiful-button>
+      <div *ngIf="isSubmittingDeliveryMode" class="flex items-center justify-center mt-2 text-blue-600">
+        <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
+        <span>Setting delivery mode...</span>
+      </div>
     </div>
   </div>
 </app-form-container>
@@ -483,7 +494,15 @@
     </div>
   </div>
   <div>
-    <app-beautiful-button [text]="'Send billing and payment link'" (click)="sendBillingAndPaymentLink()"></app-beautiful-button>
+    <app-beautiful-button
+      [text]="isSubmittingBillingLink ? 'Sending...' : 'Send billing and payment link'"
+      [disabled]="isSubmittingBillingLink"
+      (click)="sendBillingAndPaymentLink()">
+    </app-beautiful-button>
+    <div *ngIf="isSubmittingBillingLink" class="flex items-center justify-center mt-2 text-blue-600">
+      <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
+      <span>Sending billing link...</span>
+    </div>
   </div>
 </app-form-container>
 <app-form-container (closeForm)="openModal=false" label="Make a call for tenders" [isVisible]="step=='2' && openModal">
@@ -529,9 +548,14 @@
 
     <div>
       <app-beautiful-button
-        [text]="'Send mission to delivery persons'"
+        [text]="isSubmittingMission ? 'Sending...' : 'Send mission to delivery persons'"
+        [disabled]="isSubmittingMission"
         (click)="sendMission()">
       </app-beautiful-button>
+      <div *ngIf="isSubmittingMission" class="flex items-center justify-center mt-2 text-blue-600">
+        <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
+        <span>Sending mission to drivers...</span>
+      </div>
     </div>
   </div>
 
@@ -600,9 +624,14 @@
 
     <div class="mt-4">
       <app-beautiful-button
-        [text]="'Confirm Payment'"
+        [text]="isSubmittingPayment ? 'Processing...' : 'Confirm Payment'"
+        [disabled]="isSubmittingPayment"
         (click)="confirmPayment()">
       </app-beautiful-button>
+      <div *ngIf="isSubmittingPayment" class="flex items-center justify-center mt-2 text-blue-600">
+        <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
+        <span>Confirming payment...</span>
+      </div>
     </div>
   </div>
 </app-form-container>
@@ -635,7 +664,63 @@
     </div>
   </div>
   <div class="mt-4">
-    <app-beautiful-button [text]="'Send Full Payment Link via MVola'" (click)="sendFullPaymentLink()"></app-beautiful-button>
+    <app-beautiful-button
+      [text]="isSubmittingPayment ? 'Sending...' : 'Send Full Payment Link via MVola'"
+      [disabled]="isSubmittingPayment"
+      (click)="sendFullPaymentLink()">
+    </app-beautiful-button>
+    <div *ngIf="isSubmittingPayment" class="flex items-center justify-center mt-2 text-blue-600">
+      <i class="pi pi-spin pi-spinner text-xl mr-2"></i>
+      <span>Sending payment link...</span>
+    </div>
+  </div>
+</app-form-container>
+
+<!-- Delivery Selection Mode Modal -->
+<app-form-container (closeForm)="showDeliveryModeSelection=false" [label]="'Select Delivery Assignment Method'" [isVisible]="showDeliveryModeSelection">
+  <div class="flex flex-col gap-6 w-full p-4">
+    <p class="text-center text-gray-600">Choose how you want to assign a delivery driver for this order:</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Manual Selection Option -->
+      <div
+        class="border-2 border-gray-300 rounded-xl p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all flex flex-col items-center gap-4"
+        [ngClass]="{'border-blue-500 bg-blue-50': deliverySelectionMode === 'manual'}"
+        (click)="selectDeliverySelectionMode('manual')">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="pi pi-user text-3xl text-blue-600"></i>
+        </div>
+        <h3 class="text-xl font-bold text-center">Select Manually</h3>
+        <p class="text-sm text-gray-600 text-center">
+          Review the list of available drivers and choose one yourself
+        </p>
+        <button class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+          Choose This Method
+        </button>
+      </div>
+
+      <!-- AI Assistance Option -->
+      <div
+        class="border-2 border-gray-300 rounded-xl p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all flex flex-col items-center gap-4"
+        [ngClass]="{'border-purple-500 bg-purple-50': deliverySelectionMode === 'ai-assisted'}"
+        (click)="selectDeliverySelectionMode('ai-assisted')">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+          <i class="pi pi-sparkles text-3xl text-purple-600"></i>
+        </div>
+        <h3 class="text-xl font-bold text-center">AI Assistance</h3>
+        <p class="text-sm text-gray-600 text-center">
+          Let AI analyze and select the best driver for this delivery
+        </p>
+        <button class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+          Use AI Selection
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="isRequestingAiAssistance" class="text-center py-4">
+      <i class="pi pi-spin pi-spinner text-3xl text-purple-600"></i>
+      <p class="text-gray-600 mt-2">AI is analyzing applicants...</p>
+    </div>
   </div>
 </app-form-container>
 
@@ -657,7 +742,11 @@
     </div>
     <div>
       <div class="">
-              <app-beautiful-button [text]="'Assigner'" (click)="assignDriver(applicant)"></app-beautiful-button>
+        <app-beautiful-button
+          [text]="isSubmittingDriver ? 'Assigning...' : 'Assign'"
+          [disabled]="isSubmittingDriver"
+          (click)="assignDriver(applicant)">
+        </app-beautiful-button>
       </div>
     </div>
   </div>

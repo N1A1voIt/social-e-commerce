@@ -1,5 +1,14 @@
 <div class="w-full h-full bg-white p-6 rounded-3xl overflow-y-scroll hide-scrollbar">
-  <app-product-list (navigateToVariants)="navigateToVariants($event)" (addProductClicked)="showForm = true" (editProductClicked)="onEditProduct($event)" [productsList]="products"></app-product-list>
+  <!-- Debug Info -->
+  <div class="mb-4 p-2 bg-gray-100 rounded text-xs" *ngIf="showEditProductForm || showEditOptionsForm">
+    <div>Edit Product Form: {{showEditProductForm}}</div>
+    <div>Edit Options Form: {{showEditOptionsForm}}</div>
+    <div>Editing Product: {{editingProduct?.name || 'None'}}</div>
+  </div>
+
+  <app-product-list (navigateToVariants)="navigateToVariants($event)" (addProductClicked)="showForm = true" (editProductClicked)="onEditProduct($event)" (editOptionsClicked)="onEditOptions($event)" [productsList]="products"></app-product-list>
+
+  <!-- Regular Add/Edit Product Form -->
   <app-form-container *ngIf="showForm" [isVisible]="showForm" (closeForm)="closeFormAndReset()">
     <!-- Step 1: Product Details -->
     <form  *ngIf="currentStep === 1" [formGroup]="step1Form" (ngSubmit)="saveStep1()" class="space-y-4 w-full flex flex-col gap-1">
@@ -32,9 +41,9 @@
         class="w-full"
         label="SKU Prefix"
         placeholder="SKU"
-        [formControl]="$any(step1Form.get('sku_prefix'))"
+        [formControl]="$any(step1Form.get('skuPrefix'))"
         type="text"
-        [error]="step1Form.get('sku_prefix')?.invalid && step1Form.get('sku_prefix')?.touched">
+        [error]="step1Form.get('skuPrefix')?.invalid && step1Form.get('skuPrefix')?.touched">
       </app-basic-input>
 
       <div class="w-full">
@@ -246,4 +255,24 @@
       </div>
     </div>
   </app-form-container>
+
+  <!-- Separate Edit Product Info Form -->
+  <app-form-container *ngIf="showEditProductForm && editingProduct" [isVisible]="showEditProductForm" (closeForm)="closeEditProductForm()">
+    <app-edit-product-info
+      [product]="editingProduct"
+      (formClosed)="closeEditProductForm()"
+      (productUpdated)="onProductUpdated($event)">
+    </app-edit-product-info>
+  </app-form-container>
+
+  <!-- Separate Edit Options Form -->
+  <app-form-container *ngIf="showEditOptionsForm && editingProduct" [isVisible]="showEditOptionsForm" (closeForm)="closeEditOptionsForm()">
+    <app-edit-product-options
+      [product]="editingProduct"
+      (formClosed)="closeEditOptionsForm()"
+      (optionsUpdated)="onOptionsUpdated($event)">
+    </app-edit-product-options>
+  </app-form-container>
+<!--  <app-stock-movements></app-stock-movements>-->
 </div>
+

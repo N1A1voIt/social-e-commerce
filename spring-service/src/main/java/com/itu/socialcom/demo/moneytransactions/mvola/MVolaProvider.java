@@ -204,7 +204,8 @@ public class MVolaProvider extends PaymentProvider {
         reader.close();
 
         String responseJson = sb.toString();
-        System.out.println(responseJson);
+        System.out.println("Resp: "+responseJson);
+        if(responseJson.isEmpty()) return new PaymentResponse();
         JSONObject jsonResponse = new JSONObject(responseJson);
 
         PaymentResponse paymentResponse = new PaymentResponse();

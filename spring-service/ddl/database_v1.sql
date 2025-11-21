@@ -829,7 +829,9 @@ CREATE VIEW v_product_stock_cpl AS
                 WHEN COALESCE(d_product_number,0) > 0 AND COALESCE(d_product_number,0) < 10 THEN 'Low Stock' END as stock_status,p.sku_prefix
         FROM products_v2 p
         LEFT JOIN stock_details s ON p.id_product = s.id_product
-        JOIN category c on c.id_category = p.id_category;
+        JOIN category c on c.id_category = p.id_category WHERE p.state = true;
+
+DROP VIEW v_product_stock_cpl;
 -- CREATE VIEW v_variant_cpl AS
 
 CREATE VIEW v_variant_cpl AS
@@ -848,6 +850,71 @@ CREATE VIEW v_variant_cpl AS
                     WHEN COALESCE(d_variant_number,0) > 0 AND COALESCE(d_variant_number,0) < 10 THEN 'Low Stock' END as stock_status
             FROM variants_v2 v LEFT JOIN stock_details ON v.id_variant = stock_details.id_variant;
 
+
+CREATE VIEW v_variant_cpl_agent AS
+WITH stock_details AS (
+    SELECT DISTINCT ON (id_variant)
+        id_variant,
+        d_variant_number
+    FROM stocks_child
+    ORDER BY id_variant, created_at DESC
+)
+SELECT
+    v.id_variant, v.title, v.price, v.created_at, v.updated_at, v.id_product,v.sku,p.sku_prefix,p.name,p.id_seller,c.val as category,c.id_category,p.media,
+    COALESCE(d_variant_number,0) as variant_number,
+    CASE WHEN COALESCE(d_variant_number,0) = 0 THEN 'Out of Stock'
+         WHEN COALESCE(d_variant_number,0) >= 10 THEN 'In Stock'
+         WHEN COALESCE(d_variant_number,0) > 0 AND COALESCE(d_variant_number,0) < 10 THEN 'Low Stock' END as stock_status
+FROM variants_v2 v LEFT JOIN stock_details ON v.id_variant = stock_details.id_variant JOIN products_v2 p on v.id_product = p.id_product JOIN category c on p.id_category = c.id_category;
+
+CREATE VIEW v_stock_movements AS
+SELECT 
+    sc.id_st_ch,
+    sc.action_at,
+    sc.input,
+    sc.output,
+    sc.price,
+    sc.d_product_number AS product_stock_after,
+    sc.d_variant_number AS variant_stock_after,
+    sc.created_at,
+    -- Product information
+    p.id_product,
+    p.name AS product_name,
+    p.sku_prefix,
+    p.media AS product_media,
+    p.id_seller,
+    -- Variant information
+    v.id_variant,
+    v.title AS variant_name,
+    v.sku AS variant_sku,
+    v.media_url AS variant_media,
+    -- Category information
+    c.id_category,
+    c.val AS category_name,
+    -- Stock movement information
+    sm.id_mv,
+    sm.description AS movement_description,
+    om.id_order_m,
+    om.d_customer_name,
+    om.d_status AS order_status,
+    -- Calculate movement type and amount
+    CASE 
+        WHEN sc.input > 0 AND sc.output = 0 THEN 'STOCK_IN'
+        WHEN sc.output > 0 AND sc.input = 0 THEN 'STOCK_OUT'
+        WHEN sc.input > 0 AND sc.output > 0 THEN 'ADJUSTMENT'
+        ELSE 'UNKNOWN'
+    END AS movement_type,
+    COALESCE(sc.input, 0) - COALESCE(sc.output, 0) AS net_movement
+FROM stocks_child sc
+JOIN products_v2 p ON sc.id_product = p.id_product
+JOIN variants_v2 v ON sc.id_variant = v.id_variant
+JOIN category c ON p.id_category = c.id_category
+JOIN stocks_v2 sm ON sc.id_mv = sm.id_mv
+LEFT JOIN order_mother om ON sm.id_order_m = om.id_order_m
+ORDER BY sc.action_at DESC, sc.created_at DESC;
+
+DROP VIEW v_variant_cpl;
+
 WITH recent_variants_retriever AS
 (
     SELECT id_variant, MAX(created_at) AS max_created_at
@@ -862,7 +929,7 @@ JOIN recent_variants_retriever AS sub ON sc.id_variant = sub.id_variant AND sc.c
 
 CREATE VIEW v_delivery_applicants AS
     SELECT
-        delivery_log.id_di,d.id_delivery,d.shipping_address,d.id_shp,d.d_status,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
+        delivery_log.id_di,d.id_delivery,d.shipping_address,d.id_shp,d.d_status,d.amount,d.distance,dd.id_dd,dd.name as driver_name,dd.phone_number as driver_phone,dd.firebase_uid,mp.id_mp,mp.page_title,s.id_seller,s.email,s.username
         FROM delivery_log
         JOIN delivery_v2 d on d.id_delivery = delivery_log.id_delivery
         JOIN delivery_driver_v2 dd on dd.id_dd = delivery_log.id_dd
@@ -1198,3 +1265,5 @@ INSERT INTO category (val, desc_) VALUES ('Religious & Spiritual', 'Religious bo
 INSERT INTO category (val, desc_) VALUES ('Party Supplies', 'Decorations, party favors, and event planning items');
 INSERT INTO category (val, desc_) VALUES ('Seasonal Items', 'Holiday decorations, seasonal products, and special occasion items');
 INSERT INTO category (val, desc_) VALUES ('Other', 'Miscellaneous items that don''t fit other categories');
+
+

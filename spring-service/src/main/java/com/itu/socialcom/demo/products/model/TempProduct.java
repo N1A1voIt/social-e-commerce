@@ -38,6 +38,6 @@ public class TempProduct {
     @Column(name = "state")
     private Boolean state;
 
-    @Column(name = "sku_prefix")
+    @Column(name = "sku_prefix", nullable = false)
     private String skuPrefix;
 }

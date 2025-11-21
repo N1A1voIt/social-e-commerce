@@ -57,6 +57,7 @@ export interface DeliveryApplicant {
   idSeller?: number;          // Integer -> number
   email?: string;
   username?: string;
+  firebaseUid?: string;
 }
 
 export interface RefundRequest {

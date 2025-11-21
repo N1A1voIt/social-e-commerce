@@ -76,6 +76,8 @@ public  class StepsCreationServiceImpl implements StepsCreationService{
         product.setPrice(tempProduct.getPrice());
         product.setIdCategory(tempProduct.getIdCategory());
         product.setIdSeller(tempProduct.getIdSeller());
+        System.out.println(tempProduct.getSkuPrefix());
+        product.setSkuPrefix(tempProduct.getSkuPrefix());
         return product;
     }
 }

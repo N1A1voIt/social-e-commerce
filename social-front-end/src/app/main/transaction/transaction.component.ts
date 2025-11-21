@@ -5,6 +5,7 @@ import {MvolaComponent} from "./mvola/mvola.component";
 import {TransactionService} from "./transaction.service";
 import {ActivatedRoute} from "@angular/router";
 import {TempLink} from "./transaction.type";
+import {FrenchNumberPipe} from "../../shared/french-number.pipe";
 
 @Component({
   selector: 'app-transaction',
@@ -14,7 +15,8 @@ import {TempLink} from "./transaction.type";
     NgForOf,
     NgIf,
     MvolaComponent,
-    CommonModule
+    CommonModule,
+    FrenchNumberPipe
   ],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.css'

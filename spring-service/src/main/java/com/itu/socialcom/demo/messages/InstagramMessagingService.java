@@ -82,6 +82,7 @@ public class InstagramMessagingService extends MessageService {
             throw new IllegalArgumentException("PotentialCustomerV2 not found for idPc=" + messageMother.getIdPc());
         }
 
+
         sendMessage(potentialCustomerV2.getIdentifierOnPlatform(), messageBody.getMessage(), managedPageCPL.getRefreshToken());
         return messageChild;
     }

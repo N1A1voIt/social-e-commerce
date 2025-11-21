@@ -10,13 +10,13 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.entity.ContentType;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -30,19 +30,20 @@ public class FacebookPostSaver implements SavePostService{
 
         HttpPost post = new HttpPost(url);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("access_token", pageAccessToken);
-        builder.addTextBody("message", message);
-        builder.addTextBody("url", imageUrl);
-        builder.addTextBody("published", "false");
+        ContentType utf8Text = ContentType.create("text/plain", "UTF-8");
+        builder.addTextBody("access_token", pageAccessToken, utf8Text);
+        builder.addTextBody("message", message, utf8Text);
+        builder.addTextBody("url", imageUrl, utf8Text);
+        builder.addTextBody("published", "false", utf8Text);
 
         post.setEntity(builder.build());
 
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post)) {
-            String json = EntityUtils.toString(response.getEntity());
+            String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             System.out.println(json);
             JSONObject obj = new JSONObject(json);
-            return obj.getString("id")+"__SEP__"+message;
+            return obj.getString("id")+"__SEP__"+message+"__SEP__"+imageUrl;
         }
     }
 
@@ -56,13 +57,14 @@ public class FacebookPostSaver implements SavePostService{
 
         HttpPost post = new HttpPost(url);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("access_token", pageAccessToken);
-        builder.addTextBody("message", message);
+        ContentType utf8Text = ContentType.create("text/plain", "UTF-8");
+        builder.addTextBody("access_token", pageAccessToken, utf8Text);
+        builder.addTextBody("message", message, utf8Text);
 
         for (int i = 0; i < mediaFbids.size(); i++) {
             JSONObject media = new JSONObject();
             media.put("media_fbid", mediaFbids.get(i).split("__SEP__")[0]);
-            builder.addTextBody(String.format("attached_media[%d]", i), media.toString());
+            builder.addTextBody(String.format("attached_media[%d]", i), media.toString(), utf8Text);
         }
 
         post.setEntity(builder.build());
@@ -70,7 +72,7 @@ public class FacebookPostSaver implements SavePostService{
         try (CloseableHttpClient client = HttpClients.createDefault();
             CloseableHttpResponse response = client.execute(post)) {
 
-            String json = EntityUtils.toString(response.getEntity());
+            String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             JSONObject obj = new JSONObject(json);
             String postId = obj.getString("id");
             String postUrl = "https://www.facebook.com/" + postId;
@@ -89,7 +91,7 @@ public class FacebookPostSaver implements SavePostService{
                 PostChild child = new PostChild();
                 child.setPostUrl(postUrl);
 
-                child.setMediaUrl("https://www.facebook.com/" + mediaFbid.split("__SEP__")[0]);
+                child.setMediaUrl(mediaFbid.split("__SEP__")[2]);
                 child.setPlatformIdentifier(mediaFbid.split("__SEP__")[0]);
                 child.setDescription(mediaFbid.split("__SEP__")[1]);
                 child.setType("photo");
@@ -112,22 +114,23 @@ public class FacebookPostSaver implements SavePostService{
 
         HttpPost post = new HttpPost(url);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("access_token", pageAccessToken);
-        builder.addTextBody("message", message);
-        builder.addTextBody("published", "false");
-        builder.addTextBody("scheduled_publish_time", String.valueOf(scheduledUnixTime));
+        ContentType utf8Text = ContentType.create("text/plain", "UTF-8");
+        builder.addTextBody("access_token", pageAccessToken, utf8Text);
+        builder.addTextBody("message", message, utf8Text);
+        builder.addTextBody("published", "false", utf8Text);
+        builder.addTextBody("scheduled_publish_time", String.valueOf(scheduledUnixTime), utf8Text);
 
         for (int i = 0; i < mediaFbids.size(); i++) {
             JSONObject media = new JSONObject();
             media.put("media_fbid", mediaFbids.get(i).split("__SEP__")[0]);
-            builder.addTextBody(String.format("attached_media[%d]", i), media.toString());
+            builder.addTextBody(String.format("attached_media[%d]", i), media.toString(), utf8Text);
         }
 
         post.setEntity(builder.build());
 
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post)) {
-            String json = EntityUtils.toString(response.getEntity());
+            String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             JSONObject obj = new JSONObject(json);
             String postId = obj.optString("id", null);
 

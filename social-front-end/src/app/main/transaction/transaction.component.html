@@ -4,7 +4,8 @@
     <p>Choose your preferred payment option to continue</p>
     <div *ngIf="tempLinkData && !isLoading" class="payment-amount-info">
       <p class="amount-label">Amount to Pay:</p>
-      <p class="amount-value">{{ tempLinkData.amount | number:'1.2-2' }} Ariary</p>
+      <p class="amount-value">{{ tempLinkData.amount | frenchNumber }} Ariary</p>
+      <span>{{ tempLinkData.amount * 1.03 | frenchNumber }} Ariary</span>
     </div>
     <div *ngIf="isLoading" class="loading-text">
       <p>Loading payment details...</p>

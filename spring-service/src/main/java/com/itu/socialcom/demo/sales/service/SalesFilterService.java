@@ -131,4 +131,24 @@ public class SalesFilterService {
         
         return predicates;
     }
-}
+    public List<Sales> filterSales(
+            Integer idSeller,
+            Integer status,
+            String fromName,
+            String orderId,
+            LocalDateTime startDate,
+            LocalDateTime endDate) {
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Sales> query = cb.createQuery(Sales.class);
+        Root<Sales> sale = query.from(Sales.class);
+        
+        // Build predicates dynamically
+        List<Predicate> predicates = buildPredicates(cb, sale, idSeller, status, fromName, orderId, startDate, endDate);
+        
+        query.where(predicates.toArray(new Predicate[0]));
+        query.orderBy(cb.desc(sale.get("effectuatedAt")));
+        
+        TypedQuery<Sales> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList();
+    }}
